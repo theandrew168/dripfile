@@ -4,15 +4,31 @@
 .PHONY: default
 default: build
 
-.PHONY: css
-css:
+.PHONY: build
+build: build-migrate build-web build-worker build-scheduler
+
+.PHONY: run
+run:
+	ENV=dev go run cmd/migrate/main.go -conf internal/test/dripfile.conf
+	ENV=dev go run cmd/web/main.go -conf internal/test/dripfile.conf &
+	ENV=dev go run cmd/worker/main.go -conf internal/test/dripfile.conf &
+	ENV=dev go run cmd/scheduler/main.go -conf internal/test/dripfile.conf &
+	tailwindcss --watch -m -i static/css/tailwind.input.css -o static/css/tailwind.min.css
+
+.PHONY: build-migrate
+build-migrate:
+	go build -o dripfile-migrate cmd/migrate/main.go
+
+.PHONY: run-migrate
+run-migrate:
+	ENV=dev go run cmd/migrate/main.go -conf internal/test/dripfile.conf
+
+.PHONY: build-css
+build-css:
 	tailwindcss -m -i static/css/tailwind.input.css -o static/css/tailwind.min.css
 
-.PHONY: build
-build: build-web build-worker build-scheduler
-
 .PHONY: build-web
-build-web: css
+build-web: build-css
 	go build -o dripfile-web cmd/web/main.go
 
 .PHONY: run-web
@@ -37,18 +53,15 @@ run-scheduler:
 	ENV=dev go run cmd/scheduler/main.go -conf internal/test/dripfile.conf
 
 .PHONY: test
-test:
-	go run main.go -conf internal/test/dripfile.conf -migrate
+test: run-migrate
 	go test -count=1 -v ./...
 
 .PHONY: race
-race:
-	go run main.go -conf internal/test/dripfile.conf -migrate
+race: run-migrate
 	go test -race -count=1 ./...
 
 .PHONY: cover
-cover:
-	go run main.go -conf internal/test/dripfile.conf -migrate
+cover: run-migrate
 	go test -coverprofile=c.out -coverpkg=./... -count=1 ./...
 	go tool cover -html=c.out
 

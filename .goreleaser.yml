@@ -1,0 +1,88 @@
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: dripfile-migrate
+    main: cmd/migrate/main.go
+    binary: dripfile-migrate
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+  - id: dripfile-web
+    main: cmd/web/main.go
+    binary: dripfile-web
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+  - id: dripfile-worker
+    main: cmd/worker/main.go
+    binary: dripfile-worker
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+  - id: dripfile-scheduler
+    main: cmd/scheduler/main.go
+    binary: dripfile-scheduler
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    files:
+      - none*
+    format_overrides:
+      - goos: windows
+        format: zip
+
+nfpms:
+  - package_name: dripfile
+    file_name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    homepage: https://github.com/theandrew168/dripfile
+    maintainer: Andrew Dailey <andrew@shallowbrooksoftware.com>
+    description: Managed file transfer as a service
+    formats:
+      - deb
+    bindir: /usr/bin
+    contents:
+      - src: scripts/dripfile-migrate.service
+        dst: /lib/systemd/system/dripfile-migrate.service
+      - src: scripts/dripfile-web.service
+        dst: /lib/systemd/system/dripfile-web.service
+      - src: scripts/dripfile-worker.service
+        dst: /lib/systemd/system/dripfile-worker.service
+      - src: scripts/dripfile-scheduler.service
+        dst: /lib/systemd/system/dripfile-scheduler.service
+      - src: dripfile.conf
+        dst: /etc/dripfile.conf
+        type: config
+    scripts:
+      postinstall: scripts/postinstall.sh
+      preremove: scripts/preremove.sh
+      postremove: scripts/postremove.sh
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
