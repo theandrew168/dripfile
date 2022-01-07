@@ -5,17 +5,21 @@ import (
 )
 
 type Job struct {
-	Src Location
-	Dst Location
+	Pattern string
+	Src     Location
+	Dst     Location
+	Project Project
 
 	// readonly (from database, after creation)
 	ID int
 }
 
-func NewJob(src, dst Location) Job {
+func NewJob(pattern string, src, dst Location, project Project) Job {
 	job := Job{
-		Src: src,
-		Dst: dst,
+		Pattern: pattern,
+		Src:     src,
+		Dst:     dst,
+		Project: project,
 	}
 	return job
 }

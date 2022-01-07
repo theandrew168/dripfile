@@ -6,17 +6,17 @@ import (
 
 // TODO: non-cron? multiple? active vs inactive?
 type Schedule struct {
-	Name string
-	Expr string
+	Expr    string
+	Project Project
 
 	// readonly (from database, after creation)
 	ID int
 }
 
-func NewSchedule(name, expr string) Schedule {
+func NewSchedule(expr string, project Project) Schedule {
 	schedule := Schedule{
-		Name: name,
-		Expr: expr,
+		Expr:    expr,
+		Project: project,
 	}
 	return schedule
 }

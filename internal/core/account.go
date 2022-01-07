@@ -4,16 +4,33 @@ import (
 	"context"
 )
 
+// enum values for account role
+const (
+	RoleOwner  = "owner"
+	RoleAdmin  = "admin"
+	RoleEditor = "editor"
+	RoleViewer = "viewer"
+)
+
+// TODO: how does this look when using OAuth? via GitHub for example
 type Account struct {
-	Name string
+	Email    string
+	Password string
+	Verified bool
+	Role     string
+	Project  Project
 
 	// readonly (from database, after creation)
 	ID int
 }
 
-func NewAccount(name string) Account {
+func NewAccount(email, password string, project Project) Account {
 	account := Account{
-		Name: name,
+		Email:    email,
+		Password: password,
+		Verified: false,
+		Role:     RoleViewer,
+		Project:  project,
 	}
 	return account
 }

@@ -4,20 +4,28 @@ import (
 	"context"
 )
 
+// enum values for location kind
+const (
+	KindS3   = "s3"
+	KindFTP  = "ftp"
+	KindFTPS = "ftps"
+	KindSFTP = "sftp"
+)
+
 type Location struct {
 	Kind    string
 	Info    string
-	Account Account
+	Project Project
 
 	// readonly (from database, after creation)
 	ID int
 }
 
-func NewLocation(kind, info string, account Account) Location {
+func NewLocation(kind, info string, project Project) Location {
 	location := Location{
 		Kind:    kind,
 		Info:    info,
-		Account: account,
+		Project: project,
 	}
 	return location
 }
@@ -34,6 +42,18 @@ type S3Info struct {
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
 	BucketName      string `json:"bucket_name"`
+}
+
+type FTPInfo struct {
+	Endpoint string `json:"endpoint"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type FTPSInfo struct {
+	Endpoint string `json:"endpoint"`
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type SFTPInfo struct {
