@@ -1,7 +1,7 @@
 CREATE TABLE job_schedule (
     job_id integer NOT NULL REFERENCES job(id),
     schedule_id integer NOT NULL REFERENCES schedule(id),
-    PRIMARY KEY (job_id, schedule_id),
+    UNIQUE (job_id, schedule_id),
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),
