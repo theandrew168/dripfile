@@ -8,6 +8,23 @@ This project is broken up into four sub-programs:
 * `dripfile-worker` - watches the queue and performs file transfer jobs
 * `dripfile-scheduler` - manages job schedules and publishes them to the queue
 
+## Test Cases
+* Guest registers and is logged in
+* Guest logs in
+* User verifies their email address (required to log in?)
+* User sets up payment info (upon reg?)
+* User deletes Account (and all ref'd info)
+* User CRUDs a Location
+* User CRUDS a Job
+* User CRUDs a Schedule
+* User links / unlinks a Job and Schedule
+* User runs a Job adhoc
+* User reruns a completed Job adhoc
+* User views Job history
+* User cancels an in-progress Job
+* User updates their payment info
+* User views old invoices
+
 ## Setup
 This project depends on the [Go programming language](https://golang.org/dl/) and the [TailwindCSS CLI](https://tailwindcss.com/blog/standalone-cli).
 
