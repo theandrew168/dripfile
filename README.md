@@ -15,7 +15,7 @@ This project is broken up into four sub-programs:
 * User sets up payment info (upon reg?)
 * User deletes Account (and all ref'd info)
 * User CRUDs a Location
-* User CRUDS a Job
+* User CRUDs a Job
 * User CRUDs a Schedule
 * User links / unlinks a Job and Schedule
 * User runs a Job adhoc
