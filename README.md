@@ -12,6 +12,9 @@ This project is broken up into four sub-programs:
 * Guest registers and is logged in
 * Guest logs in
 * User verifies their email address (required to log in?)
+* User invites a Guest to their project (by email)
+* User deletes another User from their project (owner or admin)
+* User updates another User's role (owner or admin)
 * User sets up payment info (upon reg?)
 * User deletes Account (and all ref'd info)
 * User CRUDs a Location
