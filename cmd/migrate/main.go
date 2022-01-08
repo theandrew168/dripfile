@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stdout, "", log.Lshortfile)
+	logger := log.New(os.Stdout, "", 0)
 
 	// check for config file flag
 	conf := flag.String("conf", "dripfile.conf", "app config file")

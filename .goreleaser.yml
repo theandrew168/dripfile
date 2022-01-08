@@ -66,7 +66,7 @@ nfpms:
         dst: /lib/systemd/system/dripfile-worker.service
       - src: scripts/dripfile-scheduler.service
         dst: /lib/systemd/system/dripfile-scheduler.service
-      - src: dripfile.conf
+      - src: scripts/dripfile.conf
         dst: /etc/dripfile.conf
         type: config
     scripts:

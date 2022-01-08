@@ -51,18 +51,18 @@ If actively working on frontend templates, set `ENV=dev` to tell the server to r
 Apply database migrations, run whichever components you need (in background processes), and let Tailwind watch for CSS changes:
 ```bash
 # make run
-ENV=dev go run cmd/migrate/main.go -conf internal/test/dripfile.conf
-ENV=dev go run cmd/web/main.go -conf internal/test/dripfile.conf &
-ENV=dev go run cmd/worker/main.go -conf internal/test/dripfile.conf &
-ENV=dev go run cmd/scheduler/main.go -conf internal/test/dripfile.conf &
-tailwindcss --watch -m -i static/css/tailwind.input.css -o static/css/tailwind.min.css
+ENV=dev go run cmd/migrate/main.go
+ENV=dev go run cmd/web/main.go &
+ENV=dev go run cmd/worker/main.go &
+ENV=dev go run cmd/scheduler/main.go &
+tailwindcss --watch -m -i tailwind.input.css -o static/css/tailwind.min.css
 ```
 
 ## Testing
 Tests can be ran after starting the necessary containers and applying database migrations:
 ```bash
 # make test
-ENV=dev go run cmd/migrate/main.go -conf internal/test/dripfile.conf
+ENV=dev go run cmd/migrate/main.go
 go test -v ./...
 ```
 
