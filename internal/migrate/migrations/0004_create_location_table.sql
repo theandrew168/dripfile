@@ -4,7 +4,7 @@ CREATE TABLE location (
     id serial PRIMARY KEY,
     kind kind NOT NULL,
     info jsonb NOT NULL,
-    project_id integer NOT NULL REFERENCES project(id),
+    project_id integer NOT NULL REFERENCES project(id) ON DELETE CASCADE,
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),

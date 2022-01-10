@@ -1,6 +1,6 @@
 CREATE TABLE job_schedule (
-    job_id integer NOT NULL REFERENCES job(id),
-    schedule_id integer NOT NULL REFERENCES schedule(id),
+    job_id integer NOT NULL REFERENCES job(id) ON DELETE CASCADE,
+    schedule_id integer NOT NULL REFERENCES schedule(id) ON DELETE CASCADE,
     UNIQUE (job_id, schedule_id),
 
     -- metadata columns

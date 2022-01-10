@@ -1,6 +1,6 @@
 CREATE TABLE account_project (
-    account_id integer NOT NULL REFERENCES account(id),
-    project_id integer NOT NULL REFERENCES project(id),
+    account_id integer NOT NULL REFERENCES account(id) ON DELETE CASCADE,
+    project_id integer NOT NULL REFERENCES project(id) ON DELETE CASCADE,
     UNIQUE (account_id, project_id),
 
     -- metadata columns
