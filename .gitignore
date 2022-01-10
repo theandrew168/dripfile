@@ -1,4 +1,7 @@
-dripfile-*
+dripfile-migrate
+dripfile-web
+dripfile-worker
+dripfile-scheduler
 dist/
 
 # Binaries for programs and plugins

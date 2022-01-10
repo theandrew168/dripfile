@@ -1,0 +1,16 @@
+[Unit]
+Description=dripfile-scheduler
+Documentation=https://github.com/theandrew168/dripfile
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Type=notify
+Restart=on-failure
+RestartSec=5
+User=dripfile
+Group=dripfile
+ExecStart=dripfile-scheduler -conf /etc/dripfile.conf
+
+[Install]
+WantedBy=multi-user.target
