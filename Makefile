@@ -13,7 +13,7 @@ run:
 	ENV=dev go run cmd/web/main.go &
 	ENV=dev go run cmd/worker/main.go &
 	ENV=dev go run cmd/scheduler/main.go &
-	tailwindcss --watch -m -i tailwind.input.css -o static/css/tailwind.min.css
+	tailwindcss --watch -m -i tailwind.input.css -o internal/web/static/css/tailwind.min.css
 
 .PHONY: build-migrate
 build-migrate:
@@ -25,7 +25,7 @@ run-migrate:
 
 .PHONY: build-css
 build-css:
-	tailwindcss -m -i tailwind.input.css -o static/css/tailwind.min.css
+	tailwindcss -m -i tailwind.input.css -o internal/web/static/css/tailwind.min.css
 
 .PHONY: build-web
 build-web: build-css
@@ -34,7 +34,7 @@ build-web: build-css
 .PHONY: run-web
 run-web:
 	ENV=dev go run cmd/web/main.go &
-	tailwindcss --watch -m -i tailwind.input.css -o static/css/tailwind.min.css
+	tailwindcss --watch -m -i tailwind.input.css -o internal/web/static/css/tailwind.min.css
 
 .PHONY: build-worker
 build-worker:
