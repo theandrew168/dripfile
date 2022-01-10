@@ -15,6 +15,7 @@ const (
 // TODO: how does this look when using OAuth? via GitHub for example
 type Account struct {
 	Email    string
+	Username string
 	Password string
 	Verified bool
 	Role     string
@@ -24,9 +25,10 @@ type Account struct {
 	ID int
 }
 
-func NewAccount(email, password string, project Project) Account {
+func NewAccount(email, username, password string, project Project) Account {
 	account := Account{
 		Email:    email,
+		Username: username,
 		Password: password,
 		Verified: false,
 		Role:     RoleViewer,
