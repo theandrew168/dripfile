@@ -7,7 +7,6 @@ CREATE TABLE account (
     password text NOT NULL,
     verified boolean NOT NULL,
     role role NOT NULL,
-    project_id integer NOT NULL REFERENCES project(id),
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),

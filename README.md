@@ -12,14 +12,15 @@ This project is broken up into four sub-programs:
 * Guest registers and is logged in
 * Guest logs in
 * User verifies their email address (required to log in?)
+* User switches current project
 * User invites a Guest to their project (by email)
 * User deletes another User from their project (owner or admin)
 * User updates another User's role (owner or admin)
-* User sets up payment info (upon reg?)
+* User updates payment info (require upon reg?)
 * User deletes Account (and all ref'd info)
-* User CRUDs a Location
-* User CRUDs a Job
-* User CRUDs a Schedule
+* User CRUDs a Location (no delete if affected Jobs)
+* User CRUDs a Job (history entries persist but won't link back)
+* User CRUDs a Schedule (no delete if affected Jobs)
 * User links / unlinks a Job and Schedule
 * User runs a Job adhoc
 * User reruns a completed Job adhoc
@@ -27,6 +28,7 @@ This project is broken up into four sub-programs:
 * User cancels an in-progress Job
 * User updates their payment info
 * User views old invoices
+* User switches account auth method (email, github, google, etc)
 
 ## Setup
 This project depends on the [Go programming language](https://golang.org/dl/) and the [TailwindCSS CLI](https://tailwindcss.com/blog/standalone-cli).
