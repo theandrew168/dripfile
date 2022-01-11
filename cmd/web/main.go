@@ -19,6 +19,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/theandrew168/dripfile/internal/config"
+	"github.com/theandrew168/dripfile/internal/static"
 	"github.com/theandrew168/dripfile/internal/web"
 )
 
@@ -49,16 +50,32 @@ func main() {
 	}
 
 	mux := flow.New()
+
+	// handle top-level special cases
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
+	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/webp")
+		w.Write(static.Favicon)
+	})
+	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write(static.Robots)
+	})
 
+	// static files app
+	staticApp := static.NewApplication(cfg, logger)
+	mux.Handle("/static/...", http.StripPrefix("/static", staticApp.Router()))
+
+	// api app
+	//	apiApp := api.NewApplication(cfg, nil, logger)
+	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
+
+	// web app (last due to being a top-level catch-all)
 	webApp := web.NewApplication(cfg, nil, logger)
 	mux.Handle("/...", webApp.Router())
-
-	//	apiApp := api.NewApplication(cfg, nil, logger)
-	//	mux.Handle("/api/v1/...", apiApp.Router())
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 	srv := &http.Server{

@@ -9,25 +9,16 @@ import (
 	"strings"
 
 	"github.com/alexedwards/flow"
-	"github.com/klauspost/compress/gzhttp"
 
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
-//go:embed static/img/logo.webp
-var logo []byte
-
-//go:embed static
-var staticFS embed.FS
-
 //go:embed templates
 var templatesFS embed.FS
 
 type Application struct {
-	cfg config.Config
-
-	static    fs.FS
+	cfg       config.Config
 	templates fs.FS
 	storage   core.Storage
 	logger    *log.Logger
@@ -44,11 +35,8 @@ func NewApplication(cfg config.Config, storage core.Storage, logger *log.Logger)
 		templates, _ = fs.Sub(templatesFS, "templates")
 	}
 
-	static, _ := fs.Sub(staticFS, "static")
 	app := Application{
-		cfg: cfg,
-
-		static:    static,
+		cfg:       cfg,
 		templates: templates,
 		storage:   storage,
 		logger:    logger,
@@ -58,20 +46,7 @@ func NewApplication(cfg config.Config, storage core.Storage, logger *log.Logger)
 }
 
 func (app *Application) Router() http.Handler {
-	// setup http.Handler for static files
-	static, _ := fs.Sub(staticFS, "static")
-	staticServer := http.FileServer(http.FS(static))
-	gzipStaticServer := gzhttp.GzipHandler(staticServer)
-
 	mux := flow.New()
 	mux.HandleFunc("/", app.handleIndex, "GET")
-
-	// static files (compressed) and favicon (special case)
-	mux.Handle("/static/...", http.StripPrefix("/static", gzipStaticServer))
-	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/webp")
-		w.Write(logo)
-	})
-
 	return mux
 }
