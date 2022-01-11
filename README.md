@@ -5,8 +5,8 @@ Managed file transfer as a service
 This project is broken up into four sub-programs:
 * `dripfile-migrate` - compares and applies database migrations
 * `dripfile-web` - primary CRUD application web server
-* `dripfile-worker` - watches the queue and performs file transfer jobs
-* `dripfile-scheduler` - manages job schedules and publishes them to the queue
+* `dripfile-worker` - watches the queue and performs file transfers
+* `dripfile-scheduler` - manages transfer schedules and publishes them to the queue
 
 ## Setup
 This project depends on the [Go programming language](https://golang.org/dl/) and the [TailwindCSS CLI](https://tailwindcss.com/blog/standalone-cli).
@@ -62,14 +62,14 @@ docker compose up -d
 * User updates another User's role (owner or admin)
 * User updates payment info (require upon reg?)
 * User deletes Account (and all ref'd info)
-* User CRUDs a Location (no delete if affected Jobs)
-* User CRUDs a Job (history entries persist but won't link back)
-* User CRUDs a Schedule (no delete if affected Jobs)
-* User links / unlinks a Job and Schedule
-* User runs a Job adhoc
-* User reruns a completed Job adhoc
-* User views Job history
-* User cancels an in-progress Job
+* User CRUDs a Location (no delete if affected Transfers)
+* User CRUDs a Transfer (history entries persist but won't link back)
+* User CRUDs a Schedule (no delete if affected Transfers)
+* User links / unlinks a Transfer and Schedule
+* User runs a Transfer adhoc
+* User reruns a completed Transfer adhoc
+* User views Transfer history
+* User cancels an in-progress Transfer
 * User updates their payment info
 * User views old invoices
 * User switches account auth method (email, github, google, etc)

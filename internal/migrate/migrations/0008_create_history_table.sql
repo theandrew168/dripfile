@@ -1,6 +1,6 @@
 CREATE TABLE history (
     id serial PRIMARY KEY,
-    job_id integer NOT NULL,  -- not an FK in case job gets deleted
+    transfer_id integer NOT NULL,  -- not an FK in case transfer gets deleted
     bytes bigint NOT NULL,
     status text NOT NULL,
     started_at timestamptz NOT NULL,

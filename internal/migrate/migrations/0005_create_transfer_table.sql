@@ -1,4 +1,4 @@
-CREATE TABLE job (
+CREATE TABLE transfer (
     id serial PRIMARY KEY,
     pattern text NOT NULL,
     src_id integer NOT NULL REFERENCES location(id) ON DELETE CASCADE,

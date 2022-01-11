@@ -5,6 +5,6 @@ import (
 )
 
 type Queue interface {
-	Push(job core.Job) error
-	Pop() (core.Job, error)
+	Push(transfer core.Transfer) error
+	Pop() (core.Transfer, error)
 }

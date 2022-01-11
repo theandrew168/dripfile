@@ -6,7 +6,7 @@ import (
 )
 
 type History struct {
-	JobID      int
+	TransferID int
 	Bytes      int
 	Status     string
 	StartedAt  time.Time
@@ -17,9 +17,9 @@ type History struct {
 	ID int
 }
 
-func NewHistory(jobID, bytes int, status string, startedAt, finishedAt time.Time, project Project) History {
+func NewHistory(transferID, bytes int, status string, startedAt, finishedAt time.Time, project Project) History {
 	history := History{
-		JobID:      jobID,
+		TransferID: transferID,
 		Bytes:      bytes,
 		Status:     status,
 		StartedAt:  startedAt,

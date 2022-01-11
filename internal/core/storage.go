@@ -4,7 +4,7 @@ type Storage interface {
 	AccountStorage
 	ProjectStorage
 	LocationStorage
-	JobStorage
+	TransferStorage
 	ScheduleStorage
 	HistoryStorage
 }
