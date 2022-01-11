@@ -54,7 +54,8 @@ func main() {
 	// handle top-level special cases
 	mux.Handle("/metrics", promhttp.Handler())
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("pong"))
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("pong\n"))
 	})
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/webp")
@@ -69,11 +70,11 @@ func main() {
 	staticApp := static.NewApplication(cfg, logger)
 	mux.Handle("/static/...", http.StripPrefix("/static", staticApp.Router()))
 
-	// api app
-	//	apiApp := api.NewApplication(cfg, nil, logger)
+	// rest api app
+	//	apiApp := api.NewApplication(cfg, storage, logger)
 	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
 
-	// web app (last due to being a top-level catch-all)
+	// primary web app (last due to being a top-level catch-all)
 	webApp := web.NewApplication(cfg, nil, logger)
 	mux.Handle("/...", webApp.Router())
 

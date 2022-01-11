@@ -1,6 +1,9 @@
 package web
 
-// TODO: renderTemplate helper?
+// TODO: renderTemplate helper? type?
+// render to bytes, check for errors
+// cache templates if necessary
+// w.Header().Set("Content-Type", "text/html")
 
 import (
 	"html/template"
