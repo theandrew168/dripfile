@@ -11,7 +11,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/config"
 )
 
-//go:embed static/etc/favicon.webp
+//go:embed static/img/logo_branded.webp
 var Favicon []byte
 
 //go:embed static/etc/robots.txt
