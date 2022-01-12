@@ -35,7 +35,7 @@ ENV=dev go run cmd/migrate/main.go
 ENV=dev go run cmd/web/main.go &
 ENV=dev go run cmd/worker/main.go &
 ENV=dev go run cmd/scheduler/main.go &
-tailwindcss --watch -m -i tailwind.input.css -o internal/web/static/css/tailwind.min.css
+tailwindcss --watch -m -i tailwind.input.css -o internal/static/static/css/tailwind.min.css
 ```
 
 ## Testing
