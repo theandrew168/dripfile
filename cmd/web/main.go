@@ -34,19 +34,19 @@ func main() {
 	// load user-defined config (if specified), else use defaults
 	cfg, err := config.ReadFile(*conf)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 
 	// open a database connection pool
 	conn, err := pgxpool.Connect(context.Background(), cfg.DatabaseURI)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 	defer conn.Close()
 
 	// test connection to ensure all is well
 	if err = conn.Ping(context.Background()); err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 
 	mux := flow.New()
@@ -91,7 +91,7 @@ func main() {
 	// open up the socket listener
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 
 	// let systemd know that we are good to go (no-op if not using systemd)
@@ -124,13 +124,13 @@ func main() {
 	// serve the app, check for ErrServerClosed (expected after shutdown)
 	err = srv.Serve(l)
 	if !errors.Is(err, http.ErrServerClosed) {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 
 	// check for shutdown errors
 	err = <-shutdownError
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 
 	logger.Println("stopped server")

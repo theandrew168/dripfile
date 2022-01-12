@@ -22,24 +22,24 @@ func main() {
 	// load user-defined config (if specified), else use defaults
 	cfg, err := config.ReadFile(*conf)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 
 	// open a database connection pool
 	conn, err := pgxpool.Connect(context.Background(), cfg.DatabaseURI)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 	defer conn.Close()
 
 	// test connection to ensure all is well
 	if err = conn.Ping(context.Background()); err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 
 	ctx := context.Background()
 	err = migrate.Migrate(ctx, conn, logger)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error: %s\n", err)
 	}
 }
