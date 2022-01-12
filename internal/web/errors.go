@@ -15,7 +15,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	// attempt to parse error template
 	ts, err := template.ParseFS(app.templates, files...)
 	if err != nil {
-		app.logger.Println(err)
+		app.logger.Printf("error: %s\n", err)
 		http.Error(w, "Internal server error", 500)
 		return
 	}
@@ -24,7 +24,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	var buf bytes.Buffer
 	err = ts.Execute(&buf, nil)
 	if err != nil {
-		app.logger.Println(err)
+		app.logger.Printf("error: %s\n", err)
 		http.Error(w, "Internal server error", 500)
 		return
 	}
@@ -43,7 +43,6 @@ func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 }
 
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	// skip 2 frames to identify original caller
-	app.logger.Output(2, err.Error())
+	app.logger.Printf("error: %s\n", err)
 	app.errorResponse(w, r, 500, "500.page.tmpl")
 }
