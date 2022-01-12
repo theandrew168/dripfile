@@ -1,3 +1,4 @@
+{{define "base"}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,8 +48,7 @@
 	</style>
 </head>
 
-<body class="font-family-nunito">
-	<p>Hello, DripFile!</p>
-</body>
+{{template "body" .}}
 
 </html>
+{{end}}

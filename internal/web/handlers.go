@@ -22,6 +22,7 @@ func (app *Application) render(w http.ResponseWriter, r *http.Request, files []s
 
 func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 	files := []string{
+		"index.page.tmpl",
 		"base.layout.tmpl",
 	}
 

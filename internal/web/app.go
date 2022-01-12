@@ -47,6 +47,8 @@ func NewApplication(cfg config.Config, storage core.Storage, logger *log.Logger)
 
 func (app *Application) Router() http.Handler {
 	mux := flow.New()
+	mux.NotFound = http.HandlerFunc(app.notFoundResponse)
+	mux.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 	mux.HandleFunc("/", app.handleIndex, "GET")
 	return mux
 }
