@@ -5,13 +5,15 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/klauspost/compress/gzhttp"
 
 	"github.com/theandrew168/dripfile/internal/config"
 )
 
-//go:embed static/img/logo_branded.webp
+//go:embed static/img/logo_blue.svg
 var Favicon []byte
 
 //go:embed static/etc/robots.txt
@@ -27,7 +29,16 @@ type Application struct {
 }
 
 func NewApplication(cfg config.Config, logger *log.Logger) *Application {
-	static, _ := fs.Sub(staticFS, "static")
+	var static fs.FS
+	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
+		// reload static fiels from filesystem if var ENV starts with "dev"
+		// NOTE: os.DirFS is rooted from where the app is ran, not this file
+		static = os.DirFS("./internal/static/static/")
+	} else {
+		// else use the embedded templates dir
+		static, _ = fs.Sub(staticFS, "static")
+	}
+
 	app := Application{
 		cfg:    cfg,
 		static: static,

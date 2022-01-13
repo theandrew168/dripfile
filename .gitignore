@@ -4,6 +4,9 @@ dripfile-worker
 dripfile-scheduler
 dist/
 
+# macOS BS
+.DS_Store
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

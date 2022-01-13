@@ -58,7 +58,7 @@ func main() {
 		w.Write([]byte("pong\n"))
 	})
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/webp")
+		w.Header().Set("Content-Type", "image/svg+xml")
 		w.Write(static.Favicon)
 	})
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
