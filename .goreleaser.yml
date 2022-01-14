@@ -40,6 +40,16 @@ builds:
     goarch:
       - amd64
 
+  - id: dripfile-tap
+    main: cmd/tap/main.go
+    binary: dripfile-tap
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+
 archives:
   - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     files:
@@ -49,7 +59,8 @@ archives:
         format: zip
 
 nfpms:
-  - package_name: dripfile
+  - id: dripfile
+    package_name: dripfile
     file_name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     homepage: https://github.com/theandrew168/dripfile
     maintainer: Andrew Dailey <andrew@shallowbrooksoftware.com>
@@ -73,6 +84,22 @@ nfpms:
       postinstall: scripts/postinstall.sh
       preremove: scripts/preremove.sh
       postremove: scripts/postremove.sh
+  - id: dripfile-tap
+    package_name: dripfile-tap
+    file_name_template: "{{ .ProjectName }}_tap_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    homepage: https://github.com/theandrew168/dripfile
+    maintainer: Andrew Dailey <andrew@shallowbrooksoftware.com>
+    description: Managed file transfer as a service
+    formats:
+      - deb
+    bindir: /usr/bin
+    contents:
+      - src: scripts/tap/dripfile-tap.service
+        dst: /lib/systemd/system/dripfile-tap.service
+    scripts:
+      postinstall: scripts/tap/postinstall.sh
+      preremove: scripts/tap/preremove.sh
+      postremove: scripts/tap/postremove.sh
 
 checksum:
   name_template: checksums.txt

@@ -15,9 +15,5 @@ if ! getent passwd dripfile >/dev/null; then
         dripfile
 fi
 
-# Update config file permissions (idempotent)
-chown root:dripfile /etc/dripfile.conf
-chmod 0640 /etc/dripfile.conf
-
 # Reload systemd to pickup dripfile service(s)
 systemctl daemon-reload

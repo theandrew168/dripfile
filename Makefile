@@ -5,7 +5,7 @@
 default: build
 
 .PHONY: build
-build: build-migrate build-web build-worker build-scheduler
+build: build-migrate build-web build-worker build-scheduler build-tap
 
 .PHONY: run
 run:
@@ -51,6 +51,14 @@ build-scheduler:
 .PHONY: run-scheduler
 run-scheduler:
 	ENV=dev go run cmd/scheduler/main.go
+
+.PHONY: build-tap
+build-tap:
+	go build -o dripfile-tap cmd/tap/main.go
+
+.PHONY: run-tap
+run-tap:
+	ENV=dev go run cmd/tap/main.go
 
 .PHONY: test
 test: run-migrate
