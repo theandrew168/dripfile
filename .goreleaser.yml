@@ -39,7 +39,6 @@ builds:
       - linux
     goarch:
       - amd64
-
   - id: dripfile-tap
     main: cmd/tap/main.go
     binary: dripfile-tap
