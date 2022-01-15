@@ -38,10 +38,6 @@ func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 	app.errorResponse(w, r, 404, "404.page.tmpl")
 }
 
-func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
-	app.errorResponse(w, r, 405, "405.page.tmpl")
-}
-
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.logger.Printf("error: %s\n", err)
 	app.errorResponse(w, r, 500, "500.page.tmpl")
