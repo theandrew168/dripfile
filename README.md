@@ -52,6 +52,23 @@ docker compose down
 docker compose up -d
 ```
 
+## Features
+* Managed file transfer (MFT) as a service
+* Schedule-based transfers
+* Polling-based transfers
+* Automatic retries
+* Pay-as-you-go pricing ($0.10 per GB)
+* Generous free tier (first 10GB free)
+* Seamless integration with isolated networks
+* Unlimited team members per project
+* Role-based access controls
+* Detailed, customizable notifications
+* Notify via email, text, etc
+* Automatic compression and encryption
+* Works with S3, FTP, FTPS, SFTP, etc
+* Choose from common schedules or build your own
+* Database backups (postgresql, mysql, mongodb)
+
 ## Test Cases
 * Guest registers and is logged in
 * Guest logs in
