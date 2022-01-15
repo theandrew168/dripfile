@@ -1,16 +1,12 @@
 package core
 
-import (
-	"context"
-)
-
 // TODO: non-cron? multiple? active vs inactive?
 type Schedule struct {
+	// readonly (from database, after creation)
+	ID int64
+
 	Expr    string
 	Project Project
-
-	// readonly (from database, after creation)
-	ID int
 }
 
 func NewSchedule(expr string, project Project) Schedule {
@@ -22,8 +18,8 @@ func NewSchedule(expr string, project Project) Schedule {
 }
 
 type ScheduleStorage interface {
-	CreateSchedule(ctx context.Context, schedule *Schedule) error
-	ReadSchedule(ctx context.Context, id int) (Schedule, error)
-	UpdateSchedule(ctx context.Context, schedule Schedule) error
-	DeleteSchedule(ctx context.Context, schedule Schedule) error
+	Create(schedule *Schedule) error
+	Read(id int64) (Schedule, error)
+	Update(schedule Schedule) error
+	Delete(schedule Schedule) error
 }

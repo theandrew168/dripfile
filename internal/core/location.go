@@ -1,9 +1,5 @@
 package core
 
-import (
-	"context"
-)
-
 // enum values for location kind
 const (
 	KindS3   = "s3"
@@ -13,12 +9,12 @@ const (
 )
 
 type Location struct {
+	// readonly (from database, after creation)
+	ID int64
+
 	Kind    string
 	Info    string
 	Project Project
-
-	// readonly (from database, after creation)
-	ID int
 }
 
 func NewLocation(kind, info string, project Project) Location {
@@ -31,10 +27,10 @@ func NewLocation(kind, info string, project Project) Location {
 }
 
 type LocationStorage interface {
-	CreateLocation(ctx context.Context, location *Location) error
-	ReadLocation(ctx context.Context, id int) (Location, error)
-	UpdateLocation(ctx context.Context, location Location) error
-	DeleteLocation(ctx context.Context, location Location) error
+	Create(location *Location) error
+	Read(id int64) (Location, error)
+	Update(location Location) error
+	Delete(location Location) error
 }
 
 type S3Info struct {

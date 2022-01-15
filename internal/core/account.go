@@ -1,9 +1,5 @@
 package core
 
-import (
-	"context"
-)
-
 // enum values for account role
 const (
 	RoleOwner  = "owner"
@@ -14,15 +10,15 @@ const (
 
 // TODO: how does this look when using OAuth? via GitHub for example
 type Account struct {
+	// readonly (from database, after creation)
+	ID int64
+
 	Email    string
 	Username string
 	Password string
 	Verified bool
 	Role     string
 	Project  Project
-
-	// readonly (from database, after creation)
-	ID int
 }
 
 func NewAccount(email, username, password string, project Project) Account {
@@ -38,8 +34,8 @@ func NewAccount(email, username, password string, project Project) Account {
 }
 
 type AccountStorage interface {
-	CreateAccount(ctx context.Context, account *Account) error
-	ReadAccount(ctx context.Context, id int) (Account, error)
-	UpdateAccount(ctx context.Context, account Account) error
-	DeleteAccount(ctx context.Context, account Account) error
+	Create(account *Account) error
+	Read(id int64) (Account, error)
+	Update(account Account) error
+	Delete(account Account) error
 }

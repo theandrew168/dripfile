@@ -1,23 +1,22 @@
 package core
 
 import (
-	"context"
 	"time"
 )
 
 type History struct {
-	TransferID int
-	Bytes      int
+	// readonly (from database, after creation)
+	ID int64
+
+	TransferID int64
+	Bytes      int64
 	Status     string
 	StartedAt  time.Time
 	FinishedAt time.Time
 	Project    Project
-
-	// readonly (from database, after creation)
-	ID int
 }
 
-func NewHistory(transferID, bytes int, status string, startedAt, finishedAt time.Time, project Project) History {
+func NewHistory(transferID, bytes int64, status string, startedAt, finishedAt time.Time, project Project) History {
 	history := History{
 		TransferID: transferID,
 		Bytes:      bytes,
@@ -30,8 +29,8 @@ func NewHistory(transferID, bytes int, status string, startedAt, finishedAt time
 }
 
 type HistoryStorage interface {
-	CreateHistory(ctx context.Context, history *History) error
-	ReadHistory(ctx context.Context, id int) (History, error)
-	UpdateHistory(ctx context.Context, history History) error
-	DeleteHistory(ctx context.Context, history History) error
+	Create(history *History) error
+	Read(id int64) (History, error)
+	Update(history History) error
+	Delete(history History) error
 }

@@ -1,10 +1,10 @@
 package core
 
-type Storage interface {
-	AccountStorage
-	ProjectStorage
-	LocationStorage
-	TransferStorage
-	ScheduleStorage
-	HistoryStorage
+type Storage struct {
+	Account  AccountStorage
+	Project  ProjectStorage
+	Location LocationStorage
+	Transfer TransferStorage
+	Schedule ScheduleStorage
+	History  HistoryStorage
 }

@@ -1,17 +1,13 @@
 package core
 
-import (
-	"context"
-)
-
 type Transfer struct {
+	// readonly (from database, after creation)
+	ID int64
+
 	Pattern string
 	Src     Location
 	Dst     Location
 	Project Project
-
-	// readonly (from database, after creation)
-	ID int
 }
 
 func NewTransfer(pattern string, src, dst Location, project Project) Transfer {
@@ -25,8 +21,8 @@ func NewTransfer(pattern string, src, dst Location, project Project) Transfer {
 }
 
 type TransferStorage interface {
-	CreateTransfer(ctx context.Context, transfer *Transfer) error
-	ReadTransfer(ctx context.Context, id int) (Transfer, error)
-	UpdateTransfer(ctx context.Context, transfer Transfer) error
-	DeleteTransfer(ctx context.Context, transfer Transfer) error
+	Create(transfer *Transfer) error
+	Read(id int64) (Transfer, error)
+	Update(transfer Transfer) error
+	Delete(transfer Transfer) error
 }

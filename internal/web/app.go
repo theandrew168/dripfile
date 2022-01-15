@@ -18,13 +18,15 @@ import (
 var templatesFS embed.FS
 
 type Application struct {
-	cfg       config.Config
 	templates fs.FS
-	storage   core.Storage
-	logger    *log.Logger
+
+	cfg config.Config
+	db  core.Storage
+
+	logger *log.Logger
 }
 
-func NewApplication(cfg config.Config, storage core.Storage, logger *log.Logger) *Application {
+func NewApplication(cfg config.Config, db core.Storage, logger *log.Logger) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
@@ -36,10 +38,12 @@ func NewApplication(cfg config.Config, storage core.Storage, logger *log.Logger)
 	}
 
 	app := Application{
-		cfg:       cfg,
 		templates: templates,
-		storage:   storage,
-		logger:    logger,
+
+		cfg: cfg,
+		db:  db,
+
+		logger: logger,
 	}
 
 	return &app

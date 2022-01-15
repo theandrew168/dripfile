@@ -2,6 +2,7 @@ dripfile-migrate
 dripfile-web
 dripfile-worker
 dripfile-scheduler
+dripfile-tap
 dist/
 
 # macOS BS
