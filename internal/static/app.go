@@ -23,8 +23,9 @@ var Robots []byte
 var staticFS embed.FS
 
 type Application struct {
-	cfg    config.Config
 	static fs.FS
+
+	cfg    config.Config
 	logger *log.Logger
 }
 
@@ -40,8 +41,9 @@ func NewApplication(cfg config.Config, logger *log.Logger) *Application {
 	}
 
 	app := Application{
-		cfg:    cfg,
 		static: static,
+
+		cfg:    cfg,
 		logger: logger,
 	}
 
