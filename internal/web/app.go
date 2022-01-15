@@ -52,5 +52,6 @@ func (app *Application) Router() http.Handler {
 	mux.NotFound = http.HandlerFunc(app.notFoundResponse)
 	mux.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 	mux.HandleFunc("/", app.handleIndex, "GET")
+	mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 	return mux
 }

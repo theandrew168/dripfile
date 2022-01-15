@@ -20,6 +20,25 @@ U PUT    - updateFoo
 D DELETE - deleteFoo
 */
 
+func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"index.page.tmpl",
+		"base.layout.tmpl",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"dashboard.page.tmpl",
+		"base.layout.tmpl",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+// helper for rendering templates and handling potential errors
 func (app *Application) render(w http.ResponseWriter, r *http.Request, files []string, data interface{}) {
 	ts, err := template.ParseFS(app.templates, files...)
 	if err != nil {
@@ -33,13 +52,4 @@ func (app *Application) render(w http.ResponseWriter, r *http.Request, files []s
 		app.serverErrorResponse(w, r, err)
 		return
 	}
-}
-
-func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"index.page.tmpl",
-		"base.layout.tmpl",
-	}
-
-	app.render(w, r, files, nil)
 }
