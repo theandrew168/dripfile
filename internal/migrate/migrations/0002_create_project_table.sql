@@ -1,5 +1,5 @@
 CREATE TABLE project (
-    id serial PRIMARY KEY,
+    id bigserial PRIMARY KEY,
     name text NOT NULL,
 
     -- metadata columns

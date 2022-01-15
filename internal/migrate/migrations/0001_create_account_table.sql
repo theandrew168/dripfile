@@ -1,7 +1,7 @@
 CREATE TYPE role AS ENUM ('owner', 'admin', 'editor', 'viewer');
 
 CREATE TABLE account (
-    id serial PRIMARY KEY,
+    id bigserial PRIMARY KEY,
     email citext NOT NULL UNIQUE,
     username citext NOT NULL UNIQUE,
     password text NOT NULL,

@@ -1,6 +1,6 @@
 CREATE TABLE transfer_schedule (
-    transfer_id integer NOT NULL REFERENCES transfer(id) ON DELETE CASCADE,
-    schedule_id integer NOT NULL REFERENCES schedule(id) ON DELETE CASCADE,
+    transfer_id bigint NOT NULL REFERENCES transfer(id) ON DELETE CASCADE,
+    schedule_id bigint NOT NULL REFERENCES schedule(id) ON DELETE CASCADE,
     UNIQUE (transfer_id, schedule_id),
 
     -- metadata columns
