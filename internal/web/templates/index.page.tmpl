@@ -1,7 +1,6 @@
 {{template "base" .}}
 
 {{define "body"}}
-<body class="font-family-nunito h-full">
 
 <!-- navbar: where can we go? -->
 <header class="bg-blue-600">
@@ -9,7 +8,7 @@
 		<div class="w-full py-6 flex items-center justify-between border-b border-blue-500 lg:border-none">
 			<div class="flex items-center">
 				<a href="/" class="flex items-center space-x-2">
-					<img class="h-10 w-auto" src="/static/img/logo_white.svg" alt="">
+					<img class="h-10 w-auto" src="/static/img/logo_white.svg" alt="" />
 					<span class="font-bold text-3xl text-white">DripFile</span>
 				</a>
 				<div class="hidden ml-10 space-x-8 lg:block">
@@ -27,8 +26,8 @@
 				</div>
 			</div>
 			<div class="flex-none ml-10 space-x-4">
-				<a href="#login" class="inline-block bg-blue-500 py-2 px-4 border border-transparent rounded-md text-base font-medium text-white hover:bg-opacity-75">Sign in</a>
-				<a href="#register" class="inline-block bg-white py-2 px-4 border border-transparent rounded-md text-base font-medium text-blue-600 hover:bg-blue-50">Sign up</a>
+				<a href="/login" class="inline-block bg-blue-500 py-2 px-4 border border-transparent rounded-md text-base font-medium text-white hover:bg-opacity-75">Sign in</a>
+				<a href="/register" class="inline-block bg-white py-2 px-4 border border-transparent rounded-md text-base font-medium text-blue-600 hover:bg-blue-50">Sign up</a>
 			</div>
 		</div>
 		<div class="py-4 flex flex-wrap justify-center space-x-6 lg:hidden">
@@ -49,7 +48,7 @@
 
 <!-- hero w/ screenshot: what does it look like? -->
 <div class="relative bg-white py-24 overflow-hidden">
-	<div class="lg:mx-auto lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:grid-flow-col-dense lg:gap-12">
+	<div class="lg:mx-auto lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:grid-flow-col-dense lg:gap-16">
 
 		<!-- left side text -->
 		<div class="mx-auto px-4 max-w-7xl w-full text-center lg:text-left lg:py-20">
@@ -80,6 +79,7 @@
 				<img class="w-full rounded-xl shadow-xl ring-1 ring-black ring-opacity-5 lg:absolute lg:left-0 lg:h-full lg:w-auto lg:max-w-none" src="/static/img/dashboard.webp" alt="Dashboard user interface">
 			</div>
 		</div>
+
 	</div>
 </div>
 
@@ -240,31 +240,13 @@
 
 			<div class="px-5 py-2">
 				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					Blog
+					Terms
 				</a>
 			</div>
 
 			<div class="px-5 py-2">
 				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					Jobs
-				</a>
-			</div>
-
-			<div class="px-5 py-2">
-				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					Press
-				</a>
-			</div>
-
-			<div class="px-5 py-2">
-				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					Accessibility
-				</a>
-			</div>
-
-			<div class="px-5 py-2">
-				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					Partners
+					Privacy
 				</a>
 			</div>
 		</nav>
@@ -274,6 +256,4 @@
 	</div>
 </footer>
 
-
-</body>
 {{end}}

@@ -7,6 +7,7 @@ This project is broken up into four sub-programs:
 * `dripfile-web` - primary CRUD application web server
 * `dripfile-worker` - watches the queue and performs file transfers
 * `dripfile-scheduler` - manages transfer schedules and publishes them to the queue
+* `dripfile-tap` - embedded program that bridges transfers within isolated networks
 
 ## Setup
 This project depends on the [Go programming language](https://golang.org/dl/) and the [TailwindCSS CLI](https://tailwindcss.com/blog/standalone-cli).

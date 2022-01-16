@@ -38,6 +38,42 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 	app.render(w, r, files, nil)
 }
 
+func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"login.page.tmpl",
+		"base.layout.tmpl",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleDoLogin(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"login.page.tmpl",
+		"base.layout.tmpl",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"register.page.tmpl",
+		"base.layout.tmpl",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleDoRegister(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"register.page.tmpl",
+		"base.layout.tmpl",
+	}
+
+	app.render(w, r, files, nil)
+}
+
 // helper for rendering templates and handling potential errors
 func (app *Application) render(w http.ResponseWriter, r *http.Request, files []string, data interface{}) {
 	ts, err := template.ParseFS(app.templates, files...)
