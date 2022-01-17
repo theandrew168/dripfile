@@ -64,6 +64,10 @@ run-tap:
 test: run-migrate
 	go test -count=1 -v ./...
 
+.PHONY: test-short
+test-short: run-migrate
+	go test -count=1 -short -v ./...
+
 .PHONY: race
 race: run-migrate
 	go test -race -count=1 ./...
