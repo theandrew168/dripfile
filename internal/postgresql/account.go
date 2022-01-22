@@ -27,6 +27,7 @@ func (s *accountStorage) Create(account *core.Account) error {
 		VALUES
 			($1, $2, $3, $4, $5)
 		RETURNING id`
+
 	args := []interface{}{
 		account.Email,
 		account.Username,
@@ -63,20 +64,21 @@ func (s *accountStorage) Read(id int64) (core.Account, error) {
 		FROM account
 		WHERE account.id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
-	defer cancel()
-
 	var account core.Account
-	row := s.conn.QueryRow(ctx, stmt, id)
-	err := scan(
-		row,
+	dest := []interface{}{
 		&account.ID,
 		&account.Email,
 		&account.Username,
 		&account.Password,
 		&account.Verified,
 		&account.Role,
-	)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	row := s.conn.QueryRow(ctx, stmt, id)
+	err := scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -98,6 +100,7 @@ func (s *accountStorage) Update(account core.Account) error {
 			verified = $5,
 			role = $6
 		WHERE id = $1`
+
 	args := []interface{}{
 		account.ID,
 		account.Email,
