@@ -3,15 +3,14 @@ package web
 import (
 	"embed"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/log"
 )
 
 //go:embed templates
@@ -20,12 +19,11 @@ var templatesFS embed.FS
 type Application struct {
 	templates fs.FS
 
-	cfg     config.Config
 	storage core.Storage
-	logger  *log.Logger
+	logger  log.Logger
 }
 
-func NewApplication(cfg config.Config, storage core.Storage, logger *log.Logger) *Application {
+func NewApplication(storage core.Storage, logger log.Logger) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
@@ -39,7 +37,6 @@ func NewApplication(cfg config.Config, storage core.Storage, logger *log.Logger)
 	app := Application{
 		templates: templates,
 
-		cfg:     cfg,
 		storage: storage,
 		logger:  logger,
 	}
@@ -56,9 +53,9 @@ func (app *Application) Router() http.Handler {
 
 	// login / register pages, visible to anyone
 	mux.HandleFunc("/login", app.handleLogin, "GET")
-	mux.HandleFunc("/login", app.handleDoLogin, "POST")
+	mux.HandleFunc("/login", app.handleLoginForm, "POST")
 	mux.HandleFunc("/register", app.handleRegister, "GET")
-	mux.HandleFunc("/register", app.handleDoRegister, "POST")
+	mux.HandleFunc("/register", app.handleRegisterForm, "POST")
 
 	// app pages, visible only to authenticated users
 	mux.HandleFunc("/dashboard", app.handleDashboard, "GET")

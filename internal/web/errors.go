@@ -15,8 +15,8 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	// attempt to parse error template
 	ts, err := template.ParseFS(app.templates, files...)
 	if err != nil {
-		app.logger.Printf("error: %s\n", err)
-		http.Error(w, "Internal server error", 500)
+		app.logger.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -24,8 +24,8 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	var buf bytes.Buffer
 	err = ts.Execute(&buf, nil)
 	if err != nil {
-		app.logger.Printf("error: %s\n", err)
-		http.Error(w, "Internal server error", 500)
+		app.logger.Error(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -35,10 +35,10 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 }
 
 func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
-	app.errorResponse(w, r, 404, "404.page.tmpl")
+	app.errorResponse(w, r, http.StatusNotFound, "404.page.tmpl")
 }
 
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	app.logger.Printf("error: %s\n", err)
-	app.errorResponse(w, r, 500, "500.page.tmpl")
+	app.logger.Error(err)
+	app.errorResponse(w, r, http.StatusInternalServerError, "500.page.tmpl")
 }

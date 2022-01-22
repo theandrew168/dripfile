@@ -4,16 +4,17 @@ import (
 	"context"
 	"embed"
 	"io/fs"
-	"log"
 	"sort"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+
+	"github.com/theandrew168/dripfile/internal/log"
 )
 
 //go:embed migrations
 var migrationsFS embed.FS
 
-func Migrate(ctx context.Context, conn *pgxpool.Pool, logger *log.Logger) error {
+func Migrate(ctx context.Context, conn *pgxpool.Pool, logger log.Logger) error {
 	// create migrations table if it doesn't exist
 	_, err := conn.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS migration (
@@ -60,7 +61,7 @@ func Migrate(ctx context.Context, conn *pgxpool.Pool, logger *log.Logger) error 
 	// sort missing migrations to preserve order
 	sort.Strings(missing)
 	for _, name := range missing {
-		logger.Printf("applying: %s\n", name)
+		logger.Info("applying: %s\n", name)
 
 		// apply the missing ones
 		sql, err := fs.ReadFile(subdir, name)
@@ -79,6 +80,6 @@ func Migrate(ctx context.Context, conn *pgxpool.Pool, logger *log.Logger) error 
 		}
 	}
 
-	logger.Println("migrations up to date")
+	logger.Info("migrations up to date")
 	return nil
 }

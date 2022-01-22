@@ -3,14 +3,11 @@ package static
 import (
 	"embed"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"strings"
 
 	"github.com/klauspost/compress/gzhttp"
-
-	"github.com/theandrew168/dripfile/internal/config"
 )
 
 //go:embed static/img/logo_blue.svg
@@ -24,12 +21,9 @@ var staticFS embed.FS
 
 type Application struct {
 	static fs.FS
-
-	cfg    config.Config
-	logger *log.Logger
 }
 
-func NewApplication(cfg config.Config, logger *log.Logger) *Application {
+func NewApplication() *Application {
 	var static fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload static fiels from filesystem if var ENV starts with "dev"
@@ -42,9 +36,6 @@ func NewApplication(cfg config.Config, logger *log.Logger) *Application {
 
 	app := Application{
 		static: static,
-
-		cfg:    cfg,
-		logger: logger,
 	}
 
 	return &app
