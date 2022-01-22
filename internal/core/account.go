@@ -18,17 +18,15 @@ type Account struct {
 	Password string
 	Verified bool
 	Role     string
-	Project  Project
 }
 
-func NewAccount(email, username, password string, project Project) Account {
+func NewAccount(email, username, password string) Account {
 	account := Account{
 		Email:    email,
 		Username: username,
 		Password: password,
 		Verified: false,
 		Role:     RoleViewer,
-		Project:  project,
 	}
 	return account
 }
