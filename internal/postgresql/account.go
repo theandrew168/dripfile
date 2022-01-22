@@ -44,6 +44,7 @@ func (s *accountStorage) Create(account *core.Account) error {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(account)
 		}
+
 		return err
 	}
 
@@ -80,6 +81,7 @@ func (s *accountStorage) Read(id int64) (core.Account, error) {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
 		}
+
 		return core.Account{}, err
 	}
 
@@ -105,8 +107,15 @@ func (s *accountStorage) Update(account core.Account) error {
 		account.Role,
 	}
 
-	err := exec(s.conn, stmt, args...)
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	err := exec(s.conn, ctx, stmt, args...)
 	if err != nil {
+		if errors.Is(err, core.ErrRetry) {
+			return s.Update(account)
+		}
+
 		return err
 	}
 
@@ -118,21 +127,17 @@ func (s *accountStorage) Delete(account core.Account) error {
 		DELETE FROM account
 		WHERE id = $1`
 
-	err := exec(s.conn, stmt, account.ID)
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	err := exec(s.conn, ctx, stmt, account.ID)
 	if err != nil {
+		if errors.Is(err, core.ErrRetry) {
+			return s.Update(account)
+		}
+
 		return err
 	}
 
 	return nil
 }
-
-//type Account struct {
-//	// readonly (from database, after creation)
-//	ID int64
-//
-//	Email    string
-//	Username string
-//	Password string
-//	Verified bool
-//	Role     string
-//}

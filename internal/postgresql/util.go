@@ -17,10 +17,7 @@ var (
 	queryTimeout = 3 * time.Second
 )
 
-func exec(conn *pgxpool.Pool, stmt string, args ...interface{}) error {
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
-	defer cancel()
-
+func exec(conn *pgxpool.Pool, ctx context.Context, stmt string, args ...interface{}) error {
 	_, err := conn.Exec(ctx, stmt, args...)
 	if err != nil {
 		// check for more specific errors
