@@ -1,7 +1,12 @@
 package web
 
 import (
+	"errors"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
+
+	"github.com/theandrew168/dripfile/internal/core"
 )
 
 // Route Handler Naming Ideas:
@@ -77,9 +82,26 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	username := r.PostFormValue("username")
 	password := r.PostFormValue("password")
 
-	app.logger.Info(email)
-	app.logger.Info(username)
-	app.logger.Info(password)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	password = string(hash)
+	account := core.NewAccount(email, username, password)
+
+	err = app.storage.Account.Create(&account)
+	if err != nil {
+		if errors.Is(err, core.ErrExist) {
+			// TODO: handle exists
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }

@@ -6,8 +6,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
-// TODO: be sure to check rows.Err()
-
 func NewStorage(conn *pgxpool.Pool) core.Storage {
 	s := core.Storage{
 		Account:  NewAccountStorage(conn),

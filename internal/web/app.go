@@ -48,6 +48,8 @@ func (app *Application) Router() http.Handler {
 	mux := flow.New()
 	mux.NotFound = http.HandlerFunc(app.notFoundResponse)
 
+	mux.Use(app.recoverPanic)
+
 	// landing page, visible to anyone
 	mux.HandleFunc("/", app.handleIndex, "GET")
 

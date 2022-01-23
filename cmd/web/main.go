@@ -18,8 +18,8 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/log"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/static"
 	"github.com/theandrew168/dripfile/internal/web"
 )
@@ -56,6 +56,8 @@ func run() int {
 		return 1
 	}
 
+	storage := postgresql.NewStorage(conn)
+
 	mux := flow.New()
 
 	// handle top-level special cases
@@ -82,7 +84,7 @@ func run() int {
 	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
 
 	// primary web app (last due to being a top-level catch-all)
-	webApp := web.NewApplication(core.Storage{}, logger)
+	webApp := web.NewApplication(storage, logger)
 	mux.Handle("/...", webApp.Router())
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
