@@ -32,10 +32,24 @@ func NewAccount(email, username, password string) Account {
 }
 
 type AccountStorage interface {
+	// baseline CRUD ops all deal with one record
 	Create(account *Account) error
 	Read(id int64) (Account, error)
 	Update(account Account) error
 	Delete(account Account) error
 
+	// ReadAll() ([]Account, error)
+	// ReadManyByProject(project Project) ([]Account, error)
+
+	// express the "many" side of one-to-many or many-to-many relationships
+
+	// one account has many sessions, so:
+	// SessionStorage: ReadManyByAccount(account Account) ([]Session, error)
+
+	// many accounts belong to many projects, so:
+	// AccountStorage: ReadManyByProject(project Project) ([]Account, error)
+	// ProjectStorage: ReadManyByAccount(account Account) ([]Project, error)
+
+	// TODO: flip this around to ByProject or something like that?
 	Projects(account Account) ([]Project, error)
 }
