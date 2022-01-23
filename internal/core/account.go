@@ -50,6 +50,5 @@ type AccountStorage interface {
 	// AccountStorage: ReadManyByProject(project Project) ([]Account, error)
 	// ProjectStorage: ReadManyByAccount(account Account) ([]Project, error)
 
-	// TODO: flip this around to ByProject or something like that?
-	Projects(account Account) ([]Project, error)
+	ReadManyByProject(project Project) ([]Account, error)
 }

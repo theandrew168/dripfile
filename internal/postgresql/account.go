@@ -145,48 +145,56 @@ func (s *accountStorage) Delete(account core.Account) error {
 	return nil
 }
 
-func (s *accountStorage) Projects(account core.Account) ([]core.Project, error) {
+func (s *accountStorage) ReadManyByProject(project core.Project) ([]core.Account, error) {
 	stmt := `
 		SELECT
-			project.id,
-			project.name
+			account.id,
+			account.email,
+			account.username,
+			account.password,
+			account.verified,
+			account.role
 		FROM account
 		INNER JOIN project
 			ON account.project_id = project.id
-		WHERE account.id = $1`
+		WHERE project.id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.conn.Query(ctx, stmt, account.ID)
+	rows, err := s.conn.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var projects []core.Project
+	var accounts []core.Account
 	for rows.Next() {
-		var project core.Project
+		var account core.Account
 		dest := []interface{}{
-			&project.ID,
-			&project.Name,
+			&account.ID,
+			&account.Email,
+			&account.Username,
+			&account.Password,
+			&account.Verified,
+			&account.Role,
 		}
 
 		err := scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
-				return s.Projects(account)
+				return s.ReadManyByProject(project)
 			}
 
 			return nil, err
 		}
 
-		projects = append(projects, project)
+		accounts = append(accounts, account)
 	}
 
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
 
-	return projects, nil
+	return accounts, nil
 }
