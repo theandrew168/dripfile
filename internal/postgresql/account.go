@@ -144,3 +144,49 @@ func (s *accountStorage) Delete(account core.Account) error {
 
 	return nil
 }
+
+func (s *accountStorage) Projects(account core.Account) ([]core.Project, error) {
+	stmt := `
+		SELECT
+			project.id,
+			project.name
+		FROM account
+		INNER JOIN project
+			ON account.project_id = project.id
+		WHERE account.id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	rows, err := s.conn.Query(ctx, stmt, account.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var projects []core.Project
+	for rows.Next() {
+		var project core.Project
+		dest := []interface{}{
+			&project.ID,
+			&project.Name,
+		}
+
+		err := scan(rows, dest...)
+		if err != nil {
+			if errors.Is(err, core.ErrRetry) {
+				return s.Projects(account)
+			}
+
+			return nil, err
+		}
+
+		projects = append(projects, project)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return projects, nil
+}

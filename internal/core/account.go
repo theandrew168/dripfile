@@ -36,4 +36,6 @@ type AccountStorage interface {
 	Read(id int64) (Account, error)
 	Update(account Account) error
 	Delete(account Account) error
+
+	Projects(account Account) ([]Project, error)
 }
