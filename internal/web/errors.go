@@ -6,10 +6,10 @@ import (
 	"net/http"
 )
 
-func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, status int, tmpl string) {
+func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, status int, html string) {
 	files := []string{
-		tmpl,
-		"base.layout.tmpl",
+		html,
+		"base.layout.html",
 	}
 
 	// attempt to parse error template
@@ -35,10 +35,10 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 }
 
 func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
-	app.errorResponse(w, r, http.StatusNotFound, "404.page.tmpl")
+	app.errorResponse(w, r, http.StatusNotFound, "404.page.html")
 }
 
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.logger.Error(err)
-	app.errorResponse(w, r, http.StatusInternalServerError, "500.page.tmpl")
+	app.errorResponse(w, r, http.StatusInternalServerError, "500.page.html")
 }
