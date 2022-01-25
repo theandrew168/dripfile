@@ -50,5 +50,6 @@ type AccountStorage interface {
 	// AccountStorage: ReadManyByProject(project Project) ([]Account, error)
 	// ProjectStorage: ReadManyByAccount(account Account) ([]Project, error)
 
+	ReadByEmail(email string) (Account, error)
 	ReadManyByProject(project Project) ([]Account, error)
 }

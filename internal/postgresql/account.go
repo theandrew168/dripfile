@@ -145,6 +145,44 @@ func (s *accountStorage) Delete(account core.Account) error {
 	return nil
 }
 
+func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
+	stmt := `
+		SELECT
+			account.id,
+			account.email,
+			account.username,
+			account.password,
+			account.verified,
+			account.role
+		FROM account
+		WHERE account.email = $1`
+
+	var account core.Account
+	dest := []interface{}{
+		&account.ID,
+		&account.Email,
+		&account.Username,
+		&account.Password,
+		&account.Verified,
+		&account.Role,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	row := s.conn.QueryRow(ctx, stmt, email)
+	err := scan(row, dest...)
+	if err != nil {
+		if errors.Is(err, core.ErrRetry) {
+			return s.ReadByEmail(email)
+		}
+
+		return core.Account{}, err
+	}
+
+	return account, nil
+}
+
 func (s *accountStorage) ReadManyByProject(project core.Project) ([]core.Account, error) {
 	stmt := `
 		SELECT

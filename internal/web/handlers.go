@@ -9,6 +9,11 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
+// Redirects:
+// 303 See Other         - for GETs after POSTs (like a login / register form)
+// 302 Found             - all other temporary redirects
+// 301 Moved Permanently - permanent redirects
+
 // Route Handler Naming Ideas:
 //
 // basic page handlers:
@@ -54,12 +59,39 @@ func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"login.page.tmpl",
-		"base.layout.tmpl",
+	err := r.ParseForm()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
 	}
 
-	app.render(w, r, files, nil)
+	email := r.PostFormValue("email")
+	password := r.PostFormValue("password")
+
+	account, err := app.storage.Account.ReadByEmail(email)
+	if err != nil {
+		if errors.Is(err, core.ErrNotExist) {
+			// TODO: handle not exists (invalid user or pass)
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
+	if err != nil {
+		// TODO: handle invalid creds (invalid user or pass)
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// TODO: create new session linked to account
+	// TODO: set session cookie
+
+	app.logger.Info("login %s\n", email)
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -103,5 +135,6 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	app.logger.Info("register %s\n", email)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
