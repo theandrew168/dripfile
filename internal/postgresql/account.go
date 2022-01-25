@@ -136,7 +136,7 @@ func (s *accountStorage) Delete(account core.Account) error {
 	err := exec(s.conn, ctx, stmt, account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
-			return s.Update(account)
+			return s.Delete(account)
 		}
 
 		return err
@@ -194,7 +194,7 @@ func (s *accountStorage) ReadManyByProject(project core.Project) ([]core.Account
 			account.role
 		FROM account
 		INNER JOIN project
-			ON account.project_id = project.id
+			ON project.id = account.project_id
 		WHERE project.id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)

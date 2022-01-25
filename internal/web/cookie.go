@@ -20,7 +20,7 @@ func GenerateSessionID() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-func GenerateSessionCookie(name, value string) http.Cookie {
+func NewSessionCookie(name, value string) http.Cookie {
 	cookie := http.Cookie{
 		Name:     name,
 		Value:    value,
@@ -33,17 +33,17 @@ func GenerateSessionCookie(name, value string) http.Cookie {
 	return cookie
 }
 
-func GeneratePermanentCookie(name, value string, expiry time.Time) http.Cookie {
+func NewPermanentCookie(name, value string, expiry time.Time) http.Cookie {
 	// round expiration up to nearest second
-	cookie := GenerateSessionCookie(name, value)
+	cookie := NewSessionCookie(name, value)
 	cookie.Expires = time.Unix(expiry.Unix()+1, 0)
 	cookie.MaxAge = int(time.Until(expiry).Seconds() + 1)
 	return cookie
 }
 
-func GenerateExpiredCookie(name string) http.Cookie {
+func NewExpiredCookie(name string) http.Cookie {
 	// expires now
-	cookie := GenerateSessionCookie(name, "")
+	cookie := NewSessionCookie(name, "")
 	cookie.Expires = time.Unix(1, 0)
 	cookie.MaxAge = -1
 	return cookie

@@ -3,6 +3,7 @@ package web
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -49,51 +50,6 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 	app.render(w, r, files, nil)
 }
 
-func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"login.page.html",
-		"base.layout.html",
-	}
-
-	app.render(w, r, files, nil)
-}
-
-func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	email := r.PostFormValue("email")
-	password := r.PostFormValue("password")
-
-	account, err := app.storage.Account.ReadByEmail(email)
-	if err != nil {
-		if errors.Is(err, core.ErrNotExist) {
-			// TODO: handle not exists (invalid user or pass)
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
-	if err != nil {
-		// TODO: handle invalid creds (invalid user or pass)
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// TODO: create new session linked to account
-	// TODO: set session cookie
-
-	app.logger.Info("login %s\n", email)
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
-}
-
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"register.page.html",
@@ -135,6 +91,104 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	app.logger.Info("register %s\n", email)
+	app.logger.Info("register %s\n", account.Email)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"login.page.html",
+		"base.layout.html",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	email := r.PostFormValue("email")
+	password := r.PostFormValue("password")
+	rememberMe := r.PostFormValue("remember-me")
+
+	account, err := app.storage.Account.ReadByEmail(email)
+	if err != nil {
+		if errors.Is(err, core.ErrNotExist) {
+			// TODO: handle not exists (invalid user or pass)
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
+	if err != nil {
+		// TODO: handle invalid creds (invalid user or pass)
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// generate a fresh session ID
+	sessionID, err := GenerateSessionID()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// create session model and store in the database
+	expiry := time.Now().AddDate(0, 0, 7)
+	session := core.NewSession(sessionID, expiry, account)
+	err = app.storage.Session.Create(&session)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// set cookie (session / permanent based on "Remember me")
+	if rememberMe != "" {
+		cookie := NewPermanentCookie(SessionIDCookieName, sessionID, expiry)
+		http.SetCookie(w, &cookie)
+	} else {
+		cookie := NewSessionCookie(SessionIDCookieName, sessionID)
+		http.SetCookie(w, &cookie)
+	}
+
+	app.logger.Info("login %s\n", account.Email)
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+}
+
+func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request) {
+	// check for session cookie
+	sessionID, err := r.Cookie(SessionIDCookieName)
+	if err != nil {
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	// check for session in DB
+	session, err := app.storage.Session.Read(sessionID.Value)
+	if err != nil {
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	// delete session from DB
+	err = app.storage.Session.Delete(session)
+	if err != nil {
+		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		return
+	}
+
+	// expire the existing session cookie
+	cookie := NewExpiredCookie(SessionIDCookieName)
+	http.SetCookie(w, &cookie)
+
+	app.logger.Info("logout %s\n", session.Account.Email)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

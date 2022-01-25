@@ -26,12 +26,16 @@ type Application struct {
 func NewApplication() *Application {
 	var static fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
-		// reload static fiels from filesystem if var ENV starts with "dev"
+		// reload static files from filesystem if var ENV starts with "dev"
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
 		static = os.DirFS("./internal/static/static/")
 	} else {
-		// else use the embedded templates dir
-		static, _ = fs.Sub(staticFS, "static")
+		// else use the embedded static dir
+		var err error
+		static, err = fs.Sub(staticFS, "static")
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	app := Application{

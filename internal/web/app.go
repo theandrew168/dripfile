@@ -31,7 +31,11 @@ func NewApplication(storage core.Storage, logger log.Logger) *Application {
 		templates = os.DirFS("./internal/web/templates/")
 	} else {
 		// else use the embedded templates dir
-		templates, _ = fs.Sub(templatesFS, "templates")
+		var err error
+		templates, err = fs.Sub(templatesFS, "templates")
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	app := Application{
@@ -54,10 +58,11 @@ func (app *Application) Router() http.Handler {
 	mux.HandleFunc("/", app.handleIndex, "GET")
 
 	// login / register pages, visible to anyone
-	mux.HandleFunc("/login", app.handleLogin, "GET")
-	mux.HandleFunc("/login", app.handleLoginForm, "POST")
 	mux.HandleFunc("/register", app.handleRegister, "GET")
 	mux.HandleFunc("/register", app.handleRegisterForm, "POST")
+	mux.HandleFunc("/login", app.handleLogin, "GET")
+	mux.HandleFunc("/login", app.handleLoginForm, "POST")
+	mux.HandleFunc("/logout", app.handleLogoutForm, "POST")
 
 	// app pages, visible only to authenticated users
 	mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
