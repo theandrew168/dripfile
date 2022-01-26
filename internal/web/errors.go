@@ -8,8 +8,8 @@ import (
 
 func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, status int, html string) {
 	files := []string{
-		html,
 		"base.layout.html",
+		html,
 	}
 
 	// attempt to parse error template

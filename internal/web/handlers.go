@@ -35,8 +35,8 @@ import (
 
 func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"index.page.html",
 		"base.layout.html",
+		"index.page.html",
 	}
 
 	app.render(w, r, files, nil)
@@ -44,8 +44,8 @@ func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"register.page.html",
 		"base.layout.html",
+		"register.page.html",
 	}
 
 	app.render(w, r, files, nil)
@@ -128,8 +128,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"login.page.html",
 		"base.layout.html",
+		"login.page.html",
 	}
 
 	app.render(w, r, files, nil)
@@ -234,9 +234,9 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 	app.logger.Info("%+v\n", session)
 
 	files := []string{
-		"dashboard.page.html",
-		"app.layout.html",
 		"base.layout.html",
+		"app.layout.html",
+		"dashboard.page.html",
 	}
 
 	app.render(w, r, files, nil)
