@@ -235,6 +235,7 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 
 	files := []string{
 		"dashboard.page.html",
+		"app.layout.html",
 		"base.layout.html",
 	}
 

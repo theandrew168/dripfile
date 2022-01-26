@@ -13,8 +13,9 @@ func (app *Application) render(w http.ResponseWriter, r *http.Request, files []s
 		return
 	}
 
+	// always execute the base template
 	w.Header().Set("Content-Type", "text/html")
-	err = ts.Execute(w, data)
+	err = ts.ExecuteTemplate(w, "base", data)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
