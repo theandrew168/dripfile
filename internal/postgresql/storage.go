@@ -11,9 +11,11 @@ func NewStorage(conn *pgxpool.Pool) core.Storage {
 		Account:  NewAccountStorage(conn),
 		Session:  NewSessionStorage(conn),
 		Project:  NewProjectStorage(conn),
+		Member:   NewMemberStorage(conn),
 		Location: NewLocationStorage(conn),
 		Transfer: NewTransferStorage(conn),
 		Schedule: NewScheduleStorage(conn),
+		Job:      NewJobStorage(conn),
 		History:  NewHistoryStorage(conn),
 	}
 	return s

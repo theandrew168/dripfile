@@ -65,7 +65,11 @@ func (app *Application) Router() http.Handler {
 	mux.HandleFunc("/logout", app.handleLogoutForm, "POST")
 
 	// app pages, visible only to authenticated users
-	mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
+	mux.Group(func(mux *flow.Mux) {
+		mux.Use(app.requireAuth)
+
+		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
+	})
 
 	return mux
 }

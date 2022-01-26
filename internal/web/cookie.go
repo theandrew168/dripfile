@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	SessionIDCookieName = "session_id"
+	sessionIDCookieName = "session_id"
 )
 
 func GenerateSessionID() (string, error) {

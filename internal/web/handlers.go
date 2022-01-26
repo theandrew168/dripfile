@@ -2,6 +2,7 @@ package web
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -41,15 +42,6 @@ func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, files, nil)
 }
 
-func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"dashboard.page.html",
-		"base.layout.html",
-	}
-
-	app.render(w, r, files, nil)
-}
-
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"register.page.html",
@@ -79,6 +71,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	password = string(hash)
 	account := core.NewAccount(email, username, password)
 
+	// TODO: combine these storage ops into an atomic transaction somehow
+
 	// create the account within the database
 	err = app.storage.Account.Create(&account)
 	if err != nil {
@@ -100,7 +94,33 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// TODO: link account <-> project with role "Owner"
+	// link account <-> project with role "Owner"
+	member := core.NewMember(core.RoleOwner, account, project)
+	err = app.storage.Member.Create(&member)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// generate a fresh session ID
+	sessionID, err := GenerateSessionID()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// create session model and store in the database
+	expiry := time.Now().AddDate(0, 0, 7)
+	session := core.NewSession(sessionID, expiry, account)
+	err = app.storage.Session.Create(&session)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// set cookie (just a session cookie after registration)
+	cookie := NewSessionCookie(sessionIDCookieName, sessionID)
+	http.SetCookie(w, &cookie)
 
 	app.logger.Info("register %s\n", account.Email)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -163,10 +183,10 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	// set cookie (session / permanent based on "Remember me")
 	if rememberMe != "" {
-		cookie := NewPermanentCookie(SessionIDCookieName, sessionID, expiry)
+		cookie := NewPermanentCookie(sessionIDCookieName, sessionID, expiry)
 		http.SetCookie(w, &cookie)
 	} else {
-		cookie := NewSessionCookie(SessionIDCookieName, sessionID)
+		cookie := NewSessionCookie(sessionIDCookieName, sessionID)
 		http.SetCookie(w, &cookie)
 	}
 
@@ -176,7 +196,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request) {
 	// check for session cookie
-	sessionID, err := r.Cookie(SessionIDCookieName)
+	sessionID, err := r.Cookie(sessionIDCookieName)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
@@ -197,9 +217,26 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	// expire the existing session cookie
-	cookie := NewExpiredCookie(SessionIDCookieName)
+	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)
 
 	app.logger.Info("logout %s\n", session.Account.Email)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
+	session, ok := r.Context().Value(contextKeySession).(core.Session)
+	if !ok {
+		err := fmt.Errorf("failed context value cast to core.Session")
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	app.logger.Info("%+v\n", session)
+
+	files := []string{
+		"dashboard.page.html",
+		"base.layout.html",
+	}
+
+	app.render(w, r, files, nil)
 }
