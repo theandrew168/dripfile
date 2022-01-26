@@ -79,10 +79,11 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	password = string(hash)
 	account := core.NewAccount(email, username, password)
 
+	// create the account within the database
 	err = app.storage.Account.Create(&account)
 	if err != nil {
 		if errors.Is(err, core.ErrExist) {
-			// TODO: handle exists
+			// TODO: handle email exists
 			app.serverErrorResponse(w, r, err)
 			return
 		}
@@ -90,6 +91,16 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+
+	// create the new account's default project
+	project := core.NewProject(account.Username)
+	err = app.storage.Project.Create(&project)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// TODO: link account <-> project with role "Owner"
 
 	app.logger.Info("register %s\n", account.Email)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
@@ -118,7 +129,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	account, err := app.storage.Account.ReadByEmail(email)
 	if err != nil {
 		if errors.Is(err, core.ErrNotExist) {
-			// TODO: handle not exists (invalid user or pass)
+			// TODO: handle email not exists (invalid user or pass)
 			app.serverErrorResponse(w, r, err)
 			return
 		}
@@ -167,21 +178,21 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	// check for session cookie
 	sessionID, err := r.Cookie(SessionIDCookieName)
 	if err != nil {
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	// check for session in DB
+	// check for session in database
 	session, err := app.storage.Session.Read(sessionID.Value)
 	if err != nil {
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	// delete session from DB
+	// delete session from database
 	err = app.storage.Session.Delete(session)
 	if err != nil {
-		http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 

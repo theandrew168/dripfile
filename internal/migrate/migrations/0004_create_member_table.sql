@@ -1,4 +1,8 @@
-CREATE TABLE account_project (
+CREATE TYPE role AS ENUM ('owner', 'admin', 'editor', 'viewer');
+
+CREATE TABLE member (
+    id bigserial PRIMARY KEY,
+    role role NOT NULL,
     account_id bigint NOT NULL REFERENCES account(id) ON DELETE CASCADE,
     project_id bigint NOT NULL REFERENCES project(id) ON DELETE CASCADE,
     UNIQUE (account_id, project_id),
@@ -8,5 +12,5 @@ CREATE TABLE account_project (
     version integer NOT NULL DEFAULT 1
 );
 
-CREATE INDEX account_project_account_id_idx ON account_project(account_id);
-CREATE INDEX account_project_project_id_idx ON account_project(project_id);
+CREATE INDEX member_account_id_idx ON member(account_id);
+CREATE INDEX member_project_id_idx ON member(project_id);

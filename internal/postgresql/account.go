@@ -23,9 +23,9 @@ func NewAccountStorage(conn *pgxpool.Pool) core.AccountStorage {
 func (s *accountStorage) Create(account *core.Account) error {
 	stmt := `
 		INSERT INTO account
-			(email, username, password, verified, role)
+			(email, username, password, verified)
 		VALUES
-			($1, $2, $3, $4, $5)
+			($1, $2, $3, $4)
 		RETURNING id`
 
 	args := []interface{}{
@@ -33,7 +33,6 @@ func (s *accountStorage) Create(account *core.Account) error {
 		account.Username,
 		account.Password,
 		account.Verified,
-		account.Role,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -59,8 +58,7 @@ func (s *accountStorage) Read(id int64) (core.Account, error) {
 			account.email,
 			account.username,
 			account.password,
-			account.verified,
-			account.role
+			account.verified
 		FROM account
 		WHERE account.id = $1`
 
@@ -71,7 +69,6 @@ func (s *accountStorage) Read(id int64) (core.Account, error) {
 		&account.Username,
 		&account.Password,
 		&account.Verified,
-		&account.Role,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -97,8 +94,7 @@ func (s *accountStorage) Update(account core.Account) error {
 			email = $2,
 			username = $3,
 			password = $4,
-			verified = $5,
-			role = $6
+			verified = $5
 		WHERE id = $1`
 
 	args := []interface{}{
@@ -107,7 +103,6 @@ func (s *accountStorage) Update(account core.Account) error {
 		account.Username,
 		account.Password,
 		account.Verified,
-		account.Role,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -152,8 +147,7 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 			account.email,
 			account.username,
 			account.password,
-			account.verified,
-			account.role
+			account.verified
 		FROM account
 		WHERE account.email = $1`
 
@@ -164,7 +158,6 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 		&account.Username,
 		&account.Password,
 		&account.Verified,
-		&account.Role,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -190,8 +183,7 @@ func (s *accountStorage) ReadManyByProject(project core.Project) ([]core.Account
 			account.email,
 			account.username,
 			account.password,
-			account.verified,
-			account.role
+			account.verified
 		FROM account
 		INNER JOIN project
 			ON project.id = account.project_id
@@ -215,7 +207,6 @@ func (s *accountStorage) ReadManyByProject(project core.Project) ([]core.Account
 			&account.Username,
 			&account.Password,
 			&account.Verified,
-			&account.Role,
 		}
 
 		err := scan(rows, dest...)
