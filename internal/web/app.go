@@ -51,13 +51,14 @@ func NewApplication(storage core.Storage, logger log.Logger) *Application {
 func (app *Application) Router() http.Handler {
 	mux := flow.New()
 	mux.NotFound = http.HandlerFunc(app.notFoundResponse)
+	mux.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	mux.Use(app.recoverPanic)
 
 	// landing page, visible to anyone
 	mux.HandleFunc("/", app.handleIndex, "GET")
 
-	// login / register pages, visible to anyone
+	// register / login / logout pages, visible to anyone
 	mux.HandleFunc("/register", app.handleRegister, "GET")
 	mux.HandleFunc("/register", app.handleRegisterForm, "POST")
 	mux.HandleFunc("/login", app.handleLogin, "GET")

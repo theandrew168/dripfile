@@ -38,6 +38,10 @@ func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 	app.errorResponse(w, r, http.StatusNotFound, "404.page.html")
 }
 
+func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
+	app.errorResponse(w, r, http.StatusMethodNotAllowed, "405.page.html")
+}
+
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	app.logger.Error(err)
 	app.errorResponse(w, r, http.StatusInternalServerError, "500.page.html")
