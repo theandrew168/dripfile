@@ -22,7 +22,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 
 	// render template to a temp buffer
 	var buf bytes.Buffer
-	err = ts.Execute(&buf, nil)
+	err = ts.ExecuteTemplate(&buf, "base", nil)
 	if err != nil {
 		app.logger.Error(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

@@ -70,6 +70,11 @@ func (app *Application) Router() http.Handler {
 		mux.Use(app.requireAuth)
 
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
+
+		mux.HandleFunc("/transfers", app.handleReadTransfers, "GET")
+		mux.HandleFunc("/locations", app.handleReadLocations, "GET")
+		mux.HandleFunc("/schedules", app.handleReadSchedules, "GET")
+		mux.HandleFunc("/history", app.handleReadHistory, "GET")
 	})
 
 	return mux

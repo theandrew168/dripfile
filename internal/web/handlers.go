@@ -36,6 +36,7 @@ import (
 func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
+		"site.layout.html",
 		"index.page.html",
 	}
 
@@ -237,6 +238,46 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 		"base.layout.html",
 		"app.layout.html",
 		"dashboard.page.html",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleReadTransfers(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"transfers.page.html",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"locations.page.html",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleReadSchedules(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"schedules.page.html",
+	}
+
+	app.render(w, r, files, nil)
+}
+
+func (app *Application) handleReadHistory(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"history.page.html",
 	}
 
 	app.render(w, r, files, nil)
