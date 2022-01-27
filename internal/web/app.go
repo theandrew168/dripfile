@@ -13,7 +13,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/log"
 )
 
-//go:embed templates
+//go:embed template
 var templatesFS embed.FS
 
 type Application struct {
@@ -28,11 +28,11 @@ func NewApplication(storage core.Storage, logger log.Logger) *Application {
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
-		templates = os.DirFS("./internal/web/templates/")
+		templates = os.DirFS("./internal/web/template/")
 	} else {
-		// else use the embedded templates dir
+		// else use the embedded templates FS
 		var err error
-		templates, err = fs.Sub(templatesFS, "templates")
+		templates, err = fs.Sub(templatesFS, "template")
 		if err != nil {
 			panic(err)
 		}
@@ -71,13 +71,14 @@ func (app *Application) Router() http.Handler {
 
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
-		mux.HandleFunc("/transfers", app.handleReadTransfers, "GET")
+		mux.HandleFunc("/transfer", app.handleReadTransfers, "GET")
 
-		mux.HandleFunc("/locations", app.handleReadLocations, "GET")
-		//mux.HandleFunc("/locations/{id}", app.handleReadLocation, "GET")
-		//mux.HandleFunc("/locations/create", app.handleCreateLocation, "GET")
+		mux.HandleFunc("/location", app.handleReadLocations, "GET")
+//		mux.HandleFunc("/location/:id", app.handleReadLocation, "GET")
+//		mux.HandleFunc("/location/create", app.handleCreateLocation, "GET")
+//		mux.HandleFunc("/location/create", app.handleCreateLocationForm, "POST")
 
-		mux.HandleFunc("/schedules", app.handleReadSchedules, "GET")
+		mux.HandleFunc("/schedule", app.handleReadSchedules, "GET")
 
 		mux.HandleFunc("/history", app.handleReadHistory, "GET")
 	})

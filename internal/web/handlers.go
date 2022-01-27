@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/alexedwards/flow"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/theandrew168/dripfile/internal/core"
@@ -285,7 +286,33 @@ func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Reque
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"locations.page.html",
+		"read_locations.page.html",
+	}
+
+	app.render(w, r, files, data)
+}
+
+func (app *Application) handleReadLocation(w http.ResponseWriter, r *http.Request) {
+	_ = flow.Param(r.Context(), "id")
+
+	location, err := app.storage.Location.Read(42)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	data := struct {
+		Page     string
+		Location core.Location
+	}{
+		Page:     "locations",
+		Location: location,
+	}
+
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"read_location.page.html",
 	}
 
 	app.render(w, r, files, data)

@@ -7,27 +7,27 @@
 {{$current := "bg-blue-800 text-white"}}
 
 {{$dashboard := $default}}
-{{if eq .Page "dashboard"}}
+{{if eq .Category "dashboard"}}
 	{{$dashboard = $current}}
 {{end}}
 
-{{$transfers := $default}}
-{{if eq .Page "transfers"}}
-	{{$transfers = $current}}
+{{$transfer := $default}}
+{{if eq .Category "transfer"}}
+	{{$transfer = $current}}
 {{end}}
 
-{{$locations := $default}}
-{{if eq .Page "locations"}}
-	{{$locations = $current}}
+{{$location := $default}}
+{{if eq .Category "location"}}
+	{{$location = $current}}
 {{end}}
 
-{{$schedules := $default}}
-{{if eq .Page "schedules"}}
-	{{$schedules = $current}}
+{{$schedule := $default}}
+{{if eq .Category "schedule"}}
+	{{$schedule = $current}}
 {{end}}
 
 {{$history := $default}}
-{{if eq .Page "history"}}
+{{if eq .Category "history"}}
 	{{$history = $current}}
 {{end}}
 
@@ -92,7 +92,7 @@
 						Dashboard
 					</a>
 
-					<a href="/transfers" class="{{$transfers}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
+					<a href="/transfers" class="{{$transfer}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
 						<!-- Heroicon name: outline/folder -->
 						<svg class="mr-4 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
@@ -100,7 +100,7 @@
 						Transfers
 					</a>
 
-					<a href="/locations" class="{{$locations}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
+					<a href="/locations" class="{{$location}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
 						<!-- Heroicon name: outline/desktop-computer -->
 						<svg class="mr-4 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -108,7 +108,7 @@
 						Locations
 					</a>
 
-					<a href="/schedules" class="{{$schedules}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
+					<a href="/schedules" class="{{$schedule}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
 						<!-- Heroicon name: outline/calendar -->
 						<svg class="mr-4 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -153,7 +153,7 @@
 						Dashboard
 					</a>
 
-					<a href="/transfers" class="{{$transfers}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+					<a href="/transfers" class="{{$transfer}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
 						<!-- Heroicon name: outline/folder -->
 						<svg class="mr-3 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
@@ -161,7 +161,7 @@
 						Transfers
 					</a>
 
-					<a href="/locations" class="{{$locations}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+					<a href="/locations" class="{{$location}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
 						<!-- Heroicon name: outline/desktop-computer -->
 						<svg class="mr-3 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -169,7 +169,7 @@
 						Locations
 					</a>
 
-					<a href="/schedules" class="{{$schedules}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+					<a href="/schedules" class="{{$schedule}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
 						<!-- Heroicon name: outline/calendar -->
 						<svg class="mr-3 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

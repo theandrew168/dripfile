@@ -11,7 +11,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/log"
 )
 
-//go:embed migrations
+//go:embed migration
 var migrationsFS embed.FS
 
 func Migrate(ctx context.Context, conn *pgxpool.Pool, logger log.Logger) error {
@@ -42,8 +42,8 @@ func Migrate(ctx context.Context, conn *pgxpool.Pool, logger log.Logger) error {
 		applied[name] = true
 	}
 
-	// get migrations that should be applied (from migrations dir)
-	subdir, _ := fs.Sub(migrationsFS, "migrations")
+	// get migrations that should be applied (from migrations FS)
+	subdir, _ := fs.Sub(migrationsFS, "migration")
 	migrations, err := fs.ReadDir(subdir, ".")
 	if err != nil {
 		return err
