@@ -75,7 +75,7 @@ func (app *Application) Router() http.Handler {
 
 		mux.HandleFunc("/location", app.handleReadLocations, "GET")
 		//		mux.HandleFunc("/location/:id", app.handleReadLocation, "GET")
-		//		mux.HandleFunc("/location/create", app.handleCreateLocation, "GET")
+		mux.HandleFunc("/location/create", app.handleCreateLocation, "GET")
 		//		mux.HandleFunc("/location/create", app.handleCreateLocationForm, "POST")
 
 		mux.HandleFunc("/schedule", app.handleReadSchedules, "GET")

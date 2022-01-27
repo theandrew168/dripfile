@@ -292,6 +292,22 @@ func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Reque
 	app.render(w, r, files, data)
 }
 
+func (app *Application) handleCreateLocation(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Category string
+	}{
+		Category: "location",
+	}
+
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"location/create.page.html",
+	}
+
+	app.render(w, r, files, data)
+}
+
 func (app *Application) handleReadLocation(w http.ResponseWriter, r *http.Request) {
 	id := flow.Param(r.Context(), "id")
 

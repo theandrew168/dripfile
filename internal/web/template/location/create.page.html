@@ -1,30 +1,58 @@
 {{template "body" .}}
 
-{{define "title"}}Locations{{end}}
+{{define "title"}}Create Location{{end}}
 
 {{define "main"}}
-<div id="locations" class="h-full py-6">
-	{{range .Locations}}
-	{{else}}
-	<div class="h-full flex flex-col justify-center text-center">
-		<!-- Heroicon name: outline/desktop-computer -->
-		<svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-		</svg>
-		<h3 class="mt-2 text-sm font-medium text-gray-900">No locations</h3>
-		<p class="mt-1 text-sm text-gray-500">
-			Get started by adding a new location.
-		</p>
-		<div class="mt-6">
-			<a href="/locations/create" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-				<!-- Heroicon name: solid/plus -->
-				<svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-					<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-				</svg>
-				New Location
-			</a>
+<div id="location">
+	<form action="/location/create" method="POST" class="p-6">
+		<div>
+			<h3 class="text-lg leading-6 font-medium text-gray-900">
+				Create Location - S3 Bucket
+			</h3>
+			<p class="mt-1 text-sm text-gray-500">
+				Add an S3 bucket that can be used to send and receive files.
+			</p>
 		</div>
-	</div>
-	{{end}}
+
+		<div class="mt-6">
+			<label for="endpoint" class="block text-sm font-medium text-gray-700">Endpoint</label>
+			<div class="mt-1">
+				<input type="text" name="endpoint" id="endpoint" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="s3.us-east-1.amazonaws.com">
+			</div>
+		</div>
+
+		<div class="mt-6">
+			<label for="access-key-id" class="block text-sm font-medium text-gray-700">Access Key ID</label>
+			<div class="mt-1">
+				<input type="text" name="access-key-id" id="access-key-id" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+			</div>
+		</div>
+
+		<div class="mt-6">
+			<label for="secret-access-key" class="block text-sm font-medium text-gray-700">Secret Access Key</label>
+			<div class="mt-1">
+				<input type="text" name="secret-access-key" id="secret-access-key" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+			</div>
+		</div>
+
+		<div class="mt-6">
+			<label for="bucket-name" class="block text-sm font-medium text-gray-700">Bucket Name</label>
+			<div class="mt-1">
+				<input type="text" name="bucket-name" id="bucket-name" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+			</div>
+		</div>
+
+		<div class="mt-6">
+			<div class="flex justify-end">
+				<a href="/location" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+					Cancel
+				</a>
+				<button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+					Save
+				</button>
+			</div>
+		</div>
+
+	</form>
 </div>
 {{end}}

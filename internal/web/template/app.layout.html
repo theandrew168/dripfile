@@ -92,7 +92,7 @@
 						Dashboard
 					</a>
 
-					<a href="/transfers" class="{{$transfer}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
+					<a href="/transfer" class="{{$transfer}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
 						<!-- Heroicon name: outline/folder -->
 						<svg class="mr-4 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
@@ -100,7 +100,7 @@
 						Transfers
 					</a>
 
-					<a href="/locations" class="{{$location}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
+					<a href="/location" class="{{$location}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
 						<!-- Heroicon name: outline/desktop-computer -->
 						<svg class="mr-4 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -108,7 +108,7 @@
 						Locations
 					</a>
 
-					<a href="/schedules" class="{{$schedule}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
+					<a href="/schedule" class="{{$schedule}} group flex items-center px-2 py-2 text-base font-medium rounded-md">
 						<!-- Heroicon name: outline/calendar -->
 						<svg class="mr-4 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -153,7 +153,7 @@
 						Dashboard
 					</a>
 
-					<a href="/transfers" class="{{$transfer}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+					<a href="/transfer" class="{{$transfer}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
 						<!-- Heroicon name: outline/folder -->
 						<svg class="mr-3 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
@@ -161,7 +161,7 @@
 						Transfers
 					</a>
 
-					<a href="/locations" class="{{$location}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+					<a href="/location" class="{{$location}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
 						<!-- Heroicon name: outline/desktop-computer -->
 						<svg class="mr-3 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -169,7 +169,7 @@
 						Locations
 					</a>
 
-					<a href="/schedules" class="{{$schedule}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
+					<a href="/schedule" class="{{$schedule}} group flex items-center px-2 py-2 text-sm font-medium rounded-md">
 						<!-- Heroicon name: outline/calendar -->
 						<svg class="mr-3 flex-shrink-0 h-6 w-6 text-blue-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -243,7 +243,7 @@
 							class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
 							<a href="/account" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1" id="user-menu-item-0">Account</a>
 
-							<form method="POST" action="/logout" class="hover:bg-gray-100">
+							<form action="/logout" method="POST" class="hover:bg-gray-100">
 								<button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700" role="menuitem" tabindex="-1" id="user-menu-item-1">Sign out</button>
 							</form>
 						</div>
