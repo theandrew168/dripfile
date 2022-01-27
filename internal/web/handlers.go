@@ -292,22 +292,6 @@ func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Reque
 	app.render(w, r, files, data)
 }
 
-func (app *Application) handleCreateLocation(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Category string
-	}{
-		Category: "location",
-	}
-
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"location/create.page.html",
-	}
-
-	app.render(w, r, files, data)
-}
-
 func (app *Application) handleReadLocation(w http.ResponseWriter, r *http.Request) {
 	id := flow.Param(r.Context(), "id")
 
@@ -332,6 +316,45 @@ func (app *Application) handleReadLocation(w http.ResponseWriter, r *http.Reques
 	}
 
 	app.render(w, r, files, data)
+}
+
+func (app *Application) handleCreateLocation(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Category string
+	}{
+		Category: "location",
+	}
+
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"location/create.page.html",
+	}
+
+	app.render(w, r, files, data)
+}
+
+func (app *Application) handleCreateLocationForm(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	endpoint := r.PostFormValue("endpoint")
+	accessKeyID := r.PostFormValue("access-key-id")
+	secretAccessKey := r.PostFormValue("secret-access-key")
+	bucketName := r.PostFormValue("bucket-name")
+
+	info := core.S3Info{
+		Endpoint: endpoint,
+		AccessKeyID: accessKeyID,
+		SecretAccessKey: secretAccessKey,
+		BucketName: bucketName,
+	}
+
+	app.logger.Info("%+v\n", info)
+	http.Redirect(w, r, "/location", http.StatusSeeOther)
 }
 
 func (app *Application) handleReadSchedules(w http.ResponseWriter, r *http.Request) {
