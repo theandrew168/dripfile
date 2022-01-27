@@ -27,11 +27,10 @@ import (
 // POST - handleLoginForm
 //
 // CRUD handlers:
-// C POST   - handleCreateFoo
-// R GET    - handleReadFoo  (one / single / detail)
-// R GET    - handleReadFoos (all / multiple / paginated)
-// U PUT    - handleUpdateFoo
-// D DELETE - handleDeleteFoo
+// C POST   - handleCreateFoo[Form]
+// R GET    - handleReadFoo[s]
+// U PUT    - handleUpdateFoo[Form]
+// D DELETE - handleDeleteFoo[Form]
 
 func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 	files := []string{
@@ -254,6 +253,13 @@ func (app *Application) handleReadTransfers(w http.ResponseWriter, r *http.Reque
 }
 
 func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Request) {
+	// TODO: if empty, big center button with basic info and an iamge
+	// TODO: if not empty, list view with button up in top right
+
+	// TODO: app.storage.Location.ReadAll()
+	// TODO: pass as data to templates
+	// TODO: template with stuff to swap views
+
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",

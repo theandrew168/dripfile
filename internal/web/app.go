@@ -72,8 +72,13 @@ func (app *Application) Router() http.Handler {
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
 		mux.HandleFunc("/transfers", app.handleReadTransfers, "GET")
+
 		mux.HandleFunc("/locations", app.handleReadLocations, "GET")
+		//mux.HandleFunc("/locations/{id}", app.handleReadLocation, "GET")
+		//mux.HandleFunc("/locations/create", app.handleCreateLocation, "GET")
+
 		mux.HandleFunc("/schedules", app.handleReadSchedules, "GET")
+
 		mux.HandleFunc("/history", app.handleReadHistory, "GET")
 	})
 
