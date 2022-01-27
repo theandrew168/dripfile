@@ -32,3 +32,7 @@ func (s *locationStorage) Update(location core.Location) error {
 func (s *locationStorage) Delete(location core.Location) error {
 	return nil
 }
+
+func (s *locationStorage) ReadAll() ([]core.Location, error) {
+	return nil, nil
+}

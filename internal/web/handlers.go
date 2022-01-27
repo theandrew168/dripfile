@@ -233,32 +233,54 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 	}
 	app.logger.Info("%+v\n", session)
 
+	data := struct {
+		Page string
+	}{
+		Page: "dashboard",
+	}
+
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
 		"dashboard.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	app.render(w, r, files, data)
 }
 
 func (app *Application) handleReadTransfers(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Page string
+	}{
+		Page: "transfers",
+	}
+
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
 		"transfers.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	app.render(w, r, files, data)
 }
 
 func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Request) {
 	// TODO: if empty, big center button with basic info and an iamge
 	// TODO: if not empty, list view with button up in top right
 
-	// TODO: app.storage.Location.ReadAll()
-	// TODO: pass as data to templates
-	// TODO: template with stuff to swap views
+	locations, err := app.storage.Location.ReadAll()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	data := struct {
+		Page      string
+		Locations []core.Location
+	}{
+		Page:      "locations",
+		Locations: locations,
+	}
 
 	files := []string{
 		"base.layout.html",
@@ -266,25 +288,37 @@ func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Reque
 		"locations.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	app.render(w, r, files, data)
 }
 
 func (app *Application) handleReadSchedules(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Page string
+	}{
+		Page: "schedules",
+	}
+
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
 		"schedules.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	app.render(w, r, files, data)
 }
 
 func (app *Application) handleReadHistory(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Page string
+	}{
+		Page: "history",
+	}
+
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
 		"history.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	app.render(w, r, files, data)
 }
