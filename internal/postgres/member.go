@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"context"
@@ -50,7 +50,7 @@ func (s *memberStorage) Create(member *core.Member) error {
 	return nil
 }
 
-func (s *memberStorage) Read(id int64) (core.Member, error) {
+func (s *memberStorage) Read(id string) (core.Member, error) {
 	return core.Member{}, nil
 }
 

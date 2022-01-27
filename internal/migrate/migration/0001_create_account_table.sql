@@ -1,5 +1,5 @@
 CREATE TABLE account (
-    id bigserial PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     email citext NOT NULL UNIQUE,
     username text NOT NULL,
     password text NOT NULL,

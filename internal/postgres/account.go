@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"context"
@@ -51,7 +51,7 @@ func (s *accountStorage) Create(account *core.Account) error {
 	return nil
 }
 
-func (s *accountStorage) Read(id int64) (core.Account, error) {
+func (s *accountStorage) Read(id string) (core.Account, error) {
 	stmt := `
 		SELECT
 			account.id,

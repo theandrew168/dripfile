@@ -11,7 +11,7 @@ const (
 // relationship between Accounts and Projects
 type Member struct {
 	// readonly (from database, after creation)
-	ID int64
+	ID string
 
 	Role    string
 	Account Account
@@ -30,7 +30,7 @@ func NewMember(role string, account Account, project Project) Member {
 type MemberStorage interface {
 	// baseline CRUD ops all deal with one record
 	Create(member *Member) error
-	Read(id int64) (Member, error)
+	Read(id string) (Member, error)
 	Update(member Member) error
 	Delete(member Member) error
 

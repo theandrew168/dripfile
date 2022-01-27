@@ -1,6 +1,6 @@
 CREATE TABLE job (
-    transfer_id bigint NOT NULL REFERENCES transfer(id) ON DELETE CASCADE,
-    schedule_id bigint NOT NULL REFERENCES schedule(id) ON DELETE CASCADE,
+    transfer_id uuid NOT NULL REFERENCES transfer(id) ON DELETE CASCADE,
+    schedule_id uuid NOT NULL REFERENCES schedule(id) ON DELETE CASCADE,
     UNIQUE (transfer_id, schedule_id),
 
     -- metadata columns

@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -21,7 +21,7 @@ func (s *locationStorage) Create(location *core.Location) error {
 	return nil
 }
 
-func (s *locationStorage) Read(id int64) (core.Location, error) {
+func (s *locationStorage) Read(id string) (core.Location, error) {
 	return core.Location{}, nil
 }
 

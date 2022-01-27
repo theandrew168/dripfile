@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -21,7 +21,7 @@ func (s *historyStorage) Create(history *core.History) error {
 	return nil
 }
 
-func (s *historyStorage) Read(id int64) (core.History, error) {
+func (s *historyStorage) Read(id string) (core.History, error) {
 	return core.History{}, nil
 }
 

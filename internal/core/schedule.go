@@ -3,7 +3,7 @@ package core
 // TODO: non-cron? multiple? active vs inactive?
 type Schedule struct {
 	// readonly (from database, after creation)
-	ID int64
+	ID string
 
 	Expr    string
 	Project Project
@@ -19,7 +19,7 @@ func NewSchedule(expr string, project Project) Schedule {
 
 type ScheduleStorage interface {
 	Create(schedule *Schedule) error
-	Read(id int64) (Schedule, error)
+	Read(id string) (Schedule, error)
 	Update(schedule Schedule) error
 	Delete(schedule Schedule) error
 }

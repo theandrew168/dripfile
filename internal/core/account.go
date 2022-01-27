@@ -3,7 +3,7 @@ package core
 // TODO: how does this look when using OAuth? via GitHub for example
 type Account struct {
 	// readonly (from database, after creation)
-	ID int64
+	ID string
 
 	Email    string
 	Username string
@@ -24,7 +24,7 @@ func NewAccount(email, username, password string) Account {
 type AccountStorage interface {
 	// baseline CRUD ops all deal with one record
 	Create(account *Account) error
-	Read(id int64) (Account, error)
+	Read(id string) (Account, error)
 	Update(account Account) error
 	Delete(account Account) error
 

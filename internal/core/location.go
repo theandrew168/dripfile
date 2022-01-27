@@ -10,7 +10,7 @@ const (
 
 type Location struct {
 	// readonly (from database, after creation)
-	ID int64
+	ID string
 
 	Kind    string
 	Info    string
@@ -28,7 +28,7 @@ func NewLocation(kind, info string, project Project) Location {
 
 type LocationStorage interface {
 	Create(location *Location) error
-	Read(id int64) (Location, error)
+	Read(id string) (Location, error)
 	Update(location Location) error
 	Delete(location Location) error
 

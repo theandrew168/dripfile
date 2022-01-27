@@ -1,5 +1,5 @@
 CREATE TABLE project (
-    id bigserial PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     name text NOT NULL,
 
     -- metadata columns

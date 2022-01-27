@@ -19,7 +19,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/log"
-	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/postgres"
 	"github.com/theandrew168/dripfile/internal/static"
 	"github.com/theandrew168/dripfile/internal/web"
 )
@@ -56,7 +56,7 @@ func run() int {
 		return 1
 	}
 
-	storage := postgresql.NewStorage(conn)
+	storage := postgres.NewStorage(conn)
 
 	mux := flow.New()
 

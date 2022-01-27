@@ -1,10 +1,10 @@
 CREATE TYPE role AS ENUM ('owner', 'admin', 'editor', 'viewer');
 
 CREATE TABLE member (
-    id bigserial PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     role role NOT NULL,
-    account_id bigint NOT NULL REFERENCES account(id) ON DELETE CASCADE,
-    project_id bigint NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+    account_id uuid NOT NULL REFERENCES account(id) ON DELETE CASCADE,
+    project_id uuid NOT NULL REFERENCES project(id) ON DELETE CASCADE,
     UNIQUE (account_id, project_id),
 
     -- metadata columns

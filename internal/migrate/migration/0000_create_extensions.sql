@@ -1,1 +1,1 @@
-CREATE EXTENSION citext;
+CREATE EXTENSION "citext";

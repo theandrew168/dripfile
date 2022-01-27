@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -21,7 +21,7 @@ func (s *transferStorage) Create(transfer *core.Transfer) error {
 	return nil
 }
 
-func (s *transferStorage) Read(id int64) (core.Transfer, error) {
+func (s *transferStorage) Read(id string) (core.Transfer, error) {
 	return core.Transfer{}, nil
 }
 

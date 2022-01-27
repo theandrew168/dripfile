@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -21,7 +21,7 @@ func (s *scheduleStorage) Create(schedule *core.Schedule) error {
 	return nil
 }
 
-func (s *scheduleStorage) Read(id int64) (core.Schedule, error) {
+func (s *scheduleStorage) Read(id string) (core.Schedule, error) {
 	return core.Schedule{}, nil
 }
 

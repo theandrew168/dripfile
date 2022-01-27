@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -21,7 +21,7 @@ func (s *jobStorage) Create(job *core.Job) error {
 	return nil
 }
 
-func (s *jobStorage) Read(id int64) (core.Job, error) {
+func (s *jobStorage) Read(id string) (core.Job, error) {
 	return core.Job{}, nil
 }
 

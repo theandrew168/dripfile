@@ -2,7 +2,7 @@ package core
 
 type Transfer struct {
 	// readonly (from database, after creation)
-	ID int64
+	ID string
 
 	Pattern string
 	Src     Location
@@ -22,7 +22,7 @@ func NewTransfer(pattern string, src, dst Location, project Project) Transfer {
 
 type TransferStorage interface {
 	Create(transfer *Transfer) error
-	Read(id int64) (Transfer, error)
+	Read(id string) (Transfer, error)
 	Update(transfer Transfer) error
 	Delete(transfer Transfer) error
 }

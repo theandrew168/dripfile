@@ -6,31 +6,31 @@ import (
 
 type History struct {
 	// readonly (from database, after creation)
-	ID int64
+	ID string
 
-	TransferID int64
 	Bytes      int64
 	Status     string
 	StartedAt  time.Time
 	FinishedAt time.Time
 	Project    Project
+	TransferID string
 }
 
-func NewHistory(transferID, bytes int64, status string, startedAt, finishedAt time.Time, project Project) History {
+func NewHistory(bytes int64, status string, startedAt, finishedAt time.Time, project Project, transferID string) History {
 	history := History{
-		TransferID: transferID,
 		Bytes:      bytes,
 		Status:     status,
 		StartedAt:  startedAt,
 		FinishedAt: finishedAt,
 		Project:    project,
+		TransferID: transferID,
 	}
 	return history
 }
 
 type HistoryStorage interface {
 	Create(history *History) error
-	Read(id int64) (History, error)
+	Read(id string) (History, error)
 	Update(history History) error
 	Delete(history History) error
 }

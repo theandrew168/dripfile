@@ -46,7 +46,7 @@ func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
-		"register.page.html",
+		"auth/register.page.html",
 	}
 
 	app.render(w, r, files, nil)
@@ -130,7 +130,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
-		"login.page.html",
+		"auth/login.page.html",
 	}
 
 	app.render(w, r, files, nil)
@@ -235,9 +235,9 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 	app.logger.Info("%+v\n", session)
 
 	data := struct {
-		Page string
+		Category string
 	}{
-		Page: "dashboard",
+		Category: "dashboard",
 	}
 
 	files := []string{
@@ -251,15 +251,15 @@ func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) 
 
 func (app *Application) handleReadTransfers(w http.ResponseWriter, r *http.Request) {
 	data := struct {
-		Page string
+		Category string
 	}{
-		Page: "transfers",
+		Category: "transfer",
 	}
 
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"transfers.page.html",
+		"transfer/read_all.page.html",
 	}
 
 	app.render(w, r, files, data)
@@ -276,43 +276,43 @@ func (app *Application) handleReadLocations(w http.ResponseWriter, r *http.Reque
 	}
 
 	data := struct {
-		Page      string
+		Category  string
 		Locations []core.Location
 	}{
-		Page:      "locations",
+		Category:  "location",
 		Locations: locations,
 	}
 
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"read_locations.page.html",
+		"location/read_all.page.html",
 	}
 
 	app.render(w, r, files, data)
 }
 
 func (app *Application) handleReadLocation(w http.ResponseWriter, r *http.Request) {
-	_ = flow.Param(r.Context(), "id")
+	id := flow.Param(r.Context(), "id")
 
-	location, err := app.storage.Location.Read(42)
+	location, err := app.storage.Location.Read(id)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
 	data := struct {
-		Page     string
+		Category string
 		Location core.Location
 	}{
-		Page:     "locations",
+		Category: "location",
 		Location: location,
 	}
 
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"read_location.page.html",
+		"location/read.page.html",
 	}
 
 	app.render(w, r, files, data)
@@ -320,15 +320,15 @@ func (app *Application) handleReadLocation(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleReadSchedules(w http.ResponseWriter, r *http.Request) {
 	data := struct {
-		Page string
+		Category string
 	}{
-		Page: "schedules",
+		Category: "schedule",
 	}
 
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"schedules.page.html",
+		"schedule/read_all.page.html",
 	}
 
 	app.render(w, r, files, data)
@@ -336,15 +336,15 @@ func (app *Application) handleReadSchedules(w http.ResponseWriter, r *http.Reque
 
 func (app *Application) handleReadHistory(w http.ResponseWriter, r *http.Request) {
 	data := struct {
-		Page string
+		Category string
 	}{
-		Page: "history",
+		Category: "history",
 	}
 
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"history.page.html",
+		"history/read_all.page.html",
 	}
 
 	app.render(w, r, files, data)

@@ -1,4 +1,4 @@
-package postgresql
+package postgres
 
 import (
 	"context"
@@ -8,13 +8,6 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/core"
 )
-
-type Project struct {
-	// readonly (from database, after creation)
-	ID int64
-
-	Name string
-}
 
 type projectStorage struct {
 	conn *pgxpool.Pool
@@ -55,7 +48,7 @@ func (s *projectStorage) Create(project *core.Project) error {
 	return nil
 }
 
-func (s *projectStorage) Read(id int64) (core.Project, error) {
+func (s *projectStorage) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
 			project.id,
