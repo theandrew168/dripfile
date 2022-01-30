@@ -1,6 +1,5 @@
 CREATE TABLE project (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    name text NOT NULL,
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),

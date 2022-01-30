@@ -23,16 +23,18 @@ func NewAccountStorage(conn *pgxpool.Pool) core.AccountStorage {
 func (s *accountStorage) Create(account *core.Account) error {
 	stmt := `
 		INSERT INTO account
-			(email, username, password, verified)
+			(email, username, password, role, verified, project_id)
 		VALUES
-			($1, $2, $3, $4)
+			($1, $2, $3, $4, $5, $6)
 		RETURNING id`
 
 	args := []interface{}{
 		account.Email,
 		account.Username,
 		account.Password,
+		account.Role,
 		account.Verified,
+		account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -58,8 +60,12 @@ func (s *accountStorage) Read(id string) (core.Account, error) {
 			account.email,
 			account.username,
 			account.password,
-			account.verified
+			account.role,
+			account.verified,
+			project.id
 		FROM account
+		INNER JOIN project
+			ON project.id = account.project_id
 		WHERE account.id = $1`
 
 	var account core.Account
@@ -68,7 +74,9 @@ func (s *accountStorage) Read(id string) (core.Account, error) {
 		&account.Email,
 		&account.Username,
 		&account.Password,
+		&account.Role,
 		&account.Verified,
+		&account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -94,7 +102,8 @@ func (s *accountStorage) Update(account core.Account) error {
 			email = $2,
 			username = $3,
 			password = $4,
-			verified = $5
+			role = $5,
+			verified = $6
 		WHERE id = $1`
 
 	args := []interface{}{
@@ -102,6 +111,7 @@ func (s *accountStorage) Update(account core.Account) error {
 		account.Email,
 		account.Username,
 		account.Password,
+		account.Role,
 		account.Verified,
 	}
 
@@ -147,8 +157,12 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 			account.email,
 			account.username,
 			account.password,
-			account.verified
+			account.role,
+			account.verified,
+			project.id
 		FROM account
+		INNER JOIN project
+			ON project.id = account.project_id
 		WHERE account.email = $1`
 
 	var account core.Account
@@ -157,7 +171,9 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 		&account.Email,
 		&account.Username,
 		&account.Password,
+		&account.Role,
 		&account.Verified,
+		&account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -174,56 +190,4 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 	}
 
 	return account, nil
-}
-
-func (s *accountStorage) ReadManyByProject(project core.Project) ([]core.Account, error) {
-	stmt := `
-		SELECT
-			account.id,
-			account.email,
-			account.username,
-			account.password,
-			account.verified
-		FROM account
-		INNER JOIN project
-			ON project.id = account.project_id
-		WHERE project.id = $1`
-
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
-	defer cancel()
-
-	rows, err := s.conn.Query(ctx, stmt, project.ID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var accounts []core.Account
-	for rows.Next() {
-		var account core.Account
-		dest := []interface{}{
-			&account.ID,
-			&account.Email,
-			&account.Username,
-			&account.Password,
-			&account.Verified,
-		}
-
-		err := scan(rows, dest...)
-		if err != nil {
-			if errors.Is(err, core.ErrRetry) {
-				return s.ReadManyByProject(project)
-			}
-
-			return nil, err
-		}
-
-		accounts = append(accounts, account)
-	}
-
-	if rows.Err() != nil {
-		return nil, rows.Err()
-	}
-
-	return accounts, nil
 }

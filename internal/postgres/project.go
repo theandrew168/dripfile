@@ -23,14 +23,10 @@ func NewProjectStorage(conn *pgxpool.Pool) core.ProjectStorage {
 func (s *projectStorage) Create(project *core.Project) error {
 	stmt := `
 		INSERT INTO project
-			(name)
-		VALUES
-			($1)
+		DEFAULT VALUES
 		RETURNING id`
 
-	args := []interface{}{
-		project.Name,
-	}
+	args := []interface{}{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
@@ -51,15 +47,13 @@ func (s *projectStorage) Create(project *core.Project) error {
 func (s *projectStorage) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
-			project.id,
-			project.name
+			project.id
 		FROM project
 		WHERE project.id = $1`
 
 	var project core.Project
 	dest := []interface{}{
 		&project.ID,
-		&project.Name,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -76,33 +70,6 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	}
 
 	return project, nil
-}
-
-func (s *projectStorage) Update(project core.Project) error {
-	stmt := `
-		UPDATE project
-		SET
-			name = $2
-		WHERE id = $1`
-
-	args := []interface{}{
-		project.ID,
-		project.Name,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
-	defer cancel()
-
-	err := exec(s.conn, ctx, stmt, args...)
-	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
-			return s.Update(project)
-		}
-
-		return err
-	}
-
-	return nil
 }
 
 func (s *projectStorage) Delete(project core.Project) error {

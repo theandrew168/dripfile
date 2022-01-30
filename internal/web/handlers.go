@@ -69,12 +69,18 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	password = string(hash)
-	account := core.NewAccount(email, username, password)
-
 	// TODO: combine these storage ops into an atomic transaction somehow
 
-	// create the account within the database
+	// create project for the new account
+	project := core.NewProject()
+	err = app.storage.Project.Create(&project)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// create the new account
+	account := core.NewAccount(email, username, string(hash), core.RoleOwner, project)
 	err = app.storage.Account.Create(&account)
 	if err != nil {
 		if errors.Is(err, core.ErrExist) {
@@ -83,22 +89,6 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 			return
 		}
 
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// create the new account's default project
-	project := core.NewProject(account.Username)
-	err = app.storage.Project.Create(&project)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// link account <-> project with role "Owner"
-	member := core.NewMember(core.RoleOwner, account, project)
-	err = app.storage.Member.Create(&member)
-	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
@@ -347,10 +337,10 @@ func (app *Application) handleCreateLocationForm(w http.ResponseWriter, r *http.
 	bucketName := r.PostFormValue("bucket-name")
 
 	info := core.S3Info{
-		Endpoint: endpoint,
-		AccessKeyID: accessKeyID,
+		Endpoint:        endpoint,
+		AccessKeyID:     accessKeyID,
 		SecretAccessKey: secretAccessKey,
-		BucketName: bucketName,
+		BucketName:      bucketName,
 	}
 
 	app.logger.Info("%+v\n", info)

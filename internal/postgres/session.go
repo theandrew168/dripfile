@@ -57,10 +57,14 @@ func (s *sessionStorage) Read(id string) (core.Session, error) {
 			account.email,
 			account.username,
 			account.password,
-			account.verified
+			account.role,
+			account.verified,
+			project.id
 		FROM session
 		INNER JOIN account
 			ON account.id = session.account_id
+		INNER JOIN project
+			ON project.id = account.project_id
 		WHERE session.id = $1`
 
 	var session core.Session
@@ -71,7 +75,9 @@ func (s *sessionStorage) Read(id string) (core.Session, error) {
 		&session.Account.Email,
 		&session.Account.Username,
 		&session.Account.Password,
+		&session.Account.Role,
 		&session.Account.Verified,
+		&session.Account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)

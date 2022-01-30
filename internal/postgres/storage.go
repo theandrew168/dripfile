@@ -8,10 +8,9 @@ import (
 
 func NewStorage(conn *pgxpool.Pool) core.Storage {
 	s := core.Storage{
+		Project:  NewProjectStorage(conn),
 		Account:  NewAccountStorage(conn),
 		Session:  NewSessionStorage(conn),
-		Project:  NewProjectStorage(conn),
-		Member:   NewMemberStorage(conn),
 		Location: NewLocationStorage(conn),
 		Transfer: NewTransferStorage(conn),
 		Schedule: NewScheduleStorage(conn),

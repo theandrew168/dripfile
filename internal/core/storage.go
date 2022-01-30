@@ -1,10 +1,9 @@
 package core
 
 type Storage struct {
+	Project  ProjectStorage
 	Account  AccountStorage
 	Session  SessionStorage
-	Project  ProjectStorage
-	Member   MemberStorage
 	Location LocationStorage
 	Transfer TransferStorage
 	Schedule ScheduleStorage
