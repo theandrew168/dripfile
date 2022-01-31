@@ -71,16 +71,16 @@ func (app *Application) Router() http.Handler {
 
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
-		mux.HandleFunc("/transfer", app.handleReadTransfers, "GET")
+		mux.HandleFunc("/transfer", app.handleTransferReadMany, "GET")
 
-		mux.HandleFunc("/location", app.handleReadLocations, "GET")
-		mux.HandleFunc("/location/create", app.handleCreateLocation, "GET")
-		mux.HandleFunc("/location/create", app.handleCreateLocationForm, "POST")
-		mux.HandleFunc("/location/:id", app.handleReadLocation, "GET")
+		mux.HandleFunc("/location", app.handleLocationReadMany, "GET")
+		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
+		mux.HandleFunc("/location/create", app.handleLocationCreateForm, "POST")
+		mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
 
-		mux.HandleFunc("/schedule", app.handleReadSchedules, "GET")
+		mux.HandleFunc("/schedule", app.handleScheduleReadMany, "GET")
 
-		mux.HandleFunc("/history", app.handleReadHistory, "GET")
+		mux.HandleFunc("/history", app.handleHistoryReadMany, "GET")
 	})
 
 	return mux

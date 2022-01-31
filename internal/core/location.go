@@ -32,7 +32,7 @@ type LocationStorage interface {
 	Update(location Location) error
 	Delete(location Location) error
 
-	ReadAll() ([]Location, error)
+	ReadManyByProject(project Project) ([]Location, error)
 }
 
 type S3Info struct {
