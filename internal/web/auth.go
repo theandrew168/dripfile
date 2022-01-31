@@ -10,6 +10,8 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
+// TODO: fix r.PostFormValue() -> r.PostForm.Get()
+
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",

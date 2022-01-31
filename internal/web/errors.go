@@ -6,6 +6,9 @@ import (
 	"net/http"
 )
 
+// TODO: badRequestResponse
+// TODO: accept []string of template files
+
 func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, status int, html string) {
 	files := []string{
 		"base.layout.html",
