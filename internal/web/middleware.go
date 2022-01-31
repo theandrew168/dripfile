@@ -10,6 +10,7 @@ import (
 )
 
 // TODO: mware for ParseForm + badRequestResponse?
+// TODO: also limit the post body size to 4k?
 
 type contextKey string
 

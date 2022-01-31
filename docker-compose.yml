@@ -11,7 +11,9 @@ services:
       - 5432:5432
     environment:
       POSTGRES_PASSWORD: postgres
-  minio:
+
+  # s3cmd --no-ssl --host localhost:9000 --access_key AKIAIOSFODNN7EXAMPLE --secret_key wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY ls
+  s3:
     image: minio/minio
     ports:
       - 9000:9000
@@ -20,6 +22,24 @@ services:
     environment:
       MINIO_ROOT_USER: AKIAIOSFODNN7EXAMPLE
       MINIO_ROOT_PASSWORD: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  # ftp -np localhost 2121
+  ftp:
+    image: stilliard/pure-ftpd
+    ports:
+      - 2020:20
+      - 2121:21
+      - 30000-30009:30000-30009
+    environment:
+      PUBLICHOST: ftp
+      FTP_USER_NAME: ftp
+      FTP_USER_PASS: ftp
+      FTP_USER_HOME: /home/ftp
+  # sftp -P 2222 sftp@localhost
+  sftp:
+    image: atmoz/sftp
+    ports:
+      - 2222:22
+    command: sftp:sftp
 
   adminer:
     image: adminer
