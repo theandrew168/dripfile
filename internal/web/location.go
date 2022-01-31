@@ -10,9 +10,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
-// TODO: if empty, big center button with basic info and an iamge
-// TODO: if not empty, list view with button up in top right
-func (app *Application) handleLocationReadMany(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -36,7 +34,7 @@ func (app *Application) handleLocationReadMany(w http.ResponseWriter, r *http.Re
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"location/read_many.page.html",
+		"location/list.page.html",
 	}
 
 	app.render(w, r, files, data)
@@ -96,17 +94,11 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	err = r.ParseForm()
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
 	// TODO: support other types of info
-	endpoint := r.PostFormValue("endpoint")
-	accessKeyID := r.PostFormValue("access-key-id")
-	secretAccessKey := r.PostFormValue("secret-access-key")
-	bucketName := r.PostFormValue("bucket-name")
+	endpoint := r.PostForm.Get("endpoint")
+	accessKeyID := r.PostForm.Get("access-key-id")
+	secretAccessKey := r.PostForm.Get("secret-access-key")
+	bucketName := r.PostForm.Get("bucket-name")
 
 	info := core.S3Info{
 		Endpoint:        endpoint,

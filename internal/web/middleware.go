@@ -9,9 +9,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
-// TODO: mware for ParseForm + badRequestResponse?
-// TODO: also limit the post body size to 4k?
-
 type contextKey string
 
 const (
@@ -55,6 +52,26 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), contextKeySession, session)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+// set size limit and attempt to parse POSTed form data
+func (app *Application) parseForm(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, 4096)
+
+		err := r.ParseForm()
+		if err != nil {
+			app.badRequestResponse(w, r)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// helper for wrapping HandlerFuncs
+func (app *Application) parseFormFunc(f func(w http.ResponseWriter, r *http.Request)) http.Handler {
+	return app.parseForm(http.HandlerFunc(f))
 }
 
 func (app *Application) recoverPanic(next http.Handler) http.Handler {

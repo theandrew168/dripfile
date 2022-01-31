@@ -10,7 +10,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
-// TODO: fix r.PostFormValue() -> r.PostForm.Get()
+// TODO: fix r.PostForm.Get() -> r.PostForm.Get()
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
@@ -22,15 +22,9 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	email := r.PostFormValue("email")
-	username := r.PostFormValue("username")
-	password := r.PostFormValue("password")
+	email := r.PostForm.Get("email")
+	username := r.PostForm.Get("username")
+	password := r.PostForm.Get("password")
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -96,15 +90,9 @@ func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	email := r.PostFormValue("email")
-	password := r.PostFormValue("password")
-	rememberMe := r.PostFormValue("remember-me")
+	email := r.PostForm.Get("email")
+	password := r.PostForm.Get("password")
+	rememberMe := r.PostForm.Get("remember-me")
 
 	account, err := app.storage.Account.ReadByEmail(email)
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) handleTransferReadMany(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Category string
 	}{
@@ -14,7 +14,7 @@ func (app *Application) handleTransferReadMany(w http.ResponseWriter, r *http.Re
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"transfer/read_many.page.html",
+		"transfer/list.page.html",
 	}
 
 	app.render(w, r, files, data)

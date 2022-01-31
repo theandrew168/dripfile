@@ -60,10 +60,10 @@ func (app *Application) Router() http.Handler {
 
 	// register / login / logout pages, visible to anyone
 	mux.HandleFunc("/register", app.handleRegister, "GET")
-	mux.HandleFunc("/register", app.handleRegisterForm, "POST")
+	mux.Handle("/register", app.parseFormFunc(app.handleRegisterForm), "POST")
 	mux.HandleFunc("/login", app.handleLogin, "GET")
-	mux.HandleFunc("/login", app.handleLoginForm, "POST")
-	mux.HandleFunc("/logout", app.handleLogoutForm, "POST")
+	mux.Handle("/login", app.parseFormFunc(app.handleLoginForm), "POST")
+	mux.Handle("/logout", app.parseFormFunc(app.handleLogoutForm), "POST")
 
 	// app pages, visible only to authenticated users
 	mux.Group(func(mux *flow.Mux) {
@@ -71,16 +71,16 @@ func (app *Application) Router() http.Handler {
 
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
-		mux.HandleFunc("/transfer", app.handleTransferReadMany, "GET")
+		mux.HandleFunc("/transfer", app.handleTransferList, "GET")
 
-		mux.HandleFunc("/location", app.handleLocationReadMany, "GET")
+		mux.HandleFunc("/location", app.handleLocationList, "GET")
 		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
-		mux.HandleFunc("/location/create", app.handleLocationCreateForm, "POST")
+		mux.Handle("/location/create", app.parseFormFunc(app.handleLocationCreateForm), "POST")
 		mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
 
-		mux.HandleFunc("/schedule", app.handleScheduleReadMany, "GET")
+		mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
 
-		mux.HandleFunc("/history", app.handleHistoryReadMany, "GET")
+		mux.HandleFunc("/history", app.handleHistoryList, "GET")
 	})
 
 	return mux

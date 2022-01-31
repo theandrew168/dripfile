@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) handleHistoryReadMany(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Category string
 	}{
@@ -14,7 +14,7 @@ func (app *Application) handleHistoryReadMany(w http.ResponseWriter, r *http.Req
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"history/read_many.page.html",
+		"history/list.page.html",
 	}
 
 	app.render(w, r, files, data)

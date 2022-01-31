@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) handleScheduleReadMany(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Category string
 	}{
@@ -14,7 +14,7 @@ func (app *Application) handleScheduleReadMany(w http.ResponseWriter, r *http.Re
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"schedule/read_many.page.html",
+		"schedule/list.page.html",
 	}
 
 	app.render(w, r, files, data)
