@@ -38,7 +38,7 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 		// check for session in database
 		session, err := app.storage.Session.Read(sessionID.Value)
 		if err != nil {
-			// user has an expired session cookie, delete it
+			// user has an invalid session cookie, delete it
 			if errors.Is(err, core.ErrNotExist) {
 				cookie := NewExpiredCookie(sessionIDCookieName)
 				http.SetCookie(w, &cookie)
