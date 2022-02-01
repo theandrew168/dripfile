@@ -1,8 +1,8 @@
 package log
 
 import (
+	"io"
 	"log"
-	"os"
 )
 
 type Logger interface {
@@ -14,9 +14,9 @@ type logger struct {
 	logger *log.Logger
 }
 
-func NewLogger() Logger {
+func NewLogger(out io.Writer) Logger {
 	l := logger{
-		logger: log.New(os.Stdout, "", 0),
+		logger: log.New(out, "", 0),
 	}
 	return &l
 }

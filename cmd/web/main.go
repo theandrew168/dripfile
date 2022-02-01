@@ -12,16 +12,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/alexedwards/flow"
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	"github.com/theandrew168/dripfile/internal/app"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
-	"github.com/theandrew168/dripfile/internal/static"
-	"github.com/theandrew168/dripfile/internal/web"
 )
 
 func main() {
@@ -29,7 +25,7 @@ func main() {
 }
 
 func run() int {
-	logger := log.NewLogger()
+	logger := log.NewLogger(os.Stdout)
 
 	// check for config file flag
 	conf := flag.String("conf", "dripfile.conf", "app config file")
@@ -43,54 +39,21 @@ func run() int {
 	}
 
 	// open a database connection pool
-	conn, err := pgxpool.Connect(context.Background(), cfg.DatabaseURI)
+	conn, err := postgres.Connect(cfg.DatabaseURI)
 	if err != nil {
 		logger.Error(err)
 		return 1
 	}
 	defer conn.Close()
 
-	// test connection to ensure all is well
-	if err = conn.Ping(context.Background()); err != nil {
-		logger.Error(err)
-		return 1
-	}
-
 	storage := postgres.NewStorage(conn)
 
-	mux := flow.New()
-
-	// handle top-level special cases
-	mux.Handle("/metrics", promhttp.Handler())
-	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("pong\n"))
-	})
-	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/svg+xml")
-		w.Write(static.Favicon)
-	})
-	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write(static.Robots)
-	})
-
-	// static files app
-	staticApp := static.NewApplication()
-	mux.Handle("/static/...", http.StripPrefix("/static", staticApp.Router()))
-
-	// rest api app
-	//	apiApp := api.NewApplication(cfg, storage, logger)
-	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
-
-	// primary web app (last due to being a top-level catch-all)
-	webApp := web.NewApplication(storage, logger)
-	mux.Handle("/...", webApp.Router())
-
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
+	handler := app.New(storage, logger)
+
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: mux,
+		Handler: handler,
 
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

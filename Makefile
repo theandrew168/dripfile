@@ -62,11 +62,11 @@ run-tap:
 
 .PHONY: test
 test: run-migrate
-	go test -count=1 -v ./...
+	go test -short -count=1 -v ./...
 
-.PHONY: test-short
-test-short: run-migrate
-	go test -count=1 -short -v ./...
+.PHONY: test-ui
+test-ui: run-migrate
+	go test -count=1 -v ./...
 
 .PHONY: race
 race: run-migrate

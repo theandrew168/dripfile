@@ -17,7 +17,7 @@ func main() {
 }
 
 func run() int {
-	logger := log.NewLogger()
+	logger := log.NewLogger(os.Stdout)
 
 	// check for config file flag
 	conf := flag.String("conf", "dripfile.conf", "app config file")
