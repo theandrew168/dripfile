@@ -81,8 +81,11 @@ func run(m *testing.M) int {
 	taskCtx, cancel := chromedp.NewContext(allocCtx)
 	defer cancel()
 
+	timeoutCtx, cancel := context.WithTimeout(taskCtx, 10*time.Second)
+	defer cancel()
+
 	// assign chromedp context
-	ctx = taskCtx
+	ctx = timeoutCtx
 
 	// navigate to test server
 	err = chromedp.Run(ctx, chromedp.Navigate(ts.URL))
