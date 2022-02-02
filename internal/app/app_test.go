@@ -46,9 +46,10 @@ func run(m *testing.M) int {
 	rand.Seed(time.Now().UnixNano())
 
 	// setup test credentials
-	username = test.RandomString(16)
+	username = test.RandomString(8)
 	password = username
 	email = username + "@dripfile.com"
+	fmt.Println(username)
 
 	// setup application deps
 	cfg := test.Config()
@@ -107,25 +108,31 @@ func TestIndex(t *testing.T) {
 	}
 }
 
+func input(id, msg string) []chromedp.Action {
+	var actions []chromedp.Action
+	actions = append(actions, chromedp.WaitVisible(id))
+	for _, c := range msg {
+		actions = append(actions, chromedp.SendKeys(id, string(c)))
+		actions = append(actions, chromedp.ActionFunc(func(context.Context) error {
+			time.Sleep(20 * time.Millisecond)
+			return nil
+		}))
+	}
+	return actions
+}
+
 func TestAccountRegister(t *testing.T) {
-	err := chromedp.Run(ctx,
-		chromedp.WaitVisible("#register"),
-		chromedp.Click("#register"),
+	var actions []chromedp.Action
+	actions = append(actions, chromedp.WaitVisible("#register"))
+	actions = append(actions, chromedp.Click("#register"))
+	actions = append(actions, input("#email", email)...)
+	actions = append(actions, input("#username", username)...)
+	actions = append(actions, input("#password", password)...)
+	actions = append(actions, chromedp.WaitVisible("#submit"))
+	actions = append(actions, chromedp.Submit("#submit"))
+	actions = append(actions, chromedp.WaitVisible("#dashboard"))
 
-		chromedp.WaitVisible("#email"),
-		chromedp.SendKeys("#email", email),
-
-		chromedp.WaitVisible("#username"),
-		chromedp.SendKeys("#username", username),
-
-		chromedp.WaitVisible("#password"),
-		chromedp.SendKeys("#password", password),
-
-		chromedp.WaitVisible("#submit"),
-		chromedp.Submit("#submit"),
-
-		chromedp.WaitVisible("#dashboard"),
-	)
+	err := chromedp.Run(ctx, actions...)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -136,8 +143,8 @@ func TestAccountLogout(t *testing.T) {
 		chromedp.WaitVisible("#dropdown"),
 		chromedp.Click("#dropdown"),
 
-		chromedp.WaitVisible("#logout"),
-		chromedp.Submit("#logout"),
+		chromedp.WaitVisible("#nav-logout"),
+		chromedp.Submit("#nav-logout"),
 
 		chromedp.WaitVisible("#index"),
 	)
@@ -147,27 +154,22 @@ func TestAccountLogout(t *testing.T) {
 }
 
 func TestAccountLogin(t *testing.T) {
-	err := chromedp.Run(ctx,
-		chromedp.WaitVisible("#login"),
-		chromedp.Click("#login"),
+	var actions []chromedp.Action
+	actions = append(actions, chromedp.WaitVisible("#login"))
+	actions = append(actions, chromedp.Click("#login"))
+	actions = append(actions, input("#email", email)...)
+	actions = append(actions, input("#password", password)...)
+	actions = append(actions, chromedp.WaitVisible("#submit"))
+	actions = append(actions, chromedp.Submit("#submit"))
+	actions = append(actions, chromedp.WaitVisible("#dashboard"))
 
-		chromedp.WaitVisible("#email"),
-		chromedp.SendKeys("#email", email),
-
-		chromedp.WaitVisible("#password"),
-		chromedp.SendKeys("#password", password),
-
-		chromedp.WaitVisible("#submit"),
-		chromedp.Submit("#submit"),
-
-		chromedp.WaitVisible("#dashboard"),
-	)
+	err := chromedp.Run(ctx, actions...)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-// TODO: check nothing listed, just center button
+// TODO: verify empty
 func TestLocationListEmpty(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#nav-location"),
@@ -208,12 +210,9 @@ func TestLocationCreate(t *testing.T) {
 	}
 }
 
-// TODO: check listed locations and top-right button
-func TestLocationList(t *testing.T) {
+// TODO: check for details
+func TestLocationRead(t *testing.T) {
 	err := chromedp.Run(ctx,
-		chromedp.WaitVisible("#nav-location"),
-		chromedp.Click("#nav-location"),
-
 		chromedp.WaitVisible("#location"),
 	)
 	if err != nil {
@@ -222,44 +221,77 @@ func TestLocationList(t *testing.T) {
 }
 
 func TestLocationDelete(t *testing.T) {
-	// TODO: click first location (location-1)?
-	// TODO: click the trash icon
-	// TODO: back to empty page
+	err := chromedp.Run(ctx,
+		chromedp.WaitVisible("#delete"),
+		chromedp.Submit("#delete"),
+
+		chromedp.WaitVisible("#location"),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+//// TODO: verify empty
+//func TestTransferListEmpty(t *testing.T) {
+//	err := chromedp.Run(ctx,
+//		chromedp.WaitVisible("#nav-transfer"),
+//		chromedp.Click("#nav-transfer"),
+//
+//		chromedp.WaitVisible("#transfer"),
+//	)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//}
+//
+//// TODO: verify empty
+//func TestScheduleListEmpty(t *testing.T) {
+//	err := chromedp.Run(ctx,
+//		chromedp.WaitVisible("#nav-schedule"),
+//		chromedp.Click("#nav-schedule"),
+//
+//		chromedp.WaitVisible("#schedule"),
+//	)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//}
+//
+//// TODO: verify empty
+//func TestHistoryListEmpty(t *testing.T) {
+//	err := chromedp.Run(ctx,
+//		chromedp.WaitVisible("#nav-history"),
+//		chromedp.Click("#nav-history"),
+//
+//		chromedp.WaitVisible("#history"),
+//	)
+//	if err != nil {
+//		t.Fatal(err)
+//	}
+//}
+
+func TestAccountRead(t *testing.T) {
+	err := chromedp.Run(ctx,
+		chromedp.WaitVisible("#dropdown"),
+		chromedp.Click("#dropdown"),
+
+		chromedp.WaitVisible("#nav-account"),
+		chromedp.Click("#nav-account"),
+
+		chromedp.WaitVisible("#account"),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestAccountDelete(t *testing.T) {
-}
-
-func TestTransferListEmpty(t *testing.T) {
 	err := chromedp.Run(ctx,
-		chromedp.WaitVisible("#nav-transfer"),
-		chromedp.Click("#nav-transfer"),
+		chromedp.WaitVisible("#delete"),
+		chromedp.Submit("#delete"),
 
-		chromedp.WaitVisible("#transfer"),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestScheduleListEmpty(t *testing.T) {
-	err := chromedp.Run(ctx,
-		chromedp.WaitVisible("#nav-schedule"),
-		chromedp.Click("#nav-schedule"),
-
-		chromedp.WaitVisible("#schedule"),
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestHistoryListEmpty(t *testing.T) {
-	err := chromedp.Run(ctx,
-		chromedp.WaitVisible("#nav-history"),
-		chromedp.Click("#nav-history"),
-
-		chromedp.WaitVisible("#history"),
+		chromedp.WaitVisible("#index"),
 	)
 	if err != nil {
 		t.Fatal(err)

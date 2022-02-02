@@ -7,6 +7,6 @@ import (
 type Connection interface {
 	Verify() bool
 	List() ([]string, error)
-	Read(name string) (io.Reader, error)
-	Write(name string, r io.Reader) error
+	Read(path string) (io.Reader, error)
+	Write(path string, r io.Reader) error
 }

@@ -71,11 +71,15 @@ func (app *Application) Router() http.Handler {
 
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
+		mux.HandleFunc("/account", app.handleAccountRead, "GET")
+		mux.Handle("/account/delete", app.parseFormFunc(app.handleAccountDeleteForm), "POST")
+
 		mux.HandleFunc("/transfer", app.handleTransferList, "GET")
 
 		mux.HandleFunc("/location", app.handleLocationList, "GET")
 		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
 		mux.Handle("/location/create", app.parseFormFunc(app.handleLocationCreateForm), "POST")
+		mux.Handle("/location/delete", app.parseFormFunc(app.handleLocationDeleteForm), "POST")
 		mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
 
 		mux.HandleFunc("/schedule", app.handleScheduleList, "GET")

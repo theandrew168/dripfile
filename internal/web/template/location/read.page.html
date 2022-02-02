@@ -17,9 +17,9 @@
 		</a>
 	</div>
 
-	<!-- location details -->
 	{{with .Location}}
-	<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+	<!-- location details -->
+	<div class="mb-6 bg-white shadow overflow-hidden sm:rounded-lg">
 		<div class="px-4 py-5 sm:px-6">
 			<h3 class="text-lg leading-6 font-medium text-gray-900">
 				S3 bucket or FTP server
@@ -49,6 +49,17 @@
 			</dl>
 		</div>
 	</div>
+
+	<!-- delete location form -->
+	<div class="flex items-center justify-end">
+		<form action="/location/delete" method="POST">
+			<input type="hidden" id="id" name="id" value="{{.ID}}" />
+			<button id="delete" type="submit" class="inline-flex items-center px-2.5 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+				Delete Location
+			</button>
+		</form>
+	</div>
 	{{end}}
+
 </div>
 {{end}}

@@ -10,8 +10,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
-// TODO: fix r.PostForm.Get() -> r.PostForm.Get()
-
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
@@ -25,6 +23,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	email := r.PostForm.Get("email")
 	username := r.PostForm.Get("username")
 	password := r.PostForm.Get("password")
+
+	app.logger.Info("try %s %s\n", email, password)
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -76,7 +76,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	cookie := NewSessionCookie(sessionIDCookieName, sessionID)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("register %s\n", account.Email)
+	app.logger.Info("account %s create\n", account.Email)
+	app.logger.Info("account %s login\n", account.Email)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
@@ -108,6 +109,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
 	if err != nil {
+		app.logger.Info("invalid creds!\n")
 		// TODO: handle invalid creds (invalid user or pass)
 		app.serverErrorResponse(w, r, err)
 		return
@@ -138,7 +140,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		http.SetCookie(w, &cookie)
 	}
 
-	app.logger.Info("login %s\n", account.Email)
+	app.logger.Info("account %s login\n", account.Email)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
@@ -168,6 +170,6 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("logout %s\n", session.Account.Email)
+	app.logger.Info("account %s logout\n", session.Account.Email)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

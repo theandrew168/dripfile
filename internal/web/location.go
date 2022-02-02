@@ -100,6 +100,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	secretAccessKey := r.PostForm.Get("secret-access-key")
 	bucketName := r.PostForm.Get("bucket-name")
 
+	// TODO: validate connection info
 	info := core.S3Info{
 		Endpoint:        endpoint,
 		AccessKeyID:     accessKeyID,
@@ -120,5 +121,33 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
+	app.logger.Info("account %s location %s create\n", session.Account.Email, location.ID)
+	http.Redirect(w, r, "/location/"+location.ID, http.StatusSeeOther)
+}
+
+func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.Request) {
+	session, err := app.requestSession(r)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// TODO: assert id belongs to session->account->project
+	// TODO: assert account role is owner, admin, or editor
+	id := r.PostForm.Get("id")
+
+	location, err := app.storage.Location.Read(id)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	err = app.storage.Location.Delete(location)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	app.logger.Info("account %s location %s delete\n", session.Account.Email, location.ID)
 	http.Redirect(w, r, "/location", http.StatusSeeOther)
 }
