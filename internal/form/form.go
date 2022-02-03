@@ -15,7 +15,7 @@ type Form struct {
 func New(data url.Values) *Form {
 	form := Form{
 		data,
-		errors(map[string][]string{}),
+		errors{},
 	}
 	return &form
 }

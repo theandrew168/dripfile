@@ -29,9 +29,28 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
-	email := r.PostForm.Get("email")
-	username := r.PostForm.Get("username")
-	password := r.PostForm.Get("password")
+	files := []string{
+		"base.layout.html",
+		"auth/register.page.html",
+	}
+
+	f := form.New(r.PostForm)
+	f.Required("email", "username", "password")
+
+	data := struct {
+		Form *form.Form
+	}{
+		Form: f,
+	}
+
+	if !f.Valid() {
+		app.render(w, r, files, data)
+		return
+	}
+
+	email := f.Get("email")
+	username := f.Get("username")
+	password := f.Get("password")
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -54,8 +73,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	err = app.storage.Account.Create(&account)
 	if err != nil {
 		if errors.Is(err, core.ErrExist) {
-			// TODO: handle email exists
-			app.serverErrorResponse(w, r, err)
+			f.Errors.Add("email", "An account with this email already exists")
+			app.render(w, r, files, data)
 			return
 		}
 
