@@ -24,8 +24,6 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	username := r.PostForm.Get("username")
 	password := r.PostForm.Get("password")
 
-	app.logger.Info("try %s %s\n", email, password)
-
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
