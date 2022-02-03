@@ -1,7 +1,9 @@
 package web
 
 import (
+	"crypto/sha256"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -68,9 +70,11 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// create session model and store in the database
+	sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID)))
 	expiry := time.Now().AddDate(0, 0, 7)
-	session := core.NewSession(sessionID, expiry, account)
+
+	// create session model and store in the database
+	session := core.NewSession(sessionHash, expiry, account)
 	err = app.storage.Session.Create(&session)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -127,9 +131,11 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// create session model and store in the database
+	sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID)))
 	expiry := time.Now().AddDate(0, 0, 7)
-	session := core.NewSession(sessionID, expiry, account)
+
+	// create session model and store in the database
+	session := core.NewSession(sessionHash, expiry, account)
 	err = app.storage.Session.Create(&session)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -158,7 +164,8 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	}
 
 	// check for session in database
-	session, err := app.storage.Session.Read(sessionID.Value)
+	sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID.Value)))
+	session, err := app.storage.Session.Read(sessionHash)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return

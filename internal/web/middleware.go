@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"net/http"
@@ -36,7 +37,8 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 		}
 
 		// check for session in database
-		session, err := app.storage.Session.Read(sessionID.Value)
+		sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID.Value)))
+		session, err := app.storage.Session.Read(sessionHash)
 		if err != nil {
 			// user has an invalid session cookie, delete it
 			if errors.Is(err, core.ErrNotExist) {

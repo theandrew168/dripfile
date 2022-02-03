@@ -23,12 +23,12 @@ func NewSessionStorage(conn *pgxpool.Pool) core.SessionStorage {
 func (s *sessionStorage) Create(session *core.Session) error {
 	stmt := `
 		INSERT INTO session
-			(id, expiry, account_id)
+			(hash, expiry, account_id)
 		VALUES
 			($1, $2, $3)`
 
 	args := []interface{}{
-		session.ID,
+		session.Hash,
 		session.Expiry,
 		session.Account.ID,
 	}
@@ -48,10 +48,10 @@ func (s *sessionStorage) Create(session *core.Session) error {
 	return nil
 }
 
-func (s *sessionStorage) Read(id string) (core.Session, error) {
+func (s *sessionStorage) Read(hash string) (core.Session, error) {
 	stmt := `
 		SELECT
-			session.id,
+			session.hash,
 			session.expiry,
 			account.id,
 			account.email,
@@ -65,11 +65,11 @@ func (s *sessionStorage) Read(id string) (core.Session, error) {
 			ON account.id = session.account_id
 		INNER JOIN project
 			ON project.id = account.project_id
-		WHERE session.id = $1`
+		WHERE session.hash = $1`
 
 	var session core.Session
 	dest := []interface{}{
-		&session.ID,
+		&session.Hash,
 		&session.Expiry,
 		&session.Account.ID,
 		&session.Account.Email,
@@ -83,11 +83,11 @@ func (s *sessionStorage) Read(id string) (core.Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.conn.QueryRow(ctx, stmt, id)
+	row := s.conn.QueryRow(ctx, stmt, hash)
 	err := scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
-			return s.Read(id)
+			return s.Read(hash)
 		}
 
 		return core.Session{}, err
@@ -99,12 +99,12 @@ func (s *sessionStorage) Read(id string) (core.Session, error) {
 func (s *sessionStorage) Delete(session core.Session) error {
 	stmt := `
 		DELETE FROM session
-		WHERE id = $1`
+		WHERE hash = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, session.ID)
+	err := exec(s.conn, ctx, stmt, session.Hash)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(session)

@@ -1,5 +1,5 @@
 CREATE TABLE session (
-    id text PRIMARY KEY,
+    hash text PRIMARY KEY,
     expiry timestamptz NOT NULL,
     account_id uuid NOT NULL REFERENCES account(id) ON DELETE CASCADE,
 

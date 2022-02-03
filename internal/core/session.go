@@ -5,14 +5,14 @@ import (
 )
 
 type Session struct {
-	ID      string
+	Hash    string
 	Expiry  time.Time
 	Account Account
 }
 
-func NewSession(id string, expiry time.Time, account Account) Session {
+func NewSession(hash string, expiry time.Time, account Account) Session {
 	session := Session{
-		ID:      id,
+		Hash:    hash,
 		Expiry:  expiry,
 		Account: account,
 	}
@@ -21,6 +21,6 @@ func NewSession(id string, expiry time.Time, account Account) Session {
 
 type SessionStorage interface {
 	Create(session *Session) error
-	Read(id string) (Session, error)
+	Read(hash string) (Session, error)
 	Delete(session Session) error
 }
