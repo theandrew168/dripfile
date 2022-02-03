@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/form"
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +17,13 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 		"auth/register.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	data := struct {
+		Form *form.Form
+	}{
+		Form: form.New(nil),
+	}
+
+	app.render(w, r, files, data)
 }
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {

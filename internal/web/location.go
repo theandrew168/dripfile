@@ -11,6 +11,12 @@ import (
 )
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"location/list.page.html",
+	}
+
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -31,18 +37,17 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 		Locations: locations,
 	}
 
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"location/list.page.html",
-	}
-
 	app.render(w, r, files, data)
 }
 
 func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
-	id := flow.Param(r.Context(), "id")
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"location/read.page.html",
+	}
 
+	id := flow.Param(r.Context(), "id")
 	location, err := app.storage.Location.Read(id)
 	if err != nil {
 		if errors.Is(err, core.ErrNotExist) {
@@ -62,26 +67,20 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 		Location: location,
 	}
 
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"location/read.page.html",
-	}
-
 	app.render(w, r, files, data)
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Category string
-	}{
-		Category: "location",
-	}
-
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
 		"location/create.page.html",
+	}
+
+	data := struct {
+		Category string
+	}{
+		Category: "location",
 	}
 
 	app.render(w, r, files, data)
