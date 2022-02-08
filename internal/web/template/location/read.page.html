@@ -3,63 +3,21 @@
 {{define "title"}}Locations{{end}}
 
 {{define "main"}}
-<div id="location" class="h-full p-6">
-	<!-- new location button -->
-	<div class="mb-6 flex items-center justify-between">
-		<h3 class="ml-4 font-bold">DripFile Location</h3>
-
-		<a href="/location/create" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-			<!-- Heroicon name: solid/plus -->
-			<svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-				<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-			</svg>
-			New Location
-		</a>
-	</div>
-
+<section id="location-read">
+	<header>
+		<h2>Location</h2>
+	</header>
 	{{with .Location}}
-	<!-- location details -->
-	<div class="mb-6 bg-white shadow overflow-hidden sm:rounded-lg">
-		<div class="px-4 py-5 sm:px-6">
-			<h3 class="text-lg leading-6 font-medium text-gray-900">
-				S3 bucket or FTP server
-			</h3>
-			<p class="mt-1 max-w-2xl text-sm text-gray-500">
-				{{.ID}}
-			</p>
-		</div>
-		<div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-			<dl class="sm:divide-y sm:divide-gray-200">
-				<div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-					<dt class="text-sm font-medium text-gray-500">
-						Kind
-					</dt>
-					<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-						{{.Kind}}
-					</dd>
-				</div>
-				<div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-					<dt class="text-sm font-medium text-gray-500">
-						Connection Info
-					</dt>
-					<dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-						{{.Info}}
-					</dd>
-				</div>
-			</dl>
-		</div>
-	</div>
+	<form action="/location/delete" method="POST">
+		<label>ID</label>
+		<p>{{.ID}}</p>
 
-	<!-- delete location form -->
-	<div class="flex items-center justify-end">
-		<form action="/location/delete" method="POST">
-			<input type="hidden" id="id" name="id" value="{{.ID}}" />
-			<button id="delete" type="submit" class="inline-flex items-center px-2.5 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-				Delete Location
-			</button>
-		</form>
-	</div>
+		<label>Kind</label>
+		<p>{{.Kind}}</p>
+
+		<input id="id" name="id" type="hidden" value="{{.ID}}" />
+		<button id="submit" type="submit">Delete</button>
+	</form>
 	{{end}}
-
-</div>
+</section>
 {{end}}

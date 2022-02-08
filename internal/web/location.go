@@ -8,6 +8,7 @@ import (
 	"github.com/alexedwards/flow"
 
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/form"
 )
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
@@ -79,8 +80,10 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 
 	data := struct {
 		Category string
+		Form     *form.Form
 	}{
 		Category: "location",
+		Form:     form.New(nil),
 	}
 
 	app.render(w, r, files, data)

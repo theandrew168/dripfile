@@ -1,47 +1,13 @@
 {{template "base" .}}
 
 {{define "body"}}
-<!-- navbar: where can we go? -->
-<header class="bg-blue-600">
-	<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-label="Top">
-		<div class="w-full py-6 flex items-center justify-between border-b border-blue-500 lg:border-none">
-			<div class="flex items-center">
-				<a href="/" class="flex items-center space-x-2">
-					<img class="h-10 w-auto" src="/static/img/logo_white.svg" alt="" />
-					<span class="font-bold text-3xl text-white">DripFile</span>
-				</a>
-				<div class="hidden ml-10 space-x-8 lg:block">
-					<a href="#" class="text-base font-medium text-white hover:text-blue-50">
-						Solutions
-					</a>
-
-					<a href="#" class="text-base font-medium text-white hover:text-blue-50">
-						Pricing
-					</a>
-
-					<a href="#" class="text-base font-medium text-white hover:text-blue-50">
-						Docs
-					</a>
-				</div>
-			</div>
-			<div class="flex-none ml-10 space-x-4">
-				<a href="/login" id="login" class="inline-block bg-blue-500 py-2 px-4 border border-transparent rounded-md text-base font-medium text-white hover:bg-opacity-75">Sign in</a>
-				<a href="/register" id="register" class="inline-block bg-white py-2 px-4 border border-transparent rounded-md text-base font-medium text-blue-600 hover:bg-blue-50">Sign up</a>
-			</div>
-		</div>
-		<div class="py-4 flex flex-wrap justify-center space-x-6 lg:hidden">
-			<a href="#" class="text-base font-medium text-white hover:text-blue-50">
-				Solutions
-			</a>
-
-			<a href="#" class="text-base font-medium text-white hover:text-blue-50">
-				Pricing
-			</a>
-
-			<a href="#" class="text-base font-medium text-white hover:text-blue-50">
-				Docs
-			</a>
-		</div>
+<header>
+	<nav>
+		<a href="/"><img alt="DripFile Logo" src="/static/img/logo_black.svg" height="70"></a>
+		<ul>
+			<li><a id="nav-login" href="/login">Login</a></li>
+			<li><a id="nav-register" href="/register">Register</a></li>
+		</ul>
 	</nav>
 </header>
 
@@ -49,32 +15,8 @@
 	{{template "main" .}}
 </main>
 
-<!-- footer: anything else? -->
-<footer class="bg-white">
-	<div class="max-w-7xl mx-auto py-12 px-4 overflow-hidden sm:px-6 lg:px-8">
-		<nav class="-mx-5 -my-2 flex flex-wrap justify-center" aria-label="Footer">
-			<div class="px-5 py-2">
-				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					About
-				</a>
-			</div>
-
-			<div class="px-5 py-2">
-				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					Terms
-				</a>
-			</div>
-
-			<div class="px-5 py-2">
-				<a href="#" class="text-base text-gray-500 hover:text-gray-900">
-					Privacy
-				</a>
-			</div>
-		</nav>
-		<p class="mt-8 text-center text-base text-gray-400">
-			&copy; 2022 Shallow Brook Software LLC. All rights reserved.
-		</p>
-	</div>
+<footer>
+	<hr>
+	<p>&copy; 2022 Shallow Brook Software LLC. All rights reserved.</p>
 </footer>
-
 {{end}}

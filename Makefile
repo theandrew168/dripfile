@@ -5,15 +5,14 @@
 default: build
 
 .PHONY: build
-build: build-migrate build-web build-worker build-scheduler build-tap
+build: build-migrate build-scheduler build-worker build-web
 
 .PHONY: run
 run:
 	ENV=dev go run cmd/migrate/main.go
-	ENV=dev go run cmd/web/main.go &
-	ENV=dev go run cmd/worker/main.go &
 	ENV=dev go run cmd/scheduler/main.go &
-	tailwindcss --watch -m -i tailwind.input.css -o internal/static/static/css/tailwind.min.css
+	ENV=dev go run cmd/worker/main.go &
+	ENV=dev go run cmd/web/main.go
 
 .PHONY: build-migrate
 build-migrate:
@@ -23,18 +22,13 @@ build-migrate:
 run-migrate:
 	ENV=dev go run cmd/migrate/main.go
 
-.PHONY: build-css
-build-css:
-	tailwindcss -m -i tailwind.input.css -o internal/static/static/css/tailwind.min.css
+.PHONY: build-scheduler
+build-scheduler:
+	go build -o dripfile-scheduler cmd/scheduler/main.go
 
-.PHONY: build-web
-build-web: build-css
-	go build -o dripfile-web cmd/web/main.go
-
-.PHONY: run-web
-run-web:
-	ENV=dev go run cmd/web/main.go &
-	tailwindcss --watch -m -i tailwind.input.css -o internal/static/static/css/tailwind.min.css
+.PHONY: run-scheduler
+run-scheduler:
+	ENV=dev go run cmd/scheduler/main.go
 
 .PHONY: build-worker
 build-worker:
@@ -44,21 +38,13 @@ build-worker:
 run-worker:
 	ENV=dev go run cmd/worker/main.go
 
-.PHONY: build-scheduler
-build-scheduler:
-	go build -o dripfile-scheduler cmd/scheduler/main.go
+.PHONY: build-web
+build-web:
+	go build -o dripfile-web cmd/web/main.go
 
-.PHONY: run-scheduler
-run-scheduler:
-	ENV=dev go run cmd/scheduler/main.go
-
-.PHONY: build-tap
-build-tap:
-	go build -o dripfile-tap cmd/tap/main.go
-
-.PHONY: run-tap
-run-tap:
-	ENV=dev go run cmd/tap/main.go
+.PHONY: run-web
+run-web:
+	ENV=dev go run cmd/web/main.go
 
 .PHONY: test
 test: run-migrate

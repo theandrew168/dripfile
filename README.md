@@ -4,13 +4,12 @@ Managed file transfer as a service
 ## Design
 This project is broken up into four sub-programs:
 * `dripfile-migrate` - compares and applies database migrations
-* `dripfile-web` - primary CRUD application web server
-* `dripfile-worker` - watches the queue and performs file transfers
 * `dripfile-scheduler` - manages transfer schedules and publishes them to the queue
-* `dripfile-tap` - embedded program that bridges transfers within isolated networks
+* `dripfile-worker` - watches the queue and performs file transfers
+* `dripfile-web` - primary CRUD application web server
 
 ## Setup
-This project depends on the [Go programming language](https://golang.org/dl/) and the [TailwindCSS CLI](https://tailwindcss.com/blog/standalone-cli).
+This project depends on the [Go programming language](https://golang.org/dl/)
 
 ## Database
 This project uses [PostgreSQL](https://www.postgresql.org/) for persistent storage.
@@ -29,14 +28,13 @@ docker compose down
 
 ## Running
 If actively working on frontend templates, set `ENV=dev` to tell the server to reload templates from the filesystem on every page load.
-Apply database migrations, run whichever components you need (in background processes), and let Tailwind watch for CSS changes:
+Apply database migrations, run whichever components you need (in background processes), and then start the web server:
 ```bash
 # make run
 ENV=dev go run cmd/migrate/main.go
-ENV=dev go run cmd/web/main.go &
-ENV=dev go run cmd/worker/main.go &
 ENV=dev go run cmd/scheduler/main.go &
-tailwindcss --watch -m -i tailwind.input.css -o internal/static/static/css/tailwind.min.css
+ENV=dev go run cmd/worker/main.go &
+ENV=dev go run cmd/web/main.go
 ```
 
 ## Testing

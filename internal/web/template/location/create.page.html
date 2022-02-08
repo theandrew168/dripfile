@@ -3,56 +3,27 @@
 {{define "title"}}Create Location{{end}}
 
 {{define "main"}}
-<div id="location" class="p-6 mx-auto max-w-xl">
+<section id="location-create">
+	{{with .Form}}
 	<form action="/location/create" method="POST">
-		<div>
-			<h3 class="text-lg leading-6 font-medium text-gray-900">
-				Create Location - S3 Bucket
-			</h3>
-			<p class="mt-1 text-sm text-gray-500">
-				Add an S3 bucket that can be used to send and receive files.
-			</p>
-		</div>
+		<header>
+			<h2>Create Location - S3 Bucket</h2>
+		</header>
 
-		<div class="mt-6">
-			<label for="endpoint" class="block text-sm font-medium text-gray-700">Endpoint</label>
-			<div class="mt-1">
-				<input type="text" name="endpoint" id="endpoint" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="s3.amazonaws.com">
-			</div>
-		</div>
+		<label for="endpoint">Endpoint</label>
+		<input id="endpoint" name="endpoint" type="text" />
 
-		<div class="mt-6">
-			<label for="access-key-id" class="block text-sm font-medium text-gray-700">Access Key ID</label>
-			<div class="mt-1">
-				<input type="text" name="access-key-id" id="access-key-id" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
-			</div>
-		</div>
+		<label for="access-key-id">Access Key ID</label>
+		<input id="access-key-id" name="access-key-id" type="text" />
 
-		<div class="mt-6">
-			<label for="secret-access-key" class="block text-sm font-medium text-gray-700">Secret Access Key</label>
-			<div class="mt-1">
-				<input type="text" name="secret-access-key" id="secret-access-key" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
-			</div>
-		</div>
+		<label for="secret-access-key">Secret Access Key</label>
+		<input id="secret-access-key" name="secret-access-key" type="password" />
 
-		<div class="mt-6">
-			<label for="bucket-name" class="block text-sm font-medium text-gray-700">Bucket Name</label>
-			<div class="mt-1">
-				<input type="text" name="bucket-name" id="bucket-name" class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
-			</div>
-		</div>
+		<label for="bucket-name">Bucket Name</label>
+		<input id="bucket-name" name="bucket-name" type="text" />
 
-		<div class="mt-6">
-			<div class="flex justify-end">
-				<a href="/location" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-					Cancel
-				</a>
-				<button id="submit" type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-					Save
-				</button>
-			</div>
-		</div>
-
+		<button id="submit" type="submit">Create</button>
 	</form>
-</div>
+	{{end}}
+</section>
 {{end}}

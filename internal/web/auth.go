@@ -16,6 +16,7 @@ import (
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
+		"site.layout.html",
 		"auth/register.page.html",
 	}
 
@@ -31,6 +32,7 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
+		"site.layout.html",
 		"auth/register.page.html",
 	}
 
@@ -112,13 +114,40 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
+		"site.layout.html",
 		"auth/login.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	data := struct {
+		Form *form.Form
+	}{
+		Form: form.New(nil),
+	}
+
+	app.render(w, r, files, data)
 }
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"base.layout.html",
+		"site.layout.html",
+		"auth/login.page.html",
+	}
+
+	f := form.New(r.PostForm)
+	f.Required("email", "password")
+
+	data := struct {
+		Form *form.Form
+	}{
+		Form: f,
+	}
+
+	if !f.Valid() {
+		app.render(w, r, files, data)
+		return
+	}
+
 	email := r.PostForm.Get("email")
 	password := r.PostForm.Get("password")
 	rememberMe := r.PostForm.Get("remember-me")
