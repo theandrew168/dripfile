@@ -3,7 +3,7 @@
 {{define "title"}}Sign up{{end}}
 
 {{define "main"}}
-<section>
+<section id="page-register">
 	{{with .Form}}
 	<form action="/register" method="POST">
 		<header>
@@ -12,23 +12,23 @@
 
 		<label for="email">E-Mail</label>
 		{{with .Errors.Get "email"}}
-		<small>{{.}}</small>
+		<small id="error-email">{{.}}</small>
 		{{end}}
-		<input id="email" name="email" type="email" />
+		<input id="input-email" name="email" type="email" />
 
 		<label for="username">Username</label>
 		{{with .Errors.Get "username"}}
-		<small>{{.}}</small>
+		<small id="error-username">{{.}}</small>
 		{{end}}
-		<input id="username" name="username" type="text" />
+		<input id="input-username" name="username" type="text" />
 
 		<label for="password">Password</label>
 		{{with .Errors.Get "password"}}
-		<small>{{.}}</small>
+		<small id="error-password">{{.}}</small>
 		{{end}}
-		<input id="password" name="password" type="password" />
+		<input id="input-password" name="password" type="password" />
 
-		<button id="submit" type="submit">Register</button>
+		<button id="submit-register" type="submit">Register</button>
 	</form>
 	{{end}}
 </section>

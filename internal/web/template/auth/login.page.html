@@ -3,7 +3,7 @@
 {{define "title"}}Sign in{{end}}
 
 {{define "main"}}
-<section>
+<section id="page-login">
 	{{with .Form}}
 	<form action="/login" method="POST">
 		<header>
@@ -12,17 +12,17 @@
 
 		<label for="email">E-Mail</label>
 		{{with .Errors.Get "email"}}
-		<small>{{.}}</small>
+		<small id="error-email">{{.}}</small>
 		{{end}}
-		<input id="email" name="email" type="email" />
+		<input id="input-email" name="email" type="email" />
 
 		<label for="password">Password</label>
 		{{with .Errors.Get "password"}}
-		<small>{{.}}</small>
+		<small id="error-password">{{.}}</small>
 		{{end}}
-		<input id="password" name="password" type="password" />
+		<input id="input-password" name="password" type="password" />
 
-		<button id="submit" type="submit">Login</button>
+		<button id="submit-login" type="submit">Login</button>
 	</form>
 	{{end}}
 </section>

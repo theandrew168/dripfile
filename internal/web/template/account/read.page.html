@@ -3,7 +3,7 @@
 {{define "title"}}Profile{{end}}
 
 {{define "main"}}
-<article id="account-read">
+<article id="page-account-read">
 	<header>
 		<h2>Account</h2>
 		<p>Account and user profile information.</p>
@@ -11,10 +11,10 @@
 </section>
 <section>
 	<form action="/logout" method="POST">
-		<button id="logout" type="submit">Logout</button>
+		<button id="submit-logout" type="submit">Logout</button>
 	</form>
 	<form action="/account/delete" method="POST">
-		<button id="delete" type="submit">Delete</button>
+		<button id="submit-delete" type="submit">Delete</button>
 	</form>
 </article>
 {{end}}
