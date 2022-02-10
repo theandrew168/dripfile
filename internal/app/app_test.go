@@ -64,6 +64,8 @@ func run(m *testing.M) int {
 	email = username + "@dripfile.com"
 	fmt.Println(username)
 
+	// TODO: setup test bucket in S3
+
 	// setup application deps
 	cfg := test.Config()
 	conn, err := postgres.Connect(cfg.DatabaseURI)
@@ -183,15 +185,18 @@ func TestLocationListEmpty(t *testing.T) {
 }
 
 func TestLocationCreate(t *testing.T) {
-	info := test.RandomString(32)
+	endpoint := "localhost:9000"
+	accessKeyID := "AKIAIOSFODNN7EXAMPLE"
+	secretAccessKey := "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+	bucketName := "foo"
 
 	var actions []chromedp.Action
 	actions = append(actions, chromedp.WaitVisible("#action-create"))
 	actions = append(actions, chromedp.Click("#action-create"))
-	actions = append(actions, input("#input-endpoint", info)...)
-	actions = append(actions, input("#input-access-key-id", info)...)
-	actions = append(actions, input("#input-secret-access-key", info)...)
-	actions = append(actions, input("#input-bucket-name", info)...)
+	actions = append(actions, input("#input-endpoint", endpoint)...)
+	actions = append(actions, input("#input-access-key-id", accessKeyID)...)
+	actions = append(actions, input("#input-secret-access-key", secretAccessKey)...)
+	actions = append(actions, input("#input-bucket-name", bucketName)...)
 	actions = append(actions, chromedp.WaitVisible("#submit-create"))
 	actions = append(actions, chromedp.Submit("#submit-create"))
 	actions = append(actions, chromedp.WaitVisible("#page-location-read"))
