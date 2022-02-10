@@ -155,8 +155,8 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	account, err := app.storage.Account.ReadByEmail(email)
 	if err != nil {
 		if errors.Is(err, core.ErrNotExist) {
-			// TODO: handle email not exists (invalid user or pass)
-			app.serverErrorResponse(w, r, err)
+			f.Errors.Add("email", "Invalid email")
+			app.render(w, r, files, data)
 			return
 		}
 
@@ -166,9 +166,8 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
 	if err != nil {
-		app.logger.Info("invalid creds!\n")
-		// TODO: handle invalid creds (invalid user or pass)
-		app.serverErrorResponse(w, r, err)
+		f.Errors.Add("password", "Invalid password")
+		app.render(w, r, files, data)
 		return
 	}
 

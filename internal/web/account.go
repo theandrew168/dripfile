@@ -27,6 +27,8 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// TODO: delete project if no more associated accounts
+
 	// expire the existing session cookie
 	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)

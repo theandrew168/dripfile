@@ -11,10 +11,10 @@
 		</header>
 
 		<label for="email">E-Mail</label>
-		<input id="email" name="email" type="email" />
 		{{with .Errors.Get "email"}}
 		<small>{{.}}</small>
 		{{end}}
+		<input id="email" name="email" type="email" />
 
 		<label for="username">Username</label>
 		{{with .Errors.Get "username"}}
@@ -23,10 +23,10 @@
 		<input id="username" name="username" type="text" />
 
 		<label for="password">Password</label>
-		<input id="password" name="password" type="password" />
 		{{with .Errors.Get "password"}}
 		<small>{{.}}</small>
 		{{end}}
+		<input id="password" name="password" type="password" />
 
 		<button id="submit" type="submit">Register</button>
 	</form>
