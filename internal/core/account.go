@@ -42,4 +42,5 @@ type AccountStorage interface {
 
 	// additional CRUD ops may deal with many
 	ReadByEmail(email string) (Account, error)
+	CountByProject(project Project) (int, error)
 }

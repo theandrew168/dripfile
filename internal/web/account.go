@@ -27,7 +27,22 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	// TODO: delete project if no more associated accounts
+	// check number of accounts linked to project
+	project := session.Account.Project
+	count, err := app.storage.Account.CountByProject(project)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// delete project if no more associated accounts
+	if count == 0 {
+		err = app.storage.Project.Delete(project)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+	}
 
 	// expire the existing session cookie
 	cookie := NewExpiredCookie(sessionIDCookieName)

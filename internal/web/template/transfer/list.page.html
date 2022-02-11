@@ -9,4 +9,33 @@
 		<p>Show how Locations and Schedules are combined.</p>
 	</header>
 </section>
+
+<section>
+	<header>
+		<p><a id="action-create" href="/transfer/create"><b>Create Transfer</b></a></p>
+	</header>
+</section>
+
+<section>
+	{{with .Transfers}}
+	<table>
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Src</th>
+				<th>Dst</th>
+				<th>Pattern</th>
+			</tr>
+		</thead>
+		{{range .}}
+		<tr>
+			<td><a href="/transfer/{{.ID}}">Details</a></td>
+			<td><a href="/location/{{.Src}}">Src</a></td>
+			<td><a href="/location/{{.Dst}}">Dst</a></td>
+			<td>{{.Pattern}}</td>
+		</tr>
+		{{end}}
+	</table>
+	{{end}}
+</section>
 {{end}}

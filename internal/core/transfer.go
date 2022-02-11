@@ -25,4 +25,6 @@ type TransferStorage interface {
 	Read(id string) (Transfer, error)
 	Update(transfer Transfer) error
 	Delete(transfer Transfer) error
+
+	ReadManyByProject(project Project) ([]Transfer, error)
 }

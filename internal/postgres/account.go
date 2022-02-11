@@ -191,3 +191,30 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 
 	return account, nil
 }
+
+func (s *accountStorage) CountByProject(project core.Project) (int, error) {
+	stmt := `
+		SELECT
+			count(*)
+		FROM account
+		INNER JOIN project
+			ON project.id = account.project_id
+		WHERE project.id = $1`
+
+	var count int 
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	row := s.conn.QueryRow(ctx, stmt, project.ID)
+	err := scan(row, &count)
+	if err != nil {
+		if errors.Is(err, core.ErrRetry) {
+			return s.CountByProject(project)
+		}
+
+		return 0, err
+	}
+
+	return count, nil
+}
