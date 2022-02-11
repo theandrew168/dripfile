@@ -1,0 +1,26 @@
+{{template "body" .}}
+
+{{define "title"}}Transfer{{end}}
+
+{{define "main"}}
+<section id="page-transfer-read">
+	<header>
+		<h2>Transfer</h2>
+	</header>
+	{{with .Transfer}}
+	<form action="/transfer/delete" method="POST">
+		<label>ID</label>
+		<p>{{.ID}}</p>
+
+		<label>Pattern</label>
+		<p>{{.Pattern}}</p>
+
+		<p><a href="/location/{{.Src.ID}}">Source</a></p>
+		<p><a href="/location/{{.Dst.ID}}">Destination</a></p>
+
+		<input id="id" name="id" type="hidden" value="{{.ID}}" />
+		<button id="submit-delete" type="submit">Delete</button>
+	</form>
+	{{end}}
+</section>
+{{end}}

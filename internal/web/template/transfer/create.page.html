@@ -1,0 +1,35 @@
+{{template "body" .}}
+
+{{define "title"}}Create Transfer{{end}}
+
+{{define "main"}}
+<section id="page-transfer-create">
+	<form action="/transfer/create" method="POST">
+		<header>
+			<h2>Create Transfer</h2>
+		</header>
+
+		<label for="input-pattern">Pattern</label>
+		<input id="input-pattern" name="pattern" type="text" value='{{.Form.Get "pattern"}}' />
+
+		<label for="select-src-id">Source</label>
+		<select id="select-src-id" name="src-id">
+			{{range .Locations}}
+			<option value="{{.ID}}">{{.ID}}</option>
+			{{end}}
+		</select>
+
+		<label for="select-dst-id">Destination</label>
+		<select id="select-dst-id" name="dst-id">
+			{{range .Locations}}
+			<option value="{{.ID}}">{{.ID}}</option>
+			{{end}}
+		</select>
+
+		{{with .Form.Errors.Get "general"}}
+		<p><small id="error-general">{{.}}</small></p>
+		{{end}}
+		<button id="submit-create" type="submit">Create</button>
+	</form>
+</section>
+{{end}}

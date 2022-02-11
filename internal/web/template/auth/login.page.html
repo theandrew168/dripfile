@@ -10,13 +10,13 @@
 			<h2>Login to your account</h2>
 		</header>
 
-		<label for="email">E-Mail</label>
+		<label for="input-email">E-Mail</label>
 		{{with .Errors.Get "email"}}
 		<small id="error-email">{{.}}</small>
 		{{end}}
-		<input id="input-email" name="email" type="email" />
+		<input id="input-email" name="email" type="email" value='{{.Get "email"}}' />
 
-		<label for="password">Password</label>
+		<label for="input-password">Password</label>
 		{{with .Errors.Get "password"}}
 		<small id="error-password">{{.}}</small>
 		{{end}}

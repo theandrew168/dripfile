@@ -201,7 +201,7 @@ func (s *accountStorage) CountByProject(project core.Project) (int, error) {
 			ON project.id = account.project_id
 		WHERE project.id = $1`
 
-	var count int 
+	var count int
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()

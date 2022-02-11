@@ -5,11 +5,7 @@ import (
 )
 
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Category string
-	}{
-		Category: "schedule",
-	}
+	data := struct{}{}
 
 	files := []string{
 		"base.layout.html",

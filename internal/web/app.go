@@ -75,6 +75,10 @@ func (app *Application) Router() http.Handler {
 		mux.Handle("/account/delete", app.parseFormFunc(app.handleAccountDeleteForm), "POST")
 
 		mux.HandleFunc("/transfer", app.handleTransferList, "GET")
+		mux.HandleFunc("/transfer/create", app.handleTransferCreate, "GET")
+		mux.Handle("/transfer/create", app.parseFormFunc(app.handleTransferCreateForm), "POST")
+		mux.Handle("/transfer/delete", app.parseFormFunc(app.handleTransferDeleteForm), "POST")
+		mux.HandleFunc("/transfer/:id", app.handleTransferRead, "GET")
 
 		mux.HandleFunc("/location", app.handleLocationList, "GET")
 		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")

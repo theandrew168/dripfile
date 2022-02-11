@@ -32,10 +32,8 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 	}
 
 	data := struct {
-		Category  string
 		Locations []core.Location
 	}{
-		Category:  "location",
 		Locations: locations,
 	}
 
@@ -62,10 +60,8 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 	}
 
 	data := struct {
-		Category string
 		Location core.Location
 	}{
-		Category: "location",
 		Location: location,
 	}
 
@@ -80,11 +76,9 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 	}
 
 	data := struct {
-		Category string
-		Form     *form.Form
+		Form *form.Form
 	}{
-		Category: "location",
-		Form:     form.New(nil),
+		Form: form.New(nil),
 	}
 
 	app.render(w, r, files, data)
@@ -97,25 +91,36 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		"location/create.page.html",
 	}
 
+	session, err := app.requestSession(r)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	f := form.New(r.PostForm)
+
 	data := struct {
-		Category string
-		Form     *form.Form
+		Form *form.Form
 	}{
-		Category: "location",
-		Form:     form.New(r.PostForm),
+		Form: f,
+	}
+
+	if !f.Valid() {
+		app.render(w, r, files, data)
+		return
 	}
 
 	// TODO: support other types of info
 	endpoint := r.PostForm.Get("endpoint")
+	bucketName := r.PostForm.Get("bucket-name")
 	accessKeyID := r.PostForm.Get("access-key-id")
 	secretAccessKey := r.PostForm.Get("secret-access-key")
-	bucketName := r.PostForm.Get("bucket-name")
 
 	info := connection.S3Info{
 		Endpoint:        endpoint,
+		BucketName:      bucketName,
 		AccessKeyID:     accessKeyID,
 		SecretAccessKey: secretAccessKey,
-		BucketName:      bucketName,
 	}
 
 	conn, err := connection.NewS3(info)
@@ -134,12 +139,6 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	b, err := json.Marshal(info)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

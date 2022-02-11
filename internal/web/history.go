@@ -5,11 +5,7 @@ import (
 )
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Category string
-	}{
-		Category: "history",
-	}
+	data := struct{}{}
 
 	files := []string{
 		"base.layout.html",

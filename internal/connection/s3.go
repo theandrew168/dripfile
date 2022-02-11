@@ -13,9 +13,9 @@ import (
 
 type S3Info struct {
 	Endpoint        string `json:"endpoint"`
+	BucketName      string `json:"bucket_name"`
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
-	BucketName      string `json:"bucket_name"`
 }
 
 type s3Conn struct {

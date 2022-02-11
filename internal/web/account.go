@@ -28,8 +28,7 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 	}
 
 	// check number of accounts linked to project
-	project := session.Account.Project
-	count, err := app.storage.Account.CountByProject(project)
+	count, err := app.storage.Account.CountByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -37,7 +36,7 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 
 	// delete project if no more associated accounts
 	if count == 0 {
-		err = app.storage.Project.Delete(project)
+		err = app.storage.Project.Delete(session.Account.Project)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

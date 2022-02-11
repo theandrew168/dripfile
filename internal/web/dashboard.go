@@ -5,11 +5,7 @@ import (
 )
 
 func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Category string
-	}{
-		Category: "dashboard",
-	}
+	data := struct{}{}
 
 	files := []string{
 		"base.layout.html",
