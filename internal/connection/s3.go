@@ -9,16 +9,21 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-
-	"github.com/theandrew168/dripfile/internal/core"
 )
 
+type S3Info struct {
+	Endpoint        string `json:"endpoint"`
+	AccessKeyID     string `json:"access_key_id"`
+	SecretAccessKey string `json:"secret_access_key"`
+	BucketName      string `json:"bucket_name"`
+}
+
 type s3Conn struct {
-	info   core.S3Info
+	info   S3Info
 	client *minio.Client
 }
 
-func NewS3(info core.S3Info) (core.Connection, error) {
+func NewS3(info S3Info) (Connection, error) {
 	creds := credentials.NewStaticV4(
 		info.AccessKeyID,
 		info.SecretAccessKey,
@@ -39,7 +44,7 @@ func NewS3(info core.S3Info) (core.Connection, error) {
 		Secure: secure,
 	})
 	if err != nil {
-		return nil, core.ErrInvalidEndpoint
+		return nil, ErrInvalidEndpoint
 	}
 
 	ctx := context.Background()
@@ -87,19 +92,19 @@ func (c *s3Conn) Write(path string, r io.Reader) error {
 func normalize(err error) error {
 	// check for net.Error first (invalid / unreachable endpoint)
 	if _, ok := err.(net.Error); ok {
-		return core.ErrInvalidEndpoint
+		return ErrInvalidEndpoint
 	}
 
 	// check for invalid credentials and / or bucket
 	s3Err := minio.ToErrorResponse(err)
 	if s3Err.Code == "AccessDenied" {
-		return core.ErrInvalidCredentials
+		return ErrInvalidCredentials
 	}
 	if s3Err.Code == "SignatureDoesNotMatch" {
-		return core.ErrInvalidCredentials
+		return ErrInvalidCredentials
 	}
 	if s3Err.Code == "NoSuchBucket" {
-		return core.ErrInvalidBucket
+		return ErrInvalidBucket
 	}
 
 	// else bubble

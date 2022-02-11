@@ -111,7 +111,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	secretAccessKey := r.PostForm.Get("secret-access-key")
 	bucketName := r.PostForm.Get("bucket-name")
 
-	info := core.S3Info{
+	info := connection.S3Info{
 		Endpoint:        endpoint,
 		AccessKeyID:     accessKeyID,
 		SecretAccessKey: secretAccessKey,

@@ -13,9 +13,4 @@ var (
 	// storage errors
 	ErrRetry    = errors.New("core: retry storage operation")
 	ErrConflict = errors.New("core: conflict in storage operation")
-
-	// connection errors
-	ErrInvalidEndpoint    = errors.New("core: invalid endpoint")
-	ErrInvalidCredentials = errors.New("core: invalid credentials")
-	ErrInvalidBucket      = errors.New("core: invalid bucket")
 )
