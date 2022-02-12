@@ -136,6 +136,8 @@ func TestAccountRegister(t *testing.T) {
 	var actions []chromedp.Action
 	actions = append(actions, chromedp.WaitVisible("#nav-register"))
 	actions = append(actions, chromedp.Click("#nav-register"))
+	actions = append(actions, chromedp.WaitVisible("#page-register"))
+
 	actions = append(actions, input("#input-email", email)...)
 	actions = append(actions, input("#input-username", username)...)
 	actions = append(actions, input("#input-password", password)...)
@@ -164,10 +166,56 @@ func TestAccountLogout(t *testing.T) {
 	}
 }
 
+func TestAccountLoginInvalidEmail(t *testing.T) {
+	// random email that won't be valid
+	email := test.RandomString(8) + "@dripfile.com"
+
+	var actions []chromedp.Action
+	actions = append(actions, chromedp.WaitVisible("#nav-login"))
+	actions = append(actions, chromedp.Click("#nav-login"))
+	actions = append(actions, chromedp.WaitVisible("#page-login"))
+
+	actions = append(actions, input("#input-email", email)...)
+	actions = append(actions, input("#input-password", password)...)
+	actions = append(actions, chromedp.WaitVisible("#submit-login"))
+	actions = append(actions, chromedp.Submit("#submit-login"))
+
+	actions = append(actions, chromedp.WaitVisible("#error-email"))
+
+	err := chromedp.Run(ctx, actions...)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestAccountLoginInvalidPassword(t *testing.T) {
+	// random password that won't be valid
+	password := test.RandomString(8)
+
+	var actions []chromedp.Action
+	actions = append(actions, chromedp.WaitVisible("#nav-login"))
+	actions = append(actions, chromedp.Click("#nav-login"))
+	actions = append(actions, chromedp.WaitVisible("#page-login"))
+
+	actions = append(actions, input("#input-email", email)...)
+	actions = append(actions, input("#input-password", password)...)
+	actions = append(actions, chromedp.WaitVisible("#submit-login"))
+	actions = append(actions, chromedp.Submit("#submit-login"))
+
+	actions = append(actions, chromedp.WaitVisible("#error-password"))
+
+	err := chromedp.Run(ctx, actions...)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAccountLogin(t *testing.T) {
 	var actions []chromedp.Action
 	actions = append(actions, chromedp.WaitVisible("#nav-login"))
 	actions = append(actions, chromedp.Click("#nav-login"))
+	actions = append(actions, chromedp.WaitVisible("#page-login"))
+
 	actions = append(actions, input("#input-email", email)...)
 	actions = append(actions, input("#input-password", password)...)
 	actions = append(actions, chromedp.WaitVisible("#submit-login"))
@@ -185,7 +233,6 @@ func TestLocationListEmpty(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#nav-location"),
 		chromedp.Click("#nav-location"),
-
 		chromedp.WaitVisible("#page-location-list"),
 	)
 	if err != nil {
@@ -197,6 +244,8 @@ func TestLocationCreate(t *testing.T) {
 	var actions []chromedp.Action
 	actions = append(actions, chromedp.WaitVisible("#action-create"))
 	actions = append(actions, chromedp.Click("#action-create"))
+	actions = append(actions, chromedp.WaitVisible("#page-location-create"))
+
 	actions = append(actions, input("#input-endpoint", s3Endpoint)...)
 	actions = append(actions, input("#input-bucket-name", s3BucketNameFoo)...)
 	actions = append(actions, input("#input-access-key-id", s3AccessKeyID)...)
@@ -225,7 +274,6 @@ func TestLocationDelete(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#submit-delete"),
 		chromedp.Submit("#submit-delete"),
-
 		chromedp.WaitVisible("#page-location-list"),
 	)
 	if err != nil {
@@ -238,7 +286,6 @@ func TestTransferListEmpty(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#nav-transfer"),
 		chromedp.Click("#nav-transfer"),
-
 		chromedp.WaitVisible("#page-transfer-list"),
 	)
 	if err != nil {
@@ -251,7 +298,6 @@ func TestScheduleListEmpty(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#nav-schedule"),
 		chromedp.Click("#nav-schedule"),
-
 		chromedp.WaitVisible("#page-schedule-list"),
 	)
 	if err != nil {
@@ -264,7 +310,6 @@ func TestHistoryListEmpty(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#nav-history"),
 		chromedp.Click("#nav-history"),
-
 		chromedp.WaitVisible("#page-history-list"),
 	)
 	if err != nil {
@@ -276,7 +321,6 @@ func TestAccountRead(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#nav-account"),
 		chromedp.Click("#nav-account"),
-
 		chromedp.WaitVisible("#page-account-read"),
 	)
 	if err != nil {
@@ -288,7 +332,6 @@ func TestAccountDelete(t *testing.T) {
 	err := chromedp.Run(ctx,
 		chromedp.WaitVisible("#submit-delete"),
 		chromedp.Submit("#submit-delete"),
-
 		chromedp.WaitVisible("#page-index"),
 	)
 	if err != nil {
