@@ -21,6 +21,15 @@ import (
 // chromedp docs:
 // https://pkg.go.dev/github.com/chromedp/chromedp#Query
 
+// minio container info
+const (
+	s3Endpoint        = "localhost:9000"
+	s3BucketNameFoo   = "foo"
+	s3BucketNameBar   = "bar"
+	s3AccessKeyID     = "AKIAIOSFODNN7EXAMPLE"
+	s3SecretAccessKey = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+)
+
 // chromedp context
 var ctx context.Context
 
@@ -185,18 +194,13 @@ func TestLocationListEmpty(t *testing.T) {
 }
 
 func TestLocationCreate(t *testing.T) {
-	endpoint := "localhost:9000"
-	accessKeyID := "AKIAIOSFODNN7EXAMPLE"
-	secretAccessKey := "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-	bucketName := "foo"
-
 	var actions []chromedp.Action
 	actions = append(actions, chromedp.WaitVisible("#action-create"))
 	actions = append(actions, chromedp.Click("#action-create"))
-	actions = append(actions, input("#input-endpoint", endpoint)...)
-	actions = append(actions, input("#input-bucket-name", bucketName)...)
-	actions = append(actions, input("#input-access-key-id", accessKeyID)...)
-	actions = append(actions, input("#input-secret-access-key", secretAccessKey)...)
+	actions = append(actions, input("#input-endpoint", s3Endpoint)...)
+	actions = append(actions, input("#input-bucket-name", s3BucketNameFoo)...)
+	actions = append(actions, input("#input-access-key-id", s3AccessKeyID)...)
+	actions = append(actions, input("#input-secret-access-key", s3SecretAccessKey)...)
 	actions = append(actions, chromedp.WaitVisible("#submit-create"))
 	actions = append(actions, chromedp.Submit("#submit-create"))
 	actions = append(actions, chromedp.WaitVisible("#page-location-read"))
