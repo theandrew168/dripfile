@@ -38,17 +38,18 @@ ENV=dev go run cmd/web/main.go
 ```
 
 ## Testing
-Tests can be ran after starting the necessary containers and applying database migrations:
+Unit and integration tests can be ran after starting the necessary containers and applying database migrations:
 ```bash
 # make test
 ENV=dev go run cmd/migrate/main.go
-go test -v ./...
+go test -short -count=1 -v ./...
 ```
 
-Note that the tests will leave random test in the database so feel free to flush it out by restarting the containers:
+UI tests require [Google Chrome](https://www.google.com/chrome/) to be installed in addition to the aforementioned containers and migrations:
 ```bash
-docker compose down
-docker compose up -d
+# make test-ui
+ENV=dev go run cmd/migrate/main.go
+go test -count=1 -v ./...
 ```
 
 ## Features
