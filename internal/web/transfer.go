@@ -168,6 +168,29 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 	http.Redirect(w, r, "/transfer/"+transfer.ID, http.StatusSeeOther)
 }
 
+func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Request) {
+	session, err := app.requestSession(r)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// TODO: assert id belongs to session->account->project
+	// TODO: assert account role is owner, admin, or editor
+	id := r.PostForm.Get("id")
+
+	transfer, err := app.storage.Transfer.Read(id)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+
+	// TODO: submit this xfer to the task queue
+
+	app.logger.Info("account %s transfer %s run\n", session.Account.Email, transfer.ID)
+	http.Redirect(w, r, "/history", http.StatusSeeOther)
+}
+
 func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.Request) {
 	session, err := app.requestSession(r)
 	if err != nil {

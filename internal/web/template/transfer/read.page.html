@@ -21,6 +21,11 @@
 		<input id="id" name="id" type="hidden" value="{{.ID}}" />
 		<button id="submit-delete" type="submit">Delete</button>
 	</form>
+
+	<form action="/transfer/run" method="POST">
+		<input id="id" name="id" type="hidden" value="{{.ID}}" />
+		<button id="submit-delete" type="submit">Run now</button>
+	</form>
 	{{end}}
 </section>
 {{end}}

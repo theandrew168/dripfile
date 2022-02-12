@@ -30,8 +30,8 @@
 		{{range .}}
 		<tr>
 			<td><a href="/transfer/{{.ID}}">Details</a></td>
-			<td><a href="/location/{{.Src}}">Src</a></td>
-			<td><a href="/location/{{.Dst}}">Dst</a></td>
+			<td><a href="/location/{{.Src.ID}}">Src</a></td>
+			<td><a href="/location/{{.Dst.ID}}">Dst</a></td>
 			<td>{{.Pattern}}</td>
 		</tr>
 		{{end}}
