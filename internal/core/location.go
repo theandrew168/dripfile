@@ -25,12 +25,3 @@ func NewLocation(kind, info string, project Project) Location {
 	}
 	return location
 }
-
-type LocationStorage interface {
-	Create(location *Location) error
-	Read(id string) (Location, error)
-	Update(location Location) error
-	Delete(location Location) error
-
-	ReadManyByProject(project Project) ([]Location, error)
-}

@@ -16,11 +16,3 @@ func NewJob(transfer Transfer, schedule Schedule) Job {
 	}
 	return job
 }
-
-type JobStorage interface {
-	// baseline CRUD ops all deal with one record
-	Create(job *Job) error
-	Read(id string) (Job, error)
-	Update(job Job) error
-	Delete(job Job) error
-}

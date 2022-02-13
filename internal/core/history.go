@@ -27,10 +27,3 @@ func NewHistory(bytes int64, status string, startedAt, finishedAt time.Time, pro
 	}
 	return history
 }
-
-type HistoryStorage interface {
-	Create(history *History) error
-	Read(id string) (History, error)
-	Update(history History) error
-	Delete(history History) error
-}

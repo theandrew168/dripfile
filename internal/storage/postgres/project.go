@@ -13,7 +13,7 @@ type projectStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewProjectStorage(conn *pgxpool.Pool) core.ProjectStorage {
+func NewProject(conn *pgxpool.Pool) *projectStorage {
 	s := projectStorage{
 		conn: conn,
 	}

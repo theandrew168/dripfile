@@ -19,12 +19,3 @@ func NewTransfer(pattern string, src, dst Location, project Project) Transfer {
 	}
 	return transfer
 }
-
-type TransferStorage interface {
-	Create(transfer *Transfer) error
-	Read(id string) (Transfer, error)
-	Update(transfer Transfer) error
-	Delete(transfer Transfer) error
-
-	ReadManyByProject(project Project) ([]Transfer, error)
-}

@@ -18,9 +18,3 @@ func NewSession(hash string, expiry time.Time, account Account) Session {
 	}
 	return session
 }
-
-type SessionStorage interface {
-	Create(session *Session) error
-	Read(hash string) (Session, error)
-	Delete(session Session) error
-}

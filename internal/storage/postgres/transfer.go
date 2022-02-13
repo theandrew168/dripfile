@@ -13,7 +13,7 @@ type transferStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewTransferStorage(conn *pgxpool.Pool) core.TransferStorage {
+func NewTransfer(conn *pgxpool.Pool) *transferStorage {
 	s := transferStorage{
 		conn: conn,
 	}

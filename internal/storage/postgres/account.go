@@ -13,7 +13,7 @@ type accountStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewAccountStorage(conn *pgxpool.Pool) core.AccountStorage {
+func NewAccount(conn *pgxpool.Pool) *accountStorage {
 	s := accountStorage{
 		conn: conn,
 	}

@@ -16,10 +16,3 @@ func NewSchedule(expr string, project Project) Schedule {
 	}
 	return schedule
 }
-
-type ScheduleStorage interface {
-	Create(schedule *Schedule) error
-	Read(id string) (Schedule, error)
-	Update(schedule Schedule) error
-	Delete(schedule Schedule) error
-}

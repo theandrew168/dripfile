@@ -9,8 +9,8 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/log"
+	"github.com/theandrew168/dripfile/internal/storage"
 )
 
 //go:embed template
@@ -19,11 +19,11 @@ var templatesFS embed.FS
 type Application struct {
 	templates fs.FS
 
-	storage core.Storage
+	storage storage.Storage
 	logger  log.Logger
 }
 
-func NewApplication(storage core.Storage, logger log.Logger) *Application {
+func NewApplication(storage storage.Storage, logger log.Logger) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"

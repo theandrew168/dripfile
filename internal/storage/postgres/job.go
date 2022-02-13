@@ -10,7 +10,7 @@ type jobStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewJobStorage(conn *pgxpool.Pool) core.JobStorage {
+func NewJob(conn *pgxpool.Pool) *jobStorage {
 	s := jobStorage{
 		conn: conn,
 	}

@@ -10,7 +10,7 @@ type historyStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewHistoryStorage(conn *pgxpool.Pool) core.HistoryStorage {
+func NewHistory(conn *pgxpool.Pool) *historyStorage {
 	s := historyStorage{
 		conn: conn,
 	}

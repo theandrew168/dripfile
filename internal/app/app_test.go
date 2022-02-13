@@ -15,6 +15,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/app"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
+	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
@@ -84,11 +85,11 @@ func run(m *testing.M) int {
 	}
 	defer conn.Close()
 
-	storage := postgres.NewStorage(conn)
+	store := storage.NewPostgres(conn)
 	logger := log.NewLogger(os.Stdout)
 
 	// create the application
-	handler := app.New(storage, logger)
+	handler := app.New(store, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)

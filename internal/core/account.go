@@ -32,15 +32,3 @@ func NewAccount(email, username, password, role string, project Project) Account
 	}
 	return account
 }
-
-type AccountStorage interface {
-	// baseline CRUD ops all deal with one record
-	Create(account *Account) error
-	Read(id string) (Account, error)
-	Update(account Account) error
-	Delete(account Account) error
-
-	// additional CRUD ops may deal with many
-	ReadByEmail(email string) (Account, error)
-	CountByProject(project Project) (int, error)
-}
