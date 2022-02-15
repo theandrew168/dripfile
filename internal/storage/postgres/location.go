@@ -20,6 +20,44 @@ func NewLocation(conn *pgxpool.Pool) *locationStorage {
 	return &s
 }
 
+// TODO: return zero, one, or many results (only last op?)
+type Operation struct {
+	stmt string
+	args []interface{}
+	dest []interface{}
+}
+
+/*
+
+// return zero
+create := Operation{
+	stmt: "INSERT INTO location ... ($1, $2, $3) ...",
+	args: []interface{
+		location.Kind,
+		location.Info,
+		location.Project.ID,
+	},
+	dest: []interface{
+		&location.ID,
+	},
+}
+
+// return one
+read := Operation{
+	stmt: "SELECT FROM location ... WHERE location.id = $1",
+	args: []interface{
+		location.ID,
+	},
+	dest: []interface{
+		&location.ID,
+		&location.Kind,
+		&location.Info,
+		&location.Project.ID,
+	},
+}
+
+*/
+
 func (s *locationStorage) Create(location *core.Location) error {
 	stmt := `
 		INSERT INTO location
