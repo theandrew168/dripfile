@@ -13,9 +13,9 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/theandrew168/dripfile/internal/app"
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
-	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
@@ -85,11 +85,11 @@ func run(m *testing.M) int {
 	}
 	defer conn.Close()
 
-	store := storage.NewPostgres(conn)
+	storage := database.NewPostgresStorage(conn)
 	logger := log.NewLogger(os.Stdout)
 
 	// create the application
-	handler := app.New(store, logger)
+	handler := app.New(storage, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)

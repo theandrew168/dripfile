@@ -10,7 +10,7 @@ type scheduleStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewSchedule(conn *pgxpool.Pool) *scheduleStorage {
+func NewScheduleStorage(conn *pgxpool.Pool) *scheduleStorage {
 	s := scheduleStorage{
 		conn: conn,
 	}

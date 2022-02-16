@@ -1,4 +1,4 @@
-package storage
+package database
 
 import (
 	"github.com/theandrew168/dripfile/internal/core"
@@ -6,23 +6,23 @@ import (
 
 // aggregation of core storage interfaces
 type Storage struct {
-	Project  Project
-	Account  Account
-	Session  Session
-	Location Location
-	Transfer Transfer
-	Schedule Schedule
-	Job      Job
-	History  History
+	Project  ProjectStorage
+	Account  AccountStorage
+	Session  SessionStorage
+	Location LocationStorage
+	Transfer TransferStorage
+	Schedule ScheduleStorage
+	Job      JobStorage
+	History  HistoryStorage
 }
 
-type Project interface {
+type ProjectStorage interface {
 	Create(project *core.Project) error
 	Read(id string) (core.Project, error)
 	Delete(project core.Project) error
 }
 
-type Account interface {
+type AccountStorage interface {
 	Create(account *core.Account) error
 	Read(id string) (core.Account, error)
 	Update(account core.Account) error
@@ -32,13 +32,13 @@ type Account interface {
 	CountByProject(project core.Project) (int, error)
 }
 
-type Session interface {
+type SessionStorage interface {
 	Create(session *core.Session) error
 	Read(hash string) (core.Session, error)
 	Delete(session core.Session) error
 }
 
-type Location interface {
+type LocationStorage interface {
 	Create(location *core.Location) error
 	Read(id string) (core.Location, error)
 	Update(location core.Location) error
@@ -47,7 +47,7 @@ type Location interface {
 	ReadManyByProject(project core.Project) ([]core.Location, error)
 }
 
-type Transfer interface {
+type TransferStorage interface {
 	Create(transfer *core.Transfer) error
 	Read(id string) (core.Transfer, error)
 	Update(transfer core.Transfer) error
@@ -56,14 +56,14 @@ type Transfer interface {
 	ReadManyByProject(project core.Project) ([]core.Transfer, error)
 }
 
-type Schedule interface {
+type ScheduleStorage interface {
 	Create(schedule *core.Schedule) error
 	Read(id string) (core.Schedule, error)
 	Update(schedule core.Schedule) error
 	Delete(schedule core.Schedule) error
 }
 
-type Job interface {
+type JobStorage interface {
 	// baseline CRUD ops all deal with one record
 	Create(job *core.Job) error
 	Read(id string) (core.Job, error)
@@ -71,7 +71,7 @@ type Job interface {
 	Delete(job core.Job) error
 }
 
-type History interface {
+type HistoryStorage interface {
 	Create(history *core.History) error
 	Read(id string) (core.History, error)
 	Update(history core.History) error

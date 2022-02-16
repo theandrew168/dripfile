@@ -6,14 +6,14 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/static"
-	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/web"
 )
 
 // create the main application
-func New(storage storage.Storage, logger log.Logger) http.Handler {
+func New(storage database.Storage, logger log.Logger) http.Handler {
 	mux := flow.New()
 
 	// handle top-level special cases

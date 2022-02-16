@@ -13,7 +13,7 @@ type locationStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewLocation(conn *pgxpool.Pool) *locationStorage {
+func NewLocationStorage(conn *pgxpool.Pool) *locationStorage {
 	s := locationStorage{
 		conn: conn,
 	}

@@ -16,9 +16,9 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/app"
 	"github.com/theandrew168/dripfile/internal/config"
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
-	"github.com/theandrew168/dripfile/internal/storage"
 )
 
 func main() {
@@ -47,10 +47,10 @@ func run() int {
 	}
 	defer conn.Close()
 
-	store := storage.NewPostgres(conn)
+	storage := database.NewPostgresStorage(conn)
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(store, logger)
+	handler := app.New(storage, logger)
 
 	srv := &http.Server{
 		Addr:    addr,

@@ -13,7 +13,7 @@ type sessionStorage struct {
 	conn *pgxpool.Pool
 }
 
-func NewSession(conn *pgxpool.Pool) *sessionStorage {
+func NewSessionStorage(conn *pgxpool.Pool) *sessionStorage {
 	s := sessionStorage{
 		conn: conn,
 	}
