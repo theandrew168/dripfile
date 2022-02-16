@@ -56,10 +56,19 @@ test-ui: run-migrate
 
 .PHONY: race
 race: run-migrate
+	go test -short -race -count=1 ./...
+
+.PHONY: race-ui
+race-ui: run-migrate
 	go test -race -count=1 ./...
 
 .PHONY: cover
 cover: run-migrate
+	go test -short -coverprofile=c.out -coverpkg=./... -count=1 ./...
+	go tool cover -html=c.out
+
+.PHONY: cover-ui
+cover-ui: run-migrate
 	go test -coverprofile=c.out -coverpkg=./... -count=1 ./...
 	go tool cover -html=c.out
 
