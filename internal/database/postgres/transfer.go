@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/postgres"
 )
 
 type transferStorage struct {
@@ -39,7 +40,7 @@ func (s *transferStorage) Create(transfer *core.Transfer) error {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, args...)
-	err := scan(row, &transfer.ID)
+	err := postgres.Scan(row, &transfer.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(transfer)
@@ -93,7 +94,7 @@ func (s *transferStorage) Read(id string) (core.Transfer, error) {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, id)
-	err := scan(row, dest...)
+	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -124,7 +125,7 @@ func (s *transferStorage) Update(transfer core.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, args...)
+	err := postgres.Exec(s.conn, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(transfer)
@@ -144,7 +145,7 @@ func (s *transferStorage) Delete(transfer core.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, transfer.ID)
+	err := postgres.Exec(s.conn, ctx, stmt, transfer.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(transfer)
@@ -205,7 +206,7 @@ func (s *transferStorage) ReadManyByProject(project core.Project) ([]core.Transf
 			&transfer.Project.ID,
 		}
 
-		err := scan(rows, dest...)
+		err := postgres.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadManyByProject(project)

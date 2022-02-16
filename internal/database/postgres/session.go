@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/postgres"
 )
 
 type sessionStorage struct {
@@ -36,7 +37,7 @@ func (s *sessionStorage) Create(session *core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, args...)
+	err := postgres.Exec(s.conn, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(session)
@@ -84,7 +85,7 @@ func (s *sessionStorage) Read(hash string) (core.Session, error) {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, hash)
-	err := scan(row, dest...)
+	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(hash)
@@ -104,7 +105,7 @@ func (s *sessionStorage) Delete(session core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, session.Hash)
+	err := postgres.Exec(s.conn, ctx, stmt, session.Hash)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(session)

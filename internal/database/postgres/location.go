@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/postgres"
 )
 
 type locationStorage struct {
@@ -76,7 +77,7 @@ func (s *locationStorage) Create(location *core.Location) error {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, args...)
-	err := scan(row, &location.ID)
+	err := postgres.Scan(row, &location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(location)
@@ -112,7 +113,7 @@ func (s *locationStorage) Read(id string) (core.Location, error) {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, id)
-	err := scan(row, dest...)
+	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -141,7 +142,7 @@ func (s *locationStorage) Update(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, args...)
+	err := postgres.Exec(s.conn, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(location)
@@ -161,7 +162,7 @@ func (s *locationStorage) Delete(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, location.ID)
+	err := postgres.Exec(s.conn, ctx, stmt, location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(location)
@@ -204,7 +205,7 @@ func (s *locationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 			&location.Project.ID,
 		}
 
-		err := scan(rows, dest...)
+		err := postgres.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadManyByProject(project)

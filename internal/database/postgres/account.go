@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/postgres"
 )
 
 type accountStorage struct {
@@ -41,7 +42,7 @@ func (s *accountStorage) Create(account *core.Account) error {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, args...)
-	err := scan(row, &account.ID)
+	err := postgres.Scan(row, &account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(account)
@@ -83,7 +84,7 @@ func (s *accountStorage) Read(id string) (core.Account, error) {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, id)
-	err := scan(row, dest...)
+	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -118,7 +119,7 @@ func (s *accountStorage) Update(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, args...)
+	err := postgres.Exec(s.conn, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(account)
@@ -138,7 +139,7 @@ func (s *accountStorage) Delete(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, account.ID)
+	err := postgres.Exec(s.conn, ctx, stmt, account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(account)
@@ -180,7 +181,7 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, email)
-	err := scan(row, dest...)
+	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.ReadByEmail(email)
@@ -207,7 +208,7 @@ func (s *accountStorage) CountByProject(project core.Project) (int, error) {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, project.ID)
-	err := scan(row, &count)
+	err := postgres.Scan(row, &count)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.CountByProject(project)

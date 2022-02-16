@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/postgres"
 )
 
 type projectStorage struct {
@@ -32,7 +33,7 @@ func (s *projectStorage) Create(project *core.Project) error {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, args...)
-	err := scan(row, &project.ID)
+	err := postgres.Scan(row, &project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(project)
@@ -60,7 +61,7 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	defer cancel()
 
 	row := s.conn.QueryRow(ctx, stmt, id)
-	err := scan(row, dest...)
+	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -80,7 +81,7 @@ func (s *projectStorage) Delete(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := exec(s.conn, ctx, stmt, project.ID)
+	err := postgres.Exec(s.conn, ctx, stmt, project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(project)
