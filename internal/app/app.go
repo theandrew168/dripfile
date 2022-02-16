@@ -8,12 +8,13 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
+	"github.com/theandrew168/dripfile/internal/pubsub"
 	"github.com/theandrew168/dripfile/internal/static"
 	"github.com/theandrew168/dripfile/internal/web"
 )
 
 // create the main application
-func New(storage database.Storage, logger log.Logger) http.Handler {
+func New(storage database.Storage, queue pubsub.Queue, logger log.Logger) http.Handler {
 	mux := flow.New()
 
 	// handle top-level special cases
@@ -40,7 +41,7 @@ func New(storage database.Storage, logger log.Logger) http.Handler {
 	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
 
 	// primary web app (last due to being a top-level catch-all)
-	webApp := web.NewApplication(storage, logger)
+	webApp := web.NewApplication(storage, queue, logger)
 	mux.Handle("/...", webApp.Router())
 
 	return mux

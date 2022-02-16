@@ -19,6 +19,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
+	"github.com/theandrew168/dripfile/internal/pubsub"
 )
 
 func main() {
@@ -48,9 +49,10 @@ func run() int {
 	defer conn.Close()
 
 	storage := database.NewPostgresStorage(conn)
+	queue := pubsub.NewPostgresQueue(conn)
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(storage, logger)
+	handler := app.New(storage, queue, logger)
 
 	srv := &http.Server{
 		Addr:    addr,
