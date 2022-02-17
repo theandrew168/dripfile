@@ -87,7 +87,7 @@ func run(m *testing.M) int {
 	defer conn.Close()
 
 	storage := database.NewPostgresStorage(conn)
-	queue := pubsub.NewPostgresQueue(conn)
+	queue := pubsub.NewPostgresQueue(conn, storage)
 	logger := log.NewLogger(os.Stdout)
 
 	// create the application

@@ -49,7 +49,7 @@ func run() int {
 	defer conn.Close()
 
 	storage := database.NewPostgresStorage(conn)
-	queue := pubsub.NewPostgresQueue(conn)
+	queue := pubsub.NewPostgresQueue(conn, storage)
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 	handler := app.New(storage, queue, logger)
@@ -72,7 +72,7 @@ func run() int {
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
-	logger.Info("started server on %s\n", addr)
+	logger.Info("started web server on %s\n", addr)
 
 	// kick off a goroutine to listen for SIGINT and SIGTERM
 	shutdownError := make(chan error)

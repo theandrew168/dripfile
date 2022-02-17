@@ -185,7 +185,12 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// TODO: submit this xfer to the task queue
+	// submit this xfer to the transfer job queue
+	err = app.queue.Transfer.Publish(transfer)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 
 	app.logger.Info("account %s transfer %s run\n", session.Account.Email, transfer.ID)
 	http.Redirect(w, r, "/history", http.StatusSeeOther)

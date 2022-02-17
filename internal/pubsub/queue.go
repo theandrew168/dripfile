@@ -10,6 +10,6 @@ type Queue struct {
 }
 
 type TransferQueue interface {
-	Push(transfer core.Transfer) error
-	Pop() (core.Transfer, error)
+	Publish(transfer core.Transfer) error
+	Subscribe() (core.Transfer, error)
 }
