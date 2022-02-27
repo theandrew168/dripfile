@@ -11,6 +11,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
 	"github.com/theandrew168/dripfile/internal/pubsub"
+	"github.com/theandrew168/dripfile/internal/worker"
 )
 
 func main() {
@@ -42,15 +43,14 @@ func run() int {
 	storage := database.NewPostgresStorage(conn)
 	queue := pubsub.NewPostgresQueue(conn, storage)
 
-	// simulate a single job
-	transfer, err := queue.Transfer.Subscribe()
+	w := worker.New(storage, queue, logger)
+
+	// run the worker forever
+	err = w.Run()
 	if err != nil {
 		logger.Error(err)
 		return 1
 	}
-
-	logger.Info("transfer %s start\n", transfer.ID)
-	logger.Info("transfer %s end\n", transfer.ID)
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
