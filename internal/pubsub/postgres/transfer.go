@@ -72,8 +72,7 @@ func (q *transferQueue) Subscribe() (core.Transfer, error) {
 		UPDATE transfer_queue
 		SET status = 'running'
 		WHERE id = (
-			SELECT
-				id
+			SELECT id
 			FROM transfer_queue
 			WHERE status = 'new'
 			ORDER BY id
