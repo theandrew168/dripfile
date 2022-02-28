@@ -1,8 +1,8 @@
 package web
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/alexedwards/flow"
@@ -187,9 +187,15 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// submit this xfer to the transfer job queue
-	info := fmt.Sprintf(`{"id": "%s"}`, transfer.ID)
-	t := task.New(task.KindTransfer, info)
+	info := task.NewTransferInfo(transfer.ID)
+	b, err := json.Marshal(info)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// submit this transfer to the task queue
+	t := task.New(task.KindTransfer, string(b))
 	err = app.queue.Publish(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
