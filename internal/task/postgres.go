@@ -1,4 +1,4 @@
-package postgres
+package task
 
 import (
 	"context"
@@ -8,46 +8,37 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/postgres"
-)
-
-type transferQueue struct {
-	conn    *pgxpool.Pool
-	storage database.Storage
-}
-
-const (
-	StatusNew     = "new"
-	StatusRunning = "running"
-	StatusSuccess = "success"
-	StatusError   = "error"
 )
 
 var (
 	queryTimeout = 3 * time.Second
 )
 
-func NewTransferQueue(conn *pgxpool.Pool, storage database.Storage) *transferQueue {
-	q := transferQueue{
-		conn:    conn,
-		storage: storage,
+type postgresQueue struct {
+	conn *pgxpool.Pool
+}
+
+func NewPostgresQueue(conn *pgxpool.Pool) Queue {
+	q := postgresQueue{
+		conn: conn,
 	}
 	return &q
 }
 
 // insert transfer ID into the queue table
 // https://webapp.io/blog/postgres-is-the-answer/
-func (q *transferQueue) Publish(transfer core.Transfer) error {
+func (q *postgresQueue) Publish(task Task) error {
 	stmt := `
-		INSERT INTO transfer_queue
-			(transfer_id, status)
+		INSERT INTO task_queue
+			(kind, info, status)
 		VALUES
-			($1, $2)`
+			($1, $2, $3)`
 
 	args := []interface{}{
-		transfer.ID,
-		StatusNew,
+		task.Kind,
+		task.Info,
+		task.Status,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -56,7 +47,7 @@ func (q *transferQueue) Publish(transfer core.Transfer) error {
 	err := postgres.Exec(q.conn, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
-			return q.Publish(transfer)
+			return q.Publish(task)
 		}
 
 		return err
@@ -67,34 +58,40 @@ func (q *transferQueue) Publish(transfer core.Transfer) error {
 
 // atomically claim a job
 // https://webapp.io/blog/postgres-is-the-answer/
-func (q *transferQueue) Subscribe() (core.Transfer, error) {
+func (q *postgresQueue) Subscribe() (Task, error) {
 	stmt := `
-		UPDATE transfer_queue
+		UPDATE task_queue
 		SET status = 'running'
 		WHERE id = (
 			SELECT id
-			FROM transfer_queue
+			FROM task_queue
 			WHERE status = 'new'
 			ORDER BY id
 			FOR UPDATE SKIP LOCKED
 			LIMIT 1
-		) RETURNING transfer_id`
+		) RETURNING id, kind, info, status`
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	// read the transfer ID that was selected
-	var transferID string
+	// read the task that was selected
+	var task Task
+	dest := []interface{}{
+		&task.ID,
+		&task.Kind,
+		&task.Info,
+		&task.Status,
+	}
+
 	row := q.conn.QueryRow(ctx, stmt)
-	err := postgres.Scan(row, &transferID)
+	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return q.Subscribe()
 		}
 
-		return core.Transfer{}, err
+		return Task{}, err
 	}
 
-	// lookup the transfer details
-	return q.storage.Transfer.Read(transferID)
+	return task, nil
 }

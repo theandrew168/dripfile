@@ -2,12 +2,14 @@ package web
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/alexedwards/flow"
 
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/form"
+	"github.com/theandrew168/dripfile/internal/task"
 )
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
@@ -186,7 +188,9 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 	}
 
 	// submit this xfer to the transfer job queue
-	err = app.queue.Transfer.Publish(transfer)
+	info := fmt.Sprintf(`{"id": "%s"}`, transfer.ID)
+	t := task.New(task.KindTransfer, info)
+	err = app.queue.Publish(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

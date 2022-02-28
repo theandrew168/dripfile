@@ -10,7 +10,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
-	"github.com/theandrew168/dripfile/internal/pubsub"
+	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/worker"
 )
 
@@ -41,7 +41,7 @@ func run() int {
 	defer conn.Close()
 
 	storage := database.NewPostgresStorage(conn)
-	queue := pubsub.NewPostgresQueue(conn, storage)
+	queue := task.NewPostgresQueue(conn)
 
 	w := worker.New(storage, queue, logger)
 

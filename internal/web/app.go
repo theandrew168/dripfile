@@ -11,7 +11,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
-	"github.com/theandrew168/dripfile/internal/pubsub"
+	"github.com/theandrew168/dripfile/internal/task"
 )
 
 //go:embed template
@@ -21,11 +21,11 @@ type Application struct {
 	templates fs.FS
 
 	storage database.Storage
-	queue   pubsub.Queue
+	queue   task.Queue
 	logger  log.Logger
 }
 
-func NewApplication(storage database.Storage, queue pubsub.Queue, logger log.Logger) *Application {
+func NewApplication(storage database.Storage, queue task.Queue, logger log.Logger) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"

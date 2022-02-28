@@ -1,8 +1,9 @@
-CREATE TABLE location (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+-- https://webapp.io/blog/postgres-is-the-answer/
+CREATE TABLE task_queue (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     kind text NOT NULL,
     info jsonb NOT NULL,
-    project_id uuid NOT NULL REFERENCES project(id) ON DELETE CASCADE,
+    status text NOT NULL,
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),

@@ -3,16 +3,16 @@ package worker
 import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
-	"github.com/theandrew168/dripfile/internal/pubsub"
+	"github.com/theandrew168/dripfile/internal/task"
 )
 
 type Worker struct {
 	storage database.Storage
-	queue   pubsub.Queue
+	queue   task.Queue
 	logger  log.Logger
 }
 
-func New(storage database.Storage, queue pubsub.Queue, logger log.Logger) *Worker {
+func New(storage database.Storage, queue task.Queue, logger log.Logger) *Worker {
 	worker := Worker{
 		storage: storage,
 		queue:   queue,
@@ -25,12 +25,12 @@ func (w *Worker) Run() error {
 	// listen on queue, grab jobs, do the work, update as needed, success or error
 
 	// simulate a single job
-	transfer, err := w.queue.Transfer.Subscribe()
+	task, err := w.queue.Subscribe()
 	if err != nil {
 		return err
 	}
 
-	w.logger.Info("transfer %s start\n", transfer.ID)
-	w.logger.Info("transfer %s end\n", transfer.ID)
+	w.logger.Info("task %s start\n", task.ID)
+	w.logger.Info("task %s end\n", task.ID)
 	return nil
 }

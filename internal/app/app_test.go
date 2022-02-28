@@ -16,7 +16,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
-	"github.com/theandrew168/dripfile/internal/pubsub"
+	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
@@ -87,7 +87,7 @@ func run(m *testing.M) int {
 	defer conn.Close()
 
 	storage := database.NewPostgresStorage(conn)
-	queue := pubsub.NewPostgresQueue(conn, storage)
+	queue := task.NewPostgresQueue(conn)
 	logger := log.NewLogger(os.Stdout)
 
 	// create the application
