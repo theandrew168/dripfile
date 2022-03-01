@@ -7,12 +7,12 @@ import (
 )
 
 type historyStorage struct {
-	conn *pgxpool.Pool
+	pool *pgxpool.Pool
 }
 
-func NewHistoryStorage(conn *pgxpool.Pool) *historyStorage {
+func NewHistoryStorage(pool *pgxpool.Pool) *historyStorage {
 	s := historyStorage{
-		conn: conn,
+		pool: pool,
 	}
 	return &s
 }

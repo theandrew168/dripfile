@@ -5,11 +5,10 @@ import (
 	"flag"
 	"os"
 
-	"github.com/jackc/pgx/v4/pgxpool"
-
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/migrate"
+	"github.com/theandrew168/dripfile/internal/postgres"
 )
 
 func main() {
@@ -30,13 +29,13 @@ func run() int {
 		return 1
 	}
 
-	// open a database connection pool
-	conn, err := pgxpool.Connect(context.Background(), cfg.DatabaseURI)
+	// open a regular connection
+	conn, err := postgres.Connect(cfg.DatabaseURI)
 	if err != nil {
 		logger.Error(err)
 		return 1
 	}
-	defer conn.Close()
+	defer conn.Close(context.Background())
 
 	// test connection to ensure all is well
 	if err = conn.Ping(context.Background()); err != nil {

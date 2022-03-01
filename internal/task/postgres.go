@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
@@ -16,19 +17,21 @@ var (
 )
 
 type postgresQueue struct {
-	conn *pgxpool.Pool
+	conn *pgx.Conn
+	pool *pgxpool.Pool
 }
 
-func NewPostgresQueue(conn *pgxpool.Pool) Queue {
+func NewPostgresQueue(conn *pgx.Conn, pool *pgxpool.Pool) Queue {
 	q := postgresQueue{
 		conn: conn,
+		pool: pool,
 	}
 	return &q
 }
 
 // insert transfer ID into the queue table
 // https://webapp.io/blog/postgres-is-the-answer/
-func (q *postgresQueue) Publish(task Task) error {
+func (q *postgresQueue) Push(task Task) error {
 	stmt := `
 		INSERT INTO task_queue
 			(kind, info, status)
@@ -44,10 +47,10 @@ func (q *postgresQueue) Publish(task Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(q.conn, ctx, stmt, args...)
+	err := postgres.Exec(q.pool, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
-			return q.Publish(task)
+			return q.Push(task)
 		}
 
 		return err
@@ -56,9 +59,9 @@ func (q *postgresQueue) Publish(task Task) error {
 	return nil
 }
 
-// atomically claim a job
+// atomically claim tasks (only run one per worker)
 // https://webapp.io/blog/postgres-is-the-answer/
-func (q *postgresQueue) Subscribe() (Task, error) {
+func (q *postgresQueue) Pop() (Task, error) {
 	stmt := `
 		UPDATE task_queue
 		SET status = 'running'
@@ -83,15 +86,32 @@ func (q *postgresQueue) Subscribe() (Task, error) {
 		&task.Status,
 	}
 
-	row := q.conn.QueryRow(ctx, stmt)
+	row := q.pool.QueryRow(ctx, stmt)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
-			return q.Subscribe()
+			return q.Pop()
 		}
 
 		return Task{}, err
 	}
 
 	return task, nil
+}
+
+func (q *postgresQueue) Listen(ctx context.Context) error {
+	// listen on the task queue status channel
+	_, err := q.conn.Exec(ctx, "listen task_queue_status_channel")
+	if err != nil {
+		return err
+	}
+
+	// block until trigger or ctx deadlines expires
+	_, err = q.conn.WaitForNotification(ctx)
+	if err != nil {
+		return err
+	}
+
+	// ready to pop!
+	return nil
 }

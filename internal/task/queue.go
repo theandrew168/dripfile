@@ -1,6 +1,11 @@
 package task
 
+import (
+	"context"
+)
+
 type Queue interface {
-	Publish(task Task) error
-	Subscribe() (Task, error)
+	Push(task Task) error
+	Pop() (Task, error)
+	Listen(ctx context.Context) error
 }

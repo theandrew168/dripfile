@@ -11,12 +11,12 @@ import (
 )
 
 type locationStorage struct {
-	conn *pgxpool.Pool
+	pool *pgxpool.Pool
 }
 
-func NewLocationStorage(conn *pgxpool.Pool) *locationStorage {
+func NewLocationStorage(pool *pgxpool.Pool) *locationStorage {
 	s := locationStorage{
-		conn: conn,
+		pool: pool,
 	}
 	return &s
 }
@@ -76,7 +76,7 @@ func (s *locationStorage) Create(location *core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.conn.QueryRow(ctx, stmt, args...)
+	row := s.pool.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -112,7 +112,7 @@ func (s *locationStorage) Read(id string) (core.Location, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.conn.QueryRow(ctx, stmt, id)
+	row := s.pool.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -142,7 +142,7 @@ func (s *locationStorage) Update(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.conn, ctx, stmt, args...)
+	err := postgres.Exec(s.pool, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(location)
@@ -162,7 +162,7 @@ func (s *locationStorage) Delete(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.conn, ctx, stmt, location.ID)
+	err := postgres.Exec(s.pool, ctx, stmt, location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(location)
@@ -189,7 +189,7 @@ func (s *locationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.conn.Query(ctx, stmt, project.ID)
+	rows, err := s.pool.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}

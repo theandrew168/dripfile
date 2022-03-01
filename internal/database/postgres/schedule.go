@@ -7,12 +7,12 @@ import (
 )
 
 type scheduleStorage struct {
-	conn *pgxpool.Pool
+	pool *pgxpool.Pool
 }
 
-func NewScheduleStorage(conn *pgxpool.Pool) *scheduleStorage {
+func NewScheduleStorage(pool *pgxpool.Pool) *scheduleStorage {
 	s := scheduleStorage{
-		conn: conn,
+		pool: pool,
 	}
 	return &s
 }

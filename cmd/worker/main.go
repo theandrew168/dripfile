@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
@@ -32,16 +33,24 @@ func run() int {
 		return 1
 	}
 
-	// open a database connection pool
+	// open a regular connection (for listen / notify)
 	conn, err := postgres.Connect(cfg.DatabaseURI)
 	if err != nil {
 		logger.Error(err)
 		return 1
 	}
-	defer conn.Close()
+	defer conn.Close(context.Background())
 
-	storage := database.NewPostgresStorage(conn)
-	queue := task.NewPostgresQueue(conn)
+	// open a connection pool (for everything else)
+	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
+	if err != nil {
+		logger.Error(err)
+		return 1
+	}
+	defer pool.Close()
+
+	storage := database.NewPostgresStorage(pool)
+	queue := task.NewPostgresQueue(conn, pool)
 
 	w := worker.New(storage, queue, logger)
 

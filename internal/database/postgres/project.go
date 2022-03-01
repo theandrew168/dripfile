@@ -11,12 +11,12 @@ import (
 )
 
 type projectStorage struct {
-	conn *pgxpool.Pool
+	pool *pgxpool.Pool
 }
 
-func NewProjectStorage(conn *pgxpool.Pool) *projectStorage {
+func NewProjectStorage(pool *pgxpool.Pool) *projectStorage {
 	s := projectStorage{
-		conn: conn,
+		pool: pool,
 	}
 	return &s
 }
@@ -32,7 +32,7 @@ func (s *projectStorage) Create(project *core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.conn.QueryRow(ctx, stmt, args...)
+	row := s.pool.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -60,7 +60,7 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.conn.QueryRow(ctx, stmt, id)
+	row := s.pool.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -81,7 +81,7 @@ func (s *projectStorage) Delete(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.conn, ctx, stmt, project.ID)
+	err := postgres.Exec(s.pool, ctx, stmt, project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(project)

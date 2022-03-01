@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"sort"
 
-	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jackc/pgx/v4"
 
 	"github.com/theandrew168/dripfile/internal/log"
 )
@@ -14,7 +14,7 @@ import (
 //go:embed migration
 var migrationsFS embed.FS
 
-func Migrate(ctx context.Context, conn *pgxpool.Pool, logger log.Logger) error {
+func Migrate(ctx context.Context, conn *pgx.Conn, logger log.Logger) error {
 	// create migrations table if it doesn't exist
 	_, err := conn.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS migration (

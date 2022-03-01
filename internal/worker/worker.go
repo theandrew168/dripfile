@@ -25,7 +25,7 @@ func (w *Worker) Run() error {
 	// listen on queue, grab jobs, do the work, update as needed, success or error
 
 	// simulate a single job
-	task, err := w.queue.Subscribe()
+	task, err := w.queue.Pop()
 	if err != nil {
 		return err
 	}

@@ -77,18 +77,27 @@ func run(m *testing.M) int {
 
 	// TODO: setup test bucket in S3
 
-	// setup application deps
+	logger := log.NewLogger(os.Stdout)
 	cfg := test.Config()
+
+	// open a regular connection (for listen / notify)
 	conn, err := postgres.Connect(cfg.DatabaseURI)
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err)
 		return 1
 	}
-	defer conn.Close()
+	defer conn.Close(context.Background())
 
-	storage := database.NewPostgresStorage(conn)
-	queue := task.NewPostgresQueue(conn)
-	logger := log.NewLogger(os.Stdout)
+	// open a connection pool (for everything else)
+	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
+	if err != nil {
+		logger.Error(err)
+		return 1
+	}
+	defer pool.Close()
+
+	storage := database.NewPostgresStorage(pool)
+	queue := task.NewPostgresQueue(conn, pool)
 
 	// create the application
 	handler := app.New(storage, queue, logger)
@@ -118,7 +127,7 @@ func run(m *testing.M) int {
 	// navigate to test server
 	err = chromedp.Run(ctx, chromedp.Navigate(ts.URL))
 	if err != nil {
-		fmt.Println(err)
+		logger.Error(err)
 		return 1
 	}
 

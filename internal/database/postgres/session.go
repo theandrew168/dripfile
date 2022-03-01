@@ -11,12 +11,12 @@ import (
 )
 
 type sessionStorage struct {
-	conn *pgxpool.Pool
+	pool *pgxpool.Pool
 }
 
-func NewSessionStorage(conn *pgxpool.Pool) *sessionStorage {
+func NewSessionStorage(pool *pgxpool.Pool) *sessionStorage {
 	s := sessionStorage{
-		conn: conn,
+		pool: pool,
 	}
 	return &s
 }
@@ -37,7 +37,7 @@ func (s *sessionStorage) Create(session *core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.conn, ctx, stmt, args...)
+	err := postgres.Exec(s.pool, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(session)
@@ -84,7 +84,7 @@ func (s *sessionStorage) Read(hash string) (core.Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.conn.QueryRow(ctx, stmt, hash)
+	row := s.pool.QueryRow(ctx, stmt, hash)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -105,7 +105,7 @@ func (s *sessionStorage) Delete(session core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.conn, ctx, stmt, session.Hash)
+	err := postgres.Exec(s.pool, ctx, stmt, session.Hash)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(session)

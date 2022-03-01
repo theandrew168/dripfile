@@ -6,16 +6,16 @@ import (
 	"github.com/theandrew168/dripfile/internal/database/postgres"
 )
 
-func NewPostgresStorage(conn *pgxpool.Pool) Storage {
+func NewPostgresStorage(pool *pgxpool.Pool) Storage {
 	s := Storage{
-		Project:  postgres.NewProjectStorage(conn),
-		Account:  postgres.NewAccountStorage(conn),
-		Session:  postgres.NewSessionStorage(conn),
-		Location: postgres.NewLocationStorage(conn),
-		Transfer: postgres.NewTransferStorage(conn),
-		Schedule: postgres.NewScheduleStorage(conn),
-		Job:      postgres.NewJobStorage(conn),
-		History:  postgres.NewHistoryStorage(conn),
+		Project:  postgres.NewProjectStorage(pool),
+		Account:  postgres.NewAccountStorage(pool),
+		Session:  postgres.NewSessionStorage(pool),
+		Location: postgres.NewLocationStorage(pool),
+		Transfer: postgres.NewTransferStorage(pool),
+		Schedule: postgres.NewScheduleStorage(pool),
+		Job:      postgres.NewJobStorage(pool),
+		History:  postgres.NewHistoryStorage(pool),
 	}
 	return s
 }

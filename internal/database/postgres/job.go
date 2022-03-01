@@ -7,12 +7,12 @@ import (
 )
 
 type jobStorage struct {
-	conn *pgxpool.Pool
+	pool *pgxpool.Pool
 }
 
-func NewJobStorage(conn *pgxpool.Pool) *jobStorage {
+func NewJobStorage(pool *pgxpool.Pool) *jobStorage {
 	s := jobStorage{
-		conn: conn,
+		pool: pool,
 	}
 	return &s
 }

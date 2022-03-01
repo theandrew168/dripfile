@@ -196,7 +196,7 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 
 	// submit this transfer to the task queue
 	t := task.New(task.KindTransfer, string(b))
-	err = app.queue.Publish(t)
+	err = app.queue.Push(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
