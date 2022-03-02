@@ -1,8 +1,10 @@
 package worker
 
 import (
-	"context"
+	"errors"
+	"time"
 
+	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/task"
@@ -25,25 +27,29 @@ func New(storage database.Storage, queue task.Queue, logger log.Logger) *Worker 
 
 // listen on queue, grab jobs, do the work, update as needed, success or error
 func (w *Worker) Run() error {
-	for {
-		// TODO: manual check every so often
-		ctx := context.Background()
+	// check for new tasks periodically
+	c := time.Tick(time.Second)
+	for range c {
+		// kick off all new tasks
+		for {
+			t, err := w.queue.Pop()
+			if err != nil {
+				// break loop if no new tasks remain
+				if errors.Is(err, core.ErrNotExist) {
+					break
+				}
+				return err
+			}
 
-		// bail out if the listen fails
-		err := w.queue.Listen(ctx)
-		if err != nil {
-			return err
+			// run task in the background
+			go w.RunTask(t)
 		}
-
-		// process a task
-		task, err := w.queue.Pop()
-		if err != nil {
-			return err
-		}
-
-		w.logger.Info("task %s start\n", task.ID)
-		w.logger.Info("task %s end\n", task.ID)
 	}
 
 	return nil
+}
+
+func (w *Worker) RunTask(t task.Task) {
+	w.logger.Info("task %s start\n", t.ID)
+	w.logger.Info("task %s end\n", t.ID)
 }

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 
 	"github.com/theandrew168/dripfile/internal/core"
@@ -17,13 +16,11 @@ var (
 )
 
 type postgresQueue struct {
-	conn *pgx.Conn
 	pool *pgxpool.Pool
 }
 
-func NewPostgresQueue(conn *pgx.Conn, pool *pgxpool.Pool) Queue {
+func NewPostgresQueue(pool *pgxpool.Pool) Queue {
 	q := postgresQueue{
-		conn: conn,
 		pool: pool,
 	}
 	return &q
@@ -97,21 +94,4 @@ func (q *postgresQueue) Pop() (Task, error) {
 	}
 
 	return task, nil
-}
-
-func (q *postgresQueue) Listen(ctx context.Context) error {
-	// listen on the task queue status channel
-	_, err := q.conn.Exec(ctx, "listen task_queue_status_channel")
-	if err != nil {
-		return err
-	}
-
-	// block until trigger or ctx deadlines expires
-	_, err = q.conn.WaitForNotification(ctx)
-	if err != nil {
-		return err
-	}
-
-	// ready to pop!
-	return nil
 }

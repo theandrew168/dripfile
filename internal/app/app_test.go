@@ -80,15 +80,7 @@ func run(m *testing.M) int {
 	logger := log.NewLogger(os.Stdout)
 	cfg := test.Config()
 
-	// open a regular connection (for listen / notify)
-	conn, err := postgres.Connect(cfg.DatabaseURI)
-	if err != nil {
-		logger.Error(err)
-		return 1
-	}
-	defer conn.Close(context.Background())
-
-	// open a connection pool (for everything else)
+	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
 		logger.Error(err)
@@ -97,7 +89,7 @@ func run(m *testing.M) int {
 	defer pool.Close()
 
 	storage := database.NewPostgresStorage(pool)
-	queue := task.NewPostgresQueue(conn, pool)
+	queue := task.NewPostgresQueue(pool)
 
 	// create the application
 	handler := app.New(storage, queue, logger)
