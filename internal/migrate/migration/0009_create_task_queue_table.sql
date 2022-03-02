@@ -4,6 +4,7 @@ CREATE TABLE task_queue (
     kind text NOT NULL,
     info jsonb NOT NULL,
     status text NOT NULL,
+    error text NOT NULL,
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),

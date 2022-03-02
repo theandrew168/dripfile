@@ -36,6 +36,7 @@ type SessionStorage interface {
 	Create(session *core.Session) error
 	Read(hash string) (core.Session, error)
 	Delete(session core.Session) error
+	DeleteExpired() error
 }
 
 type LocationStorage interface {

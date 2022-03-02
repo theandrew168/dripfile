@@ -1,5 +1,9 @@
 package task
 
+import (
+	"encoding/json"
+)
+
 const (
 	KindEmail    = "email"
 	KindSession  = "session"
@@ -20,6 +24,7 @@ type Task struct {
 	Kind   string
 	Info   string
 	Status string
+	Error  string
 }
 
 func New(kind, info string) Task {
@@ -27,6 +32,7 @@ func New(kind, info string) Task {
 		Kind:   kind,
 		Info:   info,
 		Status: StatusNew,
+		Error:  "",
 	}
 	return task
 }
@@ -40,7 +46,7 @@ type EmailInfo struct {
 	Body      string `json:"body"`
 }
 
-func NewEmailInfo(fromName, fromEmail, toName, toEmail, subject, body string) EmailInfo {
+func NewEmail(fromName, fromEmail, toName, toEmail, subject, body string) (Task, error) {
 	info := EmailInfo{
 		FromName:  fromName,
 		FromEmail: fromEmail,
@@ -49,23 +55,41 @@ func NewEmailInfo(fromName, fromEmail, toName, toEmail, subject, body string) Em
 		Subject:   subject,
 		Body:      body,
 	}
-	return info
+
+	b, err := json.Marshal(info)
+	if err != nil {
+		return Task{}, err
+	}
+
+	return New(KindEmail, string(b)), nil
 }
 
 type SessionInfo struct{}
 
-func NewSessionInfo() SessionInfo {
+func NewSession() (Task, error) {
 	info := SessionInfo{}
-	return info
+
+	b, err := json.Marshal(info)
+	if err != nil {
+		return Task{}, err
+	}
+
+	return New(KindSession, string(b)), nil
 }
 
 type TransferInfo struct {
 	ID string `json:"id"`
 }
 
-func NewTransferInfo(id string) TransferInfo {
+func NewTransfer(id string) (Task, error) {
 	info := TransferInfo{
 		ID: id,
 	}
-	return info
+
+	b, err := json.Marshal(info)
+	if err != nil {
+		return Task{}, err
+	}
+
+	return New(KindTransfer, string(b)), nil
 }

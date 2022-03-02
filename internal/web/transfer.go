@@ -1,7 +1,6 @@
 package web
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -187,15 +186,13 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	info := task.NewTransferInfo(transfer.ID)
-	b, err := json.Marshal(info)
+	// submit this transfer to the task queue
+	t, err := task.NewTransfer(transfer.ID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	// submit this transfer to the task queue
-	t := task.New(task.KindTransfer, string(b))
 	err = app.queue.Push(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

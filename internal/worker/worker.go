@@ -2,6 +2,7 @@ package worker
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/theandrew168/dripfile/internal/core"
@@ -51,5 +52,40 @@ func (w *Worker) Run() error {
 
 func (w *Worker) RunTask(t task.Task) {
 	w.logger.Info("task %s start\n", t.ID)
-	w.logger.Info("task %s end\n", t.ID)
+	switch t.Kind {
+	case task.KindEmail:
+	case task.KindSession:
+		err := w.storage.Session.DeleteExpired()
+		if err != nil {
+			w.TaskError(t, err)
+		}
+
+		w.TaskSuccess(t)
+	case task.KindTransfer:
+	default:
+		err := fmt.Errorf("unknown task: %s", t.Kind)
+		w.logger.Error(err)
+	}
+	w.logger.Info("task %s finish\n", t.ID)
+}
+
+func (w *Worker) TaskSuccess(t task.Task) {
+	t.Status = task.StatusSuccess
+
+	err := w.queue.Update(t)
+	if err != nil {
+		w.logger.Error(err)
+	}
+}
+
+func (w *Worker) TaskError(t task.Task, err error) {
+	w.logger.Error(err)
+
+	t.Status = task.StatusError
+	t.Error = err.Error()
+
+	err = w.queue.Update(t)
+	if err != nil {
+		w.logger.Error(err)
+	}
 }

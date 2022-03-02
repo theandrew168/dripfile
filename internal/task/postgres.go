@@ -95,3 +95,36 @@ func (q *postgresQueue) Pop() (Task, error) {
 
 	return task, nil
 }
+
+func (q *postgresQueue) Update(task Task) error {
+	stmt := `
+		UPDATE task_queue
+		SET
+			kind = $2,
+			info = $3,
+			status = $4,
+			error = $5
+		WHERE id = $1`
+
+	args := []interface{}{
+		task.ID,
+		task.Kind,
+		task.Info,
+		task.Status,
+		task.Error,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	err := postgres.Exec(q.pool, ctx, stmt, args...)
+	if err != nil {
+		if errors.Is(err, core.ErrRetry) {
+			return q.Update(task)
+		}
+
+		return err
+	}
+
+	return nil
+}

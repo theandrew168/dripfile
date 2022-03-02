@@ -116,3 +116,23 @@ func (s *sessionStorage) Delete(session core.Session) error {
 
 	return nil
 }
+
+func (s *sessionStorage) DeleteExpired() error {
+	stmt := `
+		DELETE FROM session
+		WHERE expiry <= NOW()`
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	err := postgres.Exec(s.pool, ctx, stmt)
+	if err != nil {
+		if errors.Is(err, core.ErrRetry) {
+			return s.DeleteExpired()
+		}
+
+		return err
+	}
+
+	return nil
+}
