@@ -43,16 +43,16 @@ func run() int {
 	storage := database.NewPostgresStorage(pool)
 	queue := task.NewPostgresQueue(pool)
 
-	w := worker.New(storage, queue, logger)
+	// let systemd know that we are good to go (no-op if not using systemd)
+	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
+	w := worker.New(storage, queue, logger)
 	err = w.Run()
 	if err != nil {
 		logger.Error(err)
 		return 1
 	}
 
-	// let systemd know that we are good to go (no-op if not using systemd)
-	daemon.SdNotify(false, daemon.SdNotifyReady)
 	return 0
 }
