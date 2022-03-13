@@ -1,4 +1,4 @@
-package worker
+package task
 
 import (
 	"errors"
@@ -8,19 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
-	"github.com/theandrew168/dripfile/internal/task"
 )
 
 type Worker struct {
+	queue   Queue
 	storage database.Storage
-	queue   task.Queue
 	logger  log.Logger
 }
 
-func New(storage database.Storage, queue task.Queue, logger log.Logger) *Worker {
+func NewWorker(queue Queue, storage database.Storage, logger log.Logger) *Worker {
 	worker := Worker{
-		storage: storage,
 		queue:   queue,
+		storage: storage,
 		logger:  logger,
 	}
 	return &worker
@@ -33,7 +32,7 @@ func (w *Worker) Run() error {
 	for range c {
 		// kick off all new tasks
 		for {
-			t, err := w.queue.Pop()
+			task, err := w.queue.Pop()
 			if err != nil {
 				// break loop if no new tasks remain
 				if errors.Is(err, core.ErrNotExist) {
@@ -43,48 +42,48 @@ func (w *Worker) Run() error {
 			}
 
 			// run task in the background
-			go w.RunTask(t)
+			go w.RunTask(task)
 		}
 	}
 
 	return nil
 }
 
-func (w *Worker) RunTask(t task.Task) {
-	w.logger.Info("task %s start\n", t.ID)
-	switch t.Kind {
-	case task.KindEmail:
-	case task.KindSession:
+func (w *Worker) RunTask(task Task) {
+	w.logger.Info("task %s start\n", task.ID)
+	switch task.Kind {
+	case KindEmail:
+	case KindSession:
 		err := w.storage.Session.DeleteExpired()
 		if err != nil {
-			w.TaskError(t, err)
+			w.TaskError(task, err)
 		}
 
-		w.TaskSuccess(t)
-	case task.KindTransfer:
+		w.TaskSuccess(task)
+	case KindTransfer:
 	default:
-		err := fmt.Errorf("unknown task: %s", t.Kind)
+		err := fmt.Errorf("unknown task: %s", task.Kind)
 		w.logger.Error(err)
 	}
-	w.logger.Info("task %s finish\n", t.ID)
+	w.logger.Info("task %s finish\n", task.ID)
 }
 
-func (w *Worker) TaskSuccess(t task.Task) {
-	t.Status = task.StatusSuccess
+func (w *Worker) TaskSuccess(task Task) {
+	task.Status = StatusSuccess
 
-	err := w.queue.Update(t)
+	err := w.queue.Update(task)
 	if err != nil {
 		w.logger.Error(err)
 	}
 }
 
-func (w *Worker) TaskError(t task.Task, err error) {
+func (w *Worker) TaskError(task Task, err error) {
 	w.logger.Error(err)
 
-	t.Status = task.StatusError
-	t.Error = err.Error()
+	task.Status = StatusError
+	task.Error = err.Error()
 
-	err = w.queue.Update(t)
+	err = w.queue.Update(task)
 	if err != nil {
 		w.logger.Error(err)
 	}

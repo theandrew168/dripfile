@@ -11,7 +11,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
 	"github.com/theandrew168/dripfile/internal/task"
-	"github.com/theandrew168/dripfile/internal/worker"
 )
 
 func main() {
@@ -47,8 +46,8 @@ func run() int {
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	w := worker.New(storage, queue, logger)
-	err = w.Run()
+	worker := task.NewWorker(queue, storage, logger)
+	err = worker.Run()
 	if err != nil {
 		logger.Error(err)
 		return 1
