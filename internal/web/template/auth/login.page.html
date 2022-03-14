@@ -6,23 +6,29 @@
 <section id="page-login">
 	{{with .Form}}
 	<form action="/login" method="POST">
-		<header>
-			<h2>Login to your account</h2>
-		</header>
+		<fieldset>
+			<legend>Login</legend>
 
-		<label for="input-email">E-Mail</label>
-		{{with .Errors.Get "email"}}
-		<small id="error-email">{{.}}</small>
-		{{end}}
-		<input id="input-email" name="email" type="email" value='{{.Get "email"}}' />
+			<p>
+				<label for="input-email">E-Mail</label>
+				{{with .Errors.Get "email"}}
+				<small id="error-email">{{.}}</small>
+				{{end}}
+				<input id="input-email" name="email" type="email" value='{{.Get "email"}}' />
+			</p>
 
-		<label for="input-password">Password</label>
-		{{with .Errors.Get "password"}}
-		<small id="error-password">{{.}}</small>
-		{{end}}
-		<input id="input-password" name="password" type="password" />
+			<p>
+				<label for="input-password">Password</label>
+				{{with .Errors.Get "password"}}
+				<small id="error-password">{{.}}</small>
+				{{end}}
+				<input id="input-password" name="password" type="password" />
+			</p>
 
-		<button id="submit-login" type="submit">Login</button>
+			<p>
+				<button id="submit-login" type="submit">Login</button>
+			</p>
+		</fieldset>
 	</form>
 	{{end}}
 </section>

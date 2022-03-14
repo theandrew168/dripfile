@@ -6,29 +6,37 @@
 <section id="page-register">
 	{{with .Form}}
 	<form action="/register" method="POST">
-		<header>
-			<h2>Create your new account</h2>
-		</header>
+		<fieldset>
+			<legend>Register</legend>
 
-		<label for="input-email">E-Mail</label>
-		{{with .Errors.Get "email"}}
-		<small id="error-email">{{.}}</small>
-		{{end}}
-		<input id="input-email" name="email" type="email" />
+			<p>
+				<label for="input-email">E-Mail</label>
+				{{with .Errors.Get "email"}}
+				<small id="error-email">{{.}}</small>
+				{{end}}
+				<input id="input-email" name="email" type="email" />
+			</p>
 
-		<label for="input-username">Username</label>
-		{{with .Errors.Get "username"}}
-		<small id="error-username">{{.}}</small>
-		{{end}}
-		<input id="input-username" name="username" type="text" />
+			<p>
+				<label for="input-username">Username</label>
+				{{with .Errors.Get "username"}}
+				<small id="error-username">{{.}}</small>
+				{{end}}
+				<input id="input-username" name="username" type="text" />
+			</p>
 
-		<label for="input-password">Password</label>
-		{{with .Errors.Get "password"}}
-		<small id="error-password">{{.}}</small>
-		{{end}}
-		<input id="input-password" name="password" type="password" />
+			<p>
+				<label for="input-password">Password</label>
+				{{with .Errors.Get "password"}}
+				<small id="error-password">{{.}}</small>
+				{{end}}
+				<input id="input-password" name="password" type="password" />
+			</p>
 
-		<button id="submit-register" type="submit">Register</button>
+			<p>
+				<button id="submit-register" type="submit">Register</button>
+			</p>
+		</fieldset>
 	</form>
 	{{end}}
 </section>

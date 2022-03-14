@@ -9,14 +9,20 @@
 	</header>
 	{{with .Location}}
 	<form action="/location/delete" method="POST">
-		<label>ID</label>
-		<p>{{.ID}}</p>
+		<p>
+			<label>ID</label>
+			<p>{{.ID}}</p>
+		</p>
 
-		<label>Kind</label>
-		<p>{{.Kind}}</p>
+		<p>
+			<label>Kind</label>
+			<p>{{.Kind}}</p>
+		</p>
 
-		<input id="id" name="id" type="hidden" value="{{.ID}}" />
-		<button id="submit-delete" type="submit">Delete</button>
+		<p>
+			<input id="id" name="id" type="hidden" value="{{.ID}}" />
+			<button id="submit-delete" type="submit">Delete</button>
+		</p>
 	</form>
 	{{end}}
 </section>

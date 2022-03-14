@@ -2,6 +2,8 @@ package web
 
 import (
 	"net/http"
+
+	"github.com/theandrew168/dripfile/internal/core"
 )
 
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
@@ -11,7 +13,19 @@ func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request
 		"account/read.page.html",
 	}
 
-	app.render(w, r, files, nil)
+	session, err := app.requestSession(r)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	data := struct {
+		Account core.Account
+	}{
+		Account: session.Account,
+	}
+
+	app.render(w, r, files, data)
 }
 
 func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.Request) {

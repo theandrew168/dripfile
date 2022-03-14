@@ -3,7 +3,9 @@
 {{define "body"}}
 <header>
 	<nav>
+		<!--
 		<a href="/"><img alt="DripFile Logo" src="/static/img/logo_black.svg" height="70"></a>
+		-->
 		<ul>
 			<li><a id="nav-login" href="/login">Login</a></li>
 			<li><a id="nav-register" href="/register">Register</a></li>
@@ -11,12 +13,15 @@
 	</nav>
 </header>
 
+<hr>
+
 <main>
 	{{template "main" .}}
 </main>
 
+<hr>
+
 <footer>
-	<hr>
 	<p>&copy; 2022 Shallow Brook Software LLC. All rights reserved.</p>
 </footer>
 {{end}}
