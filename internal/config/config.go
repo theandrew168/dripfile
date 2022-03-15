@@ -13,8 +13,9 @@ var (
 )
 
 type Config struct {
-	DatabaseURI string `toml:"database_uri"`
-	Port        string `toml:"port"`
+	PostmarkAPIKey string `toml:"postmark_api_key"`
+	DatabaseURI    string `toml:"database_uri"`
+	Port           string `toml:"port"`
 }
 
 func Read(data string) (Config, error) {
