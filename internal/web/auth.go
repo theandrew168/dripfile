@@ -11,6 +11,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/form"
+	"github.com/theandrew168/dripfile/internal/task"
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -97,6 +98,26 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	// create session model and store in the database
 	session := core.NewSession(sessionHash, expiry, account)
 	err = app.storage.Session.Create(&session)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// send welcome email
+	t, err := task.SendEmail(
+		"Dripfile",
+		"info@dripfile.com",
+		account.Username,
+		account.Email,
+		"Welcome to Dripfile!",
+		"Thanks for signing up with Dripfile! I hope this adds some value.",
+	)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	err = app.queue.Push(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

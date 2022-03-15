@@ -93,7 +93,7 @@ func (w *Worker) RunTask(task Task) {
 }
 
 func (w *Worker) SendEmail(task Task) error {
-	var info EmailInfo
+	var info SendEmailInfo
 	err := json.Unmarshal([]byte(task.Info), &info)
 	if err != nil {
 		return err

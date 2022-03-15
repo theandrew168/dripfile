@@ -37,7 +37,7 @@ func New(kind, info string) Task {
 	return task
 }
 
-type EmailInfo struct {
+type SendEmailInfo struct {
 	FromName  string `json:"from_name"`
 	FromEmail string `json:"from_email"`
 	ToName    string `json:"to_name"`
@@ -46,8 +46,8 @@ type EmailInfo struct {
 	Body      string `json:"body"`
 }
 
-func NewEmail(fromName, fromEmail, toName, toEmail, subject, body string) (Task, error) {
-	info := EmailInfo{
+func SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) (Task, error) {
+	info := SendEmailInfo{
 		FromName:  fromName,
 		FromEmail: fromEmail,
 		ToName:    toName,
@@ -64,10 +64,10 @@ func NewEmail(fromName, fromEmail, toName, toEmail, subject, body string) (Task,
 	return New(KindEmail, string(b)), nil
 }
 
-type SessionInfo struct{}
+type PruneSessionsInfo struct{}
 
-func NewSession() (Task, error) {
-	info := SessionInfo{}
+func PruneSessions() (Task, error) {
+	info := PruneSessionsInfo{}
 
 	b, err := json.Marshal(info)
 	if err != nil {
@@ -77,12 +77,12 @@ func NewSession() (Task, error) {
 	return New(KindSession, string(b)), nil
 }
 
-type TransferInfo struct {
+type DoTransferInfo struct {
 	ID string `json:"id"`
 }
 
-func NewTransfer(id string) (Task, error) {
-	info := TransferInfo{
+func DoTransfer(id string) (Task, error) {
+	info := DoTransferInfo{
 		ID: id,
 	}
 

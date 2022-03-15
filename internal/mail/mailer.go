@@ -79,12 +79,9 @@ func NewLogMailer(logger log.Logger) Mailer {
 
 func (m *logMailer) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
 	m.logger.Info("--- LogMailer ---\n")
-	m.logger.Info("fromName:  %s\n", fromName)
-	m.logger.Info("fromEmail: %s\n", fromEmail)
-	m.logger.Info("toName:    %s\n", toName)
-	m.logger.Info("toEmail:   %s\n", toEmail)
-
-	m.logger.Info("subject: %s\n", subject)
-	m.logger.Info("body:\n  %s\n", strings.Replace(body, "\n", "\n  ", -1))
+	m.logger.Info("From: %s (%s)\n", fromName, fromEmail)
+	m.logger.Info("To:   %s (%s)\n", toName, toEmail)
+	m.logger.Info("%s\n", subject)
+	m.logger.Info("  %s\n", strings.Replace(body, "\n", "\n  ", -1))
 	return nil
 }

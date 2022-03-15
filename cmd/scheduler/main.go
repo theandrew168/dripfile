@@ -44,7 +44,7 @@ func run() int {
 
 	s := gocron.NewScheduler(time.UTC)
 	s.Cron("*/1 * * * *").Do(func() {
-		t, err := task.NewSession()
+		t, err := task.PruneSessions()
 		if err != nil {
 			logger.Error(err)
 		}

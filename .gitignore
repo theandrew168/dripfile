@@ -4,6 +4,7 @@ dripfile-worker
 dripfile-scheduler
 dripfile-tap
 dist/
+*.prod
 
 # macOS BS
 .DS_Store

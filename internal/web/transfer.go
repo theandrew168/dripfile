@@ -187,7 +187,7 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 	}
 
 	// submit this transfer to the task queue
-	t, err := task.NewTransfer(transfer.ID)
+	t, err := task.DoTransfer(transfer.ID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
