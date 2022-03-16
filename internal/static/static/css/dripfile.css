@@ -1,0 +1,57 @@
+:root {
+	--background-color: #2563eb;
+	--color: #ffffff;
+	--font-family: "Nunito", sans-serif;
+	--line-height: 1.6;
+}
+
+html {
+	font-family: var(--font-family);
+	height: 100%;
+	line-height: var(--line-height);
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+nav {
+	align-items: center;
+	background-color: var(--background-color);
+	display: flex;
+	justify-content: space-between;
+	padding: 1rem;
+}
+
+nav ul {
+	align-items: center;
+	display: flex;
+	gap: 2rem;
+}
+
+nav a {
+	color: var(--color);
+	flex-shrink: 0;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+nav img {
+	display: block;
+	height: 2.5rem;
+	width: auto;
+}
+
+main {
+	flex-grow: 1;
+	padding: 2rem;
+}
+
+footer {
+	background-color: var(--background-color);
+	color: var(--color);
+	padding: 2.5rem;
+	text-align: center;
+}
