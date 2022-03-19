@@ -78,10 +78,11 @@ func NewLogMailer(logger log.Logger) Mailer {
 }
 
 func (m *logMailer) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
-	m.logger.Info("--- LogMailer ---\n")
+	m.logger.Info("--- LogMailer Start ---\n")
 	m.logger.Info("From: %s (%s)\n", fromName, fromEmail)
 	m.logger.Info("To:   %s (%s)\n", toName, toEmail)
 	m.logger.Info("%s\n", subject)
 	m.logger.Info("  %s\n", strings.Replace(body, "\n", "\n  ", -1))
+	m.logger.Info("--- LogMailer Finish ---\n")
 	return nil
 }

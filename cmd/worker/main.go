@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"flag"
 	"os"
 
@@ -11,7 +12,9 @@ import (
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/postgres"
+	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/work"
 )
 
 func main() {
@@ -31,6 +34,17 @@ func run() int {
 		logger.Error(err)
 		return 1
 	}
+
+	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
+	if err != nil {
+		logger.Error(err)
+		return 1
+	}
+
+	// create secret.Box
+	var secretKey [32]byte
+	copy(secretKey[:], secretKeyBytes)
+	box := secret.NewBox(secretKey)
 
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
@@ -54,7 +68,7 @@ func run() int {
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	worker := task.NewWorker(queue, storage, mailer, logger)
+	worker := work.NewWorker(box, queue, storage, mailer, logger)
 	err = worker.Run()
 	if err != nil {
 		logger.Error(err)

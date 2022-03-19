@@ -1,4 +1,4 @@
-package task
+package work
 
 import (
 	"encoding/json"
@@ -10,19 +10,23 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/mail"
+	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/internal/task"
 )
 
-type TaskFunc func(task Task) error
+type TaskFunc func(t task.Task) error
 
 type Worker struct {
-	queue   Queue
+	box     secret.Box
+	queue   task.Queue
 	storage database.Storage
 	mailer  mail.Mailer
 	logger  log.Logger
 }
 
-func NewWorker(queue Queue, storage database.Storage, mailer mail.Mailer, logger log.Logger) *Worker {
+func NewWorker(box secret.Box, queue task.Queue, storage database.Storage, mailer mail.Mailer, logger log.Logger) *Worker {
 	worker := Worker{
+		box:     box,
 		queue:   queue,
 		storage: storage,
 		mailer:  mailer,
@@ -38,7 +42,7 @@ func (w *Worker) Run() error {
 	for range c {
 		// kick off all new tasks
 		for {
-			task, err := w.queue.Pop()
+			t, err := w.queue.Pop()
 			if err != nil {
 				// break loop if no new tasks remain
 				if errors.Is(err, core.ErrNotExist) {
@@ -48,53 +52,53 @@ func (w *Worker) Run() error {
 			}
 
 			// run task in the background
-			go w.RunTask(task)
+			go w.RunTask(t)
 		}
 	}
 
 	return nil
 }
 
-func (w *Worker) RunTask(task Task) {
+func (w *Worker) RunTask(t task.Task) {
 	// determine which task needs to run
 	var taskFunc TaskFunc
-	switch task.Kind {
-	case KindEmail:
+	switch t.Kind {
+	case task.KindEmail:
 		taskFunc = w.SendEmail
-	case KindSession:
+	case task.KindSession:
 		taskFunc = w.DeleteExpiredSessions
-	case KindTransfer:
+	case task.KindTransfer:
 		taskFunc = w.DoTransfer
 	default:
-		err := fmt.Errorf("unknown task: %s", task.Kind)
+		err := fmt.Errorf("unknown task: %s", t.Kind)
 		w.logger.Error(err)
 		return
 	}
 
-	w.logger.Info("task %s start\n", task.ID)
+	w.logger.Info("task %s start\n", t.ID)
 
 	// run and update the status
-	err := taskFunc(task)
+	err := taskFunc(t)
 	if err != nil {
 		w.logger.Error(err)
 
-		task.Error = err.Error()
-		task.Status = StatusError
+		t.Error = err.Error()
+		t.Status = task.StatusError
 	} else {
-		task.Status = StatusSuccess
+		t.Status = task.StatusSuccess
 	}
 
-	err = w.queue.Update(task)
+	err = w.queue.Update(t)
 	if err != nil {
 		w.logger.Error(err)
 	}
 
-	w.logger.Info("task %s finish\n", task.ID)
+	w.logger.Info("task %s finish\n", t.ID)
 }
 
-func (w *Worker) SendEmail(task Task) error {
-	var info SendEmailInfo
-	err := json.Unmarshal([]byte(task.Info), &info)
+func (w *Worker) SendEmail(t task.Task) error {
+	var info task.SendEmailInfo
+	err := json.Unmarshal([]byte(t.Info), &info)
 	if err != nil {
 		return err
 	}
@@ -114,7 +118,7 @@ func (w *Worker) SendEmail(task Task) error {
 	return nil
 }
 
-func (w *Worker) DeleteExpiredSessions(task Task) error {
+func (w *Worker) DeleteExpiredSessions(t task.Task) error {
 	err := w.storage.Session.DeleteExpired()
 	if err != nil {
 		return err
@@ -123,6 +127,6 @@ func (w *Worker) DeleteExpiredSessions(task Task) error {
 	return nil
 }
 
-func (w *Worker) DoTransfer(task Task) error {
+func (w *Worker) DoTransfer(t task.Task) error {
 	return nil
 }
