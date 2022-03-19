@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"time"
 
+	"github.com/theandrew168/dripfile/internal/connection"
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
@@ -128,5 +130,82 @@ func (w *Worker) DeleteExpiredSessions(t task.Task) error {
 }
 
 func (w *Worker) DoTransfer(t task.Task) error {
+	var info task.DoTransferInfo
+	err := json.Unmarshal([]byte(t.Info), &info)
+	if err != nil {
+		return err
+	}
+
+	// lookup transfer by ID
+	transfer, err := w.storage.Transfer.Read(info.ID)
+	if err != nil {
+		return err
+	}
+
+	// decrypt src info
+	src := transfer.Src
+	srcBytes, err := w.box.Decrypt(src.Info)
+	if err != nil {
+		return err
+	}
+
+	// unmarshal src info json
+	var srcInfo connection.S3Info
+	err = json.Unmarshal(srcBytes, &srcInfo)
+	if err != nil {
+		return err
+	}
+
+	// create src connection
+	srcConn, err := connection.NewS3(srcInfo)
+	if err != nil {
+		return err
+	}
+
+	// decrypt dst info
+	dst := transfer.Dst
+	dstBytes, err := w.box.Decrypt(dst.Info)
+	if err != nil {
+		return err
+	}
+
+	// unmarshal dst info json
+	var dstInfo connection.S3Info
+	err = json.Unmarshal(dstBytes, &dstInfo)
+	if err != nil {
+		return err
+	}
+
+	// create dst connection
+	dstConn, err := connection.NewS3(dstInfo)
+	if err != nil {
+		return err
+	}
+
+	srcFiles, err := srcConn.List()
+	if err != nil {
+		return err
+	}
+
+	var matches []string
+	for _, file := range srcFiles {
+		ok, _ := filepath.Match(transfer.Pattern, file)
+		if ok {
+			matches = append(matches, file)
+		}
+	}
+
+	for _, file := range matches {
+		reader, err := srcConn.Read(file)
+		if err != nil {
+			return err
+		}
+
+		err = dstConn.Write(file, reader)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
