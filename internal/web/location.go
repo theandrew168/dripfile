@@ -138,13 +138,22 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	b, err := json.Marshal(info)
+	jsonInfo, err := json.Marshal(info)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	location := core.NewLocation(core.KindS3, string(b), session.Account.Project)
+	// TODO: encrypt connection info
+	nonce, err := app.box.Nonce()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	encryptedInfo := app.box.Encrypt(nonce, jsonInfo)
+
+	location := core.NewLocation(core.KindS3, encryptedInfo, session.Account.Project)
 	err = app.storage.Location.Create(&location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

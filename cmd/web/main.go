@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
@@ -19,6 +20,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
+	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/task"
 )
 
@@ -40,6 +42,17 @@ func run() int {
 		return 1
 	}
 
+	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
+	if err != nil {
+		logger.Error(err)
+		return 1
+	}
+
+	// create secret.Box
+	var secretKey [32]byte
+	copy(secretKey[:], secretKeyBytes)
+	box := secret.NewBox(secretKey)
+
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
@@ -52,7 +65,7 @@ func run() int {
 	queue := task.NewPostgresQueue(pool)
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(storage, queue, logger)
+	handler := app.New(box, storage, queue, logger)
 
 	srv := &http.Server{
 		Addr:    addr,

@@ -31,14 +31,15 @@ func NewPostgresQueue(pool *pgxpool.Pool) Queue {
 func (q *postgresQueue) Push(task Task) error {
 	stmt := `
 		INSERT INTO task_queue
-			(kind, info, status)
+			(kind, info, status, error)
 		VALUES
-			($1, $2, $3)`
+			($1, $2, $3, $4)`
 
 	args := []interface{}{
 		task.Kind,
 		task.Info,
 		task.Status,
+		task.Error,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)

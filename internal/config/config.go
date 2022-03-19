@@ -13,8 +13,9 @@ var (
 )
 
 type Config struct {
-	PostmarkAPIKey string `toml:"postmark_api_key"`
 	DatabaseURI    string `toml:"database_uri"`
+	SecretKey      string `toml:"secret_key"`
+	PostmarkAPIKey string `toml:"postmark_api_key"`
 	Port           string `toml:"port"`
 }
 
@@ -47,6 +48,7 @@ func Read(data string) (Config, error) {
 
 	required := []string{
 		"database_uri",
+		"secret_key",
 	}
 
 	// gather missing values

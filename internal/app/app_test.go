@@ -2,6 +2,7 @@ package app_test
 
 import (
 	"context"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"math/rand"
@@ -16,6 +17,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
+	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/test"
 )
@@ -80,6 +82,17 @@ func run(m *testing.M) int {
 	logger := log.NewLogger(os.Stdout)
 	cfg := test.Config()
 
+	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
+	if err != nil {
+		logger.Error(err)
+		return 1
+	}
+
+	// create secret.Box
+	var secretKey [32]byte
+	copy(secretKey[:], secretKeyBytes)
+	box := secret.NewBox(secretKey)
+
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
@@ -92,7 +105,7 @@ func run(m *testing.M) int {
 	queue := task.NewPostgresQueue(pool)
 
 	// create the application
-	handler := app.New(storage, queue, logger)
+	handler := app.New(box, storage, queue, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)

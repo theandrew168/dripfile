@@ -1,7 +1,7 @@
 CREATE TABLE location (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     kind text NOT NULL,
-    info jsonb NOT NULL,
+    info bytea NOT NULL,
     project_id uuid NOT NULL REFERENCES project(id) ON DELETE CASCADE,
 
     -- metadata columns

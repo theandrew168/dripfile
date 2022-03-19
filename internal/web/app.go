@@ -11,6 +11,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
+	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/task"
 )
 
@@ -20,12 +21,13 @@ var templatesFS embed.FS
 type Application struct {
 	templates fs.FS
 
+	box     secret.Box
 	storage database.Storage
 	queue   task.Queue
 	logger  log.Logger
 }
 
-func NewApplication(storage database.Storage, queue task.Queue, logger log.Logger) *Application {
+func NewApplication(box secret.Box, storage database.Storage, queue task.Queue, logger log.Logger) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
@@ -43,6 +45,7 @@ func NewApplication(storage database.Storage, queue task.Queue, logger log.Logge
 	app := Application{
 		templates: templates,
 
+		box:     box,
 		storage: storage,
 		queue:   queue,
 		logger:  logger,
