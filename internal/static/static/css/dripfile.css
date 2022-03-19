@@ -49,6 +49,36 @@ main {
 	padding: 2rem;
 }
 
+fieldset {
+	padding: 2rem;
+}
+
+fieldset label,
+fieldset small {
+	display: block;
+}
+
+fieldset p {
+	padding-bottom: 1rem;
+}
+
+fieldset p:last-child {
+	padding-bottom: 0;
+}
+
+button {
+	cursor: pointer;
+	padding: 0.5rem 2rem;
+}
+
+input {
+	padding: 0.5rem;
+}
+
+select {
+	padding: 0.5rem;
+}
+
 footer {
 	background-color: var(--background-color);
 	color: var(--color);
