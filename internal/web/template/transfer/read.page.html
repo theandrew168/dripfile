@@ -5,8 +5,10 @@
 {{define "main"}}
 <section id="page-transfer-read">
 	<header>
-		<h2>Transfer</h2>
+		<h1>Transfer</h1>
+		<a id="action-create" href="/transfer/create" class="button">Create Transfer</a>
 	</header>
+
 	{{with .Transfer}}
 	<form action="/transfer/delete" method="POST">
 		<p>
@@ -24,10 +26,11 @@
 
 		<p>
 			<input id="id" name="id" type="hidden" value="{{.ID}}" />
-			<button id="submit-delete" type="submit">Delete</button>
+			<button id="submit-delete" type="submit" class="danger">Delete</button>
 		</p>
 	</form>
 
+	<br>
 	<form action="/transfer/run" method="POST">
 		<p>
 			<input id="id" name="id" type="hidden" value="{{.ID}}" />

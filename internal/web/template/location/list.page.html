@@ -3,26 +3,27 @@
 {{define "title"}}Locations{{end}}
 
 {{define "main"}}
-<header id="page-location-list">
-	<h2>Locations</h2>
-	<p>Where does your data live?</p>
-	<p><a id="action-create" href="/location/create"><b>Create Location</b></a></p>
-</header>
+<section id="page-location-list">
+	<header>
+		<h1>Locations</h1>
+		<a id="action-create" href="/location/create" class="button">Create Location</a>
+	</header>
 
-{{with .Locations}}
-<table>
-	<thead>
+	{{with .Locations}}
+	<table>
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>Kind</th>
+			</tr>
+		</thead>
+		{{range .}}
 		<tr>
-			<th>ID</th>
-			<th>Kind</th>
+			<td><a href="/location/{{.ID}}">Details</a></td>
+			<td>{{.Kind}}</td>
 		</tr>
-	</thead>
-	{{range .}}
-	<tr>
-		<td><a href="/location/{{.ID}}">Details</a></td>
-		<td>{{.Kind}}</td>
-	</tr>
+		{{end}}
+	</table>
 	{{end}}
-</table>
-{{end}}
+</section>
 {{end}}

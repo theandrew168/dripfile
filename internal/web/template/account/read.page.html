@@ -3,23 +3,21 @@
 {{define "title"}}Profile{{end}}
 
 {{define "main"}}
-<article id="page-account-read">
+<section id="page-account-read">
 	<header>
-		<h2>Account</h2>
-		<p>Account and user profile information.</p>
+		<h1>Account</h1>
+		<form action="/logout" method="POST">
+			<p><button id="submit-logout" type="submit">Logout</button></p>
+		</form>
 	</header>
-</section>
-<section>
+
 	{{with .Account}}
-	<form action="/logout" method="POST">
-		<p><button id="submit-logout" type="submit">Logout</button></p>
-	</form>
 	<form action="/account/delete" method="POST">
 		<p>
 			<input id="id" name="id" type="hidden" value="{{.ID}}" />
-			<button id="submit-delete" type="submit">Delete</button>
+			<button id="submit-delete" type="submit" class="danger">Delete</button>
 		</p>
 	</form>
 	{{end}}
-</article>
+</section>
 {{end}}

@@ -5,18 +5,11 @@
 {{define "main"}}
 <section id="page-transfer-list">
 	<header>
-		<h2>Transfers</h2>
-		<p>Show how Locations and Schedules are combined.</p>
+		<h1>Transfers</h1>
+		<a id="action-create" href="/transfer/create" class="button">Create Transfer</a>
 	</header>
-</section>
 
-<section>
-	<header>
-		<p><a id="action-create" href="/transfer/create"><b>Create Transfer</b></a></p>
-	</header>
-</section>
 
-<section>
 	{{with .Transfers}}
 	<table>
 		<thead>
@@ -27,14 +20,16 @@
 				<th>Pattern</th>
 			</tr>
 		</thead>
-		{{range .}}
-		<tr>
-			<td><a href="/transfer/{{.ID}}">Details</a></td>
-			<td><a href="/location/{{.Src.ID}}">Src</a></td>
-			<td><a href="/location/{{.Dst.ID}}">Dst</a></td>
-			<td>{{.Pattern}}</td>
-		</tr>
-		{{end}}
+		<tbody>
+			{{range .}}
+			<tr>
+				<td><a href="/transfer/{{.ID}}">Details</a></td>
+				<td><a href="/location/{{.Src.ID}}">Src</a></td>
+				<td><a href="/location/{{.Dst.ID}}">Dst</a></td>
+				<td>{{.Pattern}}</td>
+			</tr>
+			{{end}}
+		</tbody>
 	</table>
 	{{end}}
 </section>

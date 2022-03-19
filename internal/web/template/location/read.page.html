@@ -5,8 +5,10 @@
 {{define "main"}}
 <section id="page-location-read">
 	<header>
-		<h2>Location</h2>
+		<h1>Location</h1>
+		<a id="action-create" href="/location/create" class="button">Create Location</a>
 	</header>
+
 	{{with .Location}}
 	<form action="/location/delete" method="POST">
 		<p>
@@ -21,7 +23,7 @@
 
 		<p>
 			<input id="id" name="id" type="hidden" value="{{.ID}}" />
-			<button id="submit-delete" type="submit">Delete</button>
+			<button id="submit-delete" type="submit" class="danger">Delete</button>
 		</p>
 	</form>
 	{{end}}

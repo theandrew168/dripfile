@@ -1,9 +1,21 @@
+/* variables */
+
 :root {
-	--background-color: #2563eb;
-	--color: #ffffff;
+	--color-black: #000000;
+	--color-danger: #e11d48;
+	--color-danger-hover: #be123c;
+	--color-primary: #2563eb;
+	--color-primary-hover: #1d4ed8;
+	--color-white: #ffffff;
+	--border-radius: 0.5rem;
 	--font-family: "Nunito", sans-serif;
+	--justify-important: center;
+	--justify-normal: left;
 	--line-height: 1.6;
 }
+
+
+/* page */
 
 html {
 	font-family: var(--font-family);
@@ -17,9 +29,12 @@ body {
 	height: 100%;
 }
 
+
+/* navbar */
+
 nav {
 	align-items: center;
-	background-color: var(--background-color);
+	background-color: var(--color-primary);
 	display: flex;
 	justify-content: space-between;
 	padding: 1rem;
@@ -33,7 +48,7 @@ nav ul {
 }
 
 nav a {
-	color: var(--color);
+	color: var(--color-white);
 	flex-shrink: 0;
 	font-weight: bold;
 	text-decoration: none;
@@ -45,10 +60,18 @@ nav img {
 	width: auto;
 }
 
-main {
-	flex-grow: 1;
-	padding: 2rem;
+
+/* footer */
+
+footer {
+	background-color: var(--color-primary);
+	color: var(--color-white);
+	padding: 2.5rem;
+	text-align: center;
 }
+
+
+/* forms */
 
 fieldset {
 	padding: 2rem;
@@ -67,9 +90,20 @@ fieldset p:last-child {
 	padding-bottom: 0;
 }
 
-button {
+button,
+.button {
+	background-color: var(--color-primary);
+	border: 0;
+	border-radius: var(--border-radius);
+	color: var(--color-white);
 	cursor: pointer;
 	padding: 0.5rem 2rem;
+	text-decoration: none;
+}
+
+button:hover,
+.button:hover {
+	background-color: var(--color-primary-hover);
 }
 
 input {
@@ -80,9 +114,61 @@ select {
 	padding: 0.5rem;
 }
 
-footer {
-	background-color: var(--background-color);
-	color: var(--color);
-	padding: 2.5rem;
-	text-align: center;
+.danger {
+	background-color: var(--color-danger);
+}
+
+.danger:hover {
+	background-color: var(--color-danger-hover);
+}
+
+
+/* content sections */
+
+main {
+	flex-grow: 1;
+	padding: 2rem;
+}
+
+h1 {
+	font-size: 2.5rem;
+}
+
+section {
+	margin: 0 auto;
+	max-width: 768px;
+}
+
+section header {
+	align-items: center;
+	display: flex;
+	justify-content: space-between;
+	padding-bottom: 2rem;
+}
+
+section header a {
+	flex-shrink: 0;
+}
+
+
+/* tables */
+
+table {
+	border: 1px solid var(--color-primary);
+	border-radius: var(--border-radius);
+	display: inline-block;
+	margin: 0 auto;
+	overflow-x: auto;
+}
+
+table td,
+table th,
+table tr {
+	padding: 0.5rem 2rem;
+}
+
+table thead {
+	background-color: var(--color-primary);
+	border-radius: var(--border-radius);
+	color: var(--color-white);
 }
