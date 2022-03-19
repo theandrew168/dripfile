@@ -153,7 +153,8 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 
 	encryptedInfo := app.box.Encrypt(nonce, jsonInfo)
 
-	location := core.NewLocation(core.KindS3, encryptedInfo, session.Account.Project)
+	name := info.Endpoint + "/" + info.BucketName
+	location := core.NewLocation(core.KindS3, name, encryptedInfo, session.Account.Project)
 	err = app.storage.Location.Create(&location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

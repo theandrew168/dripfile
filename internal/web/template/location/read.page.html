@@ -10,17 +10,23 @@
 	</header>
 
 	{{with .Location}}
+	<p>
+		<h2>ID</h2>
+		<p>{{.ID}}</p>
+	</p>
+
+	<p>
+		<h2>Kind</h2>
+		<p>{{.Kind}}</p>
+	</p>
+
+	<p>
+		<h2>Name</h2>
+		<p>{{.Name}}</p>
+	</p>
+
+	<br>
 	<form action="/location/delete" method="POST">
-		<p>
-			<label>ID</label>
-			<p>{{.ID}}</p>
-		</p>
-
-		<p>
-			<label>Kind</label>
-			<p>{{.Kind}}</p>
-		</p>
-
 		<p>
 			<input id="id" name="id" type="hidden" value="{{.ID}}" />
 			<button id="submit-delete" type="submit" class="danger">Delete</button>

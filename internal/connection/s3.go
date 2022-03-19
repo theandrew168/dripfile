@@ -97,6 +97,9 @@ func normalize(err error) error {
 
 	// check for invalid credentials and / or bucket
 	s3Err := minio.ToErrorResponse(err)
+	if s3Err.Code == "InvalidAccessKeyId" {
+		return ErrInvalidCredentials
+	}
 	if s3Err.Code == "AccessDenied" {
 		return ErrInvalidCredentials
 	}

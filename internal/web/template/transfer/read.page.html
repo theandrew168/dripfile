@@ -10,20 +10,28 @@
 	</header>
 
 	{{with .Transfer}}
+	<p>
+		<h2>ID</h2>
+		<p>{{.ID}}</p>
+	</p>
+
+	<p>
+		<h2>Pattern</h2>
+		<p>{{.Pattern}}</p>
+	</p>
+
+	<p>
+		<h2>Source</h2>
+		<p><a href="/location/{{.Src.ID}}">{{.Src.Name}}</a></p>
+	</p>
+
+	<p>
+		<h2>Destination</h2>
+		<p><a href="/location/{{.Dst.ID}}">{{.Dst.Name}}</a></p>
+	</p>
+
+	<br>
 	<form action="/transfer/delete" method="POST">
-		<p>
-			<label>ID</label>
-			<p>{{.ID}}</p>
-		</p>
-
-		<p>
-			<label>Pattern</label>
-			<p>{{.Pattern}}</p>
-		</p>
-
-		<p><a href="/location/{{.Src.ID}}">Source</a></p>
-		<p><a href="/location/{{.Dst.ID}}">Destination</a></p>
-
 		<p>
 			<input id="id" name="id" type="hidden" value="{{.ID}}" />
 			<button id="submit-delete" type="submit" class="danger">Delete</button>

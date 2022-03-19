@@ -73,13 +73,13 @@ footer {
 
 /* forms */
 
-fieldset {
-	padding: 2rem;
+form label,
+form small {
+	display: block;
 }
 
-fieldset label,
-fieldset small {
-	display: block;
+fieldset {
+	padding: 2rem;
 }
 
 fieldset p {
@@ -132,6 +132,10 @@ main {
 
 h1 {
 	font-size: 2.5rem;
+}
+
+h2 {
+	font-size: 2rem;
 }
 
 section {

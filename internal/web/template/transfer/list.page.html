@@ -14,19 +14,19 @@
 	<table>
 		<thead>
 			<tr>
-				<th>ID</th>
 				<th>Src</th>
 				<th>Dst</th>
 				<th>Pattern</th>
+				<th></th>
 			</tr>
 		</thead>
 		<tbody>
 			{{range .}}
 			<tr>
-				<td><a href="/transfer/{{.ID}}">Details</a></td>
-				<td><a href="/location/{{.Src.ID}}">Src</a></td>
-				<td><a href="/location/{{.Dst.ID}}">Dst</a></td>
+				<td><a href="/location/{{.Src.ID}}">{{.Src.Name}}</a></td>
+				<td><a href="/location/{{.Dst.ID}}">{{.Dst.Name}}</a></td>
 				<td>{{.Pattern}}</td>
+				<td><a href="/transfer/{{.ID}}">Details</a></td>
 			</tr>
 			{{end}}
 		</tbody>

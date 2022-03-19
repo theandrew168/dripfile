@@ -13,13 +13,15 @@ type Location struct {
 	ID string
 
 	Kind    string
+	Name    string
 	Info    []byte
 	Project Project
 }
 
-func NewLocation(kind string, info []byte, project Project) Location {
+func NewLocation(kind, name string, info []byte, project Project) Location {
 	location := Location{
 		Kind:    kind,
+		Name:    name,
 		Info:    info,
 		Project: project,
 	}

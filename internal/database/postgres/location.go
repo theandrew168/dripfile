@@ -24,13 +24,14 @@ func NewLocationStorage(pool *pgxpool.Pool) *locationStorage {
 func (s *locationStorage) Create(location *core.Location) error {
 	stmt := `
 		INSERT INTO location
-			(kind, info, project_id)
+			(kind, name, info, project_id)
 		VALUES
-			($1, $2, $3)
+			($1, $2, $3, $4)
 		RETURNING id`
 
 	args := []interface{}{
 		location.Kind,
+		location.Name,
 		location.Info,
 		location.Project.ID,
 	}
@@ -56,6 +57,7 @@ func (s *locationStorage) Read(id string) (core.Location, error) {
 		SELECT
 			location.id,
 			location.kind,
+			location.name,
 			location.info,
 			project.id
 		FROM location
@@ -67,6 +69,7 @@ func (s *locationStorage) Read(id string) (core.Location, error) {
 	dest := []interface{}{
 		&location.ID,
 		&location.Kind,
+		&location.Name,
 		&location.Info,
 		&location.Project.ID,
 	}
@@ -92,12 +95,14 @@ func (s *locationStorage) Update(location core.Location) error {
 		UPDATE location
 		SET
 			kind = $2,
-			info = $3
+			name = $3,
+			info = $4
 		WHERE id = $1`
 
 	args := []interface{}{
 		location.ID,
 		location.Kind,
+		location.Name,
 		location.Info,
 	}
 
@@ -141,6 +146,7 @@ func (s *locationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 		SELECT
 			location.id,
 			location.kind,
+			location.name,
 			location.info,
 			project.id
 		FROM location
@@ -163,6 +169,7 @@ func (s *locationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 		dest := []interface{}{
 			&location.ID,
 			&location.Kind,
+			&location.Name,
 			&location.Info,
 			&location.Project.ID,
 		}
