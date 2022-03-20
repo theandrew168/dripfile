@@ -1,4 +1,4 @@
-package connection
+package fileserver
 
 import (
 	"context"
@@ -23,7 +23,7 @@ type s3Conn struct {
 	client *minio.Client
 }
 
-func NewS3(info S3Info) (Connection, error) {
+func NewS3(info S3Info) (FileServer, error) {
 	creds := credentials.NewStaticV4(
 		info.AccessKeyID,
 		info.SecretAccessKey,

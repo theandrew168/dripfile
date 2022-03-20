@@ -1,4 +1,4 @@
-package connection
+package fileserver
 
 import (
 	"errors"
@@ -11,8 +11,8 @@ var (
 	ErrInvalidBucket      = errors.New("core: invalid bucket")
 )
 
-// abstraction over backend locations (S3, SFTP, etc)
-type Connection interface {
+// abstraction over backend file servers (S3, SFTP, etc)
+type FileServer interface {
 	List() ([]string, error)
 	Read(path string) (io.Reader, error)
 	Write(path string, r io.Reader) error

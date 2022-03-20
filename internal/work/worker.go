@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/theandrew168/dripfile/internal/connection"
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/fileserver"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/secret"
@@ -150,14 +150,14 @@ func (w *Worker) DoTransfer(t task.Task) error {
 	}
 
 	// unmarshal src info json
-	var srcInfo connection.S3Info
+	var srcInfo fileserver.S3Info
 	err = json.Unmarshal(srcBytes, &srcInfo)
 	if err != nil {
 		return err
 	}
 
-	// create src connection
-	srcConn, err := connection.NewS3(srcInfo)
+	// create src fileserver
+	srcConn, err := fileserver.NewS3(srcInfo)
 	if err != nil {
 		return err
 	}
@@ -170,14 +170,14 @@ func (w *Worker) DoTransfer(t task.Task) error {
 	}
 
 	// unmarshal dst info json
-	var dstInfo connection.S3Info
+	var dstInfo fileserver.S3Info
 	err = json.Unmarshal(dstBytes, &dstInfo)
 	if err != nil {
 		return err
 	}
 
-	// create dst connection
-	dstConn, err := connection.NewS3(dstInfo)
+	// create dst fileserver
+	dstConn, err := fileserver.NewS3(dstInfo)
 	if err != nil {
 		return err
 	}

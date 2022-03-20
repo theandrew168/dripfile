@@ -7,8 +7,8 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/connection"
 	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/fileserver"
 	"github.com/theandrew168/dripfile/internal/form"
 )
 
@@ -116,14 +116,14 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	accessKeyID := r.PostForm.Get("access-key-id")
 	secretAccessKey := r.PostForm.Get("secret-access-key")
 
-	info := connection.S3Info{
+	info := fileserver.S3Info{
 		Endpoint:        endpoint,
 		BucketName:      bucketName,
 		AccessKeyID:     accessKeyID,
 		SecretAccessKey: secretAccessKey,
 	}
 
-	conn, err := connection.NewS3(info)
+	conn, err := fileserver.NewS3(info)
 	if err != nil {
 		data.Form.Errors.Add("general", err.Error())
 		app.render(w, r, files, data)
