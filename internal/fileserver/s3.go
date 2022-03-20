@@ -82,10 +82,34 @@ func (c *s3Conn) List() ([]string, error) {
 }
 
 func (c *s3Conn) Read(path string) (io.Reader, error) {
-	return nil, nil
+	ctx := context.Background()
+	obj, err := c.client.GetObject(
+		ctx,
+		c.info.BucketName,
+		path,
+		minio.GetObjectOptions{},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return obj, nil
 }
 
 func (c *s3Conn) Write(path string, r io.Reader) error {
+	ctx := context.Background()
+	_, err := c.client.PutObject(
+		ctx,
+		c.info.BucketName,
+		path,
+		r,
+		-1,
+		minio.PutObjectOptions{},
+	)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
