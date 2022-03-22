@@ -131,7 +131,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	// verify connection
-	_, err = conn.List()
+	err = conn.Ping()
 	if err != nil {
 		data.Form.Errors.Add("general", err.Error())
 		app.render(w, r, files, data)

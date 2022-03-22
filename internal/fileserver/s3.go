@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"path/filepath"
 	"strings"
 
 	"github.com/minio/minio-go/v7"
@@ -47,11 +48,6 @@ func NewS3(info S3Info) (FileServer, error) {
 		return nil, ErrInvalidEndpoint
 	}
 
-	ctx := context.Background()
-	if _, err = client.ListBuckets(ctx); err != nil {
-		return nil, normalize(err)
-	}
-
 	conn := s3Conn{
 		info:   info,
 		client: client,
@@ -60,7 +56,16 @@ func NewS3(info S3Info) (FileServer, error) {
 	return &conn, nil
 }
 
-func (c *s3Conn) List() ([]string, error) {
+func (c *s3Conn) Ping() error {
+	ctx := context.Background()
+	if _, err := c.client.ListBuckets(ctx); err != nil {
+		return normalize(err)
+	}
+
+	return nil
+}
+
+func (c *s3Conn) Search(pattern string) ([]FileInfo, error) {
 	ctx := context.Background()
 	objects := c.client.ListObjects(
 		ctx,
@@ -68,25 +73,31 @@ func (c *s3Conn) List() ([]string, error) {
 		minio.ListObjectsOptions{},
 	)
 
-	var files []string
+	var files []FileInfo
 	for object := range objects {
 		err := object.Err
 		if err != nil {
 			return nil, normalize(err)
 		}
 
-		files = append(files, object.Key)
+		ok, _ := filepath.Match(pattern, object.Key)
+		if !ok {
+			continue
+		}
+
+		info := FileInfo{object.Key, object.Size}
+		files = append(files, info)
 	}
 
 	return files, nil
 }
 
-func (c *s3Conn) Read(path string) (io.Reader, error) {
+func (c *s3Conn) Read(file FileInfo) (io.Reader, error) {
 	ctx := context.Background()
 	obj, err := c.client.GetObject(
 		ctx,
 		c.info.BucketName,
-		path,
+		file.Name,
 		minio.GetObjectOptions{},
 	)
 	if err != nil {
@@ -96,14 +107,14 @@ func (c *s3Conn) Read(path string) (io.Reader, error) {
 	return obj, nil
 }
 
-func (c *s3Conn) Write(path string, r io.Reader) error {
+func (c *s3Conn) Write(file FileInfo, r io.Reader) error {
 	ctx := context.Background()
 	_, err := c.client.PutObject(
 		ctx,
 		c.info.BucketName,
-		path,
+		file.Name,
 		r,
-		-1,
+		file.Size,
 		minio.PutObjectOptions{},
 	)
 	if err != nil {

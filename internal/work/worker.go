@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"path/filepath"
 	"time"
 
 	"github.com/theandrew168/dripfile/internal/core"
@@ -130,6 +129,8 @@ func (w *Worker) DeleteExpiredSessions(t task.Task) error {
 }
 
 func (w *Worker) DoTransfer(t task.Task) error {
+	start := time.Now()
+
 	var info task.DoTransferInfo
 	err := json.Unmarshal([]byte(t.Info), &info)
 	if err != nil {
@@ -182,29 +183,42 @@ func (w *Worker) DoTransfer(t task.Task) error {
 		return err
 	}
 
-	srcFiles, err := srcConn.List()
+	// search for matching files
+	files, err := srcConn.Search(transfer.Pattern)
 	if err != nil {
 		return err
 	}
 
-	var matches []string
-	for _, file := range srcFiles {
-		ok, _ := filepath.Match(transfer.Pattern, file)
-		if ok {
-			matches = append(matches, file)
+	// transfer them all
+	var total int64
+	for _, file := range files {
+		r, err := srcConn.Read(file)
+		if err != nil {
+			return err
 		}
+
+		err = dstConn.Write(file, r)
+		if err != nil {
+			return err
+		}
+
+		total += file.Size
 	}
 
-	for _, file := range matches {
-		reader, err := srcConn.Read(file)
-		if err != nil {
-			return err
-		}
+	// update history table (TODO: middleware?)
+	finish := time.Now()
+	history := core.NewHistory(
+		total,
+		"success",
+		start,
+		finish,
+		transfer.ID,
+		transfer.Project,
+	)
 
-		err = dstConn.Write(file, reader)
-		if err != nil {
-			return err
-		}
+	err = w.storage.History.Create(&history)
+	if err != nil {
+		return err
 	}
 
 	return nil

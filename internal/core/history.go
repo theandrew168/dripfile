@@ -12,18 +12,18 @@ type History struct {
 	Status     string
 	StartedAt  time.Time
 	FinishedAt time.Time
-	Project    Project
 	TransferID string
+	Project    Project
 }
 
-func NewHistory(bytes int64, status string, startedAt, finishedAt time.Time, project Project, transferID string) History {
+func NewHistory(bytes int64, status string, startedAt, finishedAt time.Time, transferID string, project Project) History {
 	history := History{
 		Bytes:      bytes,
 		Status:     status,
 		StartedAt:  startedAt,
 		FinishedAt: finishedAt,
-		Project:    project,
 		TransferID: transferID,
+		Project:    project,
 	}
 	return history
 }
