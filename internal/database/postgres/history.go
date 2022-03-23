@@ -58,10 +58,58 @@ func (s *historyStorage) Read(id string) (core.History, error) {
 	return core.History{}, nil
 }
 
-func (s *historyStorage) Update(history core.History) error {
-	return nil
-}
+func (s *historyStorage) ReadManyByProject(project core.Project) ([]core.History, error) {
+	stmt := `
+		SELECT
+			history.id,
+			history.bytes,
+			history.started_at,
+			history.finished_at,
+			history.transfer_id,
+			project.id
+		FROM history
+		INNER JOIN project
+			ON project.id = history.project_id
+		LEFT JOIN transfer
+			ON transfer.id = history.transfer_id
+		WHERE project.id = $1`
 
-func (s *historyStorage) Delete(history core.History) error {
-	return nil
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	rows, err := s.pool.Query(ctx, stmt, project.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var histories []core.History
+	for rows.Next() {
+		var history core.History
+		dest := []interface{}{
+			&history.ID,
+			&history.Bytes,
+			&history.StartedAt,
+			&history.FinishedAt,
+			&history.TransferID,
+			&history.Project.ID,
+		}
+
+		err := postgres.Scan(rows, dest...)
+		if err != nil {
+			if errors.Is(err, core.ErrRetry) {
+				return s.ReadManyByProject(project)
+			}
+
+			return nil, err
+		}
+
+		histories = append(histories, history)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return histories, nil
 }

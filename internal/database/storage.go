@@ -75,6 +75,6 @@ type JobStorage interface {
 type HistoryStorage interface {
 	Create(history *core.History) error
 	Read(id string) (core.History, error)
-	Update(history core.History) error
-	Delete(history core.History) error
+
+	ReadManyByProject(project core.Project) ([]core.History, error)
 }
