@@ -4,9 +4,34 @@
 
 {{define "main"}}
 <section id="page-history-list">
+
 	<header>
 		<h1>History</h1>
 		<p>History of recent transfer attempts.</p>
 	</header>
+
+	{{with .Histories}}
+	<table>
+		<thead>
+			<tr>
+				<th>Transfer</th>
+				<th>Bytes</th>
+				<th>Started At</th>
+				<th>Finished At</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{range .}}
+			<tr>
+				<td><a href="/transfer/{{.TransferID}}">Link</a></td>
+				<td>{{.Bytes}}</td>
+				<td>{{.StartedAt.Format "Jan 2, 2006 3:04PM"}}</td>
+				<td>{{.FinishedAt.Format "Jan 2, 2006 3:04PM"}}</td>
+			</tr>
+			{{end}}
+		</tbody>
+	</table>
+	{{end}}
+
 </section>
 {{end}}

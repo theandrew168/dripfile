@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/theandrew168/dripfile/internal/core"
@@ -26,9 +25,8 @@ func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	for _, h := range histories {
-		fmt.Printf("%+v\n", h)
-	}
+	// TODO: check which xfer IDs are still valid
+	// TODO: add map of valid IDs to tmpl data
 
 	data := struct {
 		Histories []core.History

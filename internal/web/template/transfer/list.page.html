@@ -4,11 +4,11 @@
 
 {{define "main"}}
 <section id="page-transfer-list">
+
 	<header>
 		<h1>Transfers</h1>
 		<a id="action-create" href="/transfer/create" class="button">Create Transfer</a>
 	</header>
-
 
 	{{with .Transfers}}
 	<table>
@@ -32,5 +32,6 @@
 		</tbody>
 	</table>
 	{{end}}
+
 </section>
 {{end}}
