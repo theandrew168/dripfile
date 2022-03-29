@@ -14,9 +14,11 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/theandrew168/dripfile/internal/app"
+	"github.com/theandrew168/dripfile/internal/bill"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/postgres"
+	"github.com/theandrew168/dripfile/internal/random"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/test"
@@ -72,7 +74,7 @@ func run(m *testing.M) int {
 	rand.Seed(time.Now().UnixNano())
 
 	// setup test credentials
-	username = test.RandomString(8)
+	username = random.String(8)
 	password = username
 	email = username + "@dripfile.com"
 	fmt.Println(username)
@@ -104,8 +106,16 @@ func run(m *testing.M) int {
 	storage := database.NewPostgresStorage(pool)
 	queue := task.NewPostgresQueue(pool)
 
+	// init the billing interface
+	var billing bill.Billing
+	if cfg.StripeAPIKey != "" {
+		billing = bill.NewStripeBilling(cfg.StripeAPIKey)
+	} else {
+		billing = bill.NewLogBilling(logger)
+	}
+
 	// create the application
-	handler := app.New(box, storage, queue, logger)
+	handler := app.New(box, storage, queue, billing, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)
@@ -185,7 +195,7 @@ func TestAccountLogout(t *testing.T) {
 
 func TestAccountLoginInvalidEmail(t *testing.T) {
 	// random email that won't be valid
-	email := test.RandomString(8) + "@dripfile.com"
+	email := random.String(8) + "@dripfile.com"
 
 	var actions []chromedp.Action
 	actions = append(actions, chromedp.WaitVisible("#nav-login"))
@@ -207,7 +217,7 @@ func TestAccountLoginInvalidEmail(t *testing.T) {
 
 func TestAccountLoginInvalidPassword(t *testing.T) {
 	// random password that won't be valid
-	password := test.RandomString(8)
+	password := random.String(8)
 
 	var actions []chromedp.Action
 	actions = append(actions, chromedp.WaitVisible("#nav-login"))

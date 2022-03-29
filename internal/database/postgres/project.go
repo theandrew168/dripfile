@@ -24,10 +24,14 @@ func NewProjectStorage(pool *pgxpool.Pool) *projectStorage {
 func (s *projectStorage) Create(project *core.Project) error {
 	stmt := `
 		INSERT INTO project
-		DEFAULT VALUES
+			(billing_id)
+		VALUES
+			($1)
 		RETURNING id`
 
-	args := []interface{}{}
+	args := []interface{}{
+		project.BillingID,
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
@@ -49,12 +53,14 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
 			project.id
+			project.billing_id
 		FROM project
 		WHERE project.id = $1`
 
 	var project core.Project
 	dest := []interface{}{
 		&project.ID,
+		&project.BillingID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)

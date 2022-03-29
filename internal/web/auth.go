@@ -61,13 +61,17 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// create billing customer
+	billingID, err := app.billing.CreateCustomer(email)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	// TODO: combine these storage ops into an atomic transaction somehow
 
-	// create billing customer
-	
-
 	// create project for the new account
-	project := core.NewProject()
+	project := core.NewProject(billingID)
 	err = app.storage.Project.Create(&project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

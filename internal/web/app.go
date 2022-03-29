@@ -9,6 +9,7 @@ import (
 
 	"github.com/alexedwards/flow"
 
+	"github.com/theandrew168/dripfile/internal/bill"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
 	"github.com/theandrew168/dripfile/internal/secret"
@@ -24,10 +25,11 @@ type Application struct {
 	box     secret.Box
 	storage database.Storage
 	queue   task.Queue
+	billing bill.Billing
 	logger  log.Logger
 }
 
-func NewApplication(box secret.Box, storage database.Storage, queue task.Queue, logger log.Logger) *Application {
+func NewApplication(box secret.Box, storage database.Storage, queue task.Queue, billing bill.Billing, logger log.Logger) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
@@ -48,6 +50,7 @@ func NewApplication(box secret.Box, storage database.Storage, queue task.Queue, 
 		box:     box,
 		storage: storage,
 		queue:   queue,
+		billing: billing,
 		logger:  logger,
 	}
 

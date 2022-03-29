@@ -16,10 +16,10 @@ run:
 
 .PHONY: run-live
 run-live:
-	ENV=dev go run cmd/migrate/main.go -c dripfile.conf.live
-	ENV=dev go run cmd/worker/main.go -c dripfile.conf.live &
-	ENV=dev go run cmd/clock/main.go -c dripfile.conf.live &
-	ENV=dev go run cmd/web/main.go -c dripfile.conf.live
+	ENV=dev go run cmd/migrate/main.go -conf dripfile.conf.live
+	ENV=dev go run cmd/worker/main.go -conf dripfile.conf.live &
+	ENV=dev go run cmd/clock/main.go -conf dripfile.conf.live &
+	ENV=dev go run cmd/web/main.go -conf dripfile.conf.live
 
 .PHONY: build-migrate
 build-migrate:
