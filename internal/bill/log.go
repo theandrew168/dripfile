@@ -18,13 +18,25 @@ func NewLogBilling(logger log.Logger) Billing {
 }
 
 func (b *logBilling) CreateCustomer(email string) (string, error) {
-	id := random.String(16)
-	b.customers = append(b.customers, id)
+	billingID := random.String(16)
+	b.customers = append(b.customers, billingID)
 
 	b.logger.Info("--- LogBilling Start ---\n")
 	b.logger.Info("CreateCustomer:\n")
-	b.logger.Info("ID: %s\n", id)
+	b.logger.Info("BillingID: %s\n", billingID)
 	b.logger.Info("--- LogBilling Finish ---\n")
 
-	return id, nil
+	return billingID, nil
+}
+
+func (b *logBilling) CreateSetupIntent(billingID string) (string, error) {
+	clientSecret := random.String(16)
+
+	b.logger.Info("--- LogBilling Start ---\n")
+	b.logger.Info("CreateSetupIntent:\n")
+	b.logger.Info("BillingID: %s\n", billingID)
+	b.logger.Info("ClientSecret: %s\n", clientSecret)
+	b.logger.Info("--- LogBilling Finish ---\n")
+
+	return clientSecret, nil
 }

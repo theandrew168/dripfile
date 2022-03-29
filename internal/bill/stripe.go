@@ -25,9 +25,27 @@ func (b *stripeBilling) CreateCustomer(email string) (string, error) {
 	params := stripe.CustomerParams{
 		Email: stripe.String(email),
 	}
+
 	customer, err := b.client.Customers.New(&params)
 	if err != nil {
 		return "", err
 	}
+
 	return customer.ID, nil
+}
+
+func (b *stripeBilling) CreateSetupIntent(billingID string) (string, error) {
+	params := stripe.SetupIntentParams{
+		Customer: stripe.String(billingID),
+		PaymentMethodTypes: []*string{
+			stripe.String("card"),
+		},
+	}
+
+	intent, err := b.client.SetupIntents.New(&params)
+	if err != nil {
+		return "", err
+	}
+
+	return intent.ClientSecret, nil
 }
