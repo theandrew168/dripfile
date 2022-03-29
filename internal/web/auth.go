@@ -63,6 +63,9 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	// TODO: combine these storage ops into an atomic transaction somehow
 
+	// create billing customer
+	
+
 	// create project for the new account
 	project := core.NewProject()
 	err = app.storage.Project.Create(&project)

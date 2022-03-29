@@ -13,9 +13,10 @@ var (
 )
 
 type Config struct {
-	DatabaseURI    string `toml:"database_uri"`
 	SecretKey      string `toml:"secret_key"`
+	DatabaseURI    string `toml:"database_uri"`
 	PostmarkAPIKey string `toml:"postmark_api_key"`
+	StripeAPIKey   string `toml:"stripe_api_key"`
 	Port           string `toml:"port"`
 }
 
@@ -47,8 +48,8 @@ func Read(data string) (Config, error) {
 	}
 
 	required := []string{
-		"database_uri",
 		"secret_key",
+		"database_uri",
 	}
 
 	// gather missing values
@@ -63,6 +64,11 @@ func Read(data string) (Config, error) {
 	if len(missing) > 0 {
 		msg := strings.Join(missing, ", ")
 		return Config{}, fmt.Errorf("missing config values: %s", msg)
+	}
+
+	// allow PORT var to override (heroku compat)
+	if os.Getenv("PORT") != "" {
+		cfg.Port = os.Getenv("PORT")
 	}
 
 	// handle defaults

@@ -1,8 +1,7 @@
 dripfile-migrate
-dripfile-web
 dripfile-worker
-dripfile-scheduler
-dripfile-tap
+dripfile-clock
+dripfile-web
 dist/
 *.prod
 

@@ -5,13 +5,13 @@
 default: build
 
 .PHONY: build
-build: build-migrate build-scheduler build-worker build-web
+build: build-migrate build-worker build-clock build-web
 
 .PHONY: run
 run:
 	ENV=dev go run cmd/migrate/main.go
-	ENV=dev go run cmd/scheduler/main.go &
 	ENV=dev go run cmd/worker/main.go &
+	ENV=dev go run cmd/clock/main.go &
 	ENV=dev go run cmd/web/main.go
 
 .PHONY: build-migrate
@@ -22,14 +22,6 @@ build-migrate:
 run-migrate:
 	ENV=dev go run cmd/migrate/main.go
 
-.PHONY: build-scheduler
-build-scheduler:
-	go build -o dripfile-scheduler cmd/scheduler/main.go
-
-.PHONY: run-scheduler
-run-scheduler:
-	ENV=dev go run cmd/scheduler/main.go
-
 .PHONY: build-worker
 build-worker:
 	go build -o dripfile-worker cmd/worker/main.go
@@ -37,6 +29,14 @@ build-worker:
 .PHONY: run-worker
 run-worker:
 	ENV=dev go run cmd/worker/main.go
+
+.PHONY: build-clock
+build-clock:
+	go build -o dripfile-clock cmd/clock/main.go
+
+.PHONY: run-clock
+run-clock:
+	ENV=dev go run cmd/clock/main.go
 
 .PHONY: build-web
 build-web:

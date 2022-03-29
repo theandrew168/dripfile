@@ -4,8 +4,8 @@ Managed file transfer as a service
 ## Design
 This project is broken up into four sub-programs:
 * `dripfile-migrate` - compares and applies database migrations
-* `dripfile-scheduler` - manages transfer schedules and publishes them to the queue
 * `dripfile-worker` - watches the queue and performs file transfers
+* `dripfile-clock` - manages transfer schedules and publishes them to the queue
 * `dripfile-web` - primary CRUD application web server
 
 ## Setup
@@ -32,8 +32,8 @@ Apply database migrations, run whichever components you need (in background proc
 ```bash
 # make run
 ENV=dev go run cmd/migrate/main.go
-ENV=dev go run cmd/scheduler/main.go &
 ENV=dev go run cmd/worker/main.go &
+ENV=dev go run cmd/clock/main.go &
 ENV=dev go run cmd/web/main.go
 ```
 
