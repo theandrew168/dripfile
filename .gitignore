@@ -3,7 +3,7 @@ dripfile-worker
 dripfile-clock
 dripfile-web
 dist/
-*.prod
+*.live
 
 # macOS BS
 .DS_Store

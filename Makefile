@@ -14,6 +14,13 @@ run:
 	ENV=dev go run cmd/clock/main.go &
 	ENV=dev go run cmd/web/main.go
 
+.PHONY: run-live
+run-live:
+	ENV=dev go run cmd/migrate/main.go -c dripfile.conf.live
+	ENV=dev go run cmd/worker/main.go -c dripfile.conf.live &
+	ENV=dev go run cmd/clock/main.go -c dripfile.conf.live &
+	ENV=dev go run cmd/web/main.go -c dripfile.conf.live
+
 .PHONY: build-migrate
 build-migrate:
 	go build -o dripfile-migrate cmd/migrate/main.go

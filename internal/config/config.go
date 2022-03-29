@@ -66,11 +66,6 @@ func Read(data string) (Config, error) {
 		return Config{}, fmt.Errorf("missing config values: %s", msg)
 	}
 
-	// allow PORT var to override (heroku compat)
-	if os.Getenv("PORT") != "" {
-		cfg.Port = os.Getenv("PORT")
-	}
-
 	// handle defaults
 	if cfg.Port == "" {
 		cfg.Port = defaultPort
