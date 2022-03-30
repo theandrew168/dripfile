@@ -1,4 +1,4 @@
-package bill
+package payment
 
 import (
 	"github.com/theandrew168/dripfile/internal/log"

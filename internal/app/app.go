@@ -6,9 +6,10 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/theandrew168/dripfile/internal/bill"
+	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
+	"github.com/theandrew168/dripfile/internal/payment"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/static"
 	"github.com/theandrew168/dripfile/internal/task"
@@ -16,7 +17,7 @@ import (
 )
 
 // create the main application
-func New(box secret.Box, storage database.Storage, queue task.Queue, billing bill.Billing, logger log.Logger) http.Handler {
+func New(cfg config.Config, box secret.Box, storage database.Storage, queue task.Queue, billing payment.Billing, logger log.Logger) http.Handler {
 	mux := flow.New()
 
 	// handle top-level special cases
@@ -43,7 +44,7 @@ func New(box secret.Box, storage database.Storage, queue task.Queue, billing bil
 	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
 
 	// primary web app (last due to being a top-level catch-all)
-	webApp := web.NewApplication(box, storage, queue, billing, logger)
+	webApp := web.NewApplication(cfg, box, storage, queue, billing, logger)
 	mux.Handle("/...", webApp.Router())
 
 	return mux

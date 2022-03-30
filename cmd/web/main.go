@@ -16,10 +16,10 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/internal/app"
-	"github.com/theandrew168/dripfile/internal/bill"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
+	"github.com/theandrew168/dripfile/internal/payment"
 	"github.com/theandrew168/dripfile/internal/postgres"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/task"
@@ -66,15 +66,15 @@ func run() int {
 	queue := task.NewPostgresQueue(pool)
 
 	// init the billing interface
-	var billing bill.Billing
-	if cfg.StripeAPIKey != "" {
-		billing = bill.NewStripeBilling(cfg.StripeAPIKey)
+	var billing payment.Billing
+	if cfg.StripePublicKey != "" && cfg.StripeSecretKey != "" {
+		billing = payment.NewStripeBilling(cfg.StripePublicKey, cfg.StripeSecretKey)
 	} else {
-		billing = bill.NewLogBilling(logger)
+		billing = payment.NewLogBilling(logger)
 	}
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(box, storage, queue, billing, logger)
+	handler := app.New(cfg, box, storage, queue, billing, logger)
 
 	srv := &http.Server{
 		Addr:    addr,

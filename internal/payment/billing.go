@@ -1,4 +1,4 @@
-package bill
+package payment
 
 type Billing interface {
 	CreateCustomer(email string) (string, error)

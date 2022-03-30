@@ -24,13 +24,14 @@ func NewProjectStorage(pool *pgxpool.Pool) *projectStorage {
 func (s *projectStorage) Create(project *core.Project) error {
 	stmt := `
 		INSERT INTO project
-			(billing_id)
+			(billing_id, billing_verified)
 		VALUES
-			($1)
+			($1, $2)
 		RETURNING id`
 
 	args := []interface{}{
 		project.BillingID,
+		project.BillingVerified,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -52,8 +53,9 @@ func (s *projectStorage) Create(project *core.Project) error {
 func (s *projectStorage) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
-			project.id
-			project.billing_id
+			project.id,
+			project.billing_id,
+			project.billing_verified
 		FROM project
 		WHERE project.id = $1`
 
@@ -61,6 +63,7 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	dest := []interface{}{
 		&project.ID,
 		&project.BillingID,
+		&project.BillingVerified,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -77,6 +80,35 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	}
 
 	return project, nil
+}
+
+func (s *projectStorage) Update(project core.Project) error {
+	stmt := `
+		UPDATE project
+		SET
+			billing_id = $2,
+			billing_verified = $3
+		WHERE id = $1`
+
+	args := []interface{}{
+		project.ID,
+		project.BillingID,
+		project.BillingVerified,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	err := postgres.Exec(s.pool, ctx, stmt, args...)
+	if err != nil {
+		if errors.Is(err, core.ErrRetry) {
+			return s.Update(project)
+		}
+
+		return err
+	}
+
+	return nil
 }
 
 func (s *projectStorage) Delete(project core.Project) error {

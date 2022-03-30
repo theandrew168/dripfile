@@ -14,9 +14,9 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/theandrew168/dripfile/internal/app"
-	"github.com/theandrew168/dripfile/internal/bill"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/log"
+	"github.com/theandrew168/dripfile/internal/payment"
 	"github.com/theandrew168/dripfile/internal/postgres"
 	"github.com/theandrew168/dripfile/internal/random"
 	"github.com/theandrew168/dripfile/internal/secret"
@@ -107,15 +107,15 @@ func run(m *testing.M) int {
 	queue := task.NewPostgresQueue(pool)
 
 	// init the billing interface
-	var billing bill.Billing
-	if cfg.StripeAPIKey != "" {
-		billing = bill.NewStripeBilling(cfg.StripeAPIKey)
+	var billing payment.Billing
+	if cfg.StripePublicKey != "" && cfg.StripeSecretKey != "" {
+		billing = payment.NewStripeBilling(cfg.StripePublicKey, cfg.StripeSecretKey)
 	} else {
-		billing = bill.NewLogBilling(logger)
+		billing = payment.NewLogBilling(logger)
 	}
 
 	// create the application
-	handler := app.New(box, storage, queue, billing, logger)
+	handler := app.New(cfg, box, storage, queue, billing, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)

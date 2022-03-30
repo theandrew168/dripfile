@@ -20,7 +20,7 @@ const (
 func (app *Application) requestSession(r *http.Request) (core.Session, error) {
 	session, ok := r.Context().Value(contextKeySession).(core.Session)
 	if !ok {
-		return core.Session{}, fmt.Errorf("failed context value cast to core.Session")
+		return core.Session{}, fmt.Errorf("invalid or missing session")
 	}
 
 	return session, nil
@@ -53,6 +53,26 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 		// attach session to the request context
 		ctx := context.WithValue(r.Context(), contextKeySession, session)
 		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// check for verified billing, request payment info if not
+func (app *Application) requireBilling(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// check for session
+		session, err := app.requestSession(r)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		// check if project has verified billing
+		if !session.Account.Project.BillingVerified {
+			// TODO: create setup intent
+			// TODO: redirect to payment element
+		}
+
+		next.ServeHTTP(w, r)
 	})
 }
 

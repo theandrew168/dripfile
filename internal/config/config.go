@@ -13,11 +13,12 @@ var (
 )
 
 type Config struct {
-	SecretKey      string `toml:"secret_key"`
-	DatabaseURI    string `toml:"database_uri"`
-	PostmarkAPIKey string `toml:"postmark_api_key"`
-	StripeAPIKey   string `toml:"stripe_api_key"`
-	Port           string `toml:"port"`
+	SecretKey       string `toml:"secret_key"`
+	DatabaseURI     string `toml:"database_uri"`
+	PostmarkAPIKey  string `toml:"postmark_api_key"`
+	StripePublicKey string `toml:"stripe_public_key"`
+	StripeSecretKey string `toml:"stripe_secret_key"`
+	Port            string `toml:"port"`
 }
 
 func Read(data string) (Config, error) {

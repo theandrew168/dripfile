@@ -1,4 +1,4 @@
-package bill
+package payment
 
 import (
 	"github.com/stripe/stripe-go/v72"
@@ -6,17 +6,19 @@ import (
 )
 
 type stripeBilling struct {
-	client       *client.API
-	stripeAPIKey string
+	client    *client.API
+	publicKey string
+	secretKey string
 }
 
-func NewStripeBilling(stripeAPIKey string) Billing {
+func NewStripeBilling(publicKey, secretKey string) Billing {
 	sc := &client.API{}
-	sc.Init(stripeAPIKey, nil)
+	sc.Init(secretKey, nil)
 
 	b := stripeBilling{
-		client:       sc,
-		stripeAPIKey: stripeAPIKey,
+		client:    sc,
+		publicKey: publicKey,
+		secretKey: secretKey,
 	}
 	return &b
 }

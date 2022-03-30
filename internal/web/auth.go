@@ -112,12 +112,12 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	// send welcome email
 	t, err := task.SendEmail(
-		"Dripfile",
+		"DripFile",
 		"info@dripfile.com",
 		account.Username,
 		account.Email,
-		"Welcome to Dripfile!",
-		"Thanks for signing up with Dripfile! I hope this adds some value.",
+		"Welcome to DripFile!",
+		"Thanks for signing up with DripFile! I hope this adds some value.",
 	)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -136,7 +136,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	app.logger.Info("account %s create\n", account.Email)
 	app.logger.Info("account %s login\n", account.Email)
-	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
+
+	http.Redirect(w, r, "/checkout", http.StatusSeeOther)
 }
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
