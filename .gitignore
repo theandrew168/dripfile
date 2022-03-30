@@ -3,6 +3,7 @@ dripfile-worker
 dripfile-clock
 dripfile-web
 dist/
+*.test
 *.live
 
 # macOS BS
