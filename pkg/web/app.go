@@ -24,14 +24,21 @@ type Application struct {
 	templates fs.FS
 
 	cfg     config.Config
-	box     secret.Box
-	storage database.Storage
-	queue   task.Queue
+	box     *secret.Box
+	storage *database.Storage
+	queue   *task.Queue
 	billing payment.Billing
 	logger  log.Logger
 }
 
-func NewApplication(cfg config.Config, box secret.Box, storage database.Storage, queue task.Queue, billing payment.Billing, logger log.Logger) *Application {
+func NewApplication(
+	cfg config.Config,
+	box *secret.Box,
+	storage *database.Storage,
+	queue *task.Queue,
+	billing payment.Billing,
+	logger log.Logger,
+) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"

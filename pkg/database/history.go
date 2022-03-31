@@ -1,27 +1,25 @@
-package postgres
+package database
 
 import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx/v4/pgxpool"
-
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type historyStorage struct {
-	pool *pgxpool.Pool
+type HistoryStorage struct {
+	db postgres.Database
 }
 
-func NewHistoryStorage(pool *pgxpool.Pool) *historyStorage {
-	s := historyStorage{
-		pool: pool,
+func NewHistoryStorage(db postgres.Database) *HistoryStorage {
+	s := HistoryStorage{
+		db: db,
 	}
 	return &s
 }
 
-func (s *historyStorage) Create(history *core.History) error {
+func (s *HistoryStorage) Create(history *core.History) error {
 	stmt := `
 		INSERT INTO history
 			(bytes, status, started_at, finished_at, transfer_id, project_id)
@@ -41,7 +39,7 @@ func (s *historyStorage) Create(history *core.History) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, args...)
+	row := s.db.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &history.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -54,11 +52,11 @@ func (s *historyStorage) Create(history *core.History) error {
 	return nil
 }
 
-func (s *historyStorage) Read(id string) (core.History, error) {
+func (s *HistoryStorage) Read(id string) (core.History, error) {
 	return core.History{}, nil
 }
 
-func (s *historyStorage) ReadManyByProject(project core.Project) ([]core.History, error) {
+func (s *HistoryStorage) ReadManyByProject(project core.Project) ([]core.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -77,7 +75,7 @@ func (s *historyStorage) ReadManyByProject(project core.Project) ([]core.History
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pool.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}

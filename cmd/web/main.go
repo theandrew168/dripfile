@@ -62,8 +62,8 @@ func run() int {
 	}
 	defer pool.Close()
 
-	storage := database.NewPostgresStorage(pool)
-	queue := task.NewPostgresQueue(pool)
+	storage := database.NewStorage(pool)
+	queue := task.NewQueue(pool)
 
 	// init the billing interface
 	var billing payment.Billing

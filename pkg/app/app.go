@@ -17,7 +17,14 @@ import (
 )
 
 // create the main application
-func New(cfg config.Config, box secret.Box, storage database.Storage, queue task.Queue, billing payment.Billing, logger log.Logger) http.Handler {
+func New(
+	cfg config.Config,
+	box *secret.Box,
+	storage *database.Storage,
+	queue *task.Queue,
+	billing payment.Billing,
+	logger log.Logger,
+) http.Handler {
 	mux := flow.New()
 
 	// handle top-level special cases

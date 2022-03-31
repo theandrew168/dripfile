@@ -8,9 +8,7 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-var (
-	defaultPort = "5000"
-)
+const DefaultPort = "5000"
 
 type Config struct {
 	SecretKey       string `toml:"secret_key"`
@@ -22,7 +20,10 @@ type Config struct {
 }
 
 func Read(data string) (Config, error) {
-	var cfg Config
+	// init Config struct with default values
+	cfg := Config{
+		Port: DefaultPort,
+	}
 	meta, err := toml.Decode(data, &cfg)
 	if err != nil {
 		return Config{}, err
@@ -65,11 +66,6 @@ func Read(data string) (Config, error) {
 	if len(missing) > 0 {
 		msg := strings.Join(missing, ", ")
 		return Config{}, fmt.Errorf("missing config values: %s", msg)
-	}
-
-	// handle defaults
-	if cfg.Port == "" {
-		cfg.Port = defaultPort
 	}
 
 	return cfg, nil

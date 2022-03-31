@@ -1,27 +1,25 @@
-package postgres
+package database
 
 import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx/v4/pgxpool"
-
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type accountStorage struct {
-	pool *pgxpool.Pool
+type AccountStorage struct {
+	db postgres.Database
 }
 
-func NewAccountStorage(pool *pgxpool.Pool) *accountStorage {
-	s := accountStorage{
-		pool: pool,
+func NewAccountStorage(db postgres.Database) *AccountStorage {
+	s := AccountStorage{
+		db: db,
 	}
 	return &s
 }
 
-func (s *accountStorage) Create(account *core.Account) error {
+func (s *AccountStorage) Create(account *core.Account) error {
 	stmt := `
 		INSERT INTO account
 			(email, username, password, role, verified, project_id)
@@ -41,7 +39,7 @@ func (s *accountStorage) Create(account *core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, args...)
+	row := s.db.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -54,7 +52,7 @@ func (s *accountStorage) Create(account *core.Account) error {
 	return nil
 }
 
-func (s *accountStorage) Read(id string) (core.Account, error) {
+func (s *AccountStorage) Read(id string) (core.Account, error) {
 	stmt := `
 		SELECT
 			account.id,
@@ -83,7 +81,7 @@ func (s *accountStorage) Read(id string) (core.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, id)
+	row := s.db.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -96,7 +94,7 @@ func (s *accountStorage) Read(id string) (core.Account, error) {
 	return account, nil
 }
 
-func (s *accountStorage) Update(account core.Account) error {
+func (s *AccountStorage) Update(account core.Account) error {
 	stmt := `
 		UPDATE account
 		SET
@@ -119,7 +117,7 @@ func (s *accountStorage) Update(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, args...)
+	err := postgres.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(account)
@@ -131,7 +129,7 @@ func (s *accountStorage) Update(account core.Account) error {
 	return nil
 }
 
-func (s *accountStorage) Delete(account core.Account) error {
+func (s *AccountStorage) Delete(account core.Account) error {
 	stmt := `
 		DELETE FROM account
 		WHERE id = $1`
@@ -139,7 +137,7 @@ func (s *accountStorage) Delete(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, account.ID)
+	err := postgres.Exec(s.db, ctx, stmt, account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(account)
@@ -151,7 +149,7 @@ func (s *accountStorage) Delete(account core.Account) error {
 	return nil
 }
 
-func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
+func (s *AccountStorage) ReadByEmail(email string) (core.Account, error) {
 	stmt := `
 		SELECT
 			account.id,
@@ -180,7 +178,7 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, email)
+	row := s.db.QueryRow(ctx, stmt, email)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -193,7 +191,7 @@ func (s *accountStorage) ReadByEmail(email string) (core.Account, error) {
 	return account, nil
 }
 
-func (s *accountStorage) CountByProject(project core.Project) (int, error) {
+func (s *AccountStorage) CountByProject(project core.Project) (int, error) {
 	stmt := `
 		SELECT
 			count(*)
@@ -207,7 +205,7 @@ func (s *accountStorage) CountByProject(project core.Project) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, project.ID)
+	row := s.db.QueryRow(ctx, stmt, project.ID)
 	err := postgres.Scan(row, &count)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {

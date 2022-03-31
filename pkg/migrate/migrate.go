@@ -6,17 +6,16 @@ import (
 	"io/fs"
 	"sort"
 
-	"github.com/jackc/pgx/v4"
-
 	"github.com/theandrew168/dripfile/pkg/log"
+	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
 //go:embed migration
 var migrationsFS embed.FS
 
-func Migrate(ctx context.Context, conn *pgx.Conn, logger log.Logger) error {
+func Migrate(ctx context.Context, db postgres.Database, logger log.Logger) error {
 	// create migrations table if it doesn't exist
-	_, err := conn.Exec(ctx, `
+	_, err := db.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS migration (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL UNIQUE
@@ -26,7 +25,7 @@ func Migrate(ctx context.Context, conn *pgx.Conn, logger log.Logger) error {
 	}
 
 	// get migrations that are already applied
-	rows, err := conn.Query(ctx, "SELECT name FROM migration")
+	rows, err := db.Query(ctx, "SELECT name FROM migration")
 	if err != nil {
 		return err
 	}
@@ -68,13 +67,13 @@ func Migrate(ctx context.Context, conn *pgx.Conn, logger log.Logger) error {
 		if err != nil {
 			return err
 		}
-		_, err = conn.Exec(ctx, string(sql))
+		_, err = db.Exec(ctx, string(sql))
 		if err != nil {
 			return err
 		}
 
 		// update migrations table
-		_, err = conn.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
+		_, err = db.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
 		if err != nil {
 			return err
 		}

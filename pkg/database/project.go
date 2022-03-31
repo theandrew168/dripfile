@@ -1,27 +1,25 @@
-package postgres
+package database
 
 import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx/v4/pgxpool"
-
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type projectStorage struct {
-	pool *pgxpool.Pool
+type ProjectStorage struct {
+	db postgres.Database
 }
 
-func NewProjectStorage(pool *pgxpool.Pool) *projectStorage {
-	s := projectStorage{
-		pool: pool,
+func NewProjectStorage(db postgres.Database) *ProjectStorage {
+	s := ProjectStorage{
+		db: db,
 	}
 	return &s
 }
 
-func (s *projectStorage) Create(project *core.Project) error {
+func (s *ProjectStorage) Create(project *core.Project) error {
 	stmt := `
 		INSERT INTO project
 			(billing_id, billing_verified)
@@ -37,7 +35,7 @@ func (s *projectStorage) Create(project *core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, args...)
+	row := s.db.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -50,7 +48,7 @@ func (s *projectStorage) Create(project *core.Project) error {
 	return nil
 }
 
-func (s *projectStorage) Read(id string) (core.Project, error) {
+func (s *ProjectStorage) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
 			project.id,
@@ -69,7 +67,7 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, id)
+	row := s.db.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -82,7 +80,7 @@ func (s *projectStorage) Read(id string) (core.Project, error) {
 	return project, nil
 }
 
-func (s *projectStorage) Update(project core.Project) error {
+func (s *ProjectStorage) Update(project core.Project) error {
 	stmt := `
 		UPDATE project
 		SET
@@ -99,7 +97,7 @@ func (s *projectStorage) Update(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, args...)
+	err := postgres.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(project)
@@ -111,7 +109,7 @@ func (s *projectStorage) Update(project core.Project) error {
 	return nil
 }
 
-func (s *projectStorage) Delete(project core.Project) error {
+func (s *ProjectStorage) Delete(project core.Project) error {
 	stmt := `
 		DELETE FROM project
 		WHERE id = $1`
@@ -119,7 +117,7 @@ func (s *projectStorage) Delete(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, project.ID)
+	err := postgres.Exec(s.db, ctx, stmt, project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(project)

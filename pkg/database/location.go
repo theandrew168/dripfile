@@ -1,27 +1,25 @@
-package postgres
+package database
 
 import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx/v4/pgxpool"
-
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type locationStorage struct {
-	pool *pgxpool.Pool
+type LocationStorage struct {
+	db postgres.Database
 }
 
-func NewLocationStorage(pool *pgxpool.Pool) *locationStorage {
-	s := locationStorage{
-		pool: pool,
+func NewLocationStorage(db postgres.Database) *LocationStorage {
+	s := LocationStorage{
+		db: db,
 	}
 	return &s
 }
 
-func (s *locationStorage) Create(location *core.Location) error {
+func (s *LocationStorage) Create(location *core.Location) error {
 	stmt := `
 		INSERT INTO location
 			(kind, name, info, project_id)
@@ -39,7 +37,7 @@ func (s *locationStorage) Create(location *core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, args...)
+	row := s.db.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -52,7 +50,7 @@ func (s *locationStorage) Create(location *core.Location) error {
 	return nil
 }
 
-func (s *locationStorage) Read(id string) (core.Location, error) {
+func (s *LocationStorage) Read(id string) (core.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -77,7 +75,7 @@ func (s *locationStorage) Read(id string) (core.Location, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, id)
+	row := s.db.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -90,7 +88,7 @@ func (s *locationStorage) Read(id string) (core.Location, error) {
 	return location, nil
 }
 
-func (s *locationStorage) Update(location core.Location) error {
+func (s *LocationStorage) Update(location core.Location) error {
 	stmt := `
 		UPDATE location
 		SET
@@ -109,7 +107,7 @@ func (s *locationStorage) Update(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, args...)
+	err := postgres.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(location)
@@ -121,7 +119,7 @@ func (s *locationStorage) Update(location core.Location) error {
 	return nil
 }
 
-func (s *locationStorage) Delete(location core.Location) error {
+func (s *LocationStorage) Delete(location core.Location) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1`
@@ -129,7 +127,7 @@ func (s *locationStorage) Delete(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, location.ID)
+	err := postgres.Exec(s.db, ctx, stmt, location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(location)
@@ -141,7 +139,7 @@ func (s *locationStorage) Delete(location core.Location) error {
 	return nil
 }
 
-func (s *locationStorage) ReadManyByProject(project core.Project) ([]core.Location, error) {
+func (s *LocationStorage) ReadManyByProject(project core.Project) ([]core.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -157,7 +155,7 @@ func (s *locationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pool.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}

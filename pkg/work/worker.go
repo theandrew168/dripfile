@@ -18,14 +18,20 @@ import (
 type TaskFunc func(t task.Task) error
 
 type Worker struct {
-	box     secret.Box
-	queue   task.Queue
-	storage database.Storage
+	box     *secret.Box
+	queue   *task.Queue
+	storage *database.Storage
 	mailer  mail.Mailer
 	logger  log.Logger
 }
 
-func NewWorker(box secret.Box, queue task.Queue, storage database.Storage, mailer mail.Mailer, logger log.Logger) *Worker {
+func NewWorker(
+	box *secret.Box,
+	queue *task.Queue,
+	storage *database.Storage,
+	mailer mail.Mailer,
+	logger log.Logger,
+) *Worker {
 	worker := Worker{
 		box:     box,
 		queue:   queue,

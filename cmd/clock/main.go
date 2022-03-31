@@ -40,7 +40,7 @@ func run() int {
 	}
 	defer pool.Close()
 
-	queue := task.NewPostgresQueue(pool)
+	queue := task.NewQueue(pool)
 
 	s := gocron.NewScheduler(time.UTC)
 

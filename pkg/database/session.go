@@ -1,27 +1,25 @@
-package postgres
+package database
 
 import (
 	"context"
 	"errors"
 
-	"github.com/jackc/pgx/v4/pgxpool"
-
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type sessionStorage struct {
-	pool *pgxpool.Pool
+type SessionStorage struct {
+	db postgres.Database
 }
 
-func NewSessionStorage(pool *pgxpool.Pool) *sessionStorage {
-	s := sessionStorage{
-		pool: pool,
+func NewSessionStorage(db postgres.Database) *SessionStorage {
+	s := SessionStorage{
+		db: db,
 	}
 	return &s
 }
 
-func (s *sessionStorage) Create(session *core.Session) error {
+func (s *SessionStorage) Create(session *core.Session) error {
 	stmt := `
 		INSERT INTO session
 			(hash, expiry, account_id)
@@ -37,7 +35,7 @@ func (s *sessionStorage) Create(session *core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, args...)
+	err := postgres.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(session)
@@ -49,7 +47,7 @@ func (s *sessionStorage) Create(session *core.Session) error {
 	return nil
 }
 
-func (s *sessionStorage) Read(hash string) (core.Session, error) {
+func (s *SessionStorage) Read(hash string) (core.Session, error) {
 	stmt := `
 		SELECT
 			session.hash,
@@ -84,7 +82,7 @@ func (s *sessionStorage) Read(hash string) (core.Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pool.QueryRow(ctx, stmt, hash)
+	row := s.db.QueryRow(ctx, stmt, hash)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -97,7 +95,7 @@ func (s *sessionStorage) Read(hash string) (core.Session, error) {
 	return session, nil
 }
 
-func (s *sessionStorage) Delete(session core.Session) error {
+func (s *SessionStorage) Delete(session core.Session) error {
 	stmt := `
 		DELETE FROM session
 		WHERE hash = $1`
@@ -105,7 +103,7 @@ func (s *sessionStorage) Delete(session core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt, session.Hash)
+	err := postgres.Exec(s.db, ctx, stmt, session.Hash)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(session)
@@ -117,7 +115,7 @@ func (s *sessionStorage) Delete(session core.Session) error {
 	return nil
 }
 
-func (s *sessionStorage) DeleteExpired() error {
+func (s *SessionStorage) DeleteExpired() error {
 	stmt := `
 		DELETE FROM session
 		WHERE expiry <= NOW()`
@@ -125,7 +123,7 @@ func (s *sessionStorage) DeleteExpired() error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pool, ctx, stmt)
+	err := postgres.Exec(s.db, ctx, stmt)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.DeleteExpired()
