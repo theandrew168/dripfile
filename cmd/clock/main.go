@@ -8,10 +8,10 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/go-co-op/gocron"
 
-	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/log"
-	"github.com/theandrew168/dripfile/internal/postgres"
-	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/log"
+	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/task"
 )
 
 func main() {

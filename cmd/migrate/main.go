@@ -5,10 +5,10 @@ import (
 	"flag"
 	"os"
 
-	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/log"
-	"github.com/theandrew168/dripfile/internal/migrate"
-	"github.com/theandrew168/dripfile/internal/postgres"
+	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/log"
+	"github.com/theandrew168/dripfile/pkg/migrate"
+	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
 func main() {

@@ -15,14 +15,14 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 
-	"github.com/theandrew168/dripfile/internal/app"
-	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/log"
-	"github.com/theandrew168/dripfile/internal/payment"
-	"github.com/theandrew168/dripfile/internal/postgres"
-	"github.com/theandrew168/dripfile/internal/secret"
-	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/pkg/app"
+	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/database"
+	"github.com/theandrew168/dripfile/pkg/log"
+	"github.com/theandrew168/dripfile/pkg/payment"
+	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/task"
 )
 
 func main() {
