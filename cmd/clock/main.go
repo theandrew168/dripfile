@@ -43,7 +43,9 @@ func run() int {
 	queue := task.NewPostgresQueue(pool)
 
 	s := gocron.NewScheduler(time.UTC)
-	s.Cron("*/1 * * * *").Do(func() {
+
+	// prune sessions hourly
+	s.Cron("0 * * * *").Do(func() {
 		t, err := task.PruneSessions()
 		if err != nil {
 			logger.Error(err)
