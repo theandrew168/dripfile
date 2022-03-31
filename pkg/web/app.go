@@ -9,10 +9,10 @@ import (
 
 	"github.com/alexedwards/flow"
 
+	"github.com/theandrew168/dripfile/pkg/billing"
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/log"
-	"github.com/theandrew168/dripfile/pkg/payment"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
@@ -27,7 +27,7 @@ type Application struct {
 	box     *secret.Box
 	storage *database.Storage
 	queue   *task.Queue
-	billing payment.Billing
+	payment billing.PaymentGateway
 	logger  log.Logger
 }
 
@@ -36,7 +36,7 @@ func NewApplication(
 	box *secret.Box,
 	storage *database.Storage,
 	queue *task.Queue,
-	billing payment.Billing,
+	payment billing.PaymentGateway,
 	logger log.Logger,
 ) *Application {
 	var templates fs.FS
@@ -60,7 +60,7 @@ func NewApplication(
 		box:     box,
 		storage: storage,
 		queue:   queue,
-		billing: billing,
+		payment: payment,
 		logger:  logger,
 	}
 
@@ -87,8 +87,13 @@ func (app *Application) Router() http.Handler {
 	// app pages, visible only to authenticated users
 	mux.Group(func(mux *flow.Mux) {
 		mux.Use(app.requireAuth)
+		mux.Use(app.requireBilling)
 
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
+
+		mux.HandleFunc("/billing/checkout", app.handleBillingCheckout, "GET")
+		mux.HandleFunc("/billing/success", app.handleBillingSuccess, "GET")
+		mux.HandleFunc("/billing/cancel", app.handleBillingCancel, "GET")
 
 		mux.HandleFunc("/account", app.handleAccountRead, "GET")
 		mux.Handle("/account/delete", app.parseFormFunc(app.handleAccountDeleteForm), "POST")

@@ -28,7 +28,7 @@ func NewApplication() *Application {
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload static files from filesystem if var ENV starts with "dev"
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
-		static = os.DirFS("./internal/static/static/")
+		static = os.DirFS("./pkg/static/static/")
 	} else {
 		// else use the embedded static dir
 		var err error

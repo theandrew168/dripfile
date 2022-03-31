@@ -61,8 +61,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// create billing customer
-	billingID, err := app.billing.CreateCustomer(email)
+	// create customer in payment gateway
+	billingID, err := app.payment.CreateCustomer(email)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -137,7 +137,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	app.logger.Info("account %s create\n", account.Email)
 	app.logger.Info("account %s login\n", account.Email)
 
-	http.Redirect(w, r, "/checkout", http.StatusSeeOther)
+	// redirect to billing setup
+	http.Redirect(w, r, "/billing/checkout", http.StatusSeeOther)
 }
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {

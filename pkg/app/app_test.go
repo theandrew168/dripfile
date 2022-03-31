@@ -14,9 +14,9 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/theandrew168/dripfile/pkg/app"
+	"github.com/theandrew168/dripfile/pkg/billing"
 	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/log"
-	"github.com/theandrew168/dripfile/pkg/payment"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/random"
 	"github.com/theandrew168/dripfile/pkg/secret"
@@ -106,16 +106,22 @@ func run(m *testing.M) int {
 	storage := database.NewStorage(pool)
 	queue := task.NewQueue(pool)
 
-	// init the billing interface
-	var billing payment.Billing
+	// init the PaymentGateway interface
+	var payment billing.PaymentGateway
 	if cfg.StripePublicKey != "" && cfg.StripeSecretKey != "" {
-		billing = payment.NewStripeBilling(cfg.StripePublicKey, cfg.StripeSecretKey)
+		// TODO: how to handle these URLs?
+		payment = billing.NewStripeGateway(
+			cfg.StripePublicKey,
+			cfg.StripeSecretKey,
+			"http://localhost:5000/billing/success",
+			"http://localhost:5000/billing/cancel",
+		)
 	} else {
-		billing = payment.NewLogBilling(logger)
+		payment = billing.NewLogGateway(logger)
 	}
 
 	// create the application
-	handler := app.New(cfg, box, storage, queue, billing, logger)
+	handler := app.New(cfg, box, storage, queue, payment, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)
