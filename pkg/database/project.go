@@ -22,14 +22,14 @@ func NewProjectStorage(db postgres.Database) *ProjectStorage {
 func (s *ProjectStorage) Create(project *core.Project) error {
 	stmt := `
 		INSERT INTO project
-			(billing_id, billing_verified)
+			(customer_id, subscription_item_id)
 		VALUES
 			($1, $2)
 		RETURNING id`
 
 	args := []interface{}{
-		project.BillingID,
-		project.BillingVerified,
+		project.CustomerID,
+		project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -52,16 +52,16 @@ func (s *ProjectStorage) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
 			project.id,
-			project.billing_id,
-			project.billing_verified
+			project.customer_id,
+			project.subscription_item_id
 		FROM project
 		WHERE project.id = $1`
 
 	var project core.Project
 	dest := []interface{}{
 		&project.ID,
-		&project.BillingID,
-		&project.BillingVerified,
+		&project.CustomerID,
+		&project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -84,14 +84,14 @@ func (s *ProjectStorage) Update(project core.Project) error {
 	stmt := `
 		UPDATE project
 		SET
-			billing_id = $2,
-			billing_verified = $3
+			customer_id = $2,
+			subscription_item_id = $3
 		WHERE id = $1`
 
 	args := []interface{}{
 		project.ID,
-		project.BillingID,
-		project.BillingVerified,
+		project.CustomerID,
+		project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)

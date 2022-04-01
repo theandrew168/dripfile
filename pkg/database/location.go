@@ -58,8 +58,8 @@ func (s *LocationStorage) Read(id string) (core.Location, error) {
 			location.name,
 			location.info,
 			project.id,
-			project.billing_id,
-			project.billing_verified
+			project.customer_id,
+			project.subscription_item_id
 		FROM location
 		INNER JOIN project
 			ON project.id = location.project_id
@@ -72,8 +72,8 @@ func (s *LocationStorage) Read(id string) (core.Location, error) {
 		&location.Name,
 		&location.Info,
 		&location.Project.ID,
-		&location.Project.BillingID,
-		&location.Project.BillingVerified,
+		&location.Project.CustomerID,
+		&location.Project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -151,8 +151,8 @@ func (s *LocationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 			location.name,
 			location.info,
 			project.id,
-			project.billing_id,
-			project.billing_verified
+			project.customer_id,
+			project.subscription_item_id
 		FROM location
 		INNER JOIN project
 			ON project.id = location.project_id
@@ -176,8 +176,8 @@ func (s *LocationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 			&location.Name,
 			&location.Info,
 			&location.Project.ID,
-			&location.Project.BillingID,
-			&location.Project.BillingVerified,
+			&location.Project.CustomerID,
+			&location.Project.SubscriptionItemID,
 		}
 
 		err := postgres.Scan(rows, dest...)

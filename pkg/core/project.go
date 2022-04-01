@@ -4,14 +4,13 @@ type Project struct {
 	// readonly (from database, after creation)
 	ID string
 
-	BillingID       string
-	BillingVerified bool
+	CustomerID         string
+	SubscriptionItemID string
 }
 
-func NewProject(billingID string) Project {
+func NewProject(customerID string) Project {
 	project := Project{
-		BillingID:       billingID,
-		BillingVerified: false,
+		CustomerID: customerID,
 	}
 	return project
 }

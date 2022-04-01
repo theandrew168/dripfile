@@ -62,8 +62,8 @@ func (s *AccountStorage) Read(id string) (core.Account, error) {
 			account.role,
 			account.verified,
 			project.id,
-			project.billing_id,
-			project.billing_verified
+			project.customer_id,
+			project.subscription_item_id
 		FROM account
 		INNER JOIN project
 			ON project.id = account.project_id
@@ -78,8 +78,8 @@ func (s *AccountStorage) Read(id string) (core.Account, error) {
 		&account.Role,
 		&account.Verified,
 		&account.Project.ID,
-		&account.Project.BillingID,
-		&account.Project.BillingVerified,
+		&account.Project.CustomerID,
+		&account.Project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -163,8 +163,8 @@ func (s *AccountStorage) ReadByEmail(email string) (core.Account, error) {
 			account.role,
 			account.verified,
 			project.id,
-			project.billing_id,
-			project.billing_verified
+			project.customer_id,
+			project.subscription_item_id
 		FROM account
 		INNER JOIN project
 			ON project.id = account.project_id
@@ -179,8 +179,8 @@ func (s *AccountStorage) ReadByEmail(email string) (core.Account, error) {
 		&account.Role,
 		&account.Verified,
 		&account.Project.ID,
-		&account.Project.BillingID,
-		&account.Project.BillingVerified,
+		&account.Project.CustomerID,
+		&account.Project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)

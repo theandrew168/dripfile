@@ -67,7 +67,7 @@ func (app *Application) requireBilling(next http.Handler) http.Handler {
 		}
 
 		// check if project has verified billing
-		if !session.Account.Project.BillingVerified {
+		if session.Account.Project.SubscriptionItemID == "" {
 			// TODO: create setup intent
 			// TODO: redirect to payment element
 		}

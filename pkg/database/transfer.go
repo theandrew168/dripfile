@@ -66,8 +66,8 @@ func (s *TransferStorage) Read(id string) (core.Transfer, error) {
 			dst.info,
 			dst.project_id,
 			project.id,
-			project.billing_id,
-			project.billing_verified
+			project.customer_id,
+			project.subscription_item_id
 		FROM transfer
 		INNER JOIN location src
 			ON src.id = transfer.src_id
@@ -92,8 +92,8 @@ func (s *TransferStorage) Read(id string) (core.Transfer, error) {
 		&transfer.Dst.Info,
 		&transfer.Dst.Project.ID,
 		&transfer.Project.ID,
-		&transfer.Project.BillingID,
-		&transfer.Project.BillingVerified,
+		&transfer.Project.CustomerID,
+		&transfer.Project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -179,8 +179,8 @@ func (s *TransferStorage) ReadManyByProject(project core.Project) ([]core.Transf
 			dst.info,
 			dst.project_id,
 			project.id,
-			project.billing_id,
-			project.billing_verified
+			project.customer_id,
+			project.subscription_item_id
 		FROM transfer
 		INNER JOIN location src
 			ON src.id = transfer.src_id
@@ -216,8 +216,8 @@ func (s *TransferStorage) ReadManyByProject(project core.Project) ([]core.Transf
 			&transfer.Dst.Info,
 			&transfer.Dst.Project.ID,
 			&transfer.Project.ID,
-			&transfer.Project.BillingID,
-			&transfer.Project.BillingVerified,
+			&transfer.Project.CustomerID,
+			&transfer.Project.SubscriptionItemID,
 		}
 
 		err := postgres.Scan(rows, dest...)

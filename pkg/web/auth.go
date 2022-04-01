@@ -62,7 +62,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create customer in payment gateway
-	billingID, err := app.paygate.CreateCustomer(email)
+	customerID, err := app.paygate.CreateCustomer(email)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -71,7 +71,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	// TODO: combine these storage ops into an atomic transaction somehow
 
 	// create project for the new account
-	project := core.NewProject(billingID)
+	project := core.NewProject(customerID)
 	err = app.storage.Project.Create(&project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -124,6 +124,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// submit email task
 	err = app.queue.Push(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
