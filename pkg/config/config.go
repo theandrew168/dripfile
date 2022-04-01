@@ -14,7 +14,6 @@ type Config struct {
 	SecretKey       string `toml:"secret_key"`
 	DatabaseURI     string `toml:"database_uri"`
 	PostmarkAPIKey  string `toml:"postmark_api_key"`
-	StripePublicKey string `toml:"stripe_public_key"`
 	StripeSecretKey string `toml:"stripe_secret_key"`
 	Port            string `toml:"port"`
 }

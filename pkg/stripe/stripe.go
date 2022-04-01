@@ -1,5 +1,5 @@
 // https://stripe.com/docs/payments/save-and-reuse?platform=checkout
-package billing
+package stripe
 
 import (
 	"github.com/stripe/stripe-go/v72"
@@ -8,34 +8,32 @@ import (
 
 const stripePriceID = "price_1KhKCdFGWxTaRTVh9iXdyx0M"
 
-type stripeGateway struct {
+type stripeImpl struct {
 	client     *client.API
-	publicKey  string
 	secretKey  string
 	successURL string
 	cancelURL  string
 }
 
-func NewStripeGateway(publicKey, secretKey, successURL, cancelURL string) PaymentGateway {
+func New(secretKey, successURL, cancelURL string) Interface {
 	sc := &client.API{}
 	sc.Init(secretKey, nil)
 
-	g := stripeGateway{
+	i := stripeImpl{
 		client:     sc,
-		publicKey:  publicKey,
 		secretKey:  secretKey,
 		successURL: successURL,
 		cancelURL:  cancelURL,
 	}
-	return &g
+	return &i
 }
 
-func (g *stripeGateway) CreateCustomer(email string) (string, error) {
+func (i *stripeImpl) CreateCustomer(email string) (string, error) {
 	params := stripe.CustomerParams{
 		Email: stripe.String(email),
 	}
 
-	customer, err := g.client.Customers.New(&params)
+	customer, err := i.client.Customers.New(&params)
 	if err != nil {
 		return "", err
 	}
@@ -43,18 +41,18 @@ func (g *stripeGateway) CreateCustomer(email string) (string, error) {
 	return customer.ID, nil
 }
 
-func (g *stripeGateway) CreateCheckoutSession(customerID string) (string, error) {
+func (i *stripeImpl) CreateCheckoutSession(customerID string) (string, error) {
 	params := stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{
 			"card",
 		}),
 		Mode:       stripe.String(string(stripe.CheckoutSessionModeSetup)),
 		Customer:   stripe.String(customerID),
-		SuccessURL: stripe.String(g.successURL + "?session_id={CHECKOUT_SESSION_ID}"),
-		CancelURL:  stripe.String(g.cancelURL),
+		SuccessURL: stripe.String(i.successURL + "?session_id={CHECKOUT_SESSION_ID}"),
+		CancelURL:  stripe.String(i.cancelURL),
 	}
 
-	session, err := g.client.CheckoutSessions.New(&params)
+	session, err := i.client.CheckoutSessions.New(&params)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +60,7 @@ func (g *stripeGateway) CreateCheckoutSession(customerID string) (string, error)
 	return session.URL, nil
 }
 
-func (g *stripeGateway) CreateSubscription(customerID string) (string, error) {
+func (i *stripeImpl) CreateSubscription(customerID string) (string, error) {
 	params := stripe.SubscriptionParams{
 		Customer: stripe.String(customerID),
 		Items: []*stripe.SubscriptionItemsParams{
@@ -72,7 +70,7 @@ func (g *stripeGateway) CreateSubscription(customerID string) (string, error) {
 		},
 	}
 
-	subscription, err := g.client.Subscriptions.New(&params)
+	subscription, err := i.client.Subscriptions.New(&params)
 	if err != nil {
 		return "", err
 	}

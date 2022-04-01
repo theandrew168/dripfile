@@ -14,12 +14,12 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/theandrew168/dripfile/pkg/app"
-	"github.com/theandrew168/dripfile/pkg/billing"
 	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/random"
 	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 	"github.com/theandrew168/dripfile/pkg/test"
 )
@@ -106,22 +106,21 @@ func run(m *testing.M) int {
 	storage := database.NewStorage(pool)
 	queue := task.NewQueue(pool)
 
-	// init the PaymentGateway interface
-	var paygate billing.PaymentGateway
-	if cfg.StripePublicKey != "" && cfg.StripeSecretKey != "" {
+	// init the stripe interface
+	var stripeImpl stripe.Interface
+	if cfg.StripeSecretKey != "" {
 		// TODO: how to handle these URLs?
-		paygate = billing.NewStripeGateway(
-			cfg.StripePublicKey,
+		stripeImpl = stripe.New(
 			cfg.StripeSecretKey,
 			"http://localhost:5000/billing/success",
 			"http://localhost:5000/billing/cancel",
 		)
 	} else {
-		paygate = billing.NewLogGateway(logger)
+		stripeImpl = stripe.NewMock(logger)
 	}
 
 	// create the application
-	handler := app.New(cfg, box, storage, queue, paygate, logger)
+	handler := app.New(cfg, box, storage, queue, stripeImpl, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)

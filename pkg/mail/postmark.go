@@ -8,12 +8,12 @@ import (
 )
 
 type postmarkMailer struct {
-	postmarkAPIKey string
+	apiKey string
 }
 
-func NewPostmarkMailer(postmarkAPIKey string) Mailer {
+func NewPostmarkMailer(apiKey string) Mailer {
 	m := postmarkMailer{
-		postmarkAPIKey: postmarkAPIKey,
+		apiKey: apiKey,
 	}
 	return &m
 }
@@ -45,7 +45,7 @@ func (m *postmarkMailer) SendEmail(fromName, fromEmail, toName, toEmail, subject
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Postmark-Server-Token", m.postmarkAPIKey)
+	req.Header.Set("X-Postmark-Server-Token", m.apiKey)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

@@ -56,8 +56,8 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 	})
 }
 
-// check for verified billing, request payment info if not
-func (app *Application) requireBilling(next http.Handler) http.Handler {
+// check for valid Stripe subscription ID
+func (app *Application) requireStripe(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// check for session
 		session, err := app.requestSession(r)

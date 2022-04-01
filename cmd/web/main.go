@@ -16,12 +16,12 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/pkg/app"
-	"github.com/theandrew168/dripfile/pkg/billing"
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
 
@@ -65,22 +65,21 @@ func run() int {
 	storage := database.NewStorage(pool)
 	queue := task.NewQueue(pool)
 
-	// init the PaymentGateway interface
-	var paygate billing.PaymentGateway
-	if cfg.StripePublicKey != "" && cfg.StripeSecretKey != "" {
+	// init the stripe interface
+	var stripeImpl stripe.Interface
+	if cfg.StripeSecretKey != "" {
 		// TODO: how to handle these URLs?
-		paygate = billing.NewStripeGateway(
-			cfg.StripePublicKey,
+		stripeImpl = stripe.New(
 			cfg.StripeSecretKey,
 			"http://localhost:5000/billing/success",
 			"http://localhost:5000/billing/cancel",
 		)
 	} else {
-		paygate = billing.NewLogGateway(logger)
+		stripeImpl = stripe.NewMock(logger)
 	}
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(cfg, box, storage, queue, paygate, logger)
+	handler := app.New(cfg, box, storage, queue, stripeImpl, logger)
 
 	srv := &http.Server{
 		Addr:    addr,

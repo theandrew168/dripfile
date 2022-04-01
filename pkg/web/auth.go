@@ -61,8 +61,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// create customer in payment gateway
-	customerID, err := app.paygate.CreateCustomer(email)
+	// create Stripe customer
+	customerID, err := app.stripe.CreateCustomer(email)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

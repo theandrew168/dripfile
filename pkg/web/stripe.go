@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (app *Application) handleBillingCheckout(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleStripeCheckout(w http.ResponseWriter, r *http.Request) {
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -13,7 +13,7 @@ func (app *Application) handleBillingCheckout(w http.ResponseWriter, r *http.Req
 
 	// create checkout session
 	customerID := session.Account.Project.CustomerID
-	sessionURL, err := app.paygate.CreateCheckoutSession(customerID)
+	sessionURL, err := app.stripe.CreateCheckoutSession(customerID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -23,7 +23,7 @@ func (app *Application) handleBillingCheckout(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, sessionURL, http.StatusFound)
 }
 
-func (app *Application) handleBillingSuccess(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleStripeSuccess(w http.ResponseWriter, r *http.Request) {
 	// TODO: get checkout session
 	// TODO: get setup intent (expand into one call?)
 	// TODO: store something? payment ID? just mark success?
@@ -36,7 +36,7 @@ func (app *Application) handleBillingSuccess(w http.ResponseWriter, r *http.Requ
 	}
 
 	customerID := session.Account.Project.CustomerID
-	subscriptionItemID, err := app.paygate.CreateSubscription(customerID)
+	subscriptionItemID, err := app.stripe.CreateSubscription(customerID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -54,7 +54,7 @@ func (app *Application) handleBillingSuccess(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
-func (app *Application) handleBillingCancel(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleStripeCancel(w http.ResponseWriter, r *http.Request) {
 	// TODO: redir to dashboard, middleware will catch missing
 	// 	payment info and retry the checkout session?
 
