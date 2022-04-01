@@ -10,7 +10,7 @@ import (
 	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/fileserver"
 	"github.com/theandrew168/dripfile/pkg/log"
-	"github.com/theandrew168/dripfile/pkg/mail"
+	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
@@ -18,26 +18,26 @@ import (
 type TaskFunc func(t task.Task) error
 
 type Worker struct {
-	box     *secret.Box
-	queue   *task.Queue
-	storage *database.Storage
-	mailer  mail.Mailer
-	logger  log.Logger
+	box      *secret.Box
+	queue    *task.Queue
+	storage  *database.Storage
+	postmark postmark.Interface
+	logger   log.Logger
 }
 
 func NewWorker(
 	box *secret.Box,
 	queue *task.Queue,
 	storage *database.Storage,
-	mailer mail.Mailer,
+	postmark postmark.Interface,
 	logger log.Logger,
 ) *Worker {
 	worker := Worker{
-		box:     box,
-		queue:   queue,
-		storage: storage,
-		mailer:  mailer,
-		logger:  logger,
+		box:      box,
+		queue:    queue,
+		storage:  storage,
+		postmark: postmark,
+		logger:   logger,
 	}
 	return &worker
 }
@@ -110,7 +110,7 @@ func (w *Worker) SendEmail(t task.Task) error {
 		return err
 	}
 
-	err = w.mailer.SendEmail(
+	err = w.postmark.SendEmail(
 		info.FromName,
 		info.FromEmail,
 		info.ToName,

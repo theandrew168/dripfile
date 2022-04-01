@@ -91,6 +91,7 @@ func (app *Application) Router() http.Handler {
 
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
+		// TODO: move into separate stripe/app.go?
 		mux.HandleFunc("/stripe/checkout", app.handleStripeCheckout, "GET")
 		mux.HandleFunc("/stripe/success", app.handleStripeSuccess, "GET")
 		mux.HandleFunc("/stripe/cancel", app.handleStripeCancel, "GET")

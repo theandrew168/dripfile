@@ -107,20 +107,20 @@ func run(m *testing.M) int {
 	queue := task.NewQueue(pool)
 
 	// init the stripe interface
-	var stripeImpl stripe.Interface
+	var stripeInterface stripe.Interface
 	if cfg.StripeSecretKey != "" {
 		// TODO: how to handle these URLs?
-		stripeImpl = stripe.New(
+		stripeInterface = stripe.New(
 			cfg.StripeSecretKey,
-			"http://localhost:5000/billing/success",
-			"http://localhost:5000/billing/cancel",
+			cfg.SiteURL+"/stripe/success",
+			cfg.SiteURL+"/stripe/cancel",
 		)
 	} else {
-		stripeImpl = stripe.NewMock(logger)
+		stripeInterface = stripe.NewMock(logger)
 	}
 
 	// create the application
-	handler := app.New(cfg, box, storage, queue, stripeImpl, logger)
+	handler := app.New(cfg, box, storage, queue, stripeInterface, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)

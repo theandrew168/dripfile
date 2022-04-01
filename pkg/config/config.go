@@ -11,6 +11,7 @@ import (
 const DefaultPort = "5000"
 
 type Config struct {
+	SiteURL         string `toml:"site_url"`
 	SecretKey       string `toml:"secret_key"`
 	DatabaseURI     string `toml:"database_uri"`
 	PostmarkAPIKey  string `toml:"postmark_api_key"`
@@ -49,6 +50,7 @@ func Read(data string) (Config, error) {
 	}
 
 	required := []string{
+		"site_url",
 		"secret_key",
 		"database_uri",
 	}

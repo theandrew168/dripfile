@@ -1,7 +1,5 @@
-package mail
+package postmark
 
-import ()
-
-type Mailer interface {
+type Interface interface {
 	SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error
 }

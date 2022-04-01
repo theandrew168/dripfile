@@ -10,8 +10,8 @@ import (
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/log"
-	"github.com/theandrew168/dripfile/pkg/mail"
 	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/task"
 	"github.com/theandrew168/dripfile/pkg/work"
@@ -57,18 +57,18 @@ func run() int {
 	storage := database.NewStorage(pool)
 	queue := task.NewQueue(pool)
 
-	var mailer mail.Mailer
+	var postmarkInterface postmark.Interface
 	if cfg.PostmarkAPIKey != "" {
-		mailer = mail.NewPostmarkMailer(cfg.PostmarkAPIKey)
+		postmarkInterface = postmark.New(cfg.PostmarkAPIKey)
 	} else {
-		mailer = mail.NewLogMailer(logger)
+		postmarkInterface = postmark.NewMock(logger)
 	}
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	worker := work.NewWorker(box, queue, storage, mailer, logger)
+	worker := work.NewWorker(box, queue, storage, postmarkInterface, logger)
 	err = worker.Run()
 	if err != nil {
 		logger.Error(err)
