@@ -27,7 +27,7 @@ type Application struct {
 	box     *secret.Box
 	storage *database.Storage
 	queue   *task.Queue
-	payment billing.PaymentGateway
+	paygate billing.PaymentGateway
 	logger  log.Logger
 }
 
@@ -36,7 +36,7 @@ func NewApplication(
 	box *secret.Box,
 	storage *database.Storage,
 	queue *task.Queue,
-	payment billing.PaymentGateway,
+	paygate billing.PaymentGateway,
 	logger log.Logger,
 ) *Application {
 	var templates fs.FS
@@ -60,7 +60,7 @@ func NewApplication(
 		box:     box,
 		storage: storage,
 		queue:   queue,
-		payment: payment,
+		paygate: paygate,
 		logger:  logger,
 	}
 

@@ -107,21 +107,21 @@ func run(m *testing.M) int {
 	queue := task.NewQueue(pool)
 
 	// init the PaymentGateway interface
-	var payment billing.PaymentGateway
+	var paygate billing.PaymentGateway
 	if cfg.StripePublicKey != "" && cfg.StripeSecretKey != "" {
 		// TODO: how to handle these URLs?
-		payment = billing.NewStripeGateway(
+		paygate = billing.NewStripeGateway(
 			cfg.StripePublicKey,
 			cfg.StripeSecretKey,
 			"http://localhost:5000/billing/success",
 			"http://localhost:5000/billing/cancel",
 		)
 	} else {
-		payment = billing.NewLogGateway(logger)
+		paygate = billing.NewLogGateway(logger)
 	}
 
 	// create the application
-	handler := app.New(cfg, box, storage, queue, payment, logger)
+	handler := app.New(cfg, box, storage, queue, paygate, logger)
 
 	// start test server
 	ts := httptest.NewServer(handler)

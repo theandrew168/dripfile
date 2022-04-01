@@ -66,21 +66,21 @@ func run() int {
 	queue := task.NewQueue(pool)
 
 	// init the PaymentGateway interface
-	var payment billing.PaymentGateway
+	var paygate billing.PaymentGateway
 	if cfg.StripePublicKey != "" && cfg.StripeSecretKey != "" {
 		// TODO: how to handle these URLs?
-		payment = billing.NewStripeGateway(
+		paygate = billing.NewStripeGateway(
 			cfg.StripePublicKey,
 			cfg.StripeSecretKey,
 			"http://localhost:5000/billing/success",
 			"http://localhost:5000/billing/cancel",
 		)
 	} else {
-		payment = billing.NewLogGateway(logger)
+		paygate = billing.NewLogGateway(logger)
 	}
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(cfg, box, storage, queue, payment, logger)
+	handler := app.New(cfg, box, storage, queue, paygate, logger)
 
 	srv := &http.Server{
 		Addr:    addr,

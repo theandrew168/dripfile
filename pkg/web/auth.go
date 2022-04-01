@@ -62,7 +62,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create customer in payment gateway
-	billingID, err := app.payment.CreateCustomer(email)
+	billingID, err := app.paygate.CreateCustomer(email)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

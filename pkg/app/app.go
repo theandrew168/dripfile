@@ -22,7 +22,7 @@ func New(
 	box *secret.Box,
 	storage *database.Storage,
 	queue *task.Queue,
-	payment billing.PaymentGateway,
+	paygate billing.PaymentGateway,
 	logger log.Logger,
 ) http.Handler {
 	mux := flow.New()
@@ -51,7 +51,7 @@ func New(
 	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
 
 	// primary web app (last due to being a top-level catch-all)
-	webApp := web.NewApplication(cfg, box, storage, queue, payment, logger)
+	webApp := web.NewApplication(cfg, box, storage, queue, paygate, logger)
 	mux.Handle("/...", webApp.Router())
 
 	return mux

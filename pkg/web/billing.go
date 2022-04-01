@@ -13,7 +13,7 @@ func (app *Application) handleBillingCheckout(w http.ResponseWriter, r *http.Req
 
 	// create checkout session
 	billingID := session.Account.Project.BillingID
-	sessionURL, err := app.payment.CreateCheckoutSession(billingID)
+	sessionURL, err := app.paygate.CreateCheckoutSession(billingID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
