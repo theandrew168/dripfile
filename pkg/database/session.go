@@ -9,12 +9,12 @@ import (
 )
 
 type SessionStorage struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewSessionStorage(db postgres.Database) *SessionStorage {
+func NewSessionStorage(pg postgres.Interface) *SessionStorage {
 	s := SessionStorage{
-		db: db,
+		pg: pg,
 	}
 	return &s
 }
@@ -35,7 +35,7 @@ func (s *SessionStorage) Create(session *core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, args...)
+	err := postgres.Exec(s.pg, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(session)
@@ -86,7 +86,7 @@ func (s *SessionStorage) Read(hash string) (core.Session, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, hash)
+	row := s.pg.QueryRow(ctx, stmt, hash)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -107,7 +107,7 @@ func (s *SessionStorage) Delete(session core.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, session.Hash)
+	err := postgres.Exec(s.pg, ctx, stmt, session.Hash)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(session)
@@ -127,7 +127,7 @@ func (s *SessionStorage) DeleteExpired() error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt)
+	err := postgres.Exec(s.pg, ctx, stmt)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.DeleteExpired()

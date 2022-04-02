@@ -9,12 +9,12 @@ import (
 )
 
 type ProjectStorage struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewProjectStorage(db postgres.Database) *ProjectStorage {
+func NewProjectStorage(pg postgres.Interface) *ProjectStorage {
 	s := ProjectStorage{
-		db: db,
+		pg: pg,
 	}
 	return &s
 }
@@ -35,7 +35,7 @@ func (s *ProjectStorage) Create(project *core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, args...)
+	row := s.pg.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -67,7 +67,7 @@ func (s *ProjectStorage) Read(id string) (core.Project, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, id)
+	row := s.pg.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -97,7 +97,7 @@ func (s *ProjectStorage) Update(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, args...)
+	err := postgres.Exec(s.pg, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(project)
@@ -117,7 +117,7 @@ func (s *ProjectStorage) Delete(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, project.ID)
+	err := postgres.Exec(s.pg, ctx, stmt, project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(project)

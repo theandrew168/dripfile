@@ -9,12 +9,12 @@ import (
 )
 
 type AccountStorage struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewAccountStorage(db postgres.Database) *AccountStorage {
+func NewAccountStorage(pg postgres.Interface) *AccountStorage {
 	s := AccountStorage{
-		db: db,
+		pg: pg,
 	}
 	return &s
 }
@@ -39,7 +39,7 @@ func (s *AccountStorage) Create(account *core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, args...)
+	row := s.pg.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -85,7 +85,7 @@ func (s *AccountStorage) Read(id string) (core.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, id)
+	row := s.pg.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -121,7 +121,7 @@ func (s *AccountStorage) Update(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, args...)
+	err := postgres.Exec(s.pg, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(account)
@@ -141,7 +141,7 @@ func (s *AccountStorage) Delete(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, account.ID)
+	err := postgres.Exec(s.pg, ctx, stmt, account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(account)
@@ -186,7 +186,7 @@ func (s *AccountStorage) ReadByEmail(email string) (core.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, email)
+	row := s.pg.QueryRow(ctx, stmt, email)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -213,7 +213,7 @@ func (s *AccountStorage) CountByProject(project core.Project) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, project.ID)
+	row := s.pg.QueryRow(ctx, stmt, project.ID)
 	err := postgres.Scan(row, &count)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {

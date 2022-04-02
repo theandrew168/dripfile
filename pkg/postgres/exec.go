@@ -10,8 +10,8 @@ import (
 	"github.com/theandrew168/dripfile/pkg/core"
 )
 
-func Exec(db Database, ctx context.Context, stmt string, args ...interface{}) error {
-	_, err := db.Exec(ctx, stmt, args...)
+func Exec(pg Interface, ctx context.Context, stmt string, args ...interface{}) error {
+	_, err := pg.Exec(ctx, stmt, args...)
 	if err != nil {
 		// check for more specific errors
 		// https://github.com/jackc/pgx/wiki/Error-Handling

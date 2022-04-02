@@ -9,12 +9,12 @@ import (
 )
 
 type HistoryStorage struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewHistoryStorage(db postgres.Database) *HistoryStorage {
+func NewHistoryStorage(pg postgres.Interface) *HistoryStorage {
 	s := HistoryStorage{
-		db: db,
+		pg: pg,
 	}
 	return &s
 }
@@ -39,7 +39,7 @@ func (s *HistoryStorage) Create(history *core.History) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, args...)
+	row := s.pg.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &history.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -75,7 +75,7 @@ func (s *HistoryStorage) ReadManyByProject(project core.Project) ([]core.History
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.db.Query(ctx, stmt, project.ID)
+	rows, err := s.pg.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -9,12 +9,12 @@ import (
 )
 
 type LocationStorage struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewLocationStorage(db postgres.Database) *LocationStorage {
+func NewLocationStorage(pg postgres.Interface) *LocationStorage {
 	s := LocationStorage{
-		db: db,
+		pg: pg,
 	}
 	return &s
 }
@@ -37,7 +37,7 @@ func (s *LocationStorage) Create(location *core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, args...)
+	row := s.pg.QueryRow(ctx, stmt, args...)
 	err := postgres.Scan(row, &location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -79,7 +79,7 @@ func (s *LocationStorage) Read(id string) (core.Location, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.db.QueryRow(ctx, stmt, id)
+	row := s.pg.QueryRow(ctx, stmt, id)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -111,7 +111,7 @@ func (s *LocationStorage) Update(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, args...)
+	err := postgres.Exec(s.pg, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(location)
@@ -131,7 +131,7 @@ func (s *LocationStorage) Delete(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.db, ctx, stmt, location.ID)
+	err := postgres.Exec(s.pg, ctx, stmt, location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(location)
@@ -161,7 +161,7 @@ func (s *LocationStorage) ReadManyByProject(project core.Project) ([]core.Locati
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.db.Query(ctx, stmt, project.ID)
+	rows, err := s.pg.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}

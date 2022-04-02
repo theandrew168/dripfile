@@ -6,12 +6,12 @@ import (
 )
 
 type ScheduleStorage struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewScheduleStorage(db postgres.Database) *ScheduleStorage {
+func NewScheduleStorage(pg postgres.Interface) *ScheduleStorage {
 	s := ScheduleStorage{
-		db: db,
+		pg: pg,
 	}
 	return &s
 }

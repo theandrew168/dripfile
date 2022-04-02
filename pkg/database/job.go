@@ -6,12 +6,12 @@ import (
 )
 
 type JobStorage struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewJobStorage(db postgres.Database) *JobStorage {
+func NewJobStorage(pg postgres.Interface) *JobStorage {
 	s := JobStorage{
-		db: db,
+		pg: pg,
 	}
 	return &s
 }

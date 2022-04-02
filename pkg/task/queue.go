@@ -13,12 +13,12 @@ import (
 var queryTimeout = 3 * time.Second
 
 type Queue struct {
-	db postgres.Database
+	pg postgres.Interface
 }
 
-func NewQueue(db postgres.Database) *Queue {
+func NewQueue(pg postgres.Interface) *Queue {
 	q := Queue{
-		db: db,
+		pg: pg,
 	}
 	return &q
 }
@@ -42,7 +42,7 @@ func (q *Queue) Push(task Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(q.db, ctx, stmt, args...)
+	err := postgres.Exec(q.pg, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return q.Push(task)
@@ -81,7 +81,7 @@ func (q *Queue) Pop() (Task, error) {
 		&task.Status,
 	}
 
-	row := q.db.QueryRow(ctx, stmt)
+	row := q.pg.QueryRow(ctx, stmt)
 	err := postgres.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
@@ -115,7 +115,7 @@ func (q *Queue) Update(task Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(q.db, ctx, stmt, args...)
+	err := postgres.Exec(q.pg, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return q.Update(task)

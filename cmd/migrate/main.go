@@ -43,8 +43,7 @@ func run() int {
 		return 1
 	}
 
-	ctx := context.Background()
-	err = migrate.Migrate(ctx, conn, logger)
+	err = migrate.Migrate(conn, logger)
 	if err != nil {
 		logger.Error(err)
 		return 1

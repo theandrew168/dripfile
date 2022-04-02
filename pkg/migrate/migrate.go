@@ -11,11 +11,13 @@ import (
 )
 
 //go:embed migration
-var migrationsFS embed.FS
+var migrationFS embed.FS
 
-func Migrate(ctx context.Context, db postgres.Database, logger log.Logger) error {
+func Migrate(pg postgres.Interface, logger log.Logger) error {
+	ctx := context.Background()
+
 	// create migrations table if it doesn't exist
-	_, err := db.Exec(ctx, `
+	_, err := pg.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS migration (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL UNIQUE
@@ -25,7 +27,7 @@ func Migrate(ctx context.Context, db postgres.Database, logger log.Logger) error
 	}
 
 	// get migrations that are already applied
-	rows, err := db.Query(ctx, "SELECT name FROM migration")
+	rows, err := pg.Query(ctx, "SELECT name FROM migration")
 	if err != nil {
 		return err
 	}
@@ -42,7 +44,7 @@ func Migrate(ctx context.Context, db postgres.Database, logger log.Logger) error
 	}
 
 	// get migrations that should be applied (from migrations FS)
-	subdir, _ := fs.Sub(migrationsFS, "migration")
+	subdir, _ := fs.Sub(migrationFS, "migration")
 	migrations, err := fs.ReadDir(subdir, ".")
 	if err != nil {
 		return err
@@ -67,13 +69,13 @@ func Migrate(ctx context.Context, db postgres.Database, logger log.Logger) error
 		if err != nil {
 			return err
 		}
-		_, err = db.Exec(ctx, string(sql))
+		_, err = pg.Exec(ctx, string(sql))
 		if err != nil {
 			return err
 		}
 
 		// update migrations table
-		_, err = db.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
+		_, err = pg.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
 		if err != nil {
 			return err
 		}

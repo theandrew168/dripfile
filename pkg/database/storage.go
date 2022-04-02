@@ -11,7 +11,7 @@ var queryTimeout = 3 * time.Second
 
 // aggregation of core storage types
 type Storage struct {
-	db postgres.Database
+	pg postgres.Interface
 
 	Project  *ProjectStorage
 	Account  *AccountStorage
@@ -23,18 +23,18 @@ type Storage struct {
 	History  *HistoryStorage
 }
 
-func NewStorage(db postgres.Database) *Storage {
+func NewStorage(pg postgres.Interface) *Storage {
 	s := Storage{
-		db: db,
+		pg: pg,
 
-		Project:  NewProjectStorage(db),
-		Account:  NewAccountStorage(db),
-		Session:  NewSessionStorage(db),
-		Location: NewLocationStorage(db),
-		Transfer: NewTransferStorage(db),
-		Schedule: NewScheduleStorage(db),
-		Job:      NewJobStorage(db),
-		History:  NewHistoryStorage(db),
+		Project:  NewProjectStorage(pg),
+		Account:  NewAccountStorage(pg),
+		Session:  NewSessionStorage(pg),
+		Location: NewLocationStorage(pg),
+		Transfer: NewTransferStorage(pg),
+		Schedule: NewScheduleStorage(pg),
+		Job:      NewJobStorage(pg),
+		History:  NewHistoryStorage(pg),
 	}
 	return &s
 }
