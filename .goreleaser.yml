@@ -12,15 +12,6 @@ builds:
       - linux
     goarch:
       - amd64
-  - id: dripfile-web
-    main: cmd/web/main.go
-    binary: dripfile-web
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-    goarch:
-      - amd64
   - id: dripfile-worker
     main: cmd/worker/main.go
     binary: dripfile-worker
@@ -30,18 +21,18 @@ builds:
       - linux
     goarch:
       - amd64
-  - id: dripfile-scheduler
-    main: cmd/scheduler/main.go
-    binary: dripfile-scheduler
+  - id: dripfile-clock
+    main: cmd/clock/main.go
+    binary: dripfile-clock
     env:
       - CGO_ENABLED=0
     goos:
       - linux
     goarch:
       - amd64
-  - id: dripfile-tap
-    main: cmd/tap/main.go
-    binary: dripfile-tap
+  - id: dripfile-web
+    main: cmd/web/main.go
+    binary: dripfile-web
     env:
       - CGO_ENABLED=0
     goos:
@@ -70,12 +61,12 @@ nfpms:
     contents:
       - src: scripts/dripfile-migrate.service
         dst: /lib/systemd/system/dripfile-migrate.service
-      - src: scripts/dripfile-web.service
-        dst: /lib/systemd/system/dripfile-web.service
       - src: scripts/dripfile-worker.service
         dst: /lib/systemd/system/dripfile-worker.service
-      - src: scripts/dripfile-scheduler.service
-        dst: /lib/systemd/system/dripfile-scheduler.service
+      - src: scripts/dripfile-clock.service
+        dst: /lib/systemd/system/dripfile-clock.service
+      - src: scripts/dripfile-web.service
+        dst: /lib/systemd/system/dripfile-web.service
       - src: scripts/dripfile.conf
         dst: /etc/dripfile.conf
         type: config
@@ -83,22 +74,6 @@ nfpms:
       postinstall: scripts/postinstall.sh
       preremove: scripts/preremove.sh
       postremove: scripts/postremove.sh
-  - id: dripfile-tap
-    package_name: dripfile-tap
-    file_name_template: "{{ .ProjectName }}_tap_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
-    homepage: https://github.com/theandrew168/dripfile
-    maintainer: Andrew Dailey <andrew@shallowbrooksoftware.com>
-    description: Managed file transfer as a service
-    formats:
-      - deb
-    bindir: /usr/bin
-    contents:
-      - src: scripts/tap/dripfile-tap.service
-        dst: /lib/systemd/system/dripfile-tap.service
-    scripts:
-      postinstall: scripts/tap/postinstall.sh
-      preremove: scripts/tap/preremove.sh
-      postremove: scripts/tap/postremove.sh
 
 checksum:
   name_template: checksums.txt
