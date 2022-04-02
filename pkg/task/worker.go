@@ -1,4 +1,4 @@
-package work
+package task
 
 import (
 	"encoding/json"
@@ -11,14 +11,13 @@ import (
 	"github.com/theandrew168/dripfile/pkg/fileserver"
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
-	"github.com/theandrew168/dripfile/pkg/task"
 )
 
-type TaskFunc func(t task.Task) error
+type TaskFunc func(task Task) error
 
 type Worker struct {
 	box      *secret.Box
-	queue    *task.Queue
+	queue    *Queue
 	storage  *database.Storage
 	postmark postmark.Interface
 	infoLog  *log.Logger
@@ -27,7 +26,7 @@ type Worker struct {
 
 func NewWorker(
 	box *secret.Box,
-	queue *task.Queue,
+	queue *Queue,
 	storage *database.Storage,
 	postmark postmark.Interface,
 	infoLog *log.Logger,
@@ -68,45 +67,45 @@ func (w *Worker) Run() error {
 	return nil
 }
 
-func (w *Worker) RunTask(t task.Task) {
+func (w *Worker) RunTask(task Task) {
 	// determine which task needs to run
 	var taskFunc TaskFunc
-	switch t.Kind {
-	case task.KindEmail:
+	switch task.Kind {
+	case KindEmail:
 		taskFunc = w.SendEmail
-	case task.KindSession:
+	case KindSession:
 		taskFunc = w.DeleteExpiredSessions
-	case task.KindTransfer:
+	case KindTransfer:
 		taskFunc = w.DoTransfer
 	default:
-		w.errorLog.Printf("unknown task: %s", t.Kind)
+		w.errorLog.Printf("unknown task: %s", task.Kind)
 		return
 	}
 
-	w.infoLog.Printf("task %s start\n", t.ID)
+	w.infoLog.Printf("task %s start\n", task.ID)
 
 	// run and update the status
-	err := taskFunc(t)
+	err := taskFunc(task)
 	if err != nil {
 		w.errorLog.Println(err)
 
-		t.Error = err.Error()
-		t.Status = task.StatusError
+		task.Error = err.Error()
+		task.Status = StatusError
 	} else {
-		t.Status = task.StatusSuccess
+		task.Status = StatusSuccess
 	}
 
-	err = w.queue.Update(t)
+	err = w.queue.Update(task)
 	if err != nil {
 		w.errorLog.Println(err)
 	}
 
-	w.infoLog.Printf("task %s finish\n", t.ID)
+	w.infoLog.Printf("task %s finish\n", task.ID)
 }
 
-func (w *Worker) SendEmail(t task.Task) error {
-	var info task.SendEmailInfo
-	err := json.Unmarshal([]byte(t.Info), &info)
+func (w *Worker) SendEmail(task Task) error {
+	var info SendEmailInfo
+	err := json.Unmarshal([]byte(task.Info), &info)
 	if err != nil {
 		return err
 	}
@@ -126,7 +125,7 @@ func (w *Worker) SendEmail(t task.Task) error {
 	return nil
 }
 
-func (w *Worker) DeleteExpiredSessions(t task.Task) error {
+func (w *Worker) DeleteExpiredSessions(task Task) error {
 	err := w.storage.Session.DeleteExpired()
 	if err != nil {
 		return err
@@ -135,11 +134,11 @@ func (w *Worker) DeleteExpiredSessions(t task.Task) error {
 	return nil
 }
 
-func (w *Worker) DoTransfer(t task.Task) error {
+func (w *Worker) DoTransfer(task Task) error {
 	start := time.Now()
 
-	var info task.DoTransferInfo
-	err := json.Unmarshal([]byte(t.Info), &info)
+	var info DoTransferInfo
+	err := json.Unmarshal([]byte(task.Info), &info)
 	if err != nil {
 		return err
 	}

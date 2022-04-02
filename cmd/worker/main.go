@@ -14,7 +14,6 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/task"
-	"github.com/theandrew168/dripfile/pkg/work"
 )
 
 func main() {
@@ -69,7 +68,7 @@ func run() int {
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	worker := work.NewWorker(box, queue, storage, postmarkI, infoLog, errorLog)
+	worker := task.NewWorker(box, queue, storage, postmarkI, infoLog, errorLog)
 	err = worker.Run()
 	if err != nil {
 		errorLog.Println(err)
