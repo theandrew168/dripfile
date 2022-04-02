@@ -9,10 +9,10 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/pkg/config"
-	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
 
@@ -54,7 +54,7 @@ func run() int {
 	}
 	defer pool.Close()
 
-	storage := database.NewStorage(pool)
+	store := storage.New(pool)
 	queue := task.NewQueue(pool)
 
 	var postmarkI postmark.Interface
@@ -68,7 +68,7 @@ func run() int {
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	worker := task.NewWorker(box, queue, storage, postmarkI, infoLog, errorLog)
+	worker := task.NewWorker(box, queue, store, postmarkI, infoLog, errorLog)
 	err = worker.Run()
 	if err != nil {
 		errorLog.Println(err)

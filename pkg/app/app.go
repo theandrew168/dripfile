@@ -8,9 +8,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/theandrew168/dripfile/pkg/config"
-	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/static"
+	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 	"github.com/theandrew168/dripfile/pkg/web"
@@ -20,7 +20,7 @@ import (
 func New(
 	cfg config.Config,
 	box *secret.Box,
-	storage *database.Storage,
+	storage *storage.Storage,
 	queue *task.Queue,
 	stripe stripe.Interface,
 	infoLog *log.Logger,

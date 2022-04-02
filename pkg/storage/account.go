@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type AccountStorage struct {
+type Account struct {
 	pg postgres.Interface
 }
 
-func NewAccountStorage(pg postgres.Interface) *AccountStorage {
-	s := AccountStorage{
+func NewAccount(pg postgres.Interface) *Account {
+	s := Account{
 		pg: pg,
 	}
 	return &s
 }
 
-func (s *AccountStorage) Create(account *core.Account) error {
+func (s *Account) Create(account *core.Account) error {
 	stmt := `
 		INSERT INTO account
 			(email, username, password, role, verified, project_id)
@@ -52,7 +52,7 @@ func (s *AccountStorage) Create(account *core.Account) error {
 	return nil
 }
 
-func (s *AccountStorage) Read(id string) (core.Account, error) {
+func (s *Account) Read(id string) (core.Account, error) {
 	stmt := `
 		SELECT
 			account.id,
@@ -98,7 +98,7 @@ func (s *AccountStorage) Read(id string) (core.Account, error) {
 	return account, nil
 }
 
-func (s *AccountStorage) Update(account core.Account) error {
+func (s *Account) Update(account core.Account) error {
 	stmt := `
 		UPDATE account
 		SET
@@ -133,7 +133,7 @@ func (s *AccountStorage) Update(account core.Account) error {
 	return nil
 }
 
-func (s *AccountStorage) Delete(account core.Account) error {
+func (s *Account) Delete(account core.Account) error {
 	stmt := `
 		DELETE FROM account
 		WHERE id = $1`
@@ -153,7 +153,7 @@ func (s *AccountStorage) Delete(account core.Account) error {
 	return nil
 }
 
-func (s *AccountStorage) ReadByEmail(email string) (core.Account, error) {
+func (s *Account) ReadByEmail(email string) (core.Account, error) {
 	stmt := `
 		SELECT
 			account.id,
@@ -199,7 +199,7 @@ func (s *AccountStorage) ReadByEmail(email string) (core.Account, error) {
 	return account, nil
 }
 
-func (s *AccountStorage) CountByProject(project core.Project) (int, error) {
+func (s *Account) CountByProject(project core.Project) (int, error) {
 	stmt := `
 		SELECT
 			count(*)

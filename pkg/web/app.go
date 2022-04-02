@@ -11,8 +11,8 @@ import (
 	"github.com/alexedwards/flow"
 
 	"github.com/theandrew168/dripfile/pkg/config"
-	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
@@ -25,7 +25,7 @@ type Application struct {
 
 	cfg      config.Config
 	box      *secret.Box
-	storage  *database.Storage
+	storage  *storage.Storage
 	queue    *task.Queue
 	stripe   stripe.Interface
 	infoLog  *log.Logger
@@ -35,7 +35,7 @@ type Application struct {
 func NewApplication(
 	cfg config.Config,
 	box *secret.Box,
-	storage *database.Storage,
+	storage *storage.Storage,
 	queue *task.Queue,
 	stripe stripe.Interface,
 	infoLog *log.Logger,

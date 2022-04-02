@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type LocationStorage struct {
+type Location struct {
 	pg postgres.Interface
 }
 
-func NewLocationStorage(pg postgres.Interface) *LocationStorage {
-	s := LocationStorage{
+func NewLocation(pg postgres.Interface) *Location {
+	s := Location{
 		pg: pg,
 	}
 	return &s
 }
 
-func (s *LocationStorage) Create(location *core.Location) error {
+func (s *Location) Create(location *core.Location) error {
 	stmt := `
 		INSERT INTO location
 			(kind, name, info, project_id)
@@ -50,7 +50,7 @@ func (s *LocationStorage) Create(location *core.Location) error {
 	return nil
 }
 
-func (s *LocationStorage) Read(id string) (core.Location, error) {
+func (s *Location) Read(id string) (core.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -92,7 +92,7 @@ func (s *LocationStorage) Read(id string) (core.Location, error) {
 	return location, nil
 }
 
-func (s *LocationStorage) Update(location core.Location) error {
+func (s *Location) Update(location core.Location) error {
 	stmt := `
 		UPDATE location
 		SET
@@ -123,7 +123,7 @@ func (s *LocationStorage) Update(location core.Location) error {
 	return nil
 }
 
-func (s *LocationStorage) Delete(location core.Location) error {
+func (s *Location) Delete(location core.Location) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1`
@@ -143,7 +143,7 @@ func (s *LocationStorage) Delete(location core.Location) error {
 	return nil
 }
 
-func (s *LocationStorage) ReadManyByProject(project core.Project) ([]core.Location, error) {
+func (s *Location) ReadManyByProject(project core.Project) ([]core.Location, error) {
 	stmt := `
 		SELECT
 			location.id,

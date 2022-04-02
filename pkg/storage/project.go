@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type ProjectStorage struct {
+type Project struct {
 	pg postgres.Interface
 }
 
-func NewProjectStorage(pg postgres.Interface) *ProjectStorage {
-	s := ProjectStorage{
+func NewProject(pg postgres.Interface) *Project {
+	s := Project{
 		pg: pg,
 	}
 	return &s
 }
 
-func (s *ProjectStorage) Create(project *core.Project) error {
+func (s *Project) Create(project *core.Project) error {
 	stmt := `
 		INSERT INTO project
 			(customer_id, subscription_item_id)
@@ -48,7 +48,7 @@ func (s *ProjectStorage) Create(project *core.Project) error {
 	return nil
 }
 
-func (s *ProjectStorage) Read(id string) (core.Project, error) {
+func (s *Project) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
 			project.id,
@@ -80,7 +80,7 @@ func (s *ProjectStorage) Read(id string) (core.Project, error) {
 	return project, nil
 }
 
-func (s *ProjectStorage) Update(project core.Project) error {
+func (s *Project) Update(project core.Project) error {
 	stmt := `
 		UPDATE project
 		SET
@@ -109,7 +109,7 @@ func (s *ProjectStorage) Update(project core.Project) error {
 	return nil
 }
 
-func (s *ProjectStorage) Delete(project core.Project) error {
+func (s *Project) Delete(project core.Project) error {
 	stmt := `
 		DELETE FROM project
 		WHERE id = $1`

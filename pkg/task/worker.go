@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/fileserver"
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/storage"
 )
 
 type TaskFunc func(task Task) error
@@ -18,7 +18,7 @@ type TaskFunc func(task Task) error
 type Worker struct {
 	box      *secret.Box
 	queue    *Queue
-	storage  *database.Storage
+	storage  *storage.Storage
 	postmark postmark.Interface
 	infoLog  *log.Logger
 	errorLog *log.Logger
@@ -27,7 +27,7 @@ type Worker struct {
 func NewWorker(
 	box *secret.Box,
 	queue *Queue,
-	storage *database.Storage,
+	storage *storage.Storage,
 	postmark postmark.Interface,
 	infoLog *log.Logger,
 	errorLog *log.Logger,

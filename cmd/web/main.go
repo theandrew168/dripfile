@@ -18,9 +18,9 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/app"
 	"github.com/theandrew168/dripfile/pkg/config"
-	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
@@ -63,7 +63,7 @@ func run() int {
 	}
 	defer pool.Close()
 
-	storage := database.NewStorage(pool)
+	store := storage.New(pool)
 	queue := task.NewQueue(pool)
 
 	// init the stripe interface
@@ -79,7 +79,7 @@ func run() int {
 	}
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(cfg, box, storage, queue, stripeI, infoLog, errorLog)
+	handler := app.New(cfg, box, store, queue, stripeI, infoLog, errorLog)
 
 	srv := &http.Server{
 		Addr:    addr,

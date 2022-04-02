@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type SessionStorage struct {
+type Session struct {
 	pg postgres.Interface
 }
 
-func NewSessionStorage(pg postgres.Interface) *SessionStorage {
-	s := SessionStorage{
+func NewSession(pg postgres.Interface) *Session {
+	s := Session{
 		pg: pg,
 	}
 	return &s
 }
 
-func (s *SessionStorage) Create(session *core.Session) error {
+func (s *Session) Create(session *core.Session) error {
 	stmt := `
 		INSERT INTO session
 			(hash, expiry, account_id)
@@ -47,7 +47,7 @@ func (s *SessionStorage) Create(session *core.Session) error {
 	return nil
 }
 
-func (s *SessionStorage) Read(hash string) (core.Session, error) {
+func (s *Session) Read(hash string) (core.Session, error) {
 	stmt := `
 		SELECT
 			session.hash,
@@ -99,7 +99,7 @@ func (s *SessionStorage) Read(hash string) (core.Session, error) {
 	return session, nil
 }
 
-func (s *SessionStorage) Delete(session core.Session) error {
+func (s *Session) Delete(session core.Session) error {
 	stmt := `
 		DELETE FROM session
 		WHERE hash = $1`
@@ -119,7 +119,7 @@ func (s *SessionStorage) Delete(session core.Session) error {
 	return nil
 }
 
-func (s *SessionStorage) DeleteExpired() error {
+func (s *Session) DeleteExpired() error {
 	stmt := `
 		DELETE FROM session
 		WHERE expiry <= NOW()`

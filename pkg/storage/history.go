@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type HistoryStorage struct {
+type History struct {
 	pg postgres.Interface
 }
 
-func NewHistoryStorage(pg postgres.Interface) *HistoryStorage {
-	s := HistoryStorage{
+func NewHistory(pg postgres.Interface) *History {
+	s := History{
 		pg: pg,
 	}
 	return &s
 }
 
-func (s *HistoryStorage) Create(history *core.History) error {
+func (s *History) Create(history *core.History) error {
 	stmt := `
 		INSERT INTO history
 			(bytes, status, started_at, finished_at, transfer_id, project_id)
@@ -52,11 +52,11 @@ func (s *HistoryStorage) Create(history *core.History) error {
 	return nil
 }
 
-func (s *HistoryStorage) Read(id string) (core.History, error) {
+func (s *History) Read(id string) (core.History, error) {
 	return core.History{}, nil
 }
 
-func (s *HistoryStorage) ReadManyByProject(project core.Project) ([]core.History, error) {
+func (s *History) ReadManyByProject(project core.Project) ([]core.History, error) {
 	stmt := `
 		SELECT
 			history.id,

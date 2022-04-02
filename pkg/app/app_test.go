@@ -14,10 +14,10 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/theandrew168/dripfile/pkg/app"
-	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/random"
 	"github.com/theandrew168/dripfile/pkg/secret"
+	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 	"github.com/theandrew168/dripfile/pkg/test"
@@ -102,7 +102,7 @@ func run(m *testing.M) int {
 	}
 	defer pool.Close()
 
-	storage := database.NewStorage(pool)
+	store := storage.New(pool)
 	queue := task.NewQueue(pool)
 
 	// init the stripe interface
@@ -119,7 +119,7 @@ func run(m *testing.M) int {
 	}
 
 	// create the application
-	handler := app.New(cfg, box, storage, queue, stripeI, infoLog, errorLog)
+	handler := app.New(cfg, box, store, queue, stripeI, infoLog, errorLog)
 
 	// start test server
 	ts := httptest.NewServer(handler)

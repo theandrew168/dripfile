@@ -1,4 +1,4 @@
-package database
+package storage
 
 import (
 	"context"
@@ -8,18 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
-type TransferStorage struct {
+type Transfer struct {
 	pg postgres.Interface
 }
 
-func NewTransferStorage(pg postgres.Interface) *TransferStorage {
-	s := TransferStorage{
+func NewTransfer(pg postgres.Interface) *Transfer {
+	s := Transfer{
 		pg: pg,
 	}
 	return &s
 }
 
-func (s *TransferStorage) Create(transfer *core.Transfer) error {
+func (s *Transfer) Create(transfer *core.Transfer) error {
 	stmt := `
 		INSERT INTO transfer
 			(pattern, src_id, dst_id, project_id)
@@ -50,7 +50,7 @@ func (s *TransferStorage) Create(transfer *core.Transfer) error {
 	return nil
 }
 
-func (s *TransferStorage) Read(id string) (core.Transfer, error) {
+func (s *Transfer) Read(id string) (core.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
@@ -112,7 +112,7 @@ func (s *TransferStorage) Read(id string) (core.Transfer, error) {
 	return transfer, nil
 }
 
-func (s *TransferStorage) Update(transfer core.Transfer) error {
+func (s *Transfer) Update(transfer core.Transfer) error {
 	stmt := `
 		UPDATE transfer
 		SET
@@ -143,7 +143,7 @@ func (s *TransferStorage) Update(transfer core.Transfer) error {
 	return nil
 }
 
-func (s *TransferStorage) Delete(transfer core.Transfer) error {
+func (s *Transfer) Delete(transfer core.Transfer) error {
 	stmt := `
 		DELETE FROM transfer
 		WHERE id = $1`
@@ -163,7 +163,7 @@ func (s *TransferStorage) Delete(transfer core.Transfer) error {
 	return nil
 }
 
-func (s *TransferStorage) ReadManyByProject(project core.Project) ([]core.Transfer, error) {
+func (s *Transfer) ReadManyByProject(project core.Project) ([]core.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
