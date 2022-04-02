@@ -161,7 +161,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("account %s location %s create\n", session.Account.Email, location.ID)
+	app.infoLog.Printf("account %s location %s create\n", session.Account.Email, location.ID)
 	http.Redirect(w, r, "/location/"+location.ID, http.StatusSeeOther)
 }
 
@@ -188,6 +188,6 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("account %s location %s delete\n", session.Account.Email, location.ID)
+	app.infoLog.Printf("account %s location %s delete\n", session.Account.Email, location.ID)
 	http.Redirect(w, r, "/location", http.StatusSeeOther)
 }

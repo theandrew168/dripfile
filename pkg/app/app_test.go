@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/hex"
 	"flag"
-	"fmt"
+	"log"
 	"math/rand"
 	"net/http/httptest"
 	"os"
@@ -15,7 +15,6 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/app"
 	"github.com/theandrew168/dripfile/pkg/database"
-	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/random"
 	"github.com/theandrew168/dripfile/pkg/secret"
@@ -77,16 +76,16 @@ func run(m *testing.M) int {
 	username = random.String(8)
 	password = username
 	email = username + "@dripfile.com"
-	fmt.Println(username)
 
 	// TODO: setup test bucket in S3
 
-	logger := log.NewLogger(os.Stdout)
+	infoLog := log.New(os.Stdout, "", 0)
+	errorLog := log.New(os.Stderr, "error: ", 0)
 	cfg := test.Config()
 
 	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
@@ -98,7 +97,7 @@ func run(m *testing.M) int {
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 	defer pool.Close()
@@ -107,20 +106,20 @@ func run(m *testing.M) int {
 	queue := task.NewQueue(pool)
 
 	// init the stripe interface
-	var stripeInterface stripe.Interface
+	var stripeI stripe.Interface
 	if cfg.StripeSecretKey != "" {
 		// TODO: how to handle these URLs?
-		stripeInterface = stripe.New(
+		stripeI = stripe.New(
 			cfg.StripeSecretKey,
 			cfg.SiteURL+"/stripe/success",
 			cfg.SiteURL+"/stripe/cancel",
 		)
 	} else {
-		stripeInterface = stripe.NewMock(logger)
+		stripeI = stripe.NewMock(infoLog)
 	}
 
 	// create the application
-	handler := app.New(cfg, box, storage, queue, stripeInterface, logger)
+	handler := app.New(cfg, box, storage, queue, stripeI, infoLog, errorLog)
 
 	// start test server
 	ts := httptest.NewServer(handler)
@@ -147,7 +146,7 @@ func run(m *testing.M) int {
 	// navigate to test server
 	err = chromedp.Run(ctx, chromedp.Navigate(ts.URL))
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 

@@ -3,6 +3,7 @@ package web
 import (
 	"embed"
 	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -11,24 +12,24 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/database"
-	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
 
 //go:embed template
-var templatesFS embed.FS
+var templateFS embed.FS
 
 type Application struct {
 	templates fs.FS
 
-	cfg     config.Config
-	box     *secret.Box
-	storage *database.Storage
-	queue   *task.Queue
-	stripe  stripe.Interface
-	logger  log.Logger
+	cfg      config.Config
+	box      *secret.Box
+	storage  *database.Storage
+	queue    *task.Queue
+	stripe   stripe.Interface
+	infoLog  *log.Logger
+	errorLog *log.Logger
 }
 
 func NewApplication(
@@ -37,7 +38,8 @@ func NewApplication(
 	storage *database.Storage,
 	queue *task.Queue,
 	stripe stripe.Interface,
-	logger log.Logger,
+	infoLog *log.Logger,
+	errorLog *log.Logger,
 ) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
@@ -45,9 +47,9 @@ func NewApplication(
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
 		templates = os.DirFS("./pkg/web/template/")
 	} else {
-		// else use the embedded templates FS
+		// else use the embedded template FS
 		var err error
-		templates, err = fs.Sub(templatesFS, "template")
+		templates, err = fs.Sub(templateFS, "template")
 		if err != nil {
 			panic(err)
 		}
@@ -56,12 +58,13 @@ func NewApplication(
 	app := Application{
 		templates: templates,
 
-		cfg:     cfg,
-		box:     box,
-		storage: storage,
-		queue:   queue,
-		stripe:  stripe,
-		logger:  logger,
+		cfg:      cfg,
+		box:      box,
+		storage:  storage,
+		queue:    queue,
+		stripe:   stripe,
+		infoLog:  infoLog,
+		errorLog: errorLog,
 	}
 
 	return &app

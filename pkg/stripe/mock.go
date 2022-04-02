@@ -1,17 +1,18 @@
 package stripe
 
 import (
-	"github.com/theandrew168/dripfile/pkg/log"
+	"log"
+
 	"github.com/theandrew168/dripfile/pkg/random"
 )
 
 type mockImpl struct {
-	logger log.Logger
+	infoLog *log.Logger
 }
 
-func NewMock(logger log.Logger) Interface {
+func NewMock(infoLog *log.Logger) Interface {
 	i := mockImpl{
-		logger: logger,
+		infoLog: infoLog,
 	}
 	return &i
 }
@@ -19,25 +20,27 @@ func NewMock(logger log.Logger) Interface {
 func (i *mockImpl) CreateCustomer(email string) (string, error) {
 	customerID := random.String(16)
 
-	i.logger.Info("stripe.CreateCustomer:\n")
-	i.logger.Info("CreateCustomer:\n")
-	i.logger.Info("CustomerID: %s\n", customerID)
+	i.infoLog.Printf("stripe.CreateCustomer:\n")
+	i.infoLog.Printf("CustomerID: %s\n", customerID)
 
 	return customerID, nil
 }
 
 func (i *mockImpl) CreateCheckoutSession(customerID string) (string, error) {
-	sessionURL := "/billing/success?session_id=" + random.String(16)
+	sessionURL := "/stripe/success?session_id=" + random.String(16)
 
-	i.logger.Info("stripe.CreateCheckoutSession:\n")
-	i.logger.Info("CustomerID: %s\n", customerID)
-	i.logger.Info("SessionURL: %s\n", sessionURL)
+	i.infoLog.Printf("stripe.CreateCheckoutSession:\n")
+	i.infoLog.Printf("CustomerID: %s\n", customerID)
+	i.infoLog.Printf("SessionURL: %s\n", sessionURL)
 
 	return sessionURL, nil
 }
 
 func (i *mockImpl) CreateSubscription(customerID string) (string, error) {
-	i.logger.Info("stripe.CreateSubscription:\n")
+	subscriptionItemID := random.String(16)
 
-	return "todo", nil
+	i.infoLog.Printf("stripe.CreateSubscription:\n")
+	i.infoLog.Printf("SubscriptionItemID: %s\n", subscriptionItemID)
+
+	return subscriptionItemID, nil
 }

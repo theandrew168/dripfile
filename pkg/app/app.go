@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/alexedwards/flow"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/database"
-	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/static"
 	"github.com/theandrew168/dripfile/pkg/stripe"
@@ -23,7 +23,8 @@ func New(
 	storage *database.Storage,
 	queue *task.Queue,
 	stripe stripe.Interface,
-	logger log.Logger,
+	infoLog *log.Logger,
+	errorLog *log.Logger,
 ) http.Handler {
 	mux := flow.New()
 
@@ -51,7 +52,7 @@ func New(
 	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
 
 	// primary web app (last due to being a top-level catch-all)
-	webApp := web.NewApplication(cfg, box, storage, queue, stripe, logger)
+	webApp := web.NewApplication(cfg, box, storage, queue, stripe, infoLog, errorLog)
 	mux.Handle("/...", webApp.Router())
 
 	return mux

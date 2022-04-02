@@ -165,7 +165,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("account %s transfer %s create\n", session.Account.Email, transfer.ID)
+	app.infoLog.Printf("account %s transfer %s create\n", session.Account.Email, transfer.ID)
 	http.Redirect(w, r, "/transfer/"+transfer.ID, http.StatusSeeOther)
 }
 
@@ -199,7 +199,7 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	app.logger.Info("account %s transfer %s run\n", session.Account.Email, transfer.ID)
+	app.infoLog.Printf("account %s transfer %s run\n", session.Account.Email, transfer.ID)
 	http.Redirect(w, r, "/history", http.StatusSeeOther)
 }
 
@@ -226,6 +226,6 @@ func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("account %s transfer %s delete\n", session.Account.Email, transfer.ID)
+	app.infoLog.Printf("account %s transfer %s delete\n", session.Account.Email, transfer.ID)
 	http.Redirect(w, r, "/transfer", http.StatusSeeOther)
 }

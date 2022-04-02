@@ -6,6 +6,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"net/http"
 	"os"
@@ -18,7 +19,6 @@ import (
 	"github.com/theandrew168/dripfile/pkg/app"
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/database"
-	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/stripe"
@@ -30,7 +30,8 @@ func main() {
 }
 
 func run() int {
-	logger := log.NewLogger(os.Stdout)
+	infoLog := log.New(os.Stdout, "", 0)
+	errorLog := log.New(os.Stderr, "error: ", 0)
 
 	// check for config file flag
 	conf := flag.String("conf", "dripfile.conf", "app config file")
@@ -39,13 +40,13 @@ func run() int {
 	// load user-defined config (if specified), else use defaults
 	cfg, err := config.ReadFile(*conf)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
 	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
@@ -57,7 +58,7 @@ func run() int {
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 	defer pool.Close()
@@ -66,19 +67,19 @@ func run() int {
 	queue := task.NewQueue(pool)
 
 	// init the stripe interface
-	var stripeInterface stripe.Interface
+	var stripeI stripe.Interface
 	if cfg.StripeSecretKey != "" {
-		stripeInterface = stripe.New(
+		stripeI = stripe.New(
 			cfg.StripeSecretKey,
 			cfg.SiteURL+"/stripe/success",
 			cfg.SiteURL+"/stripe/cancel",
 		)
 	} else {
-		stripeInterface = stripe.NewMock(logger)
+		stripeI = stripe.NewMock(infoLog)
 	}
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(cfg, box, storage, queue, stripeInterface, logger)
+	handler := app.New(cfg, box, storage, queue, stripeI, infoLog, errorLog)
 
 	srv := &http.Server{
 		Addr:    addr,
@@ -92,13 +93,13 @@ func run() int {
 	// open up the socket listener
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
-	logger.Info("started web server on %s\n", addr)
+	infoLog.Printf("started web server on %s\n", addr)
 
 	// kick off a goroutine to listen for SIGINT and SIGTERM
 	shutdownError := make(chan error)
@@ -113,7 +114,7 @@ func run() int {
 		defer cancel()
 
 		// shutdown the web server and track any errors
-		logger.Info("stopping server\n")
+		infoLog.Println("stopping server")
 		srv.SetKeepAlivesEnabled(false)
 		err := srv.Shutdown(ctx)
 		if err != nil {
@@ -126,17 +127,17 @@ func run() int {
 	// serve the app, check for ErrServerClosed (expected after shutdown)
 	err = srv.Serve(l)
 	if !errors.Is(err, http.ErrServerClosed) {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
 	// check for shutdown errors
 	err = <-shutdownError
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
-	logger.Info("stopped server\n")
+	infoLog.Println("stopped server")
 	return 0
 }

@@ -3,13 +3,13 @@ package main
 import (
 	"encoding/hex"
 	"flag"
+	"log"
 	"os"
 
 	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/database"
-	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
@@ -22,7 +22,8 @@ func main() {
 }
 
 func run() int {
-	logger := log.NewLogger(os.Stdout)
+	infoLog := log.New(os.Stdout, "", 0)
+	errorLog := log.New(os.Stderr, "error: ", 0)
 
 	// check for config file flag
 	conf := flag.String("conf", "dripfile.conf", "app config file")
@@ -31,13 +32,13 @@ func run() int {
 	// load user-defined config (if specified), else use defaults
 	cfg, err := config.ReadFile(*conf)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
 	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 
@@ -49,7 +50,7 @@ func run() int {
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 	defer pool.Close()
@@ -57,21 +58,21 @@ func run() int {
 	storage := database.NewStorage(pool)
 	queue := task.NewQueue(pool)
 
-	var postmarkInterface postmark.Interface
+	var postmarkI postmark.Interface
 	if cfg.PostmarkAPIKey != "" {
-		postmarkInterface = postmark.New(cfg.PostmarkAPIKey)
+		postmarkI = postmark.New(cfg.PostmarkAPIKey)
 	} else {
-		postmarkInterface = postmark.NewMock(logger)
+		postmarkI = postmark.NewMock(infoLog)
 	}
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	worker := work.NewWorker(box, queue, storage, postmarkInterface, logger)
+	worker := work.NewWorker(box, queue, storage, postmarkI, infoLog, errorLog)
 	err = worker.Run()
 	if err != nil {
-		logger.Error(err)
+		errorLog.Println(err)
 		return 1
 	}
 

@@ -3,13 +3,12 @@ package work
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
+	"log"
 	"time"
 
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/fileserver"
-	"github.com/theandrew168/dripfile/pkg/log"
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/task"
@@ -22,7 +21,8 @@ type Worker struct {
 	queue    *task.Queue
 	storage  *database.Storage
 	postmark postmark.Interface
-	logger   log.Logger
+	infoLog  *log.Logger
+	errorLog *log.Logger
 }
 
 func NewWorker(
@@ -30,14 +30,16 @@ func NewWorker(
 	queue *task.Queue,
 	storage *database.Storage,
 	postmark postmark.Interface,
-	logger log.Logger,
+	infoLog *log.Logger,
+	errorLog *log.Logger,
 ) *Worker {
 	worker := Worker{
 		box:      box,
 		queue:    queue,
 		storage:  storage,
 		postmark: postmark,
-		logger:   logger,
+		infoLog:  infoLog,
+		errorLog: errorLog,
 	}
 	return &worker
 }
@@ -77,17 +79,16 @@ func (w *Worker) RunTask(t task.Task) {
 	case task.KindTransfer:
 		taskFunc = w.DoTransfer
 	default:
-		err := fmt.Errorf("unknown task: %s", t.Kind)
-		w.logger.Error(err)
+		w.errorLog.Printf("unknown task: %s", t.Kind)
 		return
 	}
 
-	w.logger.Info("task %s start\n", t.ID)
+	w.infoLog.Printf("task %s start\n", t.ID)
 
 	// run and update the status
 	err := taskFunc(t)
 	if err != nil {
-		w.logger.Error(err)
+		w.errorLog.Println(err)
 
 		t.Error = err.Error()
 		t.Status = task.StatusError
@@ -97,10 +98,10 @@ func (w *Worker) RunTask(t task.Task) {
 
 	err = w.queue.Update(t)
 	if err != nil {
-		w.logger.Error(err)
+		w.errorLog.Println(err)
 	}
 
-	w.logger.Info("task %s finish\n", t.ID)
+	w.infoLog.Printf("task %s finish\n", t.ID)
 }
 
 func (w *Worker) SendEmail(t task.Task) error {

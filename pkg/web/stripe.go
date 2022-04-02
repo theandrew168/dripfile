@@ -50,7 +50,7 @@ func (app *Application) handleStripeSuccess(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	app.logger.Info("%s\n", r.URL)
+	app.infoLog.Printf("%s\n", r.URL)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
@@ -58,6 +58,6 @@ func (app *Application) handleStripeCancel(w http.ResponseWriter, r *http.Reques
 	// TODO: redir to dashboard, middleware will catch missing
 	// 	payment info and retry the checkout session?
 
-	app.logger.Info("%s\n", r.URL)
+	app.infoLog.Printf("%s\n", r.URL)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }

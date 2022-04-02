@@ -135,11 +135,11 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	cookie := NewSessionCookie(sessionIDCookieName, sessionID)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("account %s create\n", account.Email)
-	app.logger.Info("account %s login\n", account.Email)
+	app.infoLog.Printf("account %s create\n", account.Email)
+	app.infoLog.Printf("account %s login\n", account.Email)
 
-	// redirect to billing setup
-	http.Redirect(w, r, "/billing/checkout", http.StatusSeeOther)
+	// redirect to stripe payment setup
+	http.Redirect(w, r, "/stripe/checkout", http.StatusSeeOther)
 }
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -229,7 +229,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		http.SetCookie(w, &cookie)
 	}
 
-	app.logger.Info("account %s login\n", account.Email)
+	app.infoLog.Printf("account %s login\n", account.Email)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
@@ -260,6 +260,6 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("account %s logout\n", session.Account.Email)
+	app.infoLog.Printf("account %s logout\n", session.Account.Email)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
