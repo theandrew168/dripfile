@@ -7,6 +7,10 @@ default: build
 .PHONY: build
 build: build-migrate build-worker build-clock build-web
 
+.PHONY: release
+release:
+	goreleaser release --snapshot --rm-dist
+
 .PHONY: run
 run:
 	ENV=dev go run cmd/migrate/main.go
