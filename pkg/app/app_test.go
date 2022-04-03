@@ -73,9 +73,8 @@ func run(m *testing.M) int {
 	rand.Seed(time.Now().UnixNano())
 
 	// setup test credentials
-	username = random.String(8)
-	password = username
-	email = username + "@dripfile.com"
+	password = random.String(8)
+	email = password + "@dripfile.com"
 
 	// TODO: setup test bucket in S3
 
@@ -170,7 +169,6 @@ func TestAccountRegister(t *testing.T) {
 	actions = append(actions, chromedp.WaitVisible("#page-register"))
 
 	actions = append(actions, input("#input-email", email)...)
-	actions = append(actions, input("#input-username", username)...)
 	actions = append(actions, input("#input-password", password)...)
 	actions = append(actions, chromedp.WaitVisible("#submit-register"))
 	actions = append(actions, chromedp.Submit("#submit-register"))

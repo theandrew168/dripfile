@@ -1,0 +1,15 @@
+{{template "body" .}}
+
+{{define "title"}}Payment{{end}}
+
+{{define "main"}}
+<section id="page-payment">
+	<header>
+		<h1>Payment info required</h1>
+	</header>
+
+	<h2>You're almost there!</h2>
+	<p>Head over to Stripe to finish setting up payment info.</p>
+	<a href="/stripe/checkout" class="button">Setup Stripe</a>
+</section>
+{{end}}

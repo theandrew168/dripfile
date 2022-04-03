@@ -11,7 +11,6 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/form"
-	"github.com/theandrew168/dripfile/pkg/task"
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +37,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	f := form.New(r.PostForm)
-	f.Required("email", "username", "password")
+	f.Required("email", "password")
 
 	data := struct {
 		Form *form.Form
@@ -52,7 +51,6 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	email := f.Get("email")
-	username := f.Get("username")
 	password := f.Get("password")
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -79,7 +77,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create the new account
-	account := core.NewAccount(email, username, string(hash), core.RoleOwner, project)
+	account := core.NewAccount(email, string(hash), core.RoleOwner, project)
 	err = app.storage.Account.Create(&account)
 	if err != nil {
 		if errors.Is(err, core.ErrExist) {
@@ -110,26 +108,26 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// send welcome email
-	t, err := task.SendEmail(
-		"DripFile",
-		"info@dripfile.com",
-		account.Username,
-		account.Email,
-		"Welcome to DripFile!",
-		"Thanks for signing up with DripFile! I hope this adds some value.",
-	)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// submit email task
-	err = app.queue.Push(t)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
+//	// send welcome email
+//	t, err := task.SendEmail(
+//		"DripFile",
+//		"info@dripfile.com",
+//		account.Email,
+//		account.Email,
+//		"Welcome to DripFile!",
+//		"Thanks for signing up with DripFile! I hope this adds some value.",
+//	)
+//	if err != nil {
+//		app.serverErrorResponse(w, r, err)
+//		return
+//	}
+//
+//	// submit email task
+//	err = app.queue.Push(t)
+//	if err != nil {
+//		app.serverErrorResponse(w, r, err)
+//		return
+//	}
 
 	// set cookie (just a session cookie after registration)
 	cookie := NewSessionCookie(sessionIDCookieName, sessionID)
@@ -139,7 +137,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	app.infoLog.Printf("account %s login\n", account.Email)
 
 	// redirect to stripe payment setup
-	http.Redirect(w, r, "/stripe/checkout", http.StatusSeeOther)
+	http.Redirect(w, r, "/stripe/payment", http.StatusSeeOther)
 }
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {

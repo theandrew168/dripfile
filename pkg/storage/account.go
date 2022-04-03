@@ -22,14 +22,13 @@ func NewAccount(pg postgres.Interface) *Account {
 func (s *Account) Create(account *core.Account) error {
 	stmt := `
 		INSERT INTO account
-			(email, username, password, role, verified, project_id)
+			(email, password, role, verified, project_id)
 		VALUES
-			($1, $2, $3, $4, $5, $6)
+			($1, $2, $3, $4, $5)
 		RETURNING id`
 
 	args := []interface{}{
 		account.Email,
-		account.Username,
 		account.Password,
 		account.Role,
 		account.Verified,
@@ -57,7 +56,6 @@ func (s *Account) Read(id string) (core.Account, error) {
 		SELECT
 			account.id,
 			account.email,
-			account.username,
 			account.password,
 			account.role,
 			account.verified,
@@ -73,7 +71,6 @@ func (s *Account) Read(id string) (core.Account, error) {
 	dest := []interface{}{
 		&account.ID,
 		&account.Email,
-		&account.Username,
 		&account.Password,
 		&account.Role,
 		&account.Verified,
@@ -103,16 +100,14 @@ func (s *Account) Update(account core.Account) error {
 		UPDATE account
 		SET
 			email = $2,
-			username = $3,
-			password = $4,
-			role = $5,
-			verified = $6
+			password = $3,
+			role = $4,
+			verified = $5
 		WHERE id = $1`
 
 	args := []interface{}{
 		account.ID,
 		account.Email,
-		account.Username,
 		account.Password,
 		account.Role,
 		account.Verified,
@@ -158,7 +153,6 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 		SELECT
 			account.id,
 			account.email,
-			account.username,
 			account.password,
 			account.role,
 			account.verified,
@@ -174,7 +168,6 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 	dest := []interface{}{
 		&account.ID,
 		&account.Email,
-		&account.Username,
 		&account.Password,
 		&account.Role,
 		&account.Verified,

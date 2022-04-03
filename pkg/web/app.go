@@ -90,11 +90,9 @@ func (app *Application) Router() http.Handler {
 	// app pages, visible only to authenticated users
 	mux.Group(func(mux *flow.Mux) {
 		mux.Use(app.requireAuth)
-		mux.Use(app.requireStripe)
-
-		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
 		// TODO: move into separate stripe/app.go?
+		mux.HandleFunc("/stripe/payment", app.handleStripePayment, "GET")
 		mux.HandleFunc("/stripe/checkout", app.handleStripeCheckout, "GET")
 		mux.HandleFunc("/stripe/success", app.handleStripeSuccess, "GET")
 		mux.HandleFunc("/stripe/cancel", app.handleStripeCancel, "GET")
@@ -102,22 +100,28 @@ func (app *Application) Router() http.Handler {
 		mux.HandleFunc("/account", app.handleAccountRead, "GET")
 		mux.Handle("/account/delete", app.parseFormFunc(app.handleAccountDeleteForm), "POST")
 
-		mux.HandleFunc("/transfer", app.handleTransferList, "GET")
-		mux.HandleFunc("/transfer/create", app.handleTransferCreate, "GET")
-		mux.Handle("/transfer/create", app.parseFormFunc(app.handleTransferCreateForm), "POST")
-		mux.Handle("/transfer/delete", app.parseFormFunc(app.handleTransferDeleteForm), "POST")
-		mux.Handle("/transfer/run", app.parseFormFunc(app.handleTransferRunForm), "POST")
-		mux.HandleFunc("/transfer/:id", app.handleTransferRead, "GET")
+		mux.Group(func(mux *flow.Mux) {
+			mux.Use(app.requirePaymentInfo)
 
-		mux.HandleFunc("/location", app.handleLocationList, "GET")
-		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
-		mux.Handle("/location/create", app.parseFormFunc(app.handleLocationCreateForm), "POST")
-		mux.Handle("/location/delete", app.parseFormFunc(app.handleLocationDeleteForm), "POST")
-		mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
+			mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
-		mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
+			mux.HandleFunc("/transfer", app.handleTransferList, "GET")
+			mux.HandleFunc("/transfer/create", app.handleTransferCreate, "GET")
+			mux.Handle("/transfer/create", app.parseFormFunc(app.handleTransferCreateForm), "POST")
+			mux.Handle("/transfer/delete", app.parseFormFunc(app.handleTransferDeleteForm), "POST")
+			mux.Handle("/transfer/run", app.parseFormFunc(app.handleTransferRunForm), "POST")
+			mux.HandleFunc("/transfer/:id", app.handleTransferRead, "GET")
 
-		mux.HandleFunc("/history", app.handleHistoryList, "GET")
+			mux.HandleFunc("/location", app.handleLocationList, "GET")
+			mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
+			mux.Handle("/location/create", app.parseFormFunc(app.handleLocationCreateForm), "POST")
+			mux.Handle("/location/delete", app.parseFormFunc(app.handleLocationDeleteForm), "POST")
+			mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
+
+			mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
+
+			mux.HandleFunc("/history", app.handleHistoryList, "GET")
+		})
 	})
 
 	return mux

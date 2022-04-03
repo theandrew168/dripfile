@@ -18,14 +18,6 @@
 			</p>
 
 			<p>
-				<label for="input-username">Username</label>
-				{{with .Errors.Get "username"}}
-				<small id="error-username">{{.}}</small>
-				{{end}}
-				<input id="input-username" name="username" type="text" />
-			</p>
-
-			<p>
 				<label for="input-password">Password</label>
 				{{with .Errors.Get "password"}}
 				<small id="error-password">{{.}}</small>

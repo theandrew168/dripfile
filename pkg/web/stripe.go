@@ -4,6 +4,16 @@ import (
 	"net/http"
 )
 
+func (app *Application) handleStripePayment(w http.ResponseWriter, r *http.Request) {
+	files := []string{
+		"base.layout.html",
+		"app.layout.html",
+		"stripe/payment.page.html",
+	}
+
+	app.render(w, r, files, nil)
+}
+
 func (app *Application) handleStripeCheckout(w http.ResponseWriter, r *http.Request) {
 	session, err := app.requestSession(r)
 	if err != nil {
