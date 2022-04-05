@@ -132,9 +132,9 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	pattern := r.PostForm.Get("pattern")
-	srcID := r.PostForm.Get("src-id")
-	dstID := r.PostForm.Get("dst-id")
+	pattern := f.Get("pattern")
+	srcID := f.Get("src-id")
+	dstID := f.Get("dst-id")
 
 	src, err := app.storage.Location.Read(srcID)
 	if err != nil {

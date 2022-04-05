@@ -91,17 +91,19 @@ func (app *Application) Router() http.Handler {
 	mux.Group(func(mux *flow.Mux) {
 		mux.Use(app.requireAuth)
 
-		// TODO: move into separate stripe/app.go?
-		mux.HandleFunc("/stripe/payment", app.handleStripePayment, "GET")
-		mux.HandleFunc("/stripe/checkout", app.handleStripeCheckout, "GET")
-		mux.HandleFunc("/stripe/success", app.handleStripeSuccess, "GET")
-		mux.HandleFunc("/stripe/cancel", app.handleStripeCancel, "GET")
+		// only requires auth because billing might not be setup yet
+		mux.HandleFunc("/billing/setup", app.handleBillingSetup, "GET")
+		mux.HandleFunc("/billing/checkout", app.handleBillingCheckout, "GET")
+		mux.HandleFunc("/billing/success", app.handleBillingSuccess, "GET")
+		mux.HandleFunc("/billing/cancel", app.handleBillingCancel, "GET")
 
+		// only requires auth so that new / old accounts can be managed w/o billing
 		mux.HandleFunc("/account", app.handleAccountRead, "GET")
 		mux.Handle("/account/delete", app.parseFormFunc(app.handleAccountDeleteForm), "POST")
 
+		// these routes require auth AND billing
 		mux.Group(func(mux *flow.Mux) {
-			mux.Use(app.requirePaymentInfo)
+			mux.Use(app.requireBillingSetup)
 
 			mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
@@ -119,6 +121,10 @@ func (app *Application) Router() http.Handler {
 			mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
 
 			mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
+			mux.HandleFunc("/schedule/create", app.handleScheduleCreate, "GET")
+			mux.Handle("/schedule/create", app.parseFormFunc(app.handleScheduleCreateForm), "POST")
+			mux.Handle("/schedule/delete", app.parseFormFunc(app.handleScheduleDeleteForm), "POST")
+			mux.HandleFunc("/schedule/:id", app.handleScheduleRead, "GET")
 
 			mux.HandleFunc("/history", app.handleHistoryList, "GET")
 		})

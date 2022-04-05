@@ -110,8 +110,8 @@ func run(m *testing.M) int {
 		// TODO: how to handle these URLs?
 		stripeI = stripe.New(
 			cfg.StripeSecretKey,
-			cfg.SiteURL+"/stripe/success",
-			cfg.SiteURL+"/stripe/cancel",
+			cfg.SiteURL+"/billing/success",
+			cfg.SiteURL+"/billing/cancel",
 		)
 	} else {
 		stripeI = stripe.NewMock(infoLog)

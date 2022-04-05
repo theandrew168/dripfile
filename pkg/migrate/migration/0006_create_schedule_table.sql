@@ -3,7 +3,6 @@ CREATE TABLE schedule (
     name text NOT NULL,
     expr text NOT NULL,
     project_id uuid NOT NULL REFERENCES project(id) ON DELETE CASCADE,
-    UNIQUE (name, project_id),
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),

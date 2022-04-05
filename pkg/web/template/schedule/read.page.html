@@ -1,0 +1,37 @@
+{{template "body" .}}
+
+{{define "title"}}Schedule{{end}}
+
+{{define "main"}}
+<section id="page-schedule-read">
+	<header>
+		<h1>Schedule</h1>
+		<a id="action-create" href="/schedule/create" class="button">Create Schedule</a>
+	</header>
+
+	{{with .Schedule}}
+	<p>
+		<h2>ID</h2>
+		<p>{{.ID}}</p>
+	</p>
+
+	<p>
+		<h2>Name</h2>
+		<p>{{.Name}}</p>
+	</p>
+
+	<p>
+		<h2>Expr</h2>
+		<p>{{.Expr}}</p>
+	</p>
+
+	<br>
+	<form action="/schedule/delete" method="POST">
+		<p>
+			<input id="id" name="id" type="hidden" value="{{.ID}}" />
+			<button id="submit-delete" type="submit" class="danger">Delete</button>
+		</p>
+	</form>
+	{{end}}
+</section>
+{{end}}

@@ -25,7 +25,8 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	locations, err := app.storage.Location.ReadManyByProject(session.Account.Project)
+	project := session.Account.Project
+	locations, err := app.storage.Location.ReadManyByProject(project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -111,10 +112,10 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	// TODO: support other types of info
-	endpoint := r.PostForm.Get("endpoint")
-	bucketName := r.PostForm.Get("bucket-name")
-	accessKeyID := r.PostForm.Get("access-key-id")
-	secretAccessKey := r.PostForm.Get("secret-access-key")
+	endpoint := f.Get("endpoint")
+	bucketName := f.Get("bucket-name")
+	accessKeyID := f.Get("access-key-id")
+	secretAccessKey := f.Get("secret-access-key")
 
 	info := fileserver.S3Info{
 		Endpoint:        endpoint,
@@ -154,7 +155,8 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	encryptedInfo := app.box.Encrypt(nonce, jsonInfo)
 
 	name := info.Endpoint + "/" + info.BucketName
-	location := core.NewLocation(core.KindS3, name, encryptedInfo, session.Account.Project)
+	project := session.Account.Project
+	location := core.NewLocation(core.KindS3, name, encryptedInfo, project)
 	err = app.storage.Location.Create(&location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

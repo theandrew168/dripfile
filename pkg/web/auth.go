@@ -108,26 +108,26 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-//	// send welcome email
-//	t, err := task.SendEmail(
-//		"DripFile",
-//		"info@dripfile.com",
-//		account.Email,
-//		account.Email,
-//		"Welcome to DripFile!",
-//		"Thanks for signing up with DripFile! I hope this adds some value.",
-//	)
-//	if err != nil {
-//		app.serverErrorResponse(w, r, err)
-//		return
-//	}
-//
-//	// submit email task
-//	err = app.queue.Push(t)
-//	if err != nil {
-//		app.serverErrorResponse(w, r, err)
-//		return
-//	}
+	//	// send welcome email
+	//	t, err := task.SendEmail(
+	//		"DripFile",
+	//		"info@dripfile.com",
+	//		account.Email,
+	//		account.Email,
+	//		"Welcome to DripFile!",
+	//		"Thanks for signing up with DripFile! I hope this adds some value.",
+	//	)
+	//	if err != nil {
+	//		app.serverErrorResponse(w, r, err)
+	//		return
+	//	}
+	//
+	//	// submit email task
+	//	err = app.queue.Push(t)
+	//	if err != nil {
+	//		app.serverErrorResponse(w, r, err)
+	//		return
+	//	}
 
 	// set cookie (just a session cookie after registration)
 	cookie := NewSessionCookie(sessionIDCookieName, sessionID)
@@ -136,8 +136,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	app.infoLog.Printf("account %s create\n", account.Email)
 	app.infoLog.Printf("account %s login\n", account.Email)
 
-	// redirect to stripe payment setup
-	http.Redirect(w, r, "/stripe/payment", http.StatusSeeOther)
+	// redirect to billing setup
+	http.Redirect(w, r, "/billing/setup", http.StatusSeeOther)
 }
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
@@ -177,9 +177,9 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	email := r.PostForm.Get("email")
-	password := r.PostForm.Get("password")
-	rememberMe := r.PostForm.Get("remember-me")
+	email := f.Get("email")
+	password := f.Get("password")
+	rememberMe := f.Get("remember-me")
 
 	account, err := app.storage.Account.ReadByEmail(email)
 	if err != nil {

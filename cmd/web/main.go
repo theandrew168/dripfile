@@ -71,8 +71,8 @@ func run() int {
 	if cfg.StripeSecretKey != "" {
 		stripeI = stripe.New(
 			cfg.StripeSecretKey,
-			cfg.SiteURL+"/stripe/success",
-			cfg.SiteURL+"/stripe/cancel",
+			cfg.SiteURL+"/billing/success",
+			cfg.SiteURL+"/billing/cancel",
 		)
 	} else {
 		stripeI = stripe.NewMock(infoLog)

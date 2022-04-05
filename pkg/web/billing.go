@@ -4,17 +4,17 @@ import (
 	"net/http"
 )
 
-func (app *Application) handleStripePayment(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleBillingSetup(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
 		"app.layout.html",
-		"stripe/payment.page.html",
+		"billing/setup.page.html",
 	}
 
 	app.render(w, r, files, nil)
 }
 
-func (app *Application) handleStripeCheckout(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleBillingCheckout(w http.ResponseWriter, r *http.Request) {
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -29,11 +29,11 @@ func (app *Application) handleStripeCheckout(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// redirect user to Stripe to provide payment info
+	// redirect user to Billing to provide payment info
 	http.Redirect(w, r, sessionURL, http.StatusFound)
 }
 
-func (app *Application) handleStripeSuccess(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleBillingSuccess(w http.ResponseWriter, r *http.Request) {
 	// TODO: get checkout session
 	// TODO: get setup intent (expand into one call?)
 	// TODO: store something? payment ID? just mark success?
@@ -64,7 +64,7 @@ func (app *Application) handleStripeSuccess(w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
-func (app *Application) handleStripeCancel(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleBillingCancel(w http.ResponseWriter, r *http.Request) {
 	// TODO: redir to dashboard, middleware will catch missing
 	// 	payment info and retry the checkout session?
 

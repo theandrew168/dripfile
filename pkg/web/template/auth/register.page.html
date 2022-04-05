@@ -26,6 +26,9 @@
 			</p>
 
 			<p>
+				{{with .Errors.Get "general"}}
+				<small id="error-general">{{.}}</small>
+				{{end}}
 				<button id="submit-register" type="submit">Register</button>
 			</p>
 		</fieldset>

@@ -52,6 +52,17 @@ func (f *Form) PermittedValues(field string, opts ...string) {
 	f.Errors.Add(field, "This field is invalid")
 }
 
+func (f *Form) Satisfies(field string, fn func(string) error) {
+	value := f.Get(field)
+	if value == "" {
+		return
+	}
+	err := fn(value)
+	if err != nil {
+		f.Errors.Add(field, err.Error())
+	}
+}
+
 func (f *Form) Valid() bool {
 	return len(f.Errors) == 0
 }

@@ -27,7 +27,7 @@ func (i *mockImpl) CreateCustomer(email string) (string, error) {
 }
 
 func (i *mockImpl) CreateCheckoutSession(customerID string) (string, error) {
-	sessionURL := "/stripe/success?session_id=" + random.String(16)
+	sessionURL := "/billing/success?session_id=" + random.String(16)
 
 	i.infoLog.Printf("stripe.CreateCheckoutSession:\n")
 	i.infoLog.Printf("CustomerID: %s\n", customerID)
