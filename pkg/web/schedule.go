@@ -11,6 +11,17 @@ import (
 	"github.com/theandrew168/dripfile/pkg/form"
 )
 
+// https://gist.github.com/jpluimers/6510369
+var shortcuts = map[string]string{
+	"@yearly":   "0 0 1 1 *",
+	"@annually": "0 0 1 1 *",
+	"@monthly":  "0 0 1 * *",
+	"@weekly":   "0 0 * * 0",
+	"@daily":    "0 0 * * *",
+	"@midnight": "0 0 * * *",
+	"@hourly":   "0 * * * *",
+}
+
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
 	files := []string{
 		"base.layout.html",
@@ -106,7 +117,12 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 	f := form.New(r.PostForm)
 	f.Required("expr")
 
-	name, err := dtor.ToDescription(f.Get("expr"), cron.Locale_en)
+	expr := f.Get("expr")
+	if shortcut, ok := shortcuts[expr]; ok {
+		expr = shortcut
+	}
+
+	name, err := dtor.ToDescription(expr, cron.Locale_en)
 	if err != nil {
 		f.Errors.Add("expr", "invalid cron expression")
 	}
@@ -122,7 +138,6 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	expr := f.Get("expr")
 	project := session.Account.Project
 	schedule := core.NewSchedule(name, expr, project)
 	err = app.storage.Schedule.Create(&schedule)
