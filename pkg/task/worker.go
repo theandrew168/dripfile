@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"math"
 	"time"
 
 	"github.com/theandrew168/dripfile/pkg/core"
@@ -200,7 +201,7 @@ func (w *Worker) DoTransfer(task Task) error {
 	}
 
 	// transfer them all
-	var total int64
+	var totalBytes int64
 	for _, file := range files {
 		r, err := srcConn.Read(file)
 		if err != nil {
@@ -212,13 +213,16 @@ func (w *Worker) DoTransfer(task Task) error {
 			return err
 		}
 
-		total += file.Size
+		totalBytes += file.Size
 	}
+
+	// convert total bytes to megabytes
+	mb := math.Ceil(float64(totalBytes) / (1000 * 1000))
 
 	// update history table
 	finish := time.Now()
 	history := core.NewHistory(
-		total,
+		int64(mb),
 		"success",
 		start,
 		finish,
@@ -232,7 +236,11 @@ func (w *Worker) DoTransfer(task Task) error {
 	}
 
 	// create usage record
-//	err = w.stripe.CreateUsageRecord(
+	subscriptionItemID := transfer.Project.SubscriptionItemID
+	err = w.stripe.CreateUsageRecord(subscriptionItemID, int64(mb))
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
