@@ -19,7 +19,6 @@ type Storage struct {
 	Location *Location
 	Transfer *Transfer
 	Schedule *Schedule
-	Job      *Job
 	History  *History
 }
 
@@ -33,7 +32,6 @@ func New(pg postgres.Interface) *Storage {
 		Location: NewLocation(pg),
 		Transfer: NewTransfer(pg),
 		Schedule: NewSchedule(pg),
-		Job:      NewJob(pg),
 		History:  NewHistory(pg),
 	}
 	return &s

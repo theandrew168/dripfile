@@ -1,14 +1,7 @@
 package fileserver
 
 import (
-	"errors"
 	"io"
-)
-
-var (
-	ErrInvalidEndpoint    = errors.New("core: invalid endpoint")
-	ErrInvalidCredentials = errors.New("core: invalid credentials")
-	ErrInvalidBucket      = errors.New("core: invalid bucket")
 )
 
 type FileInfo struct {

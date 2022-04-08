@@ -2,6 +2,7 @@ package fileserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net"
@@ -10,6 +11,12 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+)
+
+var (
+	ErrInvalidEndpoint    = errors.New("s3: invalid endpoint")
+	ErrInvalidCredentials = errors.New("s3: invalid credentials")
+	ErrInvalidBucket      = errors.New("s3: invalid bucket")
 )
 
 type S3Info struct {
@@ -58,8 +65,21 @@ func NewS3(info S3Info) (FileServer, error) {
 
 func (c *s3Conn) Ping() error {
 	ctx := context.Background()
-	if _, err := c.client.ListBuckets(ctx); err != nil {
+	buckets, err := c.client.ListBuckets(ctx)
+	if err != nil {
 		return normalize(err)
+	}
+
+	found := false
+	for _, bucket := range buckets {
+		if bucket.Name == c.info.BucketName {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		return ErrInvalidBucket
 	}
 
 	return nil

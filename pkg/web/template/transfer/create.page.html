@@ -32,6 +32,15 @@
 			</p>
 
 			<p>
+				<label for="select-schedule-id">Schedule</label>
+				<select id="select-schedule-id" name="schedule-id">
+					{{range .Schedules}}
+					<option value="{{.ID}}">{{.Name}}</option>
+					{{end}}
+				</select>
+			</p>
+
+			<p>
 				{{with .Form.Errors.Get "general"}}
 				<small id="error-general">{{.}}</small>
 				{{end}}

@@ -22,15 +22,16 @@ func NewTransfer(pg postgres.Interface) *Transfer {
 func (s *Transfer) Create(transfer *core.Transfer) error {
 	stmt := `
 		INSERT INTO transfer
-			(pattern, src_id, dst_id, project_id)
+			(pattern, src_id, dst_id, schedule_id, project_id)
 		VALUES
-			($1, $2, $3, $4)
+			($1, $2, $3, $4, $5)
 		RETURNING id`
 
 	args := []interface{}{
 		transfer.Pattern,
 		transfer.Src.ID,
 		transfer.Dst.ID,
+		transfer.Schedule.ID,
 		transfer.Project.ID,
 	}
 
@@ -65,6 +66,10 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 			dst.name,
 			dst.info,
 			dst.project_id,
+			schedule.id,
+			schedule.name,
+			schedule.expr,
+			schedule.project_id,
 			project.id,
 			project.customer_id,
 			project.subscription_item_id
@@ -73,6 +78,8 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 			ON src.id = transfer.src_id
 		INNER JOIN location dst
 			ON dst.id = transfer.dst_id
+		INNER JOIN schedule
+			ON schedule.id = transfer.schedule_id
 		INNER JOIN project
 			ON project.id = transfer.project_id
 		WHERE transfer.id = $1`
@@ -91,6 +98,10 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 		&transfer.Dst.Name,
 		&transfer.Dst.Info,
 		&transfer.Dst.Project.ID,
+		&transfer.Schedule.ID,
+		&transfer.Schedule.Name,
+		&transfer.Schedule.Expr,
+		&transfer.Schedule.Project.ID,
 		&transfer.Project.ID,
 		&transfer.Project.CustomerID,
 		&transfer.Project.SubscriptionItemID,
@@ -118,7 +129,8 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 		SET
 			pattern = $2,
 			src_id = $3,
-			dst_id = $4
+			dst_id = $4,
+			schedule_id = $5,
 		WHERE id = $1`
 
 	args := []interface{}{
@@ -126,6 +138,7 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 		transfer.Pattern,
 		transfer.Src.ID,
 		transfer.Dst.ID,
+		transfer.Schedule.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
@@ -178,6 +191,10 @@ func (s *Transfer) ReadManyByProject(project core.Project) ([]core.Transfer, err
 			dst.name,
 			dst.info,
 			dst.project_id,
+			schedule.id,
+			schedule.name,
+			schedule.expr,
+			schedule.project_id,
 			project.id,
 			project.customer_id,
 			project.subscription_item_id
@@ -186,6 +203,8 @@ func (s *Transfer) ReadManyByProject(project core.Project) ([]core.Transfer, err
 			ON src.id = transfer.src_id
 		INNER JOIN location dst
 			ON dst.id = transfer.dst_id
+		INNER JOIN schedule
+			ON schedule.id = transfer.schedule_id
 		INNER JOIN project
 			ON project.id = transfer.project_id
 		WHERE project.id = $1`
@@ -215,6 +234,10 @@ func (s *Transfer) ReadManyByProject(project core.Project) ([]core.Transfer, err
 			&transfer.Dst.Name,
 			&transfer.Dst.Info,
 			&transfer.Dst.Project.ID,
+			&transfer.Schedule.ID,
+			&transfer.Schedule.Name,
+			&transfer.Schedule.Expr,
+			&transfer.Schedule.Project.ID,
 			&transfer.Project.ID,
 			&transfer.Project.CustomerID,
 			&transfer.Project.SubscriptionItemID,

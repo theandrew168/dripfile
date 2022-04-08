@@ -86,11 +86,19 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	schedules, err := app.storage.Schedule.ReadManyByProject(session.Account.Project)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	data := struct {
 		Locations []core.Location
+		Schedules []core.Schedule
 		Form      *form.Form
 	}{
 		Locations: locations,
+		Schedules: schedules,
 		Form:      form.New(nil),
 	}
 
@@ -116,14 +124,22 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
+	schedules, err := app.storage.Schedule.ReadManyByProject(session.Account.Project)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	f := form.New(r.PostForm)
 	f.Required("pattern", "src-id", "dst-id")
 
 	data := struct {
 		Locations []core.Location
+		Schedules []core.Schedule
 		Form      *form.Form
 	}{
 		Locations: locations,
+		Schedules: schedules,
 		Form:      f,
 	}
 
@@ -135,6 +151,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 	pattern := f.Get("pattern")
 	srcID := f.Get("src-id")
 	dstID := f.Get("dst-id")
+	scheduleID := f.Get("schedule-id")
 
 	src, err := app.storage.Location.Read(srcID)
 	if err != nil {
@@ -158,7 +175,18 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	transfer := core.NewTransfer(pattern, src, dst, session.Account.Project)
+	schedule, err := app.storage.Schedule.Read(scheduleID)
+	if err != nil {
+		if errors.Is(err, core.ErrNotExist) {
+			app.badRequestResponse(w, r)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	transfer := core.NewTransfer(pattern, src, dst, schedule, session.Account.Project)
 	err = app.storage.Transfer.Create(&transfer)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
