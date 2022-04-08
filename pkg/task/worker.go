@@ -11,6 +11,7 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/storage"
+	"github.com/theandrew168/dripfile/pkg/stripe"
 )
 
 type TaskFunc func(task Task) error
@@ -19,6 +20,7 @@ type Worker struct {
 	box      *secret.Box
 	queue    *Queue
 	storage  *storage.Storage
+	stripe   stripe.Interface
 	postmark postmark.Interface
 	infoLog  *log.Logger
 	errorLog *log.Logger
@@ -28,6 +30,7 @@ func NewWorker(
 	box *secret.Box,
 	queue *Queue,
 	storage *storage.Storage,
+	stripe stripe.Interface,
 	postmark postmark.Interface,
 	infoLog *log.Logger,
 	errorLog *log.Logger,
@@ -36,6 +39,7 @@ func NewWorker(
 		box:      box,
 		queue:    queue,
 		storage:  storage,
+		stripe:   stripe,
 		postmark: postmark,
 		infoLog:  infoLog,
 		errorLog: errorLog,
@@ -211,7 +215,7 @@ func (w *Worker) DoTransfer(task Task) error {
 		total += file.Size
 	}
 
-	// update history table (TODO: middleware?)
+	// update history table
 	finish := time.Now()
 	history := core.NewHistory(
 		total,
@@ -226,6 +230,9 @@ func (w *Worker) DoTransfer(task Task) error {
 	if err != nil {
 		return err
 	}
+
+	// create usage record
+//	err = w.stripe.CreateUsageRecord(
 
 	return nil
 }

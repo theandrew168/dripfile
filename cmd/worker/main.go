@@ -13,6 +13,7 @@ import (
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/storage"
+	"github.com/theandrew168/dripfile/pkg/stripe"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
 
@@ -64,11 +65,22 @@ func run() int {
 		postmarkI = postmark.NewMock(infoLog)
 	}
 
+	var stripeI stripe.Interface
+	if cfg.StripeSecretKey != "" {
+		stripeI = stripe.New(
+			cfg.StripeSecretKey,
+			cfg.SiteURL+"/billing/success",
+			cfg.SiteURL+"/billing/cancel",
+		)
+	} else {
+		stripeI = stripe.NewMock(infoLog)
+	}
+
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	worker := task.NewWorker(box, queue, store, postmarkI, infoLog, errorLog)
+	worker := task.NewWorker(box, queue, store, stripeI, postmarkI, infoLog, errorLog)
 	err = worker.Run()
 	if err != nil {
 		errorLog.Println(err)

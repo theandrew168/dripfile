@@ -77,3 +77,17 @@ func (i *stripeImpl) CreateSubscription(customerID string) (string, error) {
 
 	return subscription.Items.Data[0].ID, nil
 }
+
+func (i *stripeImpl) CreateUsageRecord(subscriptionItemID string, quantity int64) error {
+	params := stripe.UsageRecordParams{
+		Quantity: stripe.Int64(quantity),
+		SubscriptionItem: stripe.String(subscriptionItemID),
+	}
+
+	_, err := i.client.UsageRecords.New(&params)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
