@@ -128,3 +128,48 @@ func (s *Project) Delete(project core.Project) error {
 
 	return nil
 }
+
+func (s *Project) ReadAll() ([]core.Project, error) {
+	stmt := `
+		SELECT
+			project.id,
+			project.customer_id,
+			project.subscription_item_id
+		FROM project`
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	rows, err := s.pg.Query(ctx, stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var projects []core.Project
+	for rows.Next() {
+		var project core.Project
+		dest := []interface{}{
+			&project.ID,
+			&project.CustomerID,
+			&project.SubscriptionItemID,
+		}
+
+		err := postgres.Scan(rows, dest...)
+		if err != nil {
+			if errors.Is(err, core.ErrRetry) {
+				return s.ReadAll()
+			}
+
+			return nil, err
+		}
+
+		projects = append(projects, project)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return projects, nil
+}

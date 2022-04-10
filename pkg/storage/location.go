@@ -143,7 +143,7 @@ func (s *Location) Delete(location core.Location) error {
 	return nil
 }
 
-func (s *Location) ReadManyByProject(project core.Project) ([]core.Location, error) {
+func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -183,7 +183,7 @@ func (s *Location) ReadManyByProject(project core.Project) ([]core.Location, err
 		err := postgres.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
-				return s.ReadManyByProject(project)
+				return s.ReadAllByProject(project)
 			}
 
 			return nil, err

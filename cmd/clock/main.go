@@ -11,6 +11,7 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/task"
 )
 
@@ -40,12 +41,52 @@ func run() int {
 	}
 	defer pool.Close()
 
+	store := storage.New(pool)
 	queue := task.NewQueue(pool)
 
-	s := gocron.NewScheduler(time.UTC)
+	projects, err := store.Project.ReadAll()
+	if err != nil {
+		errorLog.Println(err)
+		return 1
+	}
+
+	// start a scheduler for each project
+	var schedulers []*gocron.Scheduler
+	for _, project := range projects {
+
+		// read all transfers linked to this project
+		transfers, err := store.Transfer.ReadAllByProject(project)
+		if err != nil {
+			errorLog.Println(err)
+			return 1
+		}
+
+		// add each transfer for the scheduler
+		scheduler := gocron.NewScheduler(time.UTC)
+		for _, transfer := range transfers {
+			scheduler.Cron(transfer.Schedule.Expr).Do(func() {
+				t, err := task.DoTransfer(transfer.ID)
+				if err != nil {
+					errorLog.Println(err)
+					return
+				}
+
+				err = queue.Push(t)
+				if err != nil {
+					errorLog.Println(err)
+					return
+				}
+			})
+		}
+
+		// start the scheduler in a background goro
+		scheduler.StartAsync()
+		schedulers = append(schedulers, scheduler)
+	}
 
 	// prune sessions hourly
-	s.Cron("0 * * * *").Do(func() {
+	primary := gocron.NewScheduler(time.UTC)
+	primary.Cron("0 * * * *").Do(func() {
 		t, err := task.PruneSessions()
 		if err != nil {
 			errorLog.Println(err)
@@ -60,8 +101,8 @@ func run() int {
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
-	// run the scheduler forever
-	s.StartBlocking()
+	// run the primary scheduler forever
+	primary.StartBlocking()
 
 	return 0
 }

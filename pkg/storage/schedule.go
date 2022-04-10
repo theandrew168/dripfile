@@ -113,7 +113,7 @@ func (s *Schedule) Delete(schedule core.Schedule) error {
 	return nil
 }
 
-func (s *Schedule) ReadManyByProject(project core.Project) ([]core.Schedule, error) {
+func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, error) {
 	stmt := `
 		SELECT
 			schedule.id,
@@ -151,7 +151,7 @@ func (s *Schedule) ReadManyByProject(project core.Project) ([]core.Schedule, err
 		err := postgres.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
-				return s.ReadManyByProject(project)
+				return s.ReadAllByProject(project)
 			}
 
 			return nil, err

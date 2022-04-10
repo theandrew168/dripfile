@@ -176,7 +176,7 @@ func (s *Transfer) Delete(transfer core.Transfer) error {
 	return nil
 }
 
-func (s *Transfer) ReadManyByProject(project core.Project) ([]core.Transfer, error) {
+func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
@@ -246,7 +246,7 @@ func (s *Transfer) ReadManyByProject(project core.Project) ([]core.Transfer, err
 		err := postgres.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
-				return s.ReadManyByProject(project)
+				return s.ReadAllByProject(project)
 			}
 
 			return nil, err

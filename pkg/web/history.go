@@ -19,7 +19,7 @@ func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	histories, err := app.storage.History.ReadManyByProject(session.Account.Project)
+	histories, err := app.storage.History.ReadAllByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

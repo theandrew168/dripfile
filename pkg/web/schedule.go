@@ -36,7 +36,7 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 	}
 
 	project := session.Account.Project
-	schedules, err := app.storage.Schedule.ReadManyByProject(project)
+	schedules, err := app.storage.Schedule.ReadAllByProject(project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

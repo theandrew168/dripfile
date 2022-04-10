@@ -80,7 +80,7 @@ func (i *stripeImpl) CreateSubscription(customerID string) (string, error) {
 
 func (i *stripeImpl) CreateUsageRecord(subscriptionItemID string, quantity int64) error {
 	params := stripe.UsageRecordParams{
-		Quantity: stripe.Int64(quantity),
+		Quantity:         stripe.Int64(quantity),
 		SubscriptionItem: stripe.String(subscriptionItemID),
 	}
 

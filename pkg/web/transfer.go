@@ -24,7 +24,7 @@ func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	transfers, err := app.storage.Transfer.ReadManyByProject(session.Account.Project)
+	transfers, err := app.storage.Transfer.ReadAllByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -80,13 +80,13 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	locations, err := app.storage.Location.ReadManyByProject(session.Account.Project)
+	locations, err := app.storage.Location.ReadAllByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	schedules, err := app.storage.Schedule.ReadManyByProject(session.Account.Project)
+	schedules, err := app.storage.Schedule.ReadAllByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -118,13 +118,13 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	locations, err := app.storage.Location.ReadManyByProject(session.Account.Project)
+	locations, err := app.storage.Location.ReadAllByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	schedules, err := app.storage.Schedule.ReadManyByProject(session.Account.Project)
+	schedules, err := app.storage.Schedule.ReadAllByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

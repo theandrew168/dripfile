@@ -26,7 +26,7 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 	}
 
 	project := session.Account.Project
-	locations, err := app.storage.Location.ReadManyByProject(project)
+	locations, err := app.storage.Location.ReadAllByProject(project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

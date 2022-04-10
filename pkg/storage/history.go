@@ -56,7 +56,7 @@ func (s *History) Read(id string) (core.History, error) {
 	return core.History{}, nil
 }
 
-func (s *History) ReadManyByProject(project core.Project) ([]core.History, error) {
+func (s *History) ReadAllByProject(project core.Project) ([]core.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -96,7 +96,7 @@ func (s *History) ReadManyByProject(project core.Project) ([]core.History, error
 		err := postgres.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
-				return s.ReadManyByProject(project)
+				return s.ReadAllByProject(project)
 			}
 
 			return nil, err
