@@ -1,5 +1,5 @@
 [Unit]
-Description=dripfile-clock
+Description=dripfile-scheduler
 Documentation=https://github.com/theandrew168/dripfile
 After=network.target network-online.target
 Requires=network-online.target
@@ -10,7 +10,7 @@ Restart=on-failure
 RestartSec=5
 User=dripfile
 Group=dripfile
-ExecStart=dripfile-clock -conf /etc/dripfile.conf
+ExecStart=dripfile-scheduler -conf /etc/dripfile.conf
 
 [Install]
 WantedBy=multi-user.target

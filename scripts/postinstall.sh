@@ -23,7 +23,7 @@ chmod 0640 /etc/dripfile.conf
 systemctl daemon-reload
 
 # Start or restart dripfile components
-components="dripfile-migrate dripfile-worker dripfile-clock dripfile-web"
+components="dripfile-migrate dripfile-scheduler dripfile-worker dripfile-web"
 for component in $components; do
     if ! systemctl is-enabled $component >/dev/null
     then
