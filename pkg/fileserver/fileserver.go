@@ -14,4 +14,6 @@ type FileServer interface {
 	Search(pattern string) ([]FileInfo, error)
 	Read(file FileInfo) (io.Reader, error)
 	Write(file FileInfo, r io.Reader) error
+	Rename(src, dst FileInfo) error
+	Delete(file FileInfo) error
 }

@@ -144,6 +144,13 @@ func (c *s3Conn) Write(file FileInfo, r io.Reader) error {
 	return nil
 }
 
+func (c *s3Conn) Rename(src, dst FileInfo) error {
+	return nil
+}
+func (c *s3Conn) Delete(file FileInfo) error {
+	return nil
+}
+
 func normalize(err error) error {
 	// check for net.Error first (invalid / unreachable endpoint)
 	if _, ok := err.(net.Error); ok {

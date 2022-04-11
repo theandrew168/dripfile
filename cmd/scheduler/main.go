@@ -44,49 +44,12 @@ func run() int {
 	store := storage.New(pool)
 	queue := task.NewQueue(pool)
 
-	projects, err := store.Project.ReadAll()
-	if err != nil {
-		errorLog.Println(err)
-		return 1
-	}
-
-	// start a scheduler for each project
-	var schedulers []*gocron.Scheduler
-	for _, project := range projects {
-
-		// read all transfers linked to this project
-		transfers, err := store.Transfer.ReadAllByProject(project)
-		if err != nil {
-			errorLog.Println(err)
-			return 1
-		}
-
-		// add each transfer for the scheduler
-		scheduler := gocron.NewScheduler(time.UTC)
-		for _, transfer := range transfers {
-			scheduler.Cron(transfer.Schedule.Expr).Do(func() {
-				t, err := task.DoTransfer(transfer.ID)
-				if err != nil {
-					errorLog.Println(err)
-					return
-				}
-
-				err = queue.Push(t)
-				if err != nil {
-					errorLog.Println(err)
-					return
-				}
-			})
-		}
-
-		// start the scheduler in a background goro
-		scheduler.StartAsync()
-		schedulers = append(schedulers, scheduler)
-	}
+	// main scheduler (handles sessions, transfers, etc)
+	s := gocron.NewScheduler(time.UTC)
+	s.WaitForScheduleAll()
 
 	// prune sessions hourly
-	primary := gocron.NewScheduler(time.UTC)
-	primary.Cron("0 * * * *").Do(func() {
+	s.Cron("0 * * * *").Do(func() {
 		t, err := task.PruneSessions()
 		if err != nil {
 			errorLog.Println(err)
@@ -98,11 +61,35 @@ func run() int {
 		}
 	})
 
+	// read all transfers
+	transfers, err := store.Transfer.ReadAll()
+	if err != nil {
+		errorLog.Println(err)
+		return 1
+	}
+
+	// add each transfer to the scheduler
+	for _, transfer := range transfers {
+		s.Cron(transfer.Schedule.Expr).Do(func() {
+			t, err := task.DoTransfer(transfer.ID)
+			if err != nil {
+				errorLog.Println(err)
+				return
+			}
+
+			err = queue.Push(t)
+			if err != nil {
+				errorLog.Println(err)
+				return
+			}
+		})
+	}
+
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
-	// run the primary scheduler forever
-	primary.StartBlocking()
+	// run the scheduler forever
+	s.StartBlocking()
 
 	return 0
 }

@@ -176,6 +176,91 @@ func (s *Transfer) Delete(transfer core.Transfer) error {
 	return nil
 }
 
+func (s *Transfer) ReadAll() ([]core.Transfer, error) {
+	stmt := `
+		SELECT
+			transfer.id,
+			transfer.pattern,
+			src.id,
+			src.kind,
+			src.name,
+			src.info,
+			src.project_id,
+			dst.id,
+			dst.kind,
+			dst.name,
+			dst.info,
+			dst.project_id,
+			schedule.id,
+			schedule.name,
+			schedule.expr,
+			schedule.project_id,
+			project.id,
+			project.customer_id,
+			project.subscription_item_id
+		FROM transfer
+		INNER JOIN location src
+			ON src.id = transfer.src_id
+		INNER JOIN location dst
+			ON dst.id = transfer.dst_id
+		INNER JOIN schedule
+			ON schedule.id = transfer.schedule_id
+		INNER JOIN project
+			ON project.id = transfer.project_id`
+
+	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	defer cancel()
+
+	rows, err := s.pg.Query(ctx, stmt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var transfers []core.Transfer
+	for rows.Next() {
+		var transfer core.Transfer
+		dest := []interface{}{
+			&transfer.ID,
+			&transfer.Pattern,
+			&transfer.Src.ID,
+			&transfer.Src.Kind,
+			&transfer.Src.Name,
+			&transfer.Src.Info,
+			&transfer.Src.Project.ID,
+			&transfer.Dst.ID,
+			&transfer.Dst.Kind,
+			&transfer.Dst.Name,
+			&transfer.Dst.Info,
+			&transfer.Dst.Project.ID,
+			&transfer.Schedule.ID,
+			&transfer.Schedule.Name,
+			&transfer.Schedule.Expr,
+			&transfer.Schedule.Project.ID,
+			&transfer.Project.ID,
+			&transfer.Project.CustomerID,
+			&transfer.Project.SubscriptionItemID,
+		}
+
+		err := postgres.Scan(rows, dest...)
+		if err != nil {
+			if errors.Is(err, core.ErrRetry) {
+				return s.ReadAll()
+			}
+
+			return nil, err
+		}
+
+		transfers = append(transfers, transfer)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return transfers, nil
+}
+
 func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, error) {
 	stmt := `
 		SELECT

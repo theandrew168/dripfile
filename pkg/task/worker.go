@@ -139,6 +139,7 @@ func (w *Worker) DeleteExpiredSessions(task Task) error {
 	return nil
 }
 
+// TODO: write to tmp file and replace
 func (w *Worker) DoTransfer(task Task) error {
 	start := time.Now()
 
@@ -201,6 +202,7 @@ func (w *Worker) DoTransfer(task Task) error {
 	}
 
 	// transfer them all
+	// TODO: write all to temps, rename if success, else rollback
 	var totalBytes int64
 	for _, file := range files {
 		r, err := srcConn.Read(file)
