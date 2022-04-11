@@ -1,6 +1,6 @@
 dripfile-migrate
+dripfile-scheduler
 dripfile-worker
-dripfile-clock
 dripfile-web
 dist/
 *.test
