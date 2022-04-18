@@ -224,7 +224,7 @@ func (w *Worker) DoTransfer(task Task) error {
 	// update history table
 	finish := time.Now()
 	history := core.NewHistory(
-		int64(mb),
+		totalBytes,
 		"success",
 		start,
 		finish,
