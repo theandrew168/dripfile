@@ -147,8 +147,7 @@ func diff(have, want map[string]bool) (map[string]bool, map[string]bool) {
 	// add = want but not have
 	add := make(map[string]bool)
 	for s, _ := range want {
-		_, ok := have[s]
-		if !ok {
+		if _, ok := have[s]; !ok {
 			add[s] = true
 		}
 	}
@@ -156,8 +155,7 @@ func diff(have, want map[string]bool) (map[string]bool, map[string]bool) {
 	// remove = have but not want
 	remove := make(map[string]bool)
 	for s, _ := range have {
-		_, ok := want[s]
-		if !ok {
+		if _, ok := want[s]; !ok {
 			remove[s] = true
 		}
 	}
