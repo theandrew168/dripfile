@@ -112,7 +112,7 @@ func run() int {
 			infoLog.Printf("transfer %v add\n", transfer.ID)
 
 			s.Cron(transfer.Schedule.Expr).Tag(transfer.ID).Do(func() {
-				t, err := task.DoTransfer(transfer.ID)
+				t, err := task.Transfer(transfer.ID)
 				if err != nil {
 					errorLog.Println(err)
 					return
