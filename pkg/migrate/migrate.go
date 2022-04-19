@@ -21,6 +21,8 @@ func Migrate(pg postgres.Interface, infoLog *log.Logger) error {
 	// (local container needs it, deployed version gets it via ansible)
 	exts := []string{
 		"citext",
+		"pgcrypto",
+		"pg_stat_statements",
 	}
 	for _, ext := range exts {
 		stmt := fmt.Sprintf("CREATE EXTENSION IF NOT EXISTS %s", ext)

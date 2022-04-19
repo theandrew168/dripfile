@@ -7,10 +7,6 @@ default: build
 .PHONY: build
 build: build-migrate build-scheduler build-worker build-web
 
-.PHONY: release
-release:
-	goreleaser release --snapshot --rm-dist
-
 .PHONY: run
 run:
 	ENV=dev go run cmd/migrate/main.go
@@ -82,6 +78,15 @@ cover: run-migrate
 cover-ui: run-migrate
 	go test -coverprofile=c.out -coverpkg=./... -count=1 ./...
 	go tool cover -html=c.out
+
+.PHONY: release
+release:
+	goreleaser release --snapshot --rm-dist
+
+.PHONY: deploy-test
+deploy-test: release
+	scp dist/dripfile_linux_amd64.deb derz@test.dripfile.com:/tmp
+	ssh -t derz@test.dripfile.com sudo dpkg -i /tmp/dripfile_linux_amd64.deb
 
 .PHONY: format
 format:
