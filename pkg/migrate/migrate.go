@@ -3,6 +3,7 @@ package migrate
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io/fs"
 	"log"
 	"sort"
@@ -15,6 +16,19 @@ var migrationFS embed.FS
 
 func Migrate(pg postgres.Interface, infoLog *log.Logger) error {
 	ctx := context.Background()
+
+	// attempt to create extensions and ignore errors
+	// (local container needs it, deployed version gets it via ansible)
+	exts := []string{
+		"citext",
+	}
+	for _, ext := range exts {
+		stmt := fmt.Sprintf("CREATE EXTENSION IF NOT EXISTS %s", ext)
+		_, err := pg.Exec(ctx, stmt)
+		if err != nil {
+			return err
+		}
+	}
 
 	// create migrations table if it doesn't exist
 	_, err := pg.Exec(ctx, `
