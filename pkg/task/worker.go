@@ -2,10 +2,11 @@ package task
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/theandrew168/dripfile/pkg/core"
+	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/storage"
@@ -15,32 +16,29 @@ import (
 type TaskFunc func(task Task) error
 
 type Worker struct {
-	box      *secret.Box
-	queue    *Queue
+	logger   *jsonlog.Logger
 	storage  *storage.Storage
+	queue    *Queue
+	box      *secret.Box
 	stripe   stripe.Interface
 	postmark postmark.Interface
-	infoLog  *log.Logger
-	errorLog *log.Logger
 }
 
 func NewWorker(
-	box *secret.Box,
-	queue *Queue,
+	logger *jsonlog.Logger,
 	storage *storage.Storage,
+	queue *Queue,
+	box *secret.Box,
 	stripe stripe.Interface,
 	postmark postmark.Interface,
-	infoLog *log.Logger,
-	errorLog *log.Logger,
 ) *Worker {
 	worker := Worker{
-		box:      box,
-		queue:    queue,
+		logger:   logger,
 		storage:  storage,
+		queue:    queue,
+		box:      box,
 		stripe:   stripe,
 		postmark: postmark,
-		infoLog:  infoLog,
-		errorLog: errorLog,
 	}
 	return &worker
 }
@@ -82,16 +80,27 @@ func (w *Worker) RunTask(task Task) {
 	case KindTransfer:
 		taskFunc = w.Transfer
 	default:
-		w.errorLog.Printf("unknown task: %s", task.Kind)
+		w.logger.PrintError(fmt.Errorf("unknown task kind"), map[string]string{
+			"task_id":   task.ID,
+			"task_kind": task.Kind,
+		})
 		return
 	}
 
-	w.infoLog.Printf("task %s start\n", task.ID)
+	w.logger.PrintInfo("task start", map[string]string{
+		"task_id":     task.ID,
+		"task_kind":   task.Kind,
+		"task_status": task.Status,
+		"task_error":  task.Error,
+	})
 
 	// run and update the status
 	err := taskFunc(task)
 	if err != nil {
-		w.errorLog.Println(err)
+		w.logger.PrintError(err, map[string]string{
+			"task_id":   task.ID,
+			"task_kind": task.Kind,
+		})
 
 		task.Error = err.Error()
 		task.Status = StatusError
@@ -101,8 +110,16 @@ func (w *Worker) RunTask(task Task) {
 
 	err = w.queue.Update(task)
 	if err != nil {
-		w.errorLog.Println(err)
+		w.logger.PrintError(err, map[string]string{
+			"task_id":   task.ID,
+			"task_kind": task.Kind,
+		})
 	}
 
-	w.infoLog.Printf("task %s finish\n", task.ID)
+	w.logger.PrintInfo("task finish", map[string]string{
+		"task_id":     task.ID,
+		"task_kind":   task.Kind,
+		"task_status": task.Status,
+		"task_error":  task.Error,
+	})
 }

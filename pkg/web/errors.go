@@ -10,7 +10,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, co
 	// parse template files
 	ts, err := template.ParseFS(app.templates, files...)
 	if err != nil {
-		app.errorLog.Println(err)
+		app.logger.PrintError(err, nil)
 
 		code := http.StatusInternalServerError
 		http.Error(w, http.StatusText(code), code)
@@ -21,7 +21,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, co
 	var buf bytes.Buffer
 	err = ts.ExecuteTemplate(&buf, "base", nil)
 	if err != nil {
-		app.errorLog.Println(err)
+		app.logger.PrintError(err, nil)
 
 		code := http.StatusInternalServerError
 		http.Error(w, http.StatusText(code), code)
@@ -60,7 +60,7 @@ func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	// log details of the error locally but the user sees a generic 500
-	app.errorLog.Println(err)
+	app.logger.PrintError(err, nil)
 
 	files := []string{
 		"base.layout.html",

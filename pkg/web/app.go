@@ -3,7 +3,6 @@ package web
 import (
 	"embed"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"github.com/alexedwards/flow"
 
 	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
@@ -23,23 +23,21 @@ var templateFS embed.FS
 type Application struct {
 	templates fs.FS
 
-	cfg      config.Config
-	box      *secret.Box
-	storage  *storage.Storage
-	queue    *task.Queue
-	stripe   stripe.Interface
-	infoLog  *log.Logger
-	errorLog *log.Logger
+	cfg     config.Config
+	logger  *jsonlog.Logger
+	storage *storage.Storage
+	queue   *task.Queue
+	box     *secret.Box
+	stripe  stripe.Interface
 }
 
 func NewApplication(
 	cfg config.Config,
-	box *secret.Box,
+	logger *jsonlog.Logger,
 	storage *storage.Storage,
 	queue *task.Queue,
+	box *secret.Box,
 	stripe stripe.Interface,
-	infoLog *log.Logger,
-	errorLog *log.Logger,
 ) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
@@ -58,13 +56,12 @@ func NewApplication(
 	app := Application{
 		templates: templates,
 
-		cfg:      cfg,
-		box:      box,
-		storage:  storage,
-		queue:    queue,
-		stripe:   stripe,
-		infoLog:  infoLog,
-		errorLog: errorLog,
+		cfg:     cfg,
+		logger:  logger,
+		storage: storage,
+		queue:   queue,
+		box:     box,
+		stripe:  stripe,
 	}
 
 	return &app

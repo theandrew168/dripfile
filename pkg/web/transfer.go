@@ -193,7 +193,13 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.infoLog.Printf("account %s transfer %s create\n", session.Account.Email, transfer.ID)
+	app.logger.PrintInfo("transfer create", map[string]string{
+		"project_id":  session.Account.Project.ID,
+		"account_id":  session.Account.ID,
+		"transfer_id": transfer.ID,
+		"src_id":      transfer.Src.ID,
+		"dst_id":      transfer.Dst.ID,
+	})
 	http.Redirect(w, r, "/transfer/"+transfer.ID, http.StatusSeeOther)
 }
 
@@ -227,7 +233,13 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	app.infoLog.Printf("account %s transfer %s run\n", session.Account.Email, transfer.ID)
+	app.logger.PrintInfo("transfer run", map[string]string{
+		"project_id":  session.Account.Project.ID,
+		"account_id":  session.Account.ID,
+		"transfer_id": transfer.ID,
+		"src_id":      transfer.Src.ID,
+		"dst_id":      transfer.Dst.ID,
+	})
 	http.Redirect(w, r, "/history", http.StatusSeeOther)
 }
 
@@ -254,6 +266,12 @@ func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.infoLog.Printf("account %s transfer %s delete\n", session.Account.Email, transfer.ID)
+	app.logger.PrintInfo("transfer delete", map[string]string{
+		"project_id":  session.Account.Project.ID,
+		"account_id":  session.Account.ID,
+		"transfer_id": transfer.ID,
+		"src_id":      transfer.Src.ID,
+		"dst_id":      transfer.Dst.ID,
+	})
 	http.Redirect(w, r, "/transfer", http.StatusSeeOther)
 }

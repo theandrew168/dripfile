@@ -1,13 +1,13 @@
 package app
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/alexedwards/flow"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/static"
 	"github.com/theandrew168/dripfile/pkg/storage"
@@ -19,12 +19,11 @@ import (
 // create the main application
 func New(
 	cfg config.Config,
-	box *secret.Box,
+	logger *jsonlog.Logger,
 	storage *storage.Storage,
 	queue *task.Queue,
+	box *secret.Box,
 	stripe stripe.Interface,
-	infoLog *log.Logger,
-	errorLog *log.Logger,
 ) http.Handler {
 	mux := flow.New()
 
@@ -52,7 +51,7 @@ func New(
 	//	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiApp.Router()))
 
 	// primary web app (last due to being a top-level catch-all)
-	webApp := web.NewApplication(cfg, box, storage, queue, stripe, infoLog, errorLog)
+	webApp := web.NewApplication(cfg, logger, storage, queue, box, stripe)
 	mux.Handle("/...", webApp.Router())
 
 	return mux

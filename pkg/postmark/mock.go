@@ -1,26 +1,28 @@
 package postmark
 
 import (
-	"log"
-	"strings"
+	"github.com/theandrew168/dripfile/pkg/jsonlog"
 )
 
 type mockImpl struct {
-	infoLog *log.Logger
+	logger *jsonlog.Logger
 }
 
-func NewMock(infoLog *log.Logger) Interface {
+func NewMock(logger *jsonlog.Logger) Interface {
 	i := mockImpl{
-		infoLog: infoLog,
+		logger: logger,
 	}
 	return &i
 }
 
 func (i *mockImpl) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
-	i.infoLog.Printf("postmark.SendEmail:\n")
-	i.infoLog.Printf("From: %s (%s)\n", fromName, fromEmail)
-	i.infoLog.Printf("To:   %s (%s)\n", toName, toEmail)
-	i.infoLog.Printf("%s\n", subject)
-	i.infoLog.Printf("  %s\n", strings.Replace(body, "\n", "\n  ", -1))
+	i.logger.PrintInfo("postmark email send", map[string]string{
+		"from_name":  fromName,
+		"from_email": fromEmail,
+		"to_name":    toName,
+		"to_email":   toEmail,
+		"subject":    subject,
+		"body":       body,
+	})
 	return nil
 }

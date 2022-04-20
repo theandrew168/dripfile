@@ -61,6 +61,9 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)
 
-	app.infoLog.Printf("account %s delete\n", session.Account.Email)
+	app.logger.PrintInfo("account delete", map[string]string{
+		"project_id": session.Account.Project.ID,
+		"account_id": session.Account.ID,
+	})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

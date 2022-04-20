@@ -133,8 +133,14 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	cookie := NewSessionCookie(sessionIDCookieName, sessionID)
 	http.SetCookie(w, &cookie)
 
-	app.infoLog.Printf("account %s create\n", account.Email)
-	app.infoLog.Printf("account %s login\n", account.Email)
+	app.logger.PrintInfo("account create", map[string]string{
+		"project_id": session.Account.Project.ID,
+		"account_id": session.Account.ID,
+	})
+	app.logger.PrintInfo("account login", map[string]string{
+		"project_id": session.Account.Project.ID,
+		"account_id": session.Account.ID,
+	})
 
 	// redirect to billing setup
 	http.Redirect(w, r, "/billing/setup", http.StatusSeeOther)
@@ -227,7 +233,10 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		http.SetCookie(w, &cookie)
 	}
 
-	app.infoLog.Printf("account %s login\n", account.Email)
+	app.logger.PrintInfo("account login", map[string]string{
+		"project_id": session.Account.Project.ID,
+		"account_id": session.Account.ID,
+	})
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
@@ -258,6 +267,9 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)
 
-	app.infoLog.Printf("account %s logout\n", session.Account.Email)
+	app.logger.PrintInfo("account logout", map[string]string{
+		"project_id": session.Account.Project.ID,
+		"account_id": session.Account.ID,
+	})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

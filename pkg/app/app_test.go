@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"flag"
-	"log"
 	"math/rand"
 	"net/http/httptest"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"github.com/chromedp/chromedp"
 
 	"github.com/theandrew168/dripfile/pkg/app"
+	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/random"
 	"github.com/theandrew168/dripfile/pkg/secret"
@@ -78,13 +78,12 @@ func run(m *testing.M) int {
 
 	// TODO: setup test bucket in S3
 
-	infoLog := log.New(os.Stdout, "", 0)
-	errorLog := log.New(os.Stderr, "error: ", 0)
 	cfg := test.Config()
+	logger := jsonlog.New(os.Stdout)
 
 	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
 	if err != nil {
-		errorLog.Println(err)
+		logger.PrintError(err, nil)
 		return 1
 	}
 
@@ -96,7 +95,7 @@ func run(m *testing.M) int {
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
-		errorLog.Println(err)
+		logger.PrintError(err, nil)
 		return 1
 	}
 	defer pool.Close()
@@ -109,16 +108,17 @@ func run(m *testing.M) int {
 	if cfg.StripeSecretKey != "" {
 		// TODO: how to handle these URLs?
 		stripeI = stripe.New(
+			logger,
 			cfg.StripeSecretKey,
 			cfg.SiteURL+"/billing/success",
 			cfg.SiteURL+"/billing/cancel",
 		)
 	} else {
-		stripeI = stripe.NewMock(infoLog)
+		stripeI = stripe.NewMock(logger)
 	}
 
 	// create the application
-	handler := app.New(cfg, box, store, queue, stripeI, infoLog, errorLog)
+	handler := app.New(cfg, logger, store, queue, box, stripeI)
 
 	// start test server
 	ts := httptest.NewServer(handler)
@@ -145,7 +145,7 @@ func run(m *testing.M) int {
 	// navigate to test server
 	err = chromedp.Run(ctx, chromedp.Navigate(ts.URL))
 	if err != nil {
-		errorLog.Println(err)
+		logger.PrintError(err, nil)
 		return 1
 	}
 

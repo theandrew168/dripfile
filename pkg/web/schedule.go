@@ -146,7 +146,11 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.infoLog.Printf("account %s schedule %s create\n", session.Account.Email, schedule.ID)
+	app.logger.PrintInfo("schedule create", map[string]string{
+		"project_id":  session.Account.Project.ID,
+		"account_id":  session.Account.ID,
+		"schedule_id": schedule.ID,
+	})
 	http.Redirect(w, r, "/schedule/"+schedule.ID, http.StatusSeeOther)
 }
 
@@ -173,6 +177,10 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.infoLog.Printf("account %s schedule %s delete\n", session.Account.Email, schedule.ID)
+	app.logger.PrintInfo("schedule delete", map[string]string{
+		"project_id":  session.Account.Project.ID,
+		"account_id":  session.Account.ID,
+		"schedule_id": schedule.ID,
+	})
 	http.Redirect(w, r, "/schedule", http.StatusSeeOther)
 }

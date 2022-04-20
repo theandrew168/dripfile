@@ -60,7 +60,6 @@ func (app *Application) handleBillingSuccess(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	app.infoLog.Printf("%s\n", r.URL)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
 
@@ -68,6 +67,5 @@ func (app *Application) handleBillingCancel(w http.ResponseWriter, r *http.Reque
 	// TODO: redir to dashboard, middleware will catch missing
 	// 	payment info and retry the checkout session?
 
-	app.infoLog.Printf("%s\n", r.URL)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }
