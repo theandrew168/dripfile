@@ -9,8 +9,8 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/config"
 	"github.com/theandrew168/dripfile/pkg/jsonlog"
+	"github.com/theandrew168/dripfile/pkg/mail"
 	"github.com/theandrew168/dripfile/pkg/postgres"
-	"github.com/theandrew168/dripfile/pkg/postmark"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
@@ -57,30 +57,30 @@ func run() int {
 	store := storage.New(pool)
 	queue := task.NewQueue(pool)
 
-	var postmarkI postmark.Interface
+	var mailer mail.Mailer
 	if cfg.PostmarkAPIKey != "" {
-		postmarkI = postmark.New(cfg.PostmarkAPIKey)
+		mailer = mail.NewPostmarkMailer(cfg.PostmarkAPIKey)
 	} else {
-		postmarkI = postmark.NewMock(logger)
+		mailer = mail.NewMockMailer(logger)
 	}
 
-	var stripeI stripe.Interface
+	var billing stripe.Billing
 	if cfg.StripeSecretKey != "" {
-		stripeI = stripe.New(
+		billing = stripe.NewBilling(
 			logger,
 			cfg.StripeSecretKey,
 			cfg.SiteURL+"/billing/success",
 			cfg.SiteURL+"/billing/cancel",
 		)
 	} else {
-		stripeI = stripe.NewMock(logger)
+		billing = stripe.NewMockBilling(logger)
 	}
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	// run the worker forever
-	worker := task.NewWorker(logger, store, queue, box, stripeI, postmarkI)
+	worker := task.NewWorker(logger, store, queue, box, billing, mailer)
 	err = worker.Run()
 	if err != nil {
 		logger.PrintError(err, nil)

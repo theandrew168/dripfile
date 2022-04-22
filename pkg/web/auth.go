@@ -68,7 +68,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create Stripe customer
-	customerID, err := app.stripe.CreateCustomer(email)
+	customerID, err := app.billing.CreateCustomer(email)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

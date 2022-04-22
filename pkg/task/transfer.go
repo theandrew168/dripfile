@@ -134,7 +134,7 @@ func (w *Worker) Transfer(task Task) error {
 	// create usage record
 	customerID := transfer.Project.CustomerID
 	subscriptionItemID := transfer.Project.SubscriptionItemID
-	err = w.stripe.CreateUsageRecord(customerID, subscriptionItemID, int64(mb))
+	err = w.billing.CreateUsageRecord(customerID, subscriptionItemID, int64(mb))
 	if err != nil {
 		return err
 	}

@@ -7,7 +7,7 @@ import (
 
 	"github.com/theandrew168/dripfile/pkg/core"
 	"github.com/theandrew168/dripfile/pkg/jsonlog"
-	"github.com/theandrew168/dripfile/pkg/postmark"
+	"github.com/theandrew168/dripfile/pkg/mail"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
@@ -16,12 +16,12 @@ import (
 type TaskFunc func(task Task) error
 
 type Worker struct {
-	logger   *jsonlog.Logger
-	storage  *storage.Storage
-	queue    *Queue
-	box      *secret.Box
-	stripe   stripe.Interface
-	postmark postmark.Interface
+	logger  *jsonlog.Logger
+	storage *storage.Storage
+	queue   *Queue
+	box     *secret.Box
+	billing stripe.Billing
+	mailer  mail.Mailer
 }
 
 func NewWorker(
@@ -29,16 +29,16 @@ func NewWorker(
 	storage *storage.Storage,
 	queue *Queue,
 	box *secret.Box,
-	stripe stripe.Interface,
-	postmark postmark.Interface,
+	billing stripe.Billing,
+	mailer mail.Mailer,
 ) *Worker {
 	worker := Worker{
-		logger:   logger,
-		storage:  storage,
-		queue:    queue,
-		box:      box,
-		stripe:   stripe,
-		postmark: postmark,
+		logger:  logger,
+		storage: storage,
+		queue:   queue,
+		box:     box,
+		billing: billing,
+		mailer:  mailer,
 	}
 	return &worker
 }

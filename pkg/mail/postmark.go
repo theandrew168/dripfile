@@ -1,4 +1,4 @@
-package postmark
+package mail
 
 import (
 	"bytes"
@@ -7,18 +7,20 @@ import (
 	"net/http"
 )
 
-type postmarkImpl struct {
+const endpoint = "https://api.postmarkapp.com/email"
+
+type postmarkMailer struct {
 	apiKey string
 }
 
-func New(apiKey string) Interface {
-	m := postmarkImpl{
+func NewPostmarkMailer(apiKey string) Mailer {
+	m := postmarkMailer{
 		apiKey: apiKey,
 	}
 	return &m
 }
 
-func (i *postmarkImpl) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
+func (m *postmarkMailer) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
 	message := struct {
 		From     string `json:"From"`
 		To       string `json:"To"`
@@ -37,7 +39,6 @@ func (i *postmarkImpl) SendEmail(fromName, fromEmail, toName, toEmail, subject, 
 	}
 
 	client := &http.Client{}
-	endpoint := "https://api.postmarkapp.com/email"
 	req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(b))
 	if err != nil {
 		return err
@@ -45,7 +46,7 @@ func (i *postmarkImpl) SendEmail(fromName, fromEmail, toName, toEmail, subject, 
 
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Postmark-Server-Token", i.apiKey)
+	req.Header.Set("X-Postmark-Server-Token", m.apiKey)
 	resp, err := client.Do(req)
 	if err != nil {
 		return err

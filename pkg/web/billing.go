@@ -23,7 +23,7 @@ func (app *Application) handleBillingCheckout(w http.ResponseWriter, r *http.Req
 
 	// create checkout session
 	customerID := session.Account.Project.CustomerID
-	sessionURL, err := app.stripe.CreateCheckoutSession(customerID)
+	sessionURL, err := app.billing.CreateCheckoutSession(customerID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -46,7 +46,7 @@ func (app *Application) handleBillingSuccess(w http.ResponseWriter, r *http.Requ
 	}
 
 	customerID := session.Account.Project.CustomerID
-	subscriptionItemID, err := app.stripe.CreateSubscription(customerID)
+	subscriptionItemID, err := app.billing.CreateSubscription(customerID)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

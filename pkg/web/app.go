@@ -28,7 +28,7 @@ type Application struct {
 	storage *storage.Storage
 	queue   *task.Queue
 	box     *secret.Box
-	stripe  stripe.Interface
+	billing stripe.Billing
 }
 
 func NewApplication(
@@ -37,7 +37,7 @@ func NewApplication(
 	storage *storage.Storage,
 	queue *task.Queue,
 	box *secret.Box,
-	stripe stripe.Interface,
+	billing stripe.Billing,
 ) *Application {
 	var templates fs.FS
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
@@ -61,7 +61,7 @@ func NewApplication(
 		storage: storage,
 		queue:   queue,
 		box:     box,
-		stripe:  stripe,
+		billing: billing,
 	}
 
 	return &app

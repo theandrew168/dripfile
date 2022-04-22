@@ -7,41 +7,41 @@ import (
 	"github.com/theandrew168/dripfile/pkg/random"
 )
 
-type mockImpl struct {
+type mockBilling struct {
 	logger *jsonlog.Logger
 }
 
-func NewMock(logger *jsonlog.Logger) Interface {
-	i := mockImpl{
+func NewMockBilling(logger *jsonlog.Logger) Billing {
+	b := mockBilling{
 		logger: logger,
 	}
-	return &i
+	return &b
 }
 
-func (i *mockImpl) CreateCustomer(email string) (string, error) {
+func (b *mockBilling) CreateCustomer(email string) (string, error) {
 	customerID := random.String(16)
 
-	i.logger.PrintInfo("stripe customer create", map[string]string{
+	b.logger.PrintInfo("stripe customer create", map[string]string{
 		"customer_id": customerID,
 	})
 
 	return customerID, nil
 }
 
-func (i *mockImpl) CreateCheckoutSession(customerID string) (string, error) {
+func (b *mockBilling) CreateCheckoutSession(customerID string) (string, error) {
 	sessionURL := "/billing/success?session_id=" + random.String(16)
 
-	i.logger.PrintInfo("stripe checkout_session create", map[string]string{
+	b.logger.PrintInfo("stripe checkout_session create", map[string]string{
 		"customer_id": customerID,
 	})
 
 	return sessionURL, nil
 }
 
-func (i *mockImpl) CreateSubscription(customerID string) (string, error) {
+func (b *mockBilling) CreateSubscription(customerID string) (string, error) {
 	subscriptionItemID := random.String(16)
 
-	i.logger.PrintInfo("stripe subscription create", map[string]string{
+	b.logger.PrintInfo("stripe subscription create", map[string]string{
 		"customer_id":          customerID,
 		"subscription_item_id": subscriptionItemID,
 	})
@@ -49,8 +49,8 @@ func (i *mockImpl) CreateSubscription(customerID string) (string, error) {
 	return subscriptionItemID, nil
 }
 
-func (i *mockImpl) CreateUsageRecord(customerID, subscriptionItemID string, quantity int64) error {
-	i.logger.PrintInfo("stripe usage_record create", map[string]string{
+func (b *mockBilling) CreateUsageRecord(customerID, subscriptionItemID string, quantity int64) error {
+	b.logger.PrintInfo("stripe usage_record create", map[string]string{
 		"customer_id":          customerID,
 		"subscription_item_id": subscriptionItemID,
 		"quantity":             fmt.Sprintf("%d", quantity),

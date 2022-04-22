@@ -40,7 +40,7 @@ func (w *Worker) SendEmail(task Task) error {
 		return err
 	}
 
-	err = w.postmark.SendEmail(
+	err = w.mailer.SendEmail(
 		info.FromName,
 		info.FromEmail,
 		info.ToName,

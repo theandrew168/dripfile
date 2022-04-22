@@ -12,7 +12,7 @@ import (
 
 const stripePriceID = "price_1KhKCdFGWxTaRTVh9iXdyx0M"
 
-type stripeImpl struct {
+type stripeBilling struct {
 	logger     *jsonlog.Logger
 	client     *client.API
 	secretKey  string
@@ -20,61 +20,61 @@ type stripeImpl struct {
 	cancelURL  string
 }
 
-func New(logger *jsonlog.Logger, secretKey, successURL, cancelURL string) Interface {
+func NewBilling(logger *jsonlog.Logger, secretKey, successURL, cancelURL string) Billing {
 	sc := &client.API{}
 	sc.Init(secretKey, nil)
 
-	i := stripeImpl{
+	b := stripeBilling{
 		logger:     logger,
 		client:     sc,
 		secretKey:  secretKey,
 		successURL: successURL,
 		cancelURL:  cancelURL,
 	}
-	return &i
+	return &b
 }
 
-func (i *stripeImpl) CreateCustomer(email string) (string, error) {
+func (b *stripeBilling) CreateCustomer(email string) (string, error) {
 	params := stripe.CustomerParams{
 		Email: stripe.String(email),
 	}
 
-	customer, err := i.client.Customers.New(&params)
+	customer, err := b.client.Customers.New(&params)
 	if err != nil {
 		return "", err
 	}
 
-	i.logger.PrintInfo("stripe customer create", map[string]string{
+	b.logger.PrintInfo("stripe customer create", map[string]string{
 		"customer_id": customer.ID,
 	})
 
 	return customer.ID, nil
 }
 
-func (i *stripeImpl) CreateCheckoutSession(customerID string) (string, error) {
+func (b *stripeBilling) CreateCheckoutSession(customerID string) (string, error) {
 	params := stripe.CheckoutSessionParams{
 		PaymentMethodTypes: stripe.StringSlice([]string{
 			"card",
 		}),
 		Mode:       stripe.String(string(stripe.CheckoutSessionModeSetup)),
 		Customer:   stripe.String(customerID),
-		SuccessURL: stripe.String(i.successURL + "?session_id={CHECKOUT_SESSION_ID}"),
-		CancelURL:  stripe.String(i.cancelURL),
+		SuccessURL: stripe.String(b.successURL + "?session_id={CHECKOUT_SESSION_ID}"),
+		CancelURL:  stripe.String(b.cancelURL),
 	}
 
-	session, err := i.client.CheckoutSessions.New(&params)
+	session, err := b.client.CheckoutSessions.New(&params)
 	if err != nil {
 		return "", err
 	}
 
-	i.logger.PrintInfo("stripe checkout_session create", map[string]string{
+	b.logger.PrintInfo("stripe checkout_session create", map[string]string{
 		"customer_id": customerID,
 	})
 
 	return session.URL, nil
 }
 
-func (i *stripeImpl) CreateSubscription(customerID string) (string, error) {
+func (b *stripeBilling) CreateSubscription(customerID string) (string, error) {
 	params := stripe.SubscriptionParams{
 		Customer: stripe.String(customerID),
 		Items: []*stripe.SubscriptionItemsParams{
@@ -84,12 +84,12 @@ func (i *stripeImpl) CreateSubscription(customerID string) (string, error) {
 		},
 	}
 
-	subscription, err := i.client.Subscriptions.New(&params)
+	subscription, err := b.client.Subscriptions.New(&params)
 	if err != nil {
 		return "", err
 	}
 
-	i.logger.PrintInfo("stripe subscription create", map[string]string{
+	b.logger.PrintInfo("stripe subscription create", map[string]string{
 		"customer_id":          customerID,
 		"subscription_item_id": subscription.Items.Data[0].ID,
 	})
@@ -97,18 +97,18 @@ func (i *stripeImpl) CreateSubscription(customerID string) (string, error) {
 	return subscription.Items.Data[0].ID, nil
 }
 
-func (i *stripeImpl) CreateUsageRecord(customerID, subscriptionItemID string, quantity int64) error {
+func (b *stripeBilling) CreateUsageRecord(customerID, subscriptionItemID string, quantity int64) error {
 	params := stripe.UsageRecordParams{
 		Quantity:         stripe.Int64(quantity),
 		SubscriptionItem: stripe.String(subscriptionItemID),
 	}
 
-	_, err := i.client.UsageRecords.New(&params)
+	_, err := b.client.UsageRecords.New(&params)
 	if err != nil {
 		return err
 	}
 
-	i.logger.PrintInfo("stripe usage_record create", map[string]string{
+	b.logger.PrintInfo("stripe usage_record create", map[string]string{
 		"customer_id":          customerID,
 		"subscription_item_id": subscriptionItemID,
 		"quantity":             fmt.Sprintf("%d", quantity),

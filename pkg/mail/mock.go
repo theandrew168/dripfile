@@ -1,22 +1,22 @@
-package postmark
+package mail
 
 import (
 	"github.com/theandrew168/dripfile/pkg/jsonlog"
 )
 
-type mockImpl struct {
+type mockMailer struct {
 	logger *jsonlog.Logger
 }
 
-func NewMock(logger *jsonlog.Logger) Interface {
-	i := mockImpl{
+func NewMockMailer(logger *jsonlog.Logger) Mailer {
+	m := mockMailer{
 		logger: logger,
 	}
-	return &i
+	return &m
 }
 
-func (i *mockImpl) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
-	i.logger.PrintInfo("postmark email send", map[string]string{
+func (m *mockMailer) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
+	m.logger.PrintInfo("send email", map[string]string{
 		"from_name":  fromName,
 		"from_email": fromEmail,
 		"to_name":    toName,

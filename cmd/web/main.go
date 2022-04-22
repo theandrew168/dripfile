@@ -65,21 +65,21 @@ func run() int {
 	store := storage.New(pool)
 	queue := task.NewQueue(pool)
 
-	// init the stripe interface
-	var stripeI stripe.Interface
+	// init the stripe billing interface
+	var billing stripe.Billing
 	if cfg.StripeSecretKey != "" {
-		stripeI = stripe.New(
+		billing = stripe.NewBilling(
 			logger,
 			cfg.StripeSecretKey,
 			cfg.SiteURL+"/billing/success",
 			cfg.SiteURL+"/billing/cancel",
 		)
 	} else {
-		stripeI = stripe.NewMock(logger)
+		billing = stripe.NewMockBilling(logger)
 	}
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(cfg, logger, store, queue, box, stripeI)
+	handler := app.New(cfg, logger, store, queue, box, billing)
 
 	srv := &http.Server{
 		Addr:    addr,
