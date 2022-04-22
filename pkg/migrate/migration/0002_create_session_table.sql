@@ -7,3 +7,5 @@ CREATE TABLE session (
     created_at timestamptz NOT NULL DEFAULT NOW(),
     version integer NOT NULL DEFAULT 1
 );
+
+CREATE INDEX session_expiry_idx ON session(expiry);
