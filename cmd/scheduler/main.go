@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"log"
 	"os"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 	"github.com/go-co-op/gocron"
 
 	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/task"
@@ -20,8 +20,7 @@ func main() {
 }
 
 func run() int {
-	infoLog := log.New(os.Stdout, "", 0)
-	errorLog := log.New(os.Stderr, "error: ", 0)
+	logger := jsonlog.New(os.Stdout)
 
 	// check for config file flag
 	conf := flag.String("conf", "dripfile.conf", "app config file")
@@ -30,14 +29,14 @@ func run() int {
 	// load user-defined config (if specified), else use defaults
 	cfg, err := config.ReadFile(*conf)
 	if err != nil {
-		errorLog.Println(err)
+		logger.PrintError(err, nil)
 		return 1
 	}
 
 	// open a database connection pool
 	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
-		errorLog.Println(err)
+		logger.PrintError(err, nil)
 		return 1
 	}
 	defer pool.Close()
@@ -54,12 +53,12 @@ func run() int {
 	s.Cron("0 * * * *").Do(func() {
 		t, err := task.PruneSessions()
 		if err != nil {
-			errorLog.Println(err)
+			logger.PrintError(err, nil)
 		}
 
 		err = queue.Push(t)
 		if err != nil {
-			errorLog.Println(err)
+			logger.PrintError(err, nil)
 		}
 	})
 
@@ -90,7 +89,7 @@ func run() int {
 		// read all transfers from database
 		transfers, err := store.Transfer.ReadAll()
 		if err != nil {
-			errorLog.Println(err)
+			logger.PrintError(err, nil)
 			return 1
 		}
 
@@ -109,18 +108,20 @@ func run() int {
 				continue
 			}
 
-			infoLog.Printf("transfer %v add\n", transfer.ID)
+			logger.PrintInfo("schedule transfer", map[string]string{
+				"transfer_id": transfer.ID,
+			})
 
 			s.Cron(transfer.Schedule.Expr).Tag(transfer.ID).Do(func() {
 				t, err := task.Transfer(transfer.ID)
 				if err != nil {
-					errorLog.Println(err)
+					logger.PrintError(err, nil)
 					return
 				}
 
 				err = queue.Push(t)
 				if err != nil {
-					errorLog.Println(err)
+					logger.PrintError(err, nil)
 					return
 				}
 			})
@@ -128,11 +129,13 @@ func run() int {
 
 		// remove old transfers
 		for id, _ := range remove {
-			infoLog.Printf("transfer %v remove\n", id)
+			logger.PrintInfo("unschedule transfer", map[string]string{
+				"transfer_id": id,
+			})
 
 			err = s.RemoveByTags(id)
 			if err != nil {
-				errorLog.Println(err)
+				logger.PrintError(err, nil)
 				return 1
 			}
 		}

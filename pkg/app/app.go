@@ -16,6 +16,15 @@ import (
 	"github.com/theandrew168/dripfile/pkg/web"
 )
 
+// runtime deps (migrate, scheduler, worker, web):
+// config
+// logger
+// storage
+// queue
+// box
+// stripe
+// mailer
+
 // create the main application
 func New(
 	cfg config.Config,

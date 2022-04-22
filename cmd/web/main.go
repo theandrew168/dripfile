@@ -101,7 +101,6 @@ func run() int {
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 	logger.PrintInfo("starting server", map[string]string{
 		"addr": addr,
-		"conf": *conf,
 	})
 
 	// kick off a goroutine to listen for SIGINT and SIGTERM

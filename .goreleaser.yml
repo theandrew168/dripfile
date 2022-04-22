@@ -59,21 +59,21 @@ nfpms:
       - deb
     bindir: /usr/bin
     contents:
-      - src: scripts/dripfile-migrate.service
+      - src: script/dripfile-migrate.service
         dst: /lib/systemd/system/dripfile-migrate.service
-      - src: scripts/dripfile-scheduler.service
+      - src: script/dripfile-scheduler.service
         dst: /lib/systemd/system/dripfile-scheduler.service
-      - src: scripts/dripfile-worker.service
+      - src: script/dripfile-worker.service
         dst: /lib/systemd/system/dripfile-worker.service
-      - src: scripts/dripfile-web.service
+      - src: script/dripfile-web.service
         dst: /lib/systemd/system/dripfile-web.service
-      - src: scripts/dripfile.conf
+      - src: script/dripfile.conf
         dst: /etc/dripfile.conf
         type: config
     scripts:
-      postinstall: scripts/postinstall.sh
-      preremove: scripts/preremove.sh
-      postremove: scripts/postremove.sh
+      postinstall: script/postinstall.sh
+      preremove: script/preremove.sh
+      postremove: script/postremove.sh
 
 checksum:
   name_template: checksums.txt

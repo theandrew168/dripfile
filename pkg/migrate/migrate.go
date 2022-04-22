@@ -5,16 +5,16 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
-	"log"
 	"sort"
 
+	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
 //go:embed migration
 var migrationFS embed.FS
 
-func Migrate(pg postgres.Interface, infoLog *log.Logger) error {
+func Migrate(pg postgres.Interface, logger *jsonlog.Logger) error {
 	ctx := context.Background()
 
 	// attempt to create extensions and ignore errors
@@ -77,7 +77,9 @@ func Migrate(pg postgres.Interface, infoLog *log.Logger) error {
 	// sort missing migrations to preserve order
 	sort.Strings(missing)
 	for _, name := range missing {
-		infoLog.Printf("applying: %s\n", name)
+		logger.PrintInfo("applying migration", map[string]string{
+			"name": name,
+		})
 
 		// apply the missing ones
 		sql, err := fs.ReadFile(subdir, name)
@@ -96,6 +98,6 @@ func Migrate(pg postgres.Interface, infoLog *log.Logger) error {
 		}
 	}
 
-	infoLog.Println("migrations up to date")
+	logger.PrintInfo("migrations up to date", nil)
 	return nil
 }

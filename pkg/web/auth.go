@@ -59,6 +59,14 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// ensure email isn't already taken
+	_, err = app.storage.Account.ReadByEmail(email)
+	if err == nil || !errors.Is(err, core.ErrNotExist) {
+		f.Errors.Add("email", "An account with this email already exists")
+		app.render(w, r, files, data)
+		return
+	}
+
 	// create Stripe customer
 	customerID, err := app.stripe.CreateCustomer(email)
 	if err != nil {
