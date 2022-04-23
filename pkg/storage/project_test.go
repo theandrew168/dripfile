@@ -1,6 +1,7 @@
 package storage_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/theandrew168/dripfile/pkg/core"
@@ -26,6 +27,29 @@ func TestCreateProject(t *testing.T) {
 	}
 
 	if project.ID == "" {
-		t.Fatal("project_id should be non-empty after create")
+		t.Fatal("record ID should be non-empty after create")
+	}
+}
+
+func TestCreateProjectDuplicate(t *testing.T) {
+	cfg := test.Config(t)
+
+	pool, err := database.ConnectPool(cfg.DatabaseURI)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer pool.Close()
+
+	storage := storage.New(pool)
+	project := core.NewMockProject()
+	err = storage.Project.Create(&project)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// attempt to create the same project again
+	err = storage.Project.Create(&project)
+	if !errors.Is(err, core.ErrExist) {
+		t.Fatal("duplicate record should return an error")
 	}
 }
