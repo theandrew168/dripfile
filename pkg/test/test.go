@@ -1,6 +1,7 @@
 package test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/theandrew168/dripfile/pkg/config"
@@ -26,23 +27,20 @@ func Database(t *testing.T) (database.Interface, CloserFunc) {
 	t.Helper()
 
 	cfg := Config(t)
-	pool, err := database.ConnectPool(cfg.DatabaseURI)
+	conn, err := database.Connect(cfg.DatabaseURI)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	return pool, pool.Close
+	return conn, func() {
+		conn.Close(context.Background())
+	}
 }
 
 func Storage(t *testing.T) (*storage.Storage, CloserFunc) {
 	t.Helper()
 
-	cfg := Config(t)
-	pool, err := database.ConnectPool(cfg.DatabaseURI)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	store := storage.New(pool)
-	return store, pool.Close
+	db, closer := Database(t)
+	store := storage.New(db)
+	return store, closer
 }
