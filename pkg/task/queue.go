@@ -6,25 +6,25 @@ import (
 	"time"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 // default query timeout
 var queryTimeout = 3 * time.Second
 
 type Queue struct {
-	pg postgres.Interface
+	db database.Interface
 }
 
-func NewQueue(pg postgres.Interface) *Queue {
+func NewQueue(db database.Interface) *Queue {
 	q := Queue{
-		pg: pg,
+		db: db,
 	}
 	return &q
 }
 
 // insert transfer ID into the queue table
-// https://webapp.io/blog/postgres-is-the-answer/
+// https://webapp.io/blog/database-is-the-answer/
 func (q *Queue) Push(task Task) error {
 	stmt := `
 		INSERT INTO task_queue
@@ -42,7 +42,7 @@ func (q *Queue) Push(task Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(q.pg, ctx, stmt, args...)
+	err := database.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return q.Push(task)
@@ -55,7 +55,7 @@ func (q *Queue) Push(task Task) error {
 }
 
 // atomically claim tasks (only run one per worker)
-// https://webapp.io/blog/postgres-is-the-answer/
+// https://webapp.io/blog/database-is-the-answer/
 func (q *Queue) Pop() (Task, error) {
 	stmt := `
 		UPDATE task_queue
@@ -81,8 +81,8 @@ func (q *Queue) Pop() (Task, error) {
 		&task.Status,
 	}
 
-	row := q.pg.QueryRow(ctx, stmt)
-	err := postgres.Scan(row, dest...)
+	row := q.db.QueryRow(ctx, stmt)
+	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return q.Pop()
@@ -115,7 +115,7 @@ func (q *Queue) Update(task Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(q.pg, ctx, stmt, args...)
+	err := database.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return q.Update(task)

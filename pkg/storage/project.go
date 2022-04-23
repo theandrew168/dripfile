@@ -5,16 +5,16 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 type Project struct {
-	pg postgres.Interface
+	db database.Interface
 }
 
-func NewProject(pg postgres.Interface) *Project {
+func NewProject(db database.Interface) *Project {
 	s := Project{
-		pg: pg,
+		db: db,
 	}
 	return &s
 }
@@ -35,8 +35,8 @@ func (s *Project) Create(project *core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, args...)
-	err := postgres.Scan(row, &project.ID)
+	row := s.db.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(project)
@@ -67,8 +67,8 @@ func (s *Project) Read(id string) (core.Project, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, id)
-	err := postgres.Scan(row, dest...)
+	row := s.db.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -97,7 +97,7 @@ func (s *Project) Update(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, args...)
+	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(project)
@@ -117,7 +117,7 @@ func (s *Project) Delete(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, project.ID)
+	err := database.Exec(s.db, ctx, stmt, project.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(project)
@@ -140,7 +140,7 @@ func (s *Project) ReadAll() ([]core.Project, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pg.Query(ctx, stmt)
+	rows, err := s.db.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (s *Project) ReadAll() ([]core.Project, error) {
 			&project.SubscriptionItemID,
 		}
 
-		err := postgres.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadAll()

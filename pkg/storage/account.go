@@ -5,16 +5,16 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 type Account struct {
-	pg postgres.Interface
+	db database.Interface
 }
 
-func NewAccount(pg postgres.Interface) *Account {
+func NewAccount(db database.Interface) *Account {
 	s := Account{
-		pg: pg,
+		db: db,
 	}
 	return &s
 }
@@ -38,8 +38,8 @@ func (s *Account) Create(account *core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, args...)
-	err := postgres.Scan(row, &account.ID)
+	row := s.db.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(account)
@@ -82,8 +82,8 @@ func (s *Account) Read(id string) (core.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, id)
-	err := postgres.Scan(row, dest...)
+	row := s.db.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -116,7 +116,7 @@ func (s *Account) Update(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, args...)
+	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(account)
@@ -136,7 +136,7 @@ func (s *Account) Delete(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, account.ID)
+	err := database.Exec(s.db, ctx, stmt, account.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(account)
@@ -179,8 +179,8 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, email)
-	err := postgres.Scan(row, dest...)
+	row := s.db.QueryRow(ctx, stmt, email)
+	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.ReadByEmail(email)
@@ -206,8 +206,8 @@ func (s *Account) CountByProject(project core.Project) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, project.ID)
-	err := postgres.Scan(row, &count)
+	row := s.db.QueryRow(ctx, stmt, project.ID)
+	err := database.Scan(row, &count)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.CountByProject(project)

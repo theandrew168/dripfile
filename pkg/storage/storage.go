@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 // default query timeout
@@ -11,7 +11,7 @@ var queryTimeout = 3 * time.Second
 
 // aggregation of core storage types
 type Storage struct {
-	pg postgres.Interface
+	db database.Interface
 
 	Project  *Project
 	Account  *Account
@@ -22,17 +22,17 @@ type Storage struct {
 	History  *History
 }
 
-func New(pg postgres.Interface) *Storage {
+func New(db database.Interface) *Storage {
 	s := Storage{
-		pg: pg,
+		db: db,
 
-		Project:  NewProject(pg),
-		Account:  NewAccount(pg),
-		Session:  NewSession(pg),
-		Location: NewLocation(pg),
-		Transfer: NewTransfer(pg),
-		Schedule: NewSchedule(pg),
-		History:  NewHistory(pg),
+		Project:  NewProject(db),
+		Account:  NewAccount(db),
+		Session:  NewSession(db),
+		Location: NewLocation(db),
+		Transfer: NewTransfer(db),
+		Schedule: NewSchedule(db),
+		History:  NewHistory(db),
 	}
 	return &s
 }

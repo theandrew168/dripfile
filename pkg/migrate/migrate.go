@@ -7,14 +7,14 @@ import (
 	"io/fs"
 	"sort"
 
+	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/jsonlog"
-	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
 //go:embed migration
 var migrationFS embed.FS
 
-func Migrate(pg postgres.Interface, logger *jsonlog.Logger) error {
+func Migrate(db database.Interface, logger *jsonlog.Logger) error {
 	ctx := context.Background()
 
 	// attempt to create extensions and ignore errors
@@ -25,14 +25,14 @@ func Migrate(pg postgres.Interface, logger *jsonlog.Logger) error {
 	}
 	for _, ext := range exts {
 		stmt := fmt.Sprintf("CREATE EXTENSION IF NOT EXISTS %s", ext)
-		_, err := pg.Exec(ctx, stmt)
+		_, err := db.Exec(ctx, stmt)
 		if err != nil {
 			return err
 		}
 	}
 
 	// create migrations table if it doesn't exist
-	_, err := pg.Exec(ctx, `
+	_, err := db.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS migration (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL UNIQUE
@@ -42,7 +42,7 @@ func Migrate(pg postgres.Interface, logger *jsonlog.Logger) error {
 	}
 
 	// get migrations that are already applied
-	rows, err := pg.Query(ctx, "SELECT name FROM migration")
+	rows, err := db.Query(ctx, "SELECT name FROM migration")
 	if err != nil {
 		return err
 	}
@@ -86,13 +86,13 @@ func Migrate(pg postgres.Interface, logger *jsonlog.Logger) error {
 		if err != nil {
 			return err
 		}
-		_, err = pg.Exec(ctx, string(sql))
+		_, err = db.Exec(ctx, string(sql))
 		if err != nil {
 			return err
 		}
 
 		// update migrations table
-		_, err = pg.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
+		_, err = db.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
 		if err != nil {
 			return err
 		}

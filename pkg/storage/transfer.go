@@ -5,16 +5,16 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 type Transfer struct {
-	pg postgres.Interface
+	db database.Interface
 }
 
-func NewTransfer(pg postgres.Interface) *Transfer {
+func NewTransfer(db database.Interface) *Transfer {
 	s := Transfer{
-		pg: pg,
+		db: db,
 	}
 	return &s
 }
@@ -38,8 +38,8 @@ func (s *Transfer) Create(transfer *core.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, args...)
-	err := postgres.Scan(row, &transfer.ID)
+	row := s.db.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &transfer.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(transfer)
@@ -110,8 +110,8 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, id)
-	err := postgres.Scan(row, dest...)
+	row := s.db.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -144,7 +144,7 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, args...)
+	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(transfer)
@@ -164,7 +164,7 @@ func (s *Transfer) Delete(transfer core.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, transfer.ID)
+	err := database.Exec(s.db, ctx, stmt, transfer.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(transfer)
@@ -211,7 +211,7 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pg.Query(ctx, stmt)
+	rows, err := s.db.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +242,7 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 			&transfer.Project.SubscriptionItemID,
 		}
 
-		err := postgres.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadAll()
@@ -297,7 +297,7 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pg.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -328,7 +328,7 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 			&transfer.Project.SubscriptionItemID,
 		}
 
-		err := postgres.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadAllByProject(project)

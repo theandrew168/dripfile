@@ -19,3 +19,11 @@ func String(n int) string {
 
 	return string(buf)
 }
+
+func URL(n int) string {
+	return "https://" + String(n)
+}
+
+func Time() time.Time {
+	return time.Now().UTC()
+}

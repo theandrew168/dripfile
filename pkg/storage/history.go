@@ -5,16 +5,16 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 type History struct {
-	pg postgres.Interface
+	db database.Interface
 }
 
-func NewHistory(pg postgres.Interface) *History {
+func NewHistory(db database.Interface) *History {
 	s := History{
-		pg: pg,
+		db: db,
 	}
 	return &s
 }
@@ -39,8 +39,8 @@ func (s *History) Create(history *core.History) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, args...)
-	err := postgres.Scan(row, &history.ID)
+	row := s.db.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &history.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(history)
@@ -75,7 +75,7 @@ func (s *History) ReadAllByProject(project core.Project) ([]core.History, error)
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pg.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (s *History) ReadAllByProject(project core.Project) ([]core.History, error)
 			&history.Project.ID,
 		}
 
-		err := postgres.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadAllByProject(project)

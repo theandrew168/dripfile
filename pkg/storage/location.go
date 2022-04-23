@@ -5,16 +5,16 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 type Location struct {
-	pg postgres.Interface
+	db database.Interface
 }
 
-func NewLocation(pg postgres.Interface) *Location {
+func NewLocation(db database.Interface) *Location {
 	s := Location{
-		pg: pg,
+		db: db,
 	}
 	return &s
 }
@@ -37,8 +37,8 @@ func (s *Location) Create(location *core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, args...)
-	err := postgres.Scan(row, &location.ID)
+	row := s.db.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(location)
@@ -79,8 +79,8 @@ func (s *Location) Read(id string) (core.Location, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, id)
-	err := postgres.Scan(row, dest...)
+	row := s.db.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -111,7 +111,7 @@ func (s *Location) Update(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, args...)
+	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Update(location)
@@ -131,7 +131,7 @@ func (s *Location) Delete(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, location.ID)
+	err := database.Exec(s.db, ctx, stmt, location.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(location)
@@ -161,7 +161,7 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pg.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 			&location.Project.SubscriptionItemID,
 		}
 
-		err := postgres.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadAllByProject(project)

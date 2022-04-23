@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/migrate"
-	"github.com/theandrew168/dripfile/pkg/postgres"
 )
 
 func main() {
@@ -29,8 +29,8 @@ func run() int {
 		return 1
 	}
 
-	// open a regular connection
-	conn, err := postgres.Connect(cfg.DatabaseURI)
+	// open a database connection
+	conn, err := database.Connect(cfg.DatabaseURI)
 	if err != nil {
 		logger.PrintError(err, nil)
 		return 1

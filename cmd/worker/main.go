@@ -8,9 +8,9 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/pkg/config"
+	"github.com/theandrew168/dripfile/pkg/database"
 	"github.com/theandrew168/dripfile/pkg/jsonlog"
 	"github.com/theandrew168/dripfile/pkg/mail"
-	"github.com/theandrew168/dripfile/pkg/postgres"
 	"github.com/theandrew168/dripfile/pkg/secret"
 	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/stripe"
@@ -47,7 +47,7 @@ func run() int {
 	box := secret.NewBox(secretKey)
 
 	// open a database connection pool
-	pool, err := postgres.ConnectPool(cfg.DatabaseURI)
+	pool, err := database.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
 		logger.PrintError(err, nil)
 		return 1

@@ -5,16 +5,16 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/postgres"
+	"github.com/theandrew168/dripfile/pkg/database"
 )
 
 type Schedule struct {
-	pg postgres.Interface
+	db database.Interface
 }
 
-func NewSchedule(pg postgres.Interface) *Schedule {
+func NewSchedule(db database.Interface) *Schedule {
 	s := Schedule{
-		pg: pg,
+		db: db,
 	}
 	return &s
 }
@@ -36,8 +36,8 @@ func (s *Schedule) Create(schedule *core.Schedule) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, args...)
-	err := postgres.Scan(row, &schedule.ID)
+	row := s.db.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &schedule.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Create(schedule)
@@ -76,8 +76,8 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	row := s.pg.QueryRow(ctx, stmt, id)
-	err := postgres.Scan(row, dest...)
+	row := s.db.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Read(id)
@@ -101,7 +101,7 @@ func (s *Schedule) Delete(schedule core.Schedule) error {
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	err := postgres.Exec(s.pg, ctx, stmt, schedule.ID)
+	err := database.Exec(s.db, ctx, stmt, schedule.ID)
 	if err != nil {
 		if errors.Is(err, core.ErrRetry) {
 			return s.Delete(schedule)
@@ -130,7 +130,7 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
 	defer cancel()
 
-	rows, err := s.pg.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt, project.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -148,7 +148,7 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 			&schedule.Project.SubscriptionItemID,
 		}
 
-		err := postgres.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, core.ErrRetry) {
 				return s.ReadAllByProject(project)
