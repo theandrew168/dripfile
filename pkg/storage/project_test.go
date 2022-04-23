@@ -5,23 +5,15 @@ import (
 	"testing"
 
 	"github.com/theandrew168/dripfile/pkg/core"
-	"github.com/theandrew168/dripfile/pkg/database"
-	"github.com/theandrew168/dripfile/pkg/storage"
 	"github.com/theandrew168/dripfile/pkg/test"
 )
 
 func TestCreateProject(t *testing.T) {
-	cfg := test.Config(t)
+	storage, closer := test.Storage(t)
+	defer closer()
 
-	pool, err := database.ConnectPool(cfg.DatabaseURI)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer pool.Close()
-
-	storage := storage.New(pool)
 	project := core.NewMockProject()
-	err = storage.Project.Create(&project)
+	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,17 +24,11 @@ func TestCreateProject(t *testing.T) {
 }
 
 func TestCreateProjectDuplicate(t *testing.T) {
-	cfg := test.Config(t)
+	storage, closer := test.Storage(t)
+	defer closer()
 
-	pool, err := database.ConnectPool(cfg.DatabaseURI)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer pool.Close()
-
-	storage := storage.New(pool)
 	project := core.NewMockProject()
-	err = storage.Project.Create(&project)
+	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
 	}
