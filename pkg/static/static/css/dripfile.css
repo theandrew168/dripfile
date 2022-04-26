@@ -5,8 +5,10 @@
 	--color-danger: #e11d48;
 	--color-danger-hover: #be123c;
 	--color-primary: #2563eb;
-	--color-primary-hover: #1d4ed8;
+	--color-primary-hover: #3b82f6;
+	--color-primary-selected: #1d4ed8;
 	--color-white: #ffffff;
+	--color-white-hover: #e5e7eb;
 	--border-radius: 0.5rem;
 	--font-family: "Nunito", sans-serif;
 	--justify-important: center;
@@ -44,20 +46,40 @@ nav ul {
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: 2rem;
+	gap: 1.5rem;
 }
 
-nav a {
+nav ul a {
+	border-radius: var(--border-radius);
 	color: var(--color-white);
-	flex-shrink: 0;
-	font-weight: bold;
+	padding: 0.5rem;
 	text-decoration: none;
 }
 
-nav img {
-	display: block;
+nav ul a:hover {
+	background-color: var(--color-primary-hover);
+}
+
+nav ul a.selected {
+	background-color: var(--color-primary-selected);
+}
+
+.logo {
+	align-items: center;
+	color: var(--color-white);
+	display: flex;
+	gap: 0.5rem;
+	text-decoration: none;
+}
+
+.logo img {
 	height: 2.5rem;
 	width: auto;
+}
+
+.logo span {
+	font-size: 1.5rem;
+	font-weight: bold;
 }
 
 
@@ -97,13 +119,24 @@ button,
 	border-radius: var(--border-radius);
 	color: var(--color-white);
 	cursor: pointer;
-	padding: 0.5rem 2rem;
+	padding: 0.5rem 1.5rem;
 	text-decoration: none;
 }
 
 button:hover,
 .button:hover {
 	background-color: var(--color-primary-hover);
+}
+
+button.outline,
+.button.outline {
+	background-color: var(--color-white);
+	color: var(--color-primary);
+}
+
+button.outline:hover,
+.button.outline:hover {
+	background-color: var(--color-white-hover);
 }
 
 input {

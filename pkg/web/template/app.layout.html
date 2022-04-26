@@ -3,11 +3,12 @@
 {{define "body"}}
 <header>
 	<nav>
-		<!--
-		<a href="/dashboard"><img alt="DripFile Logo" src="/static/img/logo_black.svg" height="70"></a>
-		-->
+		<a class="logo" href="/dashboard">
+			<img alt="DripFile Logo" src="/static/img/logo_white.svg">
+			<span>DripFile</span>
+		</a>
 		<ul>
-			<li><a id="nav-dashboard" href="/dashboard">Dashboard</a></li>
+			<li><a class="selected" id="nav-dashboard" href="/dashboard">Dashboard</a></li>
 			<li><a id="nav-transfer" href="/transfer">Transfers</a></li>
 			<li><a id="nav-location" href="/location">Locations</a></li>
 			<li><a id="nav-schedule" href="/schedule">Schedules</a></li>
