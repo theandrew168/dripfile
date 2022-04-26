@@ -23,7 +23,7 @@ func TestCreateProject(t *testing.T) {
 	}
 }
 
-func TestCreateProjectDuplicate(t *testing.T) {
+func TestCreateProjectUnique(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
