@@ -13,7 +13,6 @@ import (
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"transfer/list.page.html",
 	}
@@ -41,7 +40,6 @@ func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"transfer/read.page.html",
 	}
@@ -69,7 +67,6 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"transfer/create.page.html",
 	}
@@ -107,7 +104,6 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 
 func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"transfer/create.page.html",
 	}

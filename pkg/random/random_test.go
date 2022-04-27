@@ -7,6 +7,15 @@ import (
 	"github.com/theandrew168/dripfile/pkg/random"
 )
 
+func TestBytes(t *testing.T) {
+	if got := random.Bytes(0); len(got) != 0 {
+		t.Errorf("random bytes broken when empty")
+	}
+	if got := random.Bytes(8); len(got) != 8 {
+		t.Errorf("random bytes invalid length")
+	}
+}
+
 func TestString(t *testing.T) {
 	if got := random.String(0); got != "" {
 		t.Errorf("random string broken when empty")

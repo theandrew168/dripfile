@@ -9,7 +9,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func String(n int) string {
+func Bytes(n int) []byte {
 	valid := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
 
 	buf := make([]byte, n)
@@ -17,7 +17,11 @@ func String(n int) string {
 		buf[i] = valid[rand.Intn(len(valid))]
 	}
 
-	return string(buf)
+	return buf
+}
+
+func String(n int) string {
+	return string(Bytes(n))
 }
 
 func URL(n int) string {

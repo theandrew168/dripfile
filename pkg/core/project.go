@@ -19,7 +19,7 @@ func NewProject(customerID string) Project {
 	return project
 }
 
-func NewMockProject() Project {
+func NewProjectMock() Project {
 	project := NewProject(
 		random.String(8),
 	)

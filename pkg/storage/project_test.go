@@ -13,7 +13,7 @@ func TestProjectCreate(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewMockProject()
+	project := core.NewProjectMock()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -28,7 +28,7 @@ func TestProjectCreateUnique(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewMockProject()
+	project := core.NewProjectMock()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +45,7 @@ func TestProjectRead(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewMockProject()
+	project := core.NewProjectMock()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -65,7 +65,7 @@ func TestProjectUpdate(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewMockProject()
+	project := core.NewProjectMock()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -97,7 +97,7 @@ func TestProjectDelete(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewMockProject()
+	project := core.NewProjectMock()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -119,7 +119,7 @@ func TestProjectReadAll(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewMockProject()
+	project := core.NewProjectMock()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
