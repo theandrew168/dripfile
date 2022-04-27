@@ -11,3 +11,4 @@ add other users to project
 actual RBAC
 verify payment response securely (webhook?)
 encrypt email addrs in DB
+prometheus / loki / grafana
