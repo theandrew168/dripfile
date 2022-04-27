@@ -4,38 +4,50 @@ import (
 	"testing"
 
 	"github.com/theandrew168/dripfile/pkg/core"
+	"github.com/theandrew168/dripfile/pkg/random"
 	"github.com/theandrew168/dripfile/pkg/test"
 )
+
+func mockTransfer(src, dst core.Location, schedule core.Schedule, project core.Project) core.Transfer {
+	transfer := core.NewTransfer(
+		random.String(8),
+		src,
+		dst,
+		schedule,
+		project,
+	)
+	return transfer
+}
 
 func TestTransferCreate(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewProjectMock()
+	project := mockProject()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	schedule := core.NewScheduleMock(project)
+	schedule := mockSchedule(project)
 	err = storage.Schedule.Create(&schedule)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	src := core.NewLocationMock(project)
+	src := mockLocation(project)
 	err = storage.Location.Create(&src)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	dst := core.NewLocationMock(project)
+	dst := mockLocation(project)
 	err = storage.Location.Create(&dst)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	transfer := core.NewTransferMock(src, dst, schedule, project)
+	transfer := mockTransfer(src, dst, schedule, project)
 	err = storage.Transfer.Create(&transfer)
 	if err != nil {
 		t.Fatal(err)

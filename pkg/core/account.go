@@ -1,9 +1,5 @@
 package core
 
-import (
-	"github.com/theandrew168/dripfile/pkg/random"
-)
-
 // enum values for account / project relationship
 const (
 	RoleOwner  = "owner"
@@ -32,15 +28,5 @@ func NewAccount(email, password, role string, project Project) Account {
 		Verified: false,
 		Project:  project,
 	}
-	return account
-}
-
-func NewAccountMock(project Project) Account {
-	account := NewAccount(
-		random.String(8),
-		random.String(8),
-		RoleViewer,
-		project,
-	)
 	return account
 }

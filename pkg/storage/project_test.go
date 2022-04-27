@@ -9,11 +9,18 @@ import (
 	"github.com/theandrew168/dripfile/pkg/test"
 )
 
+func mockProject() core.Project {
+	project := core.NewProject(
+		random.String(8),
+	)
+	return project
+}
+
 func TestProjectCreate(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewProjectMock()
+	project := mockProject()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -28,7 +35,7 @@ func TestProjectCreateUnique(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewProjectMock()
+	project := mockProject()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -45,7 +52,7 @@ func TestProjectRead(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewProjectMock()
+	project := mockProject()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -65,7 +72,7 @@ func TestProjectUpdate(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewProjectMock()
+	project := mockProject()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -97,7 +104,7 @@ func TestProjectDelete(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewProjectMock()
+	project := mockProject()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
@@ -119,7 +126,7 @@ func TestProjectReadAll(t *testing.T) {
 	storage, closer := test.Storage(t)
 	defer closer()
 
-	project := core.NewProjectMock()
+	project := mockProject()
 	err := storage.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
