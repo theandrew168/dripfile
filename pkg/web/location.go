@@ -14,7 +14,6 @@ import (
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"location/list.page.html",
 	}
@@ -43,7 +42,6 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"location/read.page.html",
 	}
@@ -71,7 +69,6 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"location/create.page.html",
 	}
@@ -87,7 +84,6 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 
 func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"location/create.page.html",
 	}

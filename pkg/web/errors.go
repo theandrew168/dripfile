@@ -36,7 +36,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, co
 
 func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
+		"error.layout.html",
 		"error/400.page.html",
 	}
 	app.errorResponse(w, r, http.StatusBadRequest, files)
@@ -44,7 +44,7 @@ func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
+		"error.layout.html",
 		"error/404.page.html",
 	}
 	app.errorResponse(w, r, http.StatusNotFound, files)
@@ -52,7 +52,7 @@ func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 
 func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
+		"error.layout.html",
 		"error/405.page.html",
 	}
 	app.errorResponse(w, r, http.StatusMethodNotAllowed, files)
@@ -63,7 +63,7 @@ func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Reque
 	app.logger.PrintError(err, nil)
 
 	files := []string{
-		"base.layout.html",
+		"error.layout.html",
 		"error/500.page.html",
 	}
 	app.errorResponse(w, r, http.StatusInternalServerError, files)

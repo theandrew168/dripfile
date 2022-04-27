@@ -1,24 +1,44 @@
-{{template "base" .}}
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
 
-{{define "body"}}
-<header>
-	<nav>
-		<a class="logo" href="/">
-			<img alt="DripFile Logo" src="/static/img/logo_white.svg">
-			<span>DripFile</span>
-		</a>
-		<ul>
-			<li><a class="button outline" id="nav-register" href="/register">Register</a></li>
-			<li><a id="nav-login" href="/dashboard">Login</a></li>
-		</ul>
-	</nav>
-</header>
+<head>
+	<title>{{template "title" .}} - DripFile</title>
 
-<main>
-	{{template "main" .}}
-</main>
+	<meta charset="utf-8" />
+	<meta name="description" content="Managed File Transfer as a Service" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<footer>
-	<p>&copy; 2022 Shallow Brook Software LLC. All rights reserved.</p>
-</footer>
+	<link rel="stylesheet" href="/static/css/minireset.min.css" />
+	<link rel="stylesheet" href="/static/css/nunito.font.css" />
+	<link rel="stylesheet" href="/static/css/dripfile.css" />
+	<link rel="stylesheet" href="/static/css/dripfile-site.css" />
+	<script src="/static/js/alpine.min.js" defer></script>
+	<script src="/static/js/htmx.min.js" defer></script>
+</head>
+
+<body>
+	<header>
+		<nav>
+			<a class="logo" href="/">
+				<img alt="DripFile Logo" src="/static/img/logo-white.svg">
+				<span>DripFile</span>
+			</a>
+			<ul>
+				<li><a class="button outline" id="nav-register" href="/register">Register</a></li>
+				<li><a id="nav-login" href="/dashboard">Login</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		{{template "main" .}}
+	</main>
+
+	<footer>
+		<p>&copy; 2022 Shallow Brook Software LLC. All rights reserved.</p>
+	</footer>
+</body>
+
+</html>
 {{end}}

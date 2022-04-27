@@ -6,7 +6,6 @@ import (
 
 func (app *Application) handleBillingSetup(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"billing/setup.page.html",
 	}

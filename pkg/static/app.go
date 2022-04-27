@@ -10,7 +10,7 @@ import (
 	"github.com/klauspost/compress/gzhttp"
 )
 
-//go:embed static/img/logo_blue.svg
+//go:embed static/img/logo-blue.svg
 var Favicon []byte
 
 //go:embed static/etc/robots.txt

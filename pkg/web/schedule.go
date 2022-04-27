@@ -24,7 +24,6 @@ var shortcuts = map[string]string{
 
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"schedule/list.page.html",
 	}
@@ -53,7 +52,6 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"schedule/read.page.html",
 	}
@@ -81,7 +79,6 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"schedule/create.page.html",
 	}
@@ -97,7 +94,6 @@ func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Requ
 
 func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.Request) {
 	files := []string{
-		"base.layout.html",
 		"app.layout.html",
 		"schedule/create.page.html",
 	}
