@@ -11,7 +11,7 @@ var queryTimeout = 3 * time.Second
 
 // aggregation of core storage types
 type Storage struct {
-	db database.Interface
+	db database.Conn
 
 	Project  *Project
 	Account  *Account
@@ -22,7 +22,7 @@ type Storage struct {
 	History  *History
 }
 
-func New(db database.Interface) *Storage {
+func New(db database.Conn) *Storage {
 	s := Storage{
 		db: db,
 

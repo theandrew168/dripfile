@@ -9,10 +9,10 @@ import (
 )
 
 type Location struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewLocation(db database.Interface) *Location {
+func NewLocation(db database.Conn) *Location {
 	s := Location{
 		db: db,
 	}

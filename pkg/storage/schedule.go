@@ -9,10 +9,10 @@ import (
 )
 
 type Schedule struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewSchedule(db database.Interface) *Schedule {
+func NewSchedule(db database.Conn) *Schedule {
 	s := Schedule{
 		db: db,
 	}

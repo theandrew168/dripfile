@@ -9,10 +9,10 @@ import (
 )
 
 type Session struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewSession(db database.Interface) *Session {
+func NewSession(db database.Conn) *Session {
 	s := Session{
 		db: db,
 	}

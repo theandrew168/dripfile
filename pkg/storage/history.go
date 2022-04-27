@@ -9,10 +9,10 @@ import (
 )
 
 type History struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewHistory(db database.Interface) *History {
+func NewHistory(db database.Conn) *History {
 	s := History{
 		db: db,
 	}

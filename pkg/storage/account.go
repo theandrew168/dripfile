@@ -9,10 +9,10 @@ import (
 )
 
 type Account struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewAccount(db database.Interface) *Account {
+func NewAccount(db database.Conn) *Account {
 	s := Account{
 		db: db,
 	}

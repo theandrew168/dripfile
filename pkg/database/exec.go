@@ -10,7 +10,7 @@ import (
 	"github.com/theandrew168/dripfile/pkg/core"
 )
 
-func Exec(db Interface, ctx context.Context, stmt string, args ...interface{}) error {
+func Exec(db Conn, ctx context.Context, stmt string, args ...interface{}) error {
 	_, err := db.Exec(ctx, stmt, args...)
 	if err != nil {
 		// check for more specific errors

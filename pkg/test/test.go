@@ -23,7 +23,7 @@ func Config(t *testing.T) config.Config {
 	return cfg
 }
 
-func Database(t *testing.T) (database.Interface, CloserFunc) {
+func Database(t *testing.T) (database.Conn, CloserFunc) {
 	t.Helper()
 
 	cfg := Config(t)

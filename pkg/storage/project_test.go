@@ -55,7 +55,7 @@ func TestProjectRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
+
 	if got.ID != project.ID {
 		t.Fatal("record ID should be match after read")
 	}

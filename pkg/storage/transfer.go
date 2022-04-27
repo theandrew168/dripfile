@@ -9,10 +9,10 @@ import (
 )
 
 type Transfer struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewTransfer(db database.Interface) *Transfer {
+func NewTransfer(db database.Conn) *Transfer {
 	s := Transfer{
 		db: db,
 	}

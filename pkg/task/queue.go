@@ -13,10 +13,10 @@ import (
 var queryTimeout = 3 * time.Second
 
 type Queue struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewQueue(db database.Interface) *Queue {
+func NewQueue(db database.Conn) *Queue {
 	q := Queue{
 		db: db,
 	}

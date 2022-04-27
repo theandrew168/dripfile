@@ -9,10 +9,10 @@ import (
 )
 
 type Project struct {
-	db database.Interface
+	db database.Conn
 }
 
-func NewProject(db database.Interface) *Project {
+func NewProject(db database.Conn) *Project {
 	s := Project{
 		db: db,
 	}

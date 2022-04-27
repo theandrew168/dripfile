@@ -14,7 +14,7 @@ import (
 //go:embed migration
 var migrationFS embed.FS
 
-func Migrate(db database.Interface, logger *jsonlog.Logger) error {
+func Migrate(db database.Conn, logger *jsonlog.Logger) error {
 	ctx := context.Background()
 
 	// attempt to create extensions and ignore errors
