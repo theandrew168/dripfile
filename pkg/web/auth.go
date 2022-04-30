@@ -15,6 +15,7 @@ import (
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	files := []string{
+		"base.layout.html",
 		"site.layout.html",
 		"auth/register.page.html",
 	}
@@ -30,6 +31,7 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
 	files := []string{
+		"base.layout.html",
 		"site.layout.html",
 		"auth/register.page.html",
 	}
@@ -154,6 +156,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 	files := []string{
+		"base.layout.html",
 		"site.layout.html",
 		"auth/login.page.html",
 	}
@@ -169,6 +172,7 @@ func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
 	files := []string{
+		"base.layout.html",
 		"site.layout.html",
 		"auth/login.page.html",
 	}

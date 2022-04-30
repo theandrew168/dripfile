@@ -8,6 +8,7 @@ import (
 
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
 	files := []string{
+		"base.layout.html",
 		"app.layout.html",
 		"account/read.page.html",
 	}

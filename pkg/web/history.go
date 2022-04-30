@@ -8,6 +8,7 @@ import (
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
 	files := []string{
+		"base.layout.html",
 		"app.layout.html",
 		"history/list.page.html",
 	}
