@@ -32,7 +32,7 @@ func (s *Project) Create(project *core.Project) error {
 		project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
@@ -64,7 +64,7 @@ func (s *Project) Read(id string) (core.Project, error) {
 		&project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
@@ -94,7 +94,7 @@ func (s *Project) Update(project core.Project) error {
 		project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, args...)
@@ -114,7 +114,7 @@ func (s *Project) Delete(project core.Project) error {
 		DELETE FROM project
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, project.ID)
@@ -137,7 +137,7 @@ func (s *Project) ReadAll() ([]core.Project, error) {
 			project.subscription_item_id
 		FROM project`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	rows, err := s.db.Query(ctx, stmt)

@@ -35,7 +35,7 @@ func (s *Account) Create(account *core.Account) error {
 		account.Project.ID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
@@ -79,7 +79,7 @@ func (s *Account) Read(id string) (core.Account, error) {
 		&account.Project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
@@ -113,7 +113,7 @@ func (s *Account) Update(account core.Account) error {
 		account.Verified,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, args...)
@@ -133,7 +133,7 @@ func (s *Account) Delete(account core.Account) error {
 		DELETE FROM account
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, account.ID)
@@ -176,7 +176,7 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 		&account.Project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, email)
@@ -203,7 +203,7 @@ func (s *Account) CountByProject(project core.Project) (int, error) {
 
 	var count int
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, project.ID)

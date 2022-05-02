@@ -33,7 +33,7 @@ func (s *Schedule) Create(schedule *core.Schedule) error {
 		schedule.Project.ID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
@@ -73,7 +73,7 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 		&schedule.Project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
@@ -98,7 +98,7 @@ func (s *Schedule) Delete(schedule core.Schedule) error {
 		DELETE FROM schedule
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, schedule.ID)
@@ -127,7 +127,7 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 			ON project.id = schedule.project_id
 		WHERE project.id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	rows, err := s.db.Query(ctx, stmt, project.ID)

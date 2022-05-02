@@ -35,7 +35,7 @@ func (s *Transfer) Create(transfer *core.Transfer) error {
 		transfer.Project.ID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
@@ -107,7 +107,7 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 		&transfer.Project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
@@ -141,7 +141,7 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 		transfer.Schedule.ID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, args...)
@@ -161,7 +161,7 @@ func (s *Transfer) Delete(transfer core.Transfer) error {
 		DELETE FROM transfer
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, transfer.ID)
@@ -208,7 +208,7 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 		INNER JOIN project
 			ON project.id = transfer.project_id`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	rows, err := s.db.Query(ctx, stmt)
@@ -294,7 +294,7 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 			ON project.id = transfer.project_id
 		WHERE project.id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	rows, err := s.db.Query(ctx, stmt, project.ID)

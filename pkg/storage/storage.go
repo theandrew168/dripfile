@@ -7,7 +7,7 @@ import (
 )
 
 // default query timeout
-var queryTimeout = 3 * time.Second
+const timeout = 3 * time.Second
 
 // aggregation of core storage types
 type Storage struct {

@@ -34,7 +34,7 @@ func (s *Location) Create(location *core.Location) error {
 		location.Project.ID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
@@ -76,7 +76,7 @@ func (s *Location) Read(id string) (core.Location, error) {
 		&location.Project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
@@ -108,7 +108,7 @@ func (s *Location) Update(location core.Location) error {
 		location.Info,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, args...)
@@ -128,7 +128,7 @@ func (s *Location) Delete(location core.Location) error {
 		DELETE FROM location
 		WHERE id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, location.ID)
@@ -158,7 +158,7 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 			ON project.id = location.project_id
 		WHERE project.id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	rows, err := s.db.Query(ctx, stmt, project.ID)

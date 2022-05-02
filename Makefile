@@ -55,11 +55,11 @@ run-web:
 
 .PHONY: test
 test: run-migrate
-	go test -short -count=1 -v ./...
+	go test -short -count=1 ./...
 
 .PHONY: test-ui
 test-ui: run-migrate
-	go test -count=1 -v ./...
+	go test -count=1 ./...
 
 .PHONY: race
 race: run-migrate

@@ -36,7 +36,7 @@ func (s *History) Create(history *core.History) error {
 		history.Project.ID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
@@ -72,7 +72,7 @@ func (s *History) ReadAllByProject(project core.Project) ([]core.History, error)
 			ON transfer.id = history.transfer_id
 		WHERE project.id = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	rows, err := s.db.Query(ctx, stmt, project.ID)

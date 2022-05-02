@@ -32,7 +32,7 @@ func (s *Session) Create(session *core.Session) error {
 		session.Account.ID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, args...)
@@ -81,7 +81,7 @@ func (s *Session) Read(hash string) (core.Session, error) {
 		&session.Account.Project.SubscriptionItemID,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, hash)
@@ -102,7 +102,7 @@ func (s *Session) Delete(session core.Session) error {
 		DELETE FROM session
 		WHERE hash = $1`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt, session.Hash)
@@ -122,7 +122,7 @@ func (s *Session) DeleteExpired() error {
 		DELETE FROM session
 		WHERE expiry <= NOW()`
 
-	ctx, cancel := context.WithTimeout(context.Background(), queryTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	err := database.Exec(s.db, ctx, stmt)

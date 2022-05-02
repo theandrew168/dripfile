@@ -9,7 +9,7 @@ import (
 
 func TestEncryptDecrypt(t *testing.T) {
 	secretKeyBytes := random.Bytes(32)
-	
+
 	var secretKey [32]byte
 	copy(secretKey[:], secretKeyBytes)
 	box := secret.NewBox(secretKey)
