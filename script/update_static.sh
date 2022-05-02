@@ -5,11 +5,6 @@
 curl -L -o pkg/static/static/css/minireset.min.css  \
   https://raw.githubusercontent.com/jgthms/minireset.css/master/minireset.min.css
 
-# update bulma.css
-# https://bulma.io/
-curl -L -o pkg/static/static/css/bulma.min.css  \
-  https://cdn.jsdelivr.net/npm/bulma@latest/css/bulma.min.css
-
 # update Alpine.js
 # https://alpinejs.dev/
 curl -L -o pkg/static/static/js/alpine.min.js  \
