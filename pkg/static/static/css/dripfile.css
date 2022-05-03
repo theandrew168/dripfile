@@ -53,52 +53,19 @@
 }
 
 
-/* page */
+/* general */
 
-html {
+* {
 	font-family: var(--font-family);
-	height: 100%;
 	line-height: var(--line-height);
 }
 
-body {
-	display: flex;
-	flex-direction: column;
+html, body {
 	height: 100%;
 }
 
 
-/* navbar */
-
-nav {
-	align-items: center;
-	background-color: var(--color-primary);
-	display: flex;
-	justify-content: space-between;
-	padding: 1rem;
-}
-
-nav ul {
-	align-items: center;
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1.5rem;
-}
-
-nav ul a {
-	border-radius: var(--border-radius);
-	color: var(--color-white);
-	padding: 0.5rem;
-	text-decoration: none;
-}
-
-nav ul a:hover {
-	background-color: var(--color-primary-hover);
-}
-
-nav ul a.selected {
-	background-color: var(--color-primary-selected);
-}
+/* logo */
 
 .logo {
 	align-items: center;
@@ -116,6 +83,90 @@ nav ul a.selected {
 .logo span {
 	font-size: 1.5rem;
 	font-weight: bold;
+}
+
+
+/* site layout */
+
+body.site {
+	display: flex;
+	flex-direction: column;
+}
+
+
+/* site navbar (top) */
+
+.site nav {
+	align-items: center;
+	background-color: var(--color-primary);
+	display: flex;
+	justify-content: space-between;
+	padding: 1rem;
+}
+
+.site nav ul {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+}
+
+.site nav ul a {
+	border-radius: var(--border-radius);
+	color: var(--color-white);
+	padding: 0.5rem;
+	text-decoration: none;
+}
+
+.site nav ul a:hover {
+	background-color: var(--color-primary-hover);
+}
+
+
+/* app layout */
+
+body.app {
+	display: flex;
+	flex-direction: row;
+}
+
+
+/* app navbar (side) */
+.app header, .app nav {
+	height: 100%;
+}
+
+.app nav {
+	background-color: var(--color-primary);
+	padding: 1rem;
+	width: 16rem;
+}
+
+.app nav ul {
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	padding-top: 2rem;
+}
+
+.app nav ul a {
+	border-radius: var(--border-radius);
+	color: var(--color-white);
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	text-decoration: none;
+}
+
+.app nav ul a:hover {
+	background-color: var(--color-primary-hover);
+}
+
+.app nav ul a svg {
+	flex-shrink: 0;
+	height: 1.5rem;
+	width: 1.5rem;
 }
 
 
