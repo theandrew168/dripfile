@@ -193,7 +193,6 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	email := f.Get("email")
 	password := f.Get("password")
-	rememberMe := f.Get("remember-me")
 
 	account, err := app.storage.Account.ReadByEmail(email)
 	if err != nil {
@@ -232,14 +231,9 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// set cookie (session / permanent based on "Remember me")
-	if rememberMe != "" {
-		cookie := NewPermanentCookie(sessionIDCookieName, sessionID, expiry)
-		http.SetCookie(w, &cookie)
-	} else {
-		cookie := NewSessionCookie(sessionIDCookieName, sessionID)
-		http.SetCookie(w, &cookie)
-	}
+	// set permanent session cookie
+	cookie := NewPermanentCookie(sessionIDCookieName, sessionID, expiry)
+	http.SetCookie(w, &cookie)
 
 	app.logger.PrintInfo("account login", map[string]string{
 		"project_id": session.Account.Project.ID,
