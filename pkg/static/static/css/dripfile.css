@@ -87,6 +87,10 @@ body.site {
 	flex-direction: column;
 }
 
+.site main {
+	flex-grow: 1;
+	padding: 2rem;
+}
 
 /* site navbar (top) */
 .site nav {
