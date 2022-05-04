@@ -1,5 +1,4 @@
 /* variables */
-
 /* https://tailwindcss.com/docs/customizing-colors */
 :root {
 	--color-black: #000000;
@@ -38,14 +37,8 @@
 	--color-blue-800: #1e40af;
 	--color-blue-900: #1e3a8a;
 
-	--color-white-hover: var(--color-gray-200);
-	--color-danger: var(--color-red-500);
-	--color-danger-hover: var(--color-red-600);
-	--color-primary: var(--color-blue-600);
-	--color-primary-hover: var(--color-blue-500);
-	--color-primary-selected: var(--color-blue-700);
-
 	--border-radius: 0.5rem;
+	--box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
 	--font-family: "Nunito", sans-serif;
 	--justify-important: center;
 	--justify-normal: left;
@@ -54,7 +47,6 @@
 
 
 /* general */
-
 * {
 	font-family: var(--font-family);
 	line-height: var(--line-height);
@@ -64,9 +56,12 @@ html, body {
 	height: 100%;
 }
 
+h1 {
+	font-size: 2rem;
+}
+
 
 /* logo */
-
 .logo {
 	align-items: center;
 	color: var(--color-white);
@@ -87,7 +82,6 @@ html, body {
 
 
 /* site layout */
-
 body.site {
 	display: flex;
 	flex-direction: column;
@@ -95,10 +89,9 @@ body.site {
 
 
 /* site navbar (top) */
-
 .site nav {
 	align-items: center;
-	background-color: var(--color-primary);
+	background-color: var(--color-blue-600);
 	display: flex;
 	justify-content: space-between;
 	padding: 1rem;
@@ -119,25 +112,31 @@ body.site {
 }
 
 .site nav ul a:hover {
-	background-color: var(--color-primary-hover);
+	background-color: var(--color-blue-500);
 }
 
 
 /* app layout */
-
 body.app {
 	display: flex;
 	flex-direction: row;
 }
 
+.app main {
+	background-color: var(--color-gray-200);
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
 
 /* app navbar (side) */
-.app header, .app nav {
+.app .nav, .app nav {
 	height: 100%;
 }
 
 .app nav {
-	background-color: var(--color-primary);
+	background-color: var(--color-blue-600);
 	padding: 1rem;
 	width: 16rem;
 }
@@ -160,7 +159,7 @@ body.app {
 }
 
 .app nav ul a:hover {
-	background-color: var(--color-primary-hover);
+	background-color: var(--color-blue-500);
 }
 
 .app nav ul a svg {
@@ -170,18 +169,43 @@ body.app {
 }
 
 
-/* footer */
+/* app search bar (top) */
+.app .search {
+	background-color: var(--color-white);
+	box-shadow: var(--box-shadow);
+	padding: 1rem;
+	width: 100%;
+}
 
+
+/* app primary section */
+.app section {
+	background-color: var(--color-white);
+	border-radius: var(--border-radius);
+	box-shadow: var(--box-shadow);
+	margin: 1.5rem;
+	padding: 1rem;
+}
+
+.app section header {
+	align-items: center;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	padding-bottom: 2rem;
+}
+
+
+/* footer TODO */
 footer {
-	background-color: var(--color-primary);
+	background-color: var(--color-blue-600);
 	color: var(--color-white);
 	padding: 2.5rem;
 	text-align: center;
 }
 
 
-/* forms */
-
+/* forms TODO */
 form label,
 form small {
 	display: block;
@@ -201,7 +225,7 @@ fieldset p:last-child {
 
 button,
 .button {
-	background-color: var(--color-primary);
+	background-color: var(--color-blue-600);
 	border: 0;
 	border-radius: var(--border-radius);
 	color: var(--color-white);
@@ -212,18 +236,18 @@ button,
 
 button:hover,
 .button:hover {
-	background-color: var(--color-primary-hover);
+	background-color: var(--color-blue-500);
 }
 
 button.outline,
 .button.outline {
 	background-color: var(--color-white);
-	color: var(--color-primary);
+	color: var(--color-blue-600);
 }
 
 button.outline:hover,
 .button.outline:hover {
-	background-color: var(--color-white-hover);
+	background-color: var(--color-gray-200);
 }
 
 input {
@@ -235,50 +259,17 @@ select {
 }
 
 .danger {
-	background-color: var(--color-danger);
+	background-color: var(--color-red-500);
 }
 
 .danger:hover {
-	background-color: var(--color-danger-hover);
+	background-color: var(--color-red-600);
 }
 
 
-/* content sections */
-
-main {
-	flex-grow: 1;
-	padding: 2rem;
-}
-
-h1 {
-	font-size: 2.5rem;
-}
-
-h2 {
-	font-size: 2rem;
-}
-
-section {
-	margin: 0 auto;
-	max-width: 768px;
-}
-
-section header {
-	align-items: center;
-	display: flex;
-	justify-content: space-between;
-	padding-bottom: 2rem;
-}
-
-section header a {
-	flex-shrink: 0;
-}
-
-
-/* tables */
-
+/* tables TODO */
 table {
-	border: 1px solid var(--color-primary);
+	border: 1px solid var(--color-blue-600);
 	border-radius: var(--border-radius);
 	display: inline-block;
 	margin: 0 auto;
@@ -292,7 +283,7 @@ table tr {
 }
 
 table thead {
-	background-color: var(--color-primary);
+	background-color: var(--color-blue-600);
 	border-radius: var(--border-radius);
 	color: var(--color-white);
 }

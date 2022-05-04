@@ -2,7 +2,7 @@
 
 {{define "body"}}
 <body class="app">
-	<header>
+	<header class="nav">
 		<nav>
 			<a class="logo" href="/dashboard">
 				<img alt="DripFile Logo" src="/static/img/logo-white.svg">
@@ -56,6 +56,13 @@
 	</header>
 
 	<main>
+		<!-- search bar -->
+		<div class="search">
+			<form action="/dashboard" method="GET">
+				<input id="input-search" name="search" />
+			</form>
+		</div>
+
 		{{template "main" .}}
 	</main>
 </body>
