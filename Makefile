@@ -5,77 +5,55 @@
 default: build
 
 .PHONY: build
-build: build-migrate build-scheduler build-worker build-web
+build: frontend backend
 
-.PHONY: run
-run:
-	ENV=dev go run cmd/migrate/main.go
-	ENV=dev go run cmd/scheduler/main.go &
-	ENV=dev go run cmd/worker/main.go &
-	ENV=dev go run cmd/web/main.go
+node_modules:
+	npm install
 
-.PHONY: run-test
-run-test:
-	ENV=dev go run cmd/migrate/main.go -conf dripfile.conf.test
-	ENV=dev go run cmd/scheduler/main.go -conf dripfile.conf.test &
-	ENV=dev go run cmd/worker/main.go -conf dripfile.conf.test &
-	ENV=dev go run cmd/web/main.go -conf dripfile.conf.test
+.PHONY: frontend
+frontend: node_modules
+	npm run build
 
-.PHONY: build-migrate
-build-migrate:
-	go build -o dripfile-migrate cmd/migrate/main.go
+.PHONY: backend
+backend: frontend
+	go build -o dripfile main.go
 
-.PHONY: run-migrate
-run-migrate:
-	ENV=dev go run cmd/migrate/main.go
+.PHONY: run-frontend
+run-frontend: node_modules
+	npm run dev
 
-.PHONY: build-scheduler
-build-scheduler:
-	go build -o dripfile-scheduler cmd/scheduler/main.go
-
-.PHONY: run-scheduler
-run-scheduler:
-	ENV=dev go run cmd/scheduler/main.go
-
-.PHONY: build-worker
-build-worker:
-	go build -o dripfile-worker cmd/worker/main.go
+.PHONY: run-backend
+run-backend: backend
+	ENV=dev ./dripfile web
 
 .PHONY: run-worker
-run-worker:
-	ENV=dev go run cmd/worker/main.go
+run-worker: backend
+	ENV=dev ./dripfile worker
 
-.PHONY: build-web
-build-web:
-	go build -o dripfile-web cmd/web/main.go
+.PHONY: run-scheduler
+run-scheduler: backend
+	ENV=dev ./dripfile scheduler
 
-.PHONY: run-web
-run-web:
-	ENV=dev go run cmd/web/main.go
+.PHONY: run-migrate
+run-migrate: backend
+	ENV=dev ./dripfile migrate
+
+.PHONY: update
+update:
+	go get -u ./...
+	go mod tidy
+	npm update
 
 .PHONY: test
 test: run-migrate
-	go test -short -count=1 ./...
-
-.PHONY: test-ui
-test-ui: run-migrate
 	go test -count=1 ./...
 
 .PHONY: race
 race: run-migrate
-	go test -short -race -count=1 ./...
-
-.PHONY: race-ui
-race-ui: run-migrate
 	go test -race -count=1 ./...
 
 .PHONY: cover
 cover: run-migrate
-	go test -short -coverprofile=c.out -coverpkg=./... -count=1 ./...
-	go tool cover -html=c.out
-
-.PHONY: cover-ui
-cover-ui: run-migrate
 	go test -coverprofile=c.out -coverpkg=./... -count=1 ./...
 	go tool cover -html=c.out
 
@@ -83,15 +61,10 @@ cover-ui: run-migrate
 release:
 	goreleaser release --snapshot --rm-dist
 
-.PHONY: deploy-test
-deploy-test: release
-	scp dist/dripfile_linux_amd64.deb derz@test.dripfile.com:/tmp
-	ssh -t derz@test.dripfile.com sudo dpkg -i /tmp/dripfile_linux_amd64.deb
-
 .PHONY: format
 format:
-	go fmt ./...
+	gofmt -l -s -w .
 
 .PHONY: clean
 clean:
-	rm -fr dripfile-* c.out dist/
+	rm -fr dripfile c.out dist/ node_modules/

@@ -10,7 +10,7 @@ Restart=on-failure
 RestartSec=5
 User=dripfile
 Group=dripfile
-ExecStart=/usr/bin/dripfile-web -conf /etc/dripfile.conf
+ExecStart=/usr/bin/dripfile -conf /etc/dripfile.conf web
 
 [Install]
 WantedBy=multi-user.target

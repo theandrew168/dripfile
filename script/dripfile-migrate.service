@@ -10,7 +10,7 @@ Restart=on-failure
 RestartSec=5
 User=dripfile
 Group=dripfile
-ExecStart=/usr/bin/dripfile-migrate -conf /etc/dripfile.conf
+ExecStart=/usr/bin/dripfile -conf /etc/dripfile.conf migrate
 
 [Install]
 WantedBy=multi-user.target

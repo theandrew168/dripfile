@@ -3,36 +3,8 @@ before:
     - go mod tidy
 
 builds:
-  - id: dripfile-migrate
-    main: cmd/migrate/main.go
-    binary: dripfile-migrate
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-    goarch:
-      - amd64
-  - id: dripfile-scheduler
-    main: cmd/scheduler/main.go
-    binary: dripfile-scheduler
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-    goarch:
-      - amd64
-  - id: dripfile-worker
-    main: cmd/worker/main.go
-    binary: dripfile-worker
-    env:
-      - CGO_ENABLED=0
-    goos:
-      - linux
-    goarch:
-      - amd64
-  - id: dripfile-web
-    main: cmd/web/main.go
-    binary: dripfile-web
+  - main: main.go
+    binary: dripfile
     env:
       - CGO_ENABLED=0
     goos:
@@ -49,8 +21,7 @@ archives:
         format: zip
 
 nfpms:
-  - id: dripfile
-    package_name: dripfile
+  - package_name: dripfile
     file_name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     homepage: https://github.com/theandrew168/dripfile
     maintainer: Andrew Dailey <andrew@shallowbrooksoftware.com>
