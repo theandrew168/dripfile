@@ -27,17 +27,30 @@ docker compose down
 ```
 
 ### Running
-If working on the frontend, start the frontend web server:
+To apply any pending database migrations:
+```bash
+make run-migrate
+```
+
+To start the frontend web server:
 ```bash
 make run-frontend
 ```
 
-If working on the backend, start the backend web server:
+To start the backend web server:
 ```bash
 make run-backend
 ```
 
-If working on both, start both servers in separate terminals.
+To start the periodic task scheduler:
+```bash
+make run-worker
+```
+
+To start a background task worker:
+```bash
+make run-worker
+```
 
 ### Testing
 Unit and integration tests can be ran after starting the aforementioned services:
