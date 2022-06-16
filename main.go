@@ -15,7 +15,7 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 
-	"github.com/theandrew168/dripfile/backend/app"
+	"github.com/theandrew168/dripfile/backend/api"
 	"github.com/theandrew168/dripfile/backend/config"
 	"github.com/theandrew168/dripfile/backend/database"
 	"github.com/theandrew168/dripfile/backend/jsonlog"
@@ -24,6 +24,7 @@ import (
 	"github.com/theandrew168/dripfile/backend/storage"
 	"github.com/theandrew168/dripfile/backend/stripe"
 	"github.com/theandrew168/dripfile/backend/task"
+	"github.com/theandrew168/dripfile/backend/web"
 )
 
 func main() {
@@ -112,12 +113,14 @@ func run() int {
 		return 1
 	}
 
-	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
-	handler := app.New(cfg, logger, store, queue, box, billing)
+	fmt.Println(cfg, logger, store, queue, box, billing)
+	apiApp := api.NewApplication(logger)
+	webApp := web.NewApplication(logger)
 
+	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 	srv := &http.Server{
 		Addr:    addr,
-		Handler: handler,
+		Handler: webApp.Handler(apiApp.Handler()),
 
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,

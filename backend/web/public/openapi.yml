@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Civet REST API
+  title: DripFile REST API
   description: Programmatic access to projects and issues
   version: 1.0.0
 servers:
