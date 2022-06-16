@@ -58,6 +58,10 @@ Unit and integration tests can be ran after starting the aforementioned services
 make test
 ```
 
+## Innovation Tokens
+* SvelteJS frontend
+* Asynq task queue
+
 ## Features
 * Managed file transfer (MFT) as a service
 * Schedule-based transfers
