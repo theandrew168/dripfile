@@ -1,19 +1,19 @@
 # dripfile
 Managed file transfer as a service
 
-## Design
-This project is broken up into four sub-programs:
-* `dripfile-migrate` - compares and applies database migrations
-* `dripfile-scheduler` - manages transfer schedules and publishes them to the queue
-* `dripfile-worker` - watches the queue and performs file transfers
-* `dripfile-web` - primary CRUD application web server
-
 ## Setup
-This project depends on the [Go programming language](https://golang.org/dl/)
+This project depends on the [Go programming language](https://golang.org/dl/) and [NodeJS](https://nodejs.org/en/).
 
-## Database
-This project uses [PostgreSQL](https://www.postgresql.org/) for persistent storage.
-To develop locally, you'll an instance of the database running somehow or another.
+## Building
+To build the application into a standalone binary, run:
+```bash
+make
+```
+
+## Local Development
+### Services
+This project uses [PostgreSQL](https://www.postgresql.org/) for persistent storage, [MinIO](https://min.io/) for object storage, [Asynq](https://github.com/hibiken/asynq) for background jobs, and [Redis](https://redis.io/) for caching.
+To develop locally, you'll need to run these services locally somehow or another.
 I find [Docker](https://www.docker.com/) to be a nice tool for this but you can do whatever works best.
 
 The following command starts the necessary containers:
@@ -26,30 +26,23 @@ These containers can be stopped via:
 docker compose down
 ```
 
-## Running
-If actively working on frontend templates, set `ENV=dev` to tell the server to reload templates from the filesystem on every page load.
-Apply database migrations, run whichever components you need (in background processes), and then start the web server:
+### Running
+If working on the frontend, start the frontend web server:
 ```bash
-# make run
-ENV=dev go run cmd/migrate/main.go
-ENV=dev go run cmd/scheduler/main.go &
-ENV=dev go run cmd/worker/main.go &
-ENV=dev go run cmd/web/main.go
+make run-frontend
 ```
 
-## Testing
-Unit and integration tests can be ran after starting the necessary containers and applying database migrations:
+If working on the backend, start the backend web server:
 ```bash
-# make test
-ENV=dev go run cmd/migrate/main.go
-go test -short -count=1 -v ./...
+make run-backend
 ```
 
-UI tests require [Google Chrome](https://www.google.com/chrome/) to be installed in addition to the aforementioned containers and migrations:
+If working on both, start both servers in separate terminals.
+
+### Testing
+Unit and integration tests can be ran after starting the aforementioned services:
 ```bash
-# make test-ui
-ENV=dev go run cmd/migrate/main.go
-go test -count=1 -v ./...
+make test
 ```
 
 ## Features
@@ -69,7 +62,7 @@ go test -count=1 -v ./...
 * Choose from common schedules or build your own
 * Database backups (postgresql, mysql, mongodb)
 
-## Test Cases
+## User Stories
 * Guest registers and is logged in
 * Guest logs in
 * User verifies their email address (required to log in?)
