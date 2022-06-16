@@ -23,7 +23,6 @@ import (
 	"github.com/theandrew168/dripfile/backend/secret"
 	"github.com/theandrew168/dripfile/backend/storage"
 	"github.com/theandrew168/dripfile/backend/stripe"
-	"github.com/theandrew168/dripfile/backend/task"
 	"github.com/theandrew168/dripfile/backend/web"
 )
 
@@ -61,7 +60,6 @@ func run() int {
 	defer pool.Close()
 
 	store := storage.New(pool)
-	queue := task.NewQueue(pool)
 
 	// init the stripe billing interface
 	var billing stripe.Billing
@@ -113,7 +111,7 @@ func run() int {
 		return 1
 	}
 
-	fmt.Println(cfg, logger, store, queue, box, billing)
+	fmt.Println(cfg, logger, store, box, billing)
 	apiApp := api.NewApplication(logger)
 	webApp := web.NewApplication(logger)
 
