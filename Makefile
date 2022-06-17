@@ -61,9 +61,15 @@ cover: run-migrate
 release:
 	goreleaser release --snapshot --rm-dist
 
+.PHONY: lint
+lint:
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fast --issues-exit-code 0
+	npm run lint
+
 .PHONY: format
 format:
 	gofmt -l -s -w .
+	npm run format
 
 .PHONY: clean
 clean:
