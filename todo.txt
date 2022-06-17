@@ -1,15 +1,10 @@
-unit / integration tests for current behavior
-revamp UI tests and the code structure
 consistent bytes unit (MB?)
 tmp and swap for file transfers
 adhoc schedule (do nothing til ran manually)
-logout everywhere
-style revamp
 other file servers (sftp, ftp, ftps)
 show something on dashboard
 add other users to project
 actual RBAC
 verify payment response securely (webhook?)
-prometheus / loki / grafana
 business layer for account create, etc?
 atomic DB ops for certain things
