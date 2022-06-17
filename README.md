@@ -59,8 +59,9 @@ make test
 ```
 
 ## Innovation Tokens
-* SvelteJS frontend
-* Asynq task queue
+* SPA frontend + REST API backend
+* SvelteJS (frontend library)
+* Asynq (task queue)
 
 ## Features
 * Managed file transfer (MFT) as a service
