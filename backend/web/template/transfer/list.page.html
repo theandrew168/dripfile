@@ -1,0 +1,39 @@
+{{template "body" .}}
+
+{{define "title"}}Transfers{{end}}
+
+{{define "main"}}
+<section id="page-transfer-list">
+
+	<header>
+		<h1>Transfers</h1>
+		<a id="action-create" href="/transfer/create" class="button">Create Transfer</a>
+	</header>
+
+	{{with .Transfers}}
+	<table>
+		<thead>
+			<tr>
+				<th>Src</th>
+				<th>Dst</th>
+				<th>Schedule</th>
+				<th>Pattern</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{{range .}}
+			<tr>
+				<td><a href="/location/{{.Src.ID}}">{{.Src.Name}}</a></td>
+				<td><a href="/location/{{.Dst.ID}}">{{.Dst.Name}}</a></td>
+				<td><a href="/schedule/{{.Schedule.ID}}">{{.Schedule.Name}}</a></td>
+				<td>{{.Pattern}}</td>
+				<td><a href="/transfer/{{.ID}}">Details</a></td>
+			</tr>
+			{{end}}
+		</tbody>
+	</table>
+	{{end}}
+
+</section>
+{{end}}

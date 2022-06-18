@@ -1,0 +1,31 @@
+{{template "body" .}}
+
+{{define "title"}}Locations{{end}}
+
+{{define "main"}}
+<section id="page-location-list">
+
+	<header>
+		<h1>Locations</h1>
+		<a id="action-create" href="/location/create" class="button">Create Location</a>
+	</header>
+
+	{{with .Locations}}
+	<table>
+		<thead>
+			<tr>
+				<th>Kind</th>
+				<th>Name</th>
+			</tr>
+		</thead>
+		{{range .}}
+		<tr>
+			<td>{{.Kind}}</td>
+			<td><a href="/location/{{.ID}}">{{.Name}}</a></td>
+		</tr>
+		{{end}}
+	</table>
+	{{end}}
+
+</section>
+{{end}}

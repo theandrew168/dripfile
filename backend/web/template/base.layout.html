@@ -1,0 +1,22 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>{{template "title" .}} - DripFile</title>
+
+	<meta charset="utf-8" />
+	<meta name="description" content="Managed File Transfer as a Service" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<link rel="stylesheet" href="/static/css/minireset.min.css" />
+	<link rel="stylesheet" href="/static/css/nunito.font.css" />
+	<link rel="stylesheet" href="/static/css/dripfile.css" />
+	<script src="/static/js/alpine.min.js" defer></script>
+	<script src="/static/js/htmx.min.js" defer></script>
+</head>
+
+{{template "body" .}}
+
+</html>
+{{end}}

@@ -1,0 +1,42 @@
+{{template "body" .}}
+
+{{define "title"}}Create Location{{end}}
+
+{{define "main"}}
+<section id="page-location-create">
+	{{with .Form}}
+	<form action="/location/create" method="POST">
+		<fieldset>
+			<legend>Create Location: S3 Bucket</legend>
+
+			<p>
+				<label for="input-endpoint">Endpoint</label>
+				<input id="input-endpoint" name="endpoint" type="text" value='{{.Get "endpoint"}}' />
+			</p>
+
+			<p>
+				<label for="input-bucket-name">Bucket Name</label>
+				<input id="input-bucket-name" name="bucket-name" type="text" value='{{.Get "bucket-name"}}' />
+			</p>
+
+			<p>
+				<label for="input-access-key-id">Access Key ID</label>
+				<input id="input-access-key-id" name="access-key-id" type="text" value='{{.Get "access-key-id"}}' />
+			</p>
+
+			<p>
+				<label for="input-secret-access-key">Secret Access Key</label>
+				<input id="input-secret-access-key" name="secret-access-key" type="password" />
+			</p>
+
+			<p>
+				{{with .Errors.Get "general"}}
+				<small id="error-general">{{.}}</small>
+				{{end}}
+				<button id="submit-create" type="submit">Create</button>
+			</p>
+		</fieldset>
+	</form>
+	{{end}}
+</section>
+{{end}}

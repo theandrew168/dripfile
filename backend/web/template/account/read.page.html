@@ -1,0 +1,23 @@
+{{template "body" .}}
+
+{{define "title"}}Profile{{end}}
+
+{{define "main"}}
+<section id="page-account-read">
+	<header>
+		<h1>Account</h1>
+		<form action="/logout" method="POST">
+			<p><button id="submit-logout" type="submit">Logout</button></p>
+		</form>
+	</header>
+
+	{{with .Account}}
+	<form action="/account/delete" method="POST">
+		<p>
+			<input id="id" name="id" type="hidden" value="{{.ID}}" />
+			<button id="submit-delete" type="submit" class="danger">Delete</button>
+		</p>
+	</form>
+	{{end}}
+</section>
+{{end}}

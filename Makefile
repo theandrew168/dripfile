@@ -5,25 +5,11 @@
 default: build
 
 .PHONY: build
-build: frontend backend
-
-node_modules:
-	npm install
-
-.PHONY: frontend
-frontend: node_modules
-	npm run build
-
-.PHONY: backend
-backend: frontend
+build:
 	go build -o dripfile main.go
 
-.PHONY: run-frontend
-run-frontend: node_modules
-	npm run dev
-
-.PHONY: run-backend
-run-backend: backend
+.PHONY: run
+run: build
 	ENV=dev ./dripfile web
 
 .PHONY: run-worker
@@ -42,7 +28,6 @@ run-migrate: backend
 update:
 	go get -u ./...
 	go mod tidy
-	npm update
 
 .PHONY: test
 test: run-migrate
@@ -64,13 +49,11 @@ release:
 .PHONY: lint
 lint:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fast --issues-exit-code 0
-	npm run lint
 
 .PHONY: format
 format:
 	gofmt -l -s -w .
-	npm run format
 
 .PHONY: clean
 clean:
-	rm -fr dripfile c.out dist/ node_modules/
+	rm -fr dripfile c.out dist/

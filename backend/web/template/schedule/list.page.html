@@ -1,0 +1,29 @@
+{{define "title"}}Schedules{{end}}
+
+{{define "main"}}
+<section id="page-schedule-list">
+
+	<header>
+		<h1>Schedules</h1>
+		<a id="action-create" href="/schedule/create" class="button">Create Schedule</a>
+	</header>
+
+	{{with .Schedules}}
+	<table>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Expr</th>
+			</tr>
+		</thead>
+		{{range .}}
+		<tr>
+			<td><a href="/schedule/{{.ID}}">{{.Name}}</a></td>
+			<td>{{.Expr}}</td>
+		</tr>
+		{{end}}
+	</table>
+	{{end}}
+
+</section>
+{{end}}

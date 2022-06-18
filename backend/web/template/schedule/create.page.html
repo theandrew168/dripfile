@@ -1,0 +1,28 @@
+{{define "title"}}Create Schedule{{end}}
+
+{{define "main"}}
+<section id="page-schedule-create">
+	{{with .Form}}
+	<form action="/schedule/create" method="POST">
+		<fieldset>
+			<legend>Create Schedule</legend>
+
+			<p>
+				<label for="input-expr">Expr</label>
+				{{with .Errors.Get "expr"}}
+				<small id="error-expr">{{.}}</small>
+				{{end}}
+				<input id="input-expr" name="expr" type="text" value='{{.Get "expr"}}' />
+			</p>
+
+			<p>
+				{{with .Errors.Get "general"}}
+				<small id="error-general">{{.}}</small>
+				{{end}}
+				<button id="submit-create" type="submit">Create</button>
+			</p>
+		</fieldset>
+	</form>
+	{{end}}
+</section>
+{{end}}

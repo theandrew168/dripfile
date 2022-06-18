@@ -1,0 +1,37 @@
+{{template "body" .}}
+
+{{define "title"}}Location{{end}}
+
+{{define "main"}}
+<section id="page-location-read">
+	<header>
+		<h1>Location</h1>
+		<a id="action-create" href="/location/create" class="button">Create Location</a>
+	</header>
+
+	{{with .Location}}
+	<p>
+		<h2>ID</h2>
+		<p>{{.ID}}</p>
+	</p>
+
+	<p>
+		<h2>Kind</h2>
+		<p>{{.Kind}}</p>
+	</p>
+
+	<p>
+		<h2>Name</h2>
+		<p>{{.Name}}</p>
+	</p>
+
+	<br>
+	<form action="/location/delete" method="POST">
+		<p>
+			<input id="id" name="id" type="hidden" value="{{.ID}}" />
+			<button id="submit-delete" type="submit" class="danger">Delete</button>
+		</p>
+	</form>
+	{{end}}
+</section>
+{{end}}

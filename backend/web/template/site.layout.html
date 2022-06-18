@@ -1,0 +1,26 @@
+{{template "base" .}}
+
+{{define "body"}}
+<body class="site">
+	<header class="nav">
+		<nav>
+			<a class="logo" href="/">
+				<img alt="DripFile Logo" src="/static/img/logo-white.svg">
+				<span>DripFile</span>
+			</a>
+			<ul>
+				<li><a class="button outline" id="nav-register" href="/register">Register</a></li>
+				<li><a id="nav-login" href="/dashboard">Login</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		{{template "main" .}}
+	</main>
+
+	<footer>
+		<p>&copy; 2022 Shallow Brook Software LLC. All rights reserved.</p>
+	</footer>
+</body>
+{{end}}

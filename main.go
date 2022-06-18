@@ -111,9 +111,8 @@ func run() int {
 		return 1
 	}
 
-	fmt.Println(cfg, logger, store, box, billing)
 	apiApp := api.NewApplication(logger)
-	webApp := web.NewApplication(logger)
+	webApp := web.NewApplication(logger, cfg, store, box, billing)
 
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 	srv := &http.Server{
