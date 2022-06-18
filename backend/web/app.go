@@ -17,6 +17,12 @@ import (
 	"github.com/theandrew168/dripfile/backend/stripe"
 )
 
+//go:embed static/img/logo-white.svg
+var Favicon []byte
+
+//go:embed static/etc/robots.txt
+var Robots []byte
+
 //go:embed static
 var staticFS embed.FS
 
@@ -90,6 +96,16 @@ func (app *Application) Handler(api http.Handler) http.Handler {
 
 	// prometheus metrics
 	mux.Handle("/metrics", promhttp.Handler(), "GET")
+
+	// top-level static files
+	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "image/svg+xml")
+		w.Write(Favicon)
+	})
+	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write(Robots)
+	})
 
 	// static files
 	staticServer := http.FileServer(http.FS(app.static))
