@@ -6,7 +6,7 @@ This project depends on the [Go programming language](https://golang.org/dl/).
 
 ## Building
 To build the application into a standalone binary, run:
-```bash
+```
 make
 ```
 
@@ -17,39 +17,39 @@ To develop locally, you'll need to run these services locally somehow or another
 I find [Docker](https://www.docker.com/) to be a nice tool for this but you can do whatever works best.
 
 The following command starts the necessary containers:
-```bash
+```
 docker compose up -d
 ```
 
 These containers can be stopped via:
-```bash
+```
 docker compose down
 ```
 
 ### Running
 To start the web server:
-```bash
+```
 make web
 ```
 
 To start the periodic task scheduler:
-```bash
+```
 make scheduler
 ```
 
 To start a background task worker:
-```bash
+```
 make worker
 ```
 
 To apply any pending database migrations:
-```bash
+```
 make migrate
 ```
 
 ### Testing
 Unit and integration tests can be ran after starting the aforementioned services:
-```bash
+```
 make test
 ```
 
