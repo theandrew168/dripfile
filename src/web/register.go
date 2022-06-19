@@ -11,6 +11,7 @@ import (
 
 	"github.com/theandrew168/dripfile/src/core"
 	"github.com/theandrew168/dripfile/src/form"
+	"github.com/theandrew168/dripfile/src/task"
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
@@ -116,26 +117,26 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	//	// send welcome email
-	//	t, err := task.SendEmail(
-	//		"DripFile",
-	//		"info@dripfile.com",
-	//		account.Email,
-	//		account.Email,
-	//		"Welcome to DripFile!",
-	//		"Thanks for signing up with DripFile! I hope this adds some value.",
-	//	)
-	//	if err != nil {
-	//		app.serverErrorResponse(w, r, err)
-	//		return
-	//	}
-	//
-	//	// submit email task
-	//	err = app.queue.Push(t)
-	//	if err != nil {
-	//		app.serverErrorResponse(w, r, err)
-	//		return
-	//	}
+	// send welcome email
+	t, err := task.NewEmailSendTask(
+		"DripFile",
+		"info@dripfile.com",
+		account.Email,
+		account.Email,
+		"Welcome to DripFile!",
+		"Thanks for signing up with DripFile! I hope this adds some value.",
+	)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// submit email task
+	_, err = app.queue.Enqueue(t)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 
 	// set cookie (just a session cookie after registration)
 	cookie := NewSessionCookie(sessionIDCookieName, sessionID)

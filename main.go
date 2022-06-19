@@ -20,10 +20,12 @@ import (
 	"github.com/theandrew168/dripfile/src/config"
 	"github.com/theandrew168/dripfile/src/database"
 	"github.com/theandrew168/dripfile/src/jsonlog"
+	"github.com/theandrew168/dripfile/src/mail"
 	"github.com/theandrew168/dripfile/src/migrate"
 	"github.com/theandrew168/dripfile/src/secret"
 	"github.com/theandrew168/dripfile/src/storage"
 	"github.com/theandrew168/dripfile/src/stripe"
+	"github.com/theandrew168/dripfile/src/task"
 	"github.com/theandrew168/dripfile/src/web"
 )
 
@@ -60,23 +62,6 @@ func run() int {
 	}
 	defer pool.Close()
 
-	store := storage.New(pool)
-	queue := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.RedisAddr})
-	defer queue.Close()
-
-	// init the stripe billing interface
-	var billing stripe.Billing
-	if cfg.StripeSecretKey != "" {
-		billing = stripe.NewBilling(
-			logger,
-			cfg.StripeSecretKey,
-			cfg.SiteURL+"/billing/success",
-			cfg.SiteURL+"/billing/cancel",
-		)
-	} else {
-		billing = stripe.NewMockBilling(logger)
-	}
-
 	// check for action (default web)
 	args := flag.Args()
 	var action string
@@ -96,6 +81,40 @@ func run() int {
 		return 0
 	}
 
+	store := storage.New(pool)
+
+	redis, err := asynq.ParseRedisURI(cfg.RedisURI)
+	if err != nil {
+		logger.Error(err, nil)
+		return 1
+	}
+
+	queue := asynq.NewClient(redis)
+	defer queue.Close()
+
+	// init the mailer interface
+	var mailer mail.Mailer
+	if cfg.PostmarkAPIKey != "" {
+		mailer = mail.NewPostmarkMailer(cfg.PostmarkAPIKey)
+	} else {
+		logger.Infof("using mock mailer")
+		mailer = mail.NewMockMailer(logger)
+	}
+
+	// init the stripe billing interface
+	var billing stripe.Billing
+	if cfg.StripeSecretKey != "" {
+		billing = stripe.NewBilling(
+			logger,
+			cfg.StripeSecretKey,
+			cfg.SiteURL+"/billing/success",
+			cfg.SiteURL+"/billing/cancel",
+		)
+	} else {
+		logger.Infof("using mock billing")
+		billing = stripe.NewMockBilling(logger)
+	}
+
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
 		logger.Infof("TODO: scheduler")
@@ -104,8 +123,13 @@ func run() int {
 
 	// worker: run worker forever
 	if action == "worker" {
-		logger.Infof("TODO: worker")
-		return 1
+		worker := task.NewWorker(cfg, logger, mailer)
+		err := worker.Run()
+		if err != nil {
+			logger.Error(err, nil)
+			return 1
+		}
+		return 0
 	}
 
 	// web: run web server forever (default)
@@ -116,7 +140,7 @@ func run() int {
 
 	// instantiate applications (DI happens here)
 	apiApp := api.NewApplication(logger)
-	webApp := web.NewApplication(logger, cfg, store, queue, box, billing)
+	webApp := web.NewApplication(cfg, logger, store, queue, box, billing)
 
 	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)

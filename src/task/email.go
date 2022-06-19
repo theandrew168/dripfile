@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 
 	"github.com/hibiken/asynq"
-
-	"github.com/theandrew168/dripfile/src/mail"
 )
 
 const (
@@ -40,18 +38,7 @@ func NewEmailSendTask(fromName, fromEmail, toName, toEmail, subject, body string
 	return asynq.NewTask(TypeEmailSend, js), nil
 }
 
-type EmailSendWorker struct {
-	mailer mail.Mailer
-}
-
-func NewEmailSendWorker(mailer mail.Mailer) *EmailSendWorker {
-	w := EmailSendWorker{
-		mailer: mailer,
-	}
-	return &w
-}
-
-func (w *EmailSendWorker) ProcessTask(ctx context.Context, t *asynq.Task) error {
+func (w *Worker) HandleEmailSend(ctx context.Context, t *asynq.Task) error {
 	var payload EmailSendPayload
 	err := json.Unmarshal(t.Payload(), &payload)
 	if err != nil {

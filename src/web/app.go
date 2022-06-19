@@ -34,8 +34,8 @@ type Application struct {
 	static   fs.FS
 	template fs.FS
 
-	logger  *jsonlog.Logger
 	cfg     config.Config
+	logger  *jsonlog.Logger
 	storage *storage.Storage
 	queue   *asynq.Client
 	box     *secret.Box
@@ -43,8 +43,8 @@ type Application struct {
 }
 
 func NewApplication(
-	logger *jsonlog.Logger,
 	cfg config.Config,
+	logger *jsonlog.Logger,
 	storage *storage.Storage,
 	queue *asynq.Client,
 	box *secret.Box,
@@ -74,8 +74,8 @@ func NewApplication(
 		static:   static,
 		template: template,
 
-		logger:  logger,
 		cfg:     cfg,
+		logger:  logger,
 		storage: storage,
 		queue:   queue,
 		box:     box,
