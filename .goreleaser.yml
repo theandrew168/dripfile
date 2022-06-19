@@ -32,12 +32,16 @@ nfpms:
     contents:
       - src: script/dripfile-migrate.service
         dst: /lib/systemd/system/dripfile-migrate.service
+        type: config
       - src: script/dripfile-scheduler.service
         dst: /lib/systemd/system/dripfile-scheduler.service
+        type: config
       - src: script/dripfile-worker.service
         dst: /lib/systemd/system/dripfile-worker.service
+        type: config
       - src: script/dripfile-web.service
         dst: /lib/systemd/system/dripfile-web.service
+        type: config
       - src: script/dripfile.conf
         dst: /etc/dripfile.conf
         type: config
