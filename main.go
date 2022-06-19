@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
+	"github.com/hibiken/asynq"
 
 	"github.com/theandrew168/dripfile/src/api"
 	"github.com/theandrew168/dripfile/src/config"
@@ -60,6 +61,8 @@ func run() int {
 	defer pool.Close()
 
 	store := storage.New(pool)
+	queue := asynq.NewClient(asynq.RedisClientOpt{Addr: cfg.RedisAddr})
+	defer queue.Close()
 
 	// init the stripe billing interface
 	var billing stripe.Billing
@@ -113,7 +116,7 @@ func run() int {
 
 	// instantiate applications (DI happens here)
 	apiApp := api.NewApplication(logger)
-	webApp := web.NewApplication(logger, cfg, store, box, billing)
+	webApp := web.NewApplication(logger, cfg, store, queue, box, billing)
 
 	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)

@@ -14,6 +14,7 @@ type Config struct {
 	SiteURL         string `toml:"site_url"`
 	SecretKey       string `toml:"secret_key"`
 	DatabaseURI     string `toml:"database_uri"`
+	RedisAddr       string `toml:"redis_addr"`
 	PostmarkAPIKey  string `toml:"postmark_api_key"`
 	StripeSecretKey string `toml:"stripe_secret_key"`
 	Port            string `toml:"port"`
@@ -53,6 +54,7 @@ func Read(data string) (Config, error) {
 		"site_url",
 		"secret_key",
 		"database_uri",
+		"redis_addr",
 	}
 
 	// gather missing values

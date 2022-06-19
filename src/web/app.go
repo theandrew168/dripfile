@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alexedwards/flow"
+	"github.com/hibiken/asynq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/theandrew168/dripfile/src/config"
@@ -36,6 +37,7 @@ type Application struct {
 	logger  *jsonlog.Logger
 	cfg     config.Config
 	storage *storage.Storage
+	queue   *asynq.Client
 	box     *secret.Box
 	billing stripe.Billing
 }
@@ -44,6 +46,7 @@ func NewApplication(
 	logger *jsonlog.Logger,
 	cfg config.Config,
 	storage *storage.Storage,
+	queue *asynq.Client,
 	box *secret.Box,
 	billing stripe.Billing,
 ) *Application {
@@ -74,6 +77,7 @@ func NewApplication(
 		logger:  logger,
 		cfg:     cfg,
 		storage: storage,
+		queue:   queue,
 		box:     box,
 		billing: billing,
 	}
