@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/theandrew168/dripfile/src/core"
+	"github.com/theandrew168/dripfile/src/database"
 	"github.com/theandrew168/dripfile/src/random"
 	"github.com/theandrew168/dripfile/src/test"
 )
@@ -33,7 +34,7 @@ func TestProject(t *testing.T) {
 
 	// duplicate
 	err = storage.Project.Create(&project)
-	if !errors.Is(err, core.ErrExist) {
+	if !errors.Is(err, database.ErrExist) {
 		t.Fatal("duplicate record should return an error")
 	}
 
@@ -99,7 +100,7 @@ func TestProject(t *testing.T) {
 
 	// verify that ID isn't present anymore
 	_, err = storage.Project.Read(project.ID)
-	if !errors.Is(err, core.ErrNotExist) {
+	if !errors.Is(err, database.ErrNotExist) {
 		t.Fatal("record ID should be gone after delete")
 	}
 }

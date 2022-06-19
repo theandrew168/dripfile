@@ -37,7 +37,7 @@ func (s *Session) Create(session *core.Session) error {
 
 	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(session)
 		}
 
@@ -87,7 +87,7 @@ func (s *Session) Read(hash string) (core.Session, error) {
 	row := s.db.QueryRow(ctx, stmt, hash)
 	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(hash)
 		}
 
@@ -107,7 +107,7 @@ func (s *Session) Delete(session core.Session) error {
 
 	err := database.Exec(s.db, ctx, stmt, session.Hash)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(session)
 		}
 
@@ -127,7 +127,7 @@ func (s *Session) DeleteExpired() error {
 
 	err := database.Exec(s.db, ctx, stmt)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.DeleteExpired()
 		}
 

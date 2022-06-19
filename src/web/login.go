@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/theandrew168/dripfile/src/core"
+	"github.com/theandrew168/dripfile/src/database"
 	"github.com/theandrew168/dripfile/src/form"
 )
 
@@ -55,7 +56,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	account, err := app.storage.Account.ReadByEmail(email)
 	if err != nil {
-		if errors.Is(err, core.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			f.Errors.Add("email", "Invalid email")
 			app.render(w, r, files, data)
 			return

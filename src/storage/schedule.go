@@ -39,7 +39,7 @@ func (s *Schedule) Create(schedule *core.Schedule) error {
 	row := s.db.QueryRow(ctx, stmt, args...)
 	err := database.Scan(row, &schedule.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(schedule)
 		}
 
@@ -79,7 +79,7 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 	row := s.db.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -103,7 +103,7 @@ func (s *Schedule) Delete(schedule core.Schedule) error {
 
 	err := database.Exec(s.db, ctx, stmt, schedule.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(schedule)
 		}
 
@@ -150,7 +150,7 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 
 		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, core.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAllByProject(project)
 			}
 

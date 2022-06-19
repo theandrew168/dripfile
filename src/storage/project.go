@@ -38,7 +38,7 @@ func (s *Project) Create(project *core.Project) error {
 	row := s.db.QueryRow(ctx, stmt, args...)
 	err := database.Scan(row, &project.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(project)
 		}
 
@@ -70,7 +70,7 @@ func (s *Project) Read(id string) (core.Project, error) {
 	row := s.db.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -99,7 +99,7 @@ func (s *Project) Update(project core.Project) error {
 
 	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Update(project)
 		}
 
@@ -119,7 +119,7 @@ func (s *Project) Delete(project core.Project) error {
 
 	err := database.Exec(s.db, ctx, stmt, project.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(project)
 		}
 
@@ -157,7 +157,7 @@ func (s *Project) ReadAll() ([]core.Project, error) {
 
 		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, core.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAll()
 			}
 

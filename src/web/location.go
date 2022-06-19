@@ -8,6 +8,7 @@ import (
 	"github.com/alexedwards/flow"
 
 	"github.com/theandrew168/dripfile/src/core"
+	"github.com/theandrew168/dripfile/src/database"
 	"github.com/theandrew168/dripfile/src/fileserver"
 	"github.com/theandrew168/dripfile/src/form"
 )
@@ -51,7 +52,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 	id := flow.Param(r.Context(), "id")
 	location, err := app.storage.Location.Read(id)
 	if err != nil {
-		if errors.Is(err, core.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			app.notFoundResponse(w, r)
 			return
 		}

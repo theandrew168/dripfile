@@ -8,6 +8,7 @@ import (
 	"github.com/lnquy/cron"
 
 	"github.com/theandrew168/dripfile/src/core"
+	"github.com/theandrew168/dripfile/src/database"
 	"github.com/theandrew168/dripfile/src/form"
 )
 
@@ -61,7 +62,7 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 	id := flow.Param(r.Context(), "id")
 	schedule, err := app.storage.Schedule.Read(id)
 	if err != nil {
-		if errors.Is(err, core.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			app.notFoundResponse(w, r)
 			return
 		}

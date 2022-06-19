@@ -10,6 +10,7 @@ import (
 	"github.com/hibiken/asynq"
 
 	"github.com/theandrew168/dripfile/src/core"
+	"github.com/theandrew168/dripfile/src/database"
 	"github.com/theandrew168/dripfile/src/fileserver"
 )
 
@@ -48,7 +49,7 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 	transfer, err := w.storage.Transfer.Read(payload.TransferID)
 	if err != nil {
 		// transfer has since been deleted
-		if errors.Is(err, core.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			return nil
 		}
 		return err

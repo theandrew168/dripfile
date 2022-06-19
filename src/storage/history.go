@@ -42,7 +42,7 @@ func (s *History) Create(history *core.History) error {
 	row := s.db.QueryRow(ctx, stmt, args...)
 	err := database.Scan(row, &history.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(history)
 		}
 
@@ -95,7 +95,7 @@ func (s *History) ReadAllByProject(project core.Project) ([]core.History, error)
 
 		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, core.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAllByProject(project)
 			}
 

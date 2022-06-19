@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/theandrew168/dripfile/src/core"
+	"github.com/theandrew168/dripfile/src/database"
 )
 
 type contextKey string
@@ -41,7 +42,7 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 		session, err := app.storage.Session.Read(sessionHash)
 		if err != nil {
 			// user has an invalid session cookie, delete it
-			if errors.Is(err, core.ErrNotExist) {
+			if errors.Is(err, database.ErrNotExist) {
 				cookie := NewExpiredCookie(sessionIDCookieName)
 				http.SetCookie(w, &cookie)
 			}

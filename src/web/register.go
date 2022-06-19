@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/theandrew168/dripfile/src/core"
+	"github.com/theandrew168/dripfile/src/database"
 	"github.com/theandrew168/dripfile/src/form"
 	"github.com/theandrew168/dripfile/src/task"
 )
@@ -62,7 +63,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	// ensure email isn't already taken
 	_, err = app.storage.Account.ReadByEmail(email)
-	if err == nil || !errors.Is(err, core.ErrNotExist) {
+	if err == nil || !errors.Is(err, database.ErrNotExist) {
 		f.Errors.Add("email", "An account with this email already exists")
 		app.render(w, r, files, data)
 		return
@@ -89,7 +90,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	account := core.NewAccount(email, string(hash), core.RoleOwner, project)
 	err = app.storage.Account.Create(&account)
 	if err != nil {
-		if errors.Is(err, core.ErrExist) {
+		if errors.Is(err, database.ErrExist) {
 			f.Errors.Add("email", "An account with this email already exists")
 			app.render(w, r, files, data)
 			return

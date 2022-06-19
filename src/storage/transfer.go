@@ -41,7 +41,7 @@ func (s *Transfer) Create(transfer *core.Transfer) error {
 	row := s.db.QueryRow(ctx, stmt, args...)
 	err := database.Scan(row, &transfer.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(transfer)
 		}
 
@@ -113,7 +113,7 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 	row := s.db.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -146,7 +146,7 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 
 	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Update(transfer)
 		}
 
@@ -166,7 +166,7 @@ func (s *Transfer) Delete(transfer core.Transfer) error {
 
 	err := database.Exec(s.db, ctx, stmt, transfer.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(transfer)
 		}
 
@@ -244,7 +244,7 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 
 		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, core.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAll()
 			}
 
@@ -330,7 +330,7 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 
 		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, core.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAllByProject(project)
 			}
 

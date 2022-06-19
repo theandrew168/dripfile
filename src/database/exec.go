@@ -6,8 +6,6 @@ import (
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
-
-	"github.com/theandrew168/dripfile/src/core"
 )
 
 func Exec(db Conn, ctx context.Context, stmt string, args ...interface{}) error {
@@ -19,7 +17,7 @@ func Exec(db Conn, ctx context.Context, stmt string, args ...interface{}) error 
 		if errors.As(err, &pgErr) {
 			// check for stale connections (database restarted)
 			if pgErr.Code == pgerrcode.AdminShutdown {
-				return core.ErrRetry
+				return ErrRetry
 			}
 		}
 

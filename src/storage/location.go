@@ -40,7 +40,7 @@ func (s *Location) Create(location *core.Location) error {
 	row := s.db.QueryRow(ctx, stmt, args...)
 	err := database.Scan(row, &location.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(location)
 		}
 
@@ -82,7 +82,7 @@ func (s *Location) Read(id string) (core.Location, error) {
 	row := s.db.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -113,7 +113,7 @@ func (s *Location) Update(location core.Location) error {
 
 	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Update(location)
 		}
 
@@ -133,7 +133,7 @@ func (s *Location) Delete(location core.Location) error {
 
 	err := database.Exec(s.db, ctx, stmt, location.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(location)
 		}
 
@@ -182,7 +182,7 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 
 		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, core.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAllByProject(project)
 			}
 

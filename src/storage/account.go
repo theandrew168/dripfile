@@ -41,7 +41,7 @@ func (s *Account) Create(account *core.Account) error {
 	row := s.db.QueryRow(ctx, stmt, args...)
 	err := database.Scan(row, &account.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(account)
 		}
 
@@ -85,7 +85,7 @@ func (s *Account) Read(id string) (core.Account, error) {
 	row := s.db.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -118,7 +118,7 @@ func (s *Account) Update(account core.Account) error {
 
 	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Update(account)
 		}
 
@@ -138,7 +138,7 @@ func (s *Account) Delete(account core.Account) error {
 
 	err := database.Exec(s.db, ctx, stmt, account.ID)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(account)
 		}
 
@@ -182,7 +182,7 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 	row := s.db.QueryRow(ctx, stmt, email)
 	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.ReadByEmail(email)
 		}
 
@@ -209,7 +209,7 @@ func (s *Account) CountByProject(project core.Project) (int, error) {
 	row := s.db.QueryRow(ctx, stmt, project.ID)
 	err := database.Scan(row, &count)
 	if err != nil {
-		if errors.Is(err, core.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.CountByProject(project)
 		}
 
