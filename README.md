@@ -27,11 +27,6 @@ docker compose down
 ```
 
 ### Running
-To apply any pending database migrations:
-```bash
-make migrate
-```
-
 To start the web server:
 ```bash
 make web
@@ -45,6 +40,11 @@ make scheduler
 To start a background task worker:
 ```bash
 make worker
+```
+
+To apply any pending database migrations:
+```bash
+make migrate
 ```
 
 ### Testing
