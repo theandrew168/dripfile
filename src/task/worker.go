@@ -49,6 +49,7 @@ func (w *Worker) Run() error {
 	srv := asynq.NewServer(redis, asynq.Config{Concurrency: 10})
 
 	mux := asynq.NewServeMux()
+	mux.HandleFunc(TypeSessionPrune, w.HandleSessionPrune)
 	mux.HandleFunc(TypeEmailSend, w.HandleEmailSend)
 	mux.HandleFunc(TypeTransferTry, w.HandleTransferTry)
 

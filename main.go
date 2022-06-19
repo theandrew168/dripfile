@@ -117,8 +117,13 @@ func run() int {
 
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
-		logger.Infof("TODO: scheduler")
-		return 1
+		scheduler := task.NewScheduler(cfg, logger)
+		err := scheduler.Run()
+		if err != nil {
+			logger.Error(err, nil)
+			return 1
+		}
+		return 0
 	}
 
 	// worker: run worker forever
