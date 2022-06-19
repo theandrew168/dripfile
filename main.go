@@ -123,7 +123,7 @@ func run() int {
 
 	// worker: run worker forever
 	if action == "worker" {
-		worker := task.NewWorker(cfg, logger, mailer)
+		worker := task.NewWorker(cfg, logger, store, box, mailer, billing)
 		err := worker.Run()
 		if err != nil {
 			logger.Error(err, nil)

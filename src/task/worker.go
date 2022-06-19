@@ -6,19 +6,35 @@ import (
 	"github.com/theandrew168/dripfile/src/config"
 	"github.com/theandrew168/dripfile/src/jsonlog"
 	"github.com/theandrew168/dripfile/src/mail"
+	"github.com/theandrew168/dripfile/src/secret"
+	"github.com/theandrew168/dripfile/src/storage"
+	"github.com/theandrew168/dripfile/src/stripe"
 )
 
 type Worker struct {
-	cfg    config.Config
-	logger *jsonlog.Logger
-	mailer mail.Mailer
+	cfg     config.Config
+	logger  *jsonlog.Logger
+	storage *storage.Storage
+	box     *secret.Box
+	mailer  mail.Mailer
+	billing stripe.Billing
 }
 
-func NewWorker(cfg config.Config, logger *jsonlog.Logger, mailer mail.Mailer) *Worker {
+func NewWorker(
+	cfg config.Config,
+	logger *jsonlog.Logger,
+	storage *storage.Storage,
+	box *secret.Box,
+	mailer mail.Mailer,
+	billing stripe.Billing,
+) *Worker {
 	w := Worker{
-		cfg:    cfg,
-		logger: logger,
-		mailer: mailer,
+		cfg:     cfg,
+		logger:  logger,
+		storage: storage,
+		box:     box,
+		mailer:  mailer,
+		billing: billing,
 	}
 	return &w
 }
@@ -34,6 +50,7 @@ func (w *Worker) Run() error {
 
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(TypeEmailSend, w.HandleEmailSend)
+	mux.HandleFunc(TypeTransferTry, w.HandleTransferTry)
 
 	err = srv.Run(mux)
 	if err != nil {
