@@ -2,7 +2,7 @@
 Managed file transfer as a service
 
 ## Setup
-This project depends on the [Go programming language](https://golang.org/dl/) and [NodeJS](https://nodejs.org/en/).
+This project depends on the [Go programming language](https://golang.org/dl/).
 
 ## Building
 To build the application into a standalone binary, run:
@@ -29,27 +29,22 @@ docker compose down
 ### Running
 To apply any pending database migrations:
 ```bash
-make run-migrate
+make migrate
 ```
 
-To start the frontend web server:
+To start the web server:
 ```bash
-make run-frontend
-```
-
-To start the backend web server:
-```bash
-make run-backend
+make web
 ```
 
 To start the periodic task scheduler:
 ```bash
-make run-worker
+make scheduler
 ```
 
 To start a background task worker:
 ```bash
-make run-worker
+make worker
 ```
 
 ### Testing
@@ -59,8 +54,6 @@ make test
 ```
 
 ## Innovation Tokens
-* SPA frontend + REST API backend
-* SvelteJS (frontend library)
 * Asynq (task queue)
 
 ## Features

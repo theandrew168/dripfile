@@ -8,20 +8,20 @@ default: build
 build:
 	go build -o dripfile main.go
 
-.PHONY: run
-run: build
+.PHONY: web
+web: build migrate
 	ENV=dev ./dripfile web
 
-.PHONY: run-worker
-run-worker: backend
+.PHONY: worker
+worker: build migrate
 	ENV=dev ./dripfile worker
 
-.PHONY: run-scheduler
-run-scheduler: backend
+.PHONY: scheduler
+scheduler: build migrate
 	ENV=dev ./dripfile scheduler
 
-.PHONY: run-migrate
-run-migrate: backend
+.PHONY: migrate
+migrate: build
 	ENV=dev ./dripfile migrate
 
 .PHONY: update
@@ -30,15 +30,15 @@ update:
 	go mod tidy
 
 .PHONY: test
-test: run-migrate
+test: migrate
 	go test -count=1 ./...
 
 .PHONY: race
-race: run-migrate
+race: migrate
 	go test -race -count=1 ./...
 
 .PHONY: cover
-cover: run-migrate
+cover: migrate
 	go test -coverprofile=c.out -coverpkg=./... -count=1 ./...
 	go tool cover -html=c.out
 

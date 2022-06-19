@@ -219,18 +219,18 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-//	// submit this transfer to the task queue
-//	t, err := task.Transfer(transfer.ID)
-//	if err != nil {
-//		app.serverErrorResponse(w, r, err)
-//		return
-//	}
-//
-//	err = app.queue.Push(t)
-//	if err != nil {
-//		app.serverErrorResponse(w, r, err)
-//		return
-//	}
+	//	// submit this transfer to the task queue
+	//	t, err := task.Transfer(transfer.ID)
+	//	if err != nil {
+	//		app.serverErrorResponse(w, r, err)
+	//		return
+	//	}
+	//
+	//	err = app.queue.Push(t)
+	//	if err != nil {
+	//		app.serverErrorResponse(w, r, err)
+	//		return
+	//	}
 
 	app.logger.Info("transfer run", map[string]string{
 		"project_id":  session.Account.Project.ID,

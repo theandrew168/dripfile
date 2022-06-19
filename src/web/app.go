@@ -52,8 +52,8 @@ func NewApplication(
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
-		static = os.DirFS("./backend/web/static/")
-		template = os.DirFS("./backend/web/template/")
+		static = os.DirFS("./src/web/static/")
+		template = os.DirFS("./src/web/template/")
 	} else {
 		// else use the embedded template FS
 		var err error
