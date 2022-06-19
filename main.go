@@ -15,15 +15,15 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 
-	"github.com/theandrew168/dripfile/backend/api"
-	"github.com/theandrew168/dripfile/backend/config"
-	"github.com/theandrew168/dripfile/backend/database"
-	"github.com/theandrew168/dripfile/backend/jsonlog"
-	"github.com/theandrew168/dripfile/backend/migrate"
-	"github.com/theandrew168/dripfile/backend/secret"
-	"github.com/theandrew168/dripfile/backend/storage"
-	"github.com/theandrew168/dripfile/backend/stripe"
-	"github.com/theandrew168/dripfile/backend/web"
+	"github.com/theandrew168/dripfile/src/api"
+	"github.com/theandrew168/dripfile/src/config"
+	"github.com/theandrew168/dripfile/src/database"
+	"github.com/theandrew168/dripfile/src/jsonlog"
+	"github.com/theandrew168/dripfile/src/migrate"
+	"github.com/theandrew168/dripfile/src/secret"
+	"github.com/theandrew168/dripfile/src/storage"
+	"github.com/theandrew168/dripfile/src/stripe"
+	"github.com/theandrew168/dripfile/src/web"
 )
 
 func main() {
