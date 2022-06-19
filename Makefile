@@ -9,20 +9,20 @@ build:
 	go build -o dripfile main.go
 
 .PHONY: web
-web: build migrate
-	ENV=dev ./dripfile web
+web: migrate
+	ENV=dev go run main.go web
 
 .PHONY: worker
-worker: build migrate
-	ENV=dev ./dripfile worker
+worker: migrate
+	ENV=dev go run main.go worker
 
 .PHONY: scheduler
-scheduler: build migrate
-	ENV=dev ./dripfile scheduler
+scheduler: migrate
+	ENV=dev go run main.go scheduler
 
 .PHONY: migrate
-migrate: build
-	ENV=dev ./dripfile migrate
+migrate:
+	ENV=dev go run main.go migrate
 
 .PHONY: update
 update:
