@@ -1,4 +1,4 @@
-# dripfile
+# DripFile
 Managed file transfer as a service
 
 ## Setup
