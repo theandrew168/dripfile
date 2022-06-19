@@ -111,9 +111,11 @@ func run() int {
 		return 1
 	}
 
+	// instantiate applications (DI happens here)
 	apiApp := api.NewApplication(logger)
 	webApp := web.NewApplication(logger, cfg, store, box, billing)
 
+	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
 	srv := &http.Server{
 		Addr:    addr,
