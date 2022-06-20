@@ -12,7 +12,7 @@ make
 
 ## Local Development
 ### Services
-This project uses [PostgreSQL](https://www.postgresql.org/) for persistent storage, [MinIO](https://min.io/) for object storage, [Asynq](https://github.com/hibiken/asynq) for background jobs, and [Redis](https://redis.io/) for caching.
+This project uses [PostgreSQL](https://www.postgresql.org/) for persistent storage, [MinIO](https://min.io/) for object storage, [Asynq](https://github.com/hibiken/asynq) for background tasks, and [Redis](https://redis.io/) as a task queue and general cache.
 To develop locally, you'll need to run these services locally somehow or another.
 I find [Docker](https://www.docker.com/) to be a nice tool for this but you can do whatever works best.
 
