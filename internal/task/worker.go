@@ -1,6 +1,7 @@
 package task
 
 import (
+	"github.com/coreos/go-systemd/daemon"
 	"github.com/hibiken/asynq"
 
 	"github.com/theandrew168/dripfile/internal/config"
@@ -52,6 +53,9 @@ func (w *Worker) Run() error {
 	mux.HandleFunc(TypeSessionPrune, w.HandleSessionPrune)
 	mux.HandleFunc(TypeEmailSend, w.HandleEmailSend)
 	mux.HandleFunc(TypeTransferTry, w.HandleTransferTry)
+
+	// let systemd know that we are good to go (no-op if not using systemd)
+	daemon.SdNotify(false, daemon.SdNotifyReady)
 
 	err = srv.Run(mux)
 	if err != nil {

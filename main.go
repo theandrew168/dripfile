@@ -22,6 +22,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
+	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/stripe"
@@ -117,8 +118,8 @@ func run() int {
 
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
-		scheduler := task.NewScheduler(cfg, logger)
-		err := scheduler.Run()
+		sched := scheduler.New(cfg, logger, store, queue)
+		err := sched.Run()
 		if err != nil {
 			logger.Error(err, nil)
 			return 1
