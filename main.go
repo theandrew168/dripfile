@@ -16,17 +16,17 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/hibiken/asynq"
 
-	"github.com/theandrew168/dripfile/src/api"
-	"github.com/theandrew168/dripfile/src/config"
-	"github.com/theandrew168/dripfile/src/database"
-	"github.com/theandrew168/dripfile/src/jsonlog"
-	"github.com/theandrew168/dripfile/src/mail"
-	"github.com/theandrew168/dripfile/src/migrate"
-	"github.com/theandrew168/dripfile/src/secret"
-	"github.com/theandrew168/dripfile/src/storage"
-	"github.com/theandrew168/dripfile/src/stripe"
-	"github.com/theandrew168/dripfile/src/task"
-	"github.com/theandrew168/dripfile/src/web"
+	"github.com/theandrew168/dripfile/internal/api"
+	"github.com/theandrew168/dripfile/internal/config"
+	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/jsonlog"
+	"github.com/theandrew168/dripfile/internal/mail"
+	"github.com/theandrew168/dripfile/internal/migrate"
+	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/internal/storage"
+	"github.com/theandrew168/dripfile/internal/stripe"
+	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/web"
 )
 
 func main() {
