@@ -12,6 +12,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/form"
+	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 )
 
@@ -76,19 +77,26 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// TODO: combine these storage ops into an atomic transaction somehow
+	// create new project and new account within a single transaction
+	var project core.Project
+	var account core.Account
+	err = app.storage.WithTransaction(func(store *storage.Storage) error {
+		// create project for the new account
+		project = core.NewProject(customerID)
+		err := store.Project.Create(&project)
+		if err != nil {
+			return err
+		}
 
-	// create project for the new account
-	project := core.NewProject(customerID)
-	err = app.storage.Project.Create(&project)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
+		// create the new account
+		account = core.NewAccount(email, string(hash), core.RoleOwner, project)
+		err = store.Account.Create(&account)
+		if err != nil {
+			return err
+		}
 
-	// create the new account
-	account := core.NewAccount(email, string(hash), core.RoleOwner, project)
-	err = app.storage.Account.Create(&account)
+		return nil
+	})
 	if err != nil {
 		if errors.Is(err, database.ErrExist) {
 			f.Errors.Add("email", "An account with this email already exists")

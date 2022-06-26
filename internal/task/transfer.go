@@ -50,6 +50,9 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 	if err != nil {
 		// transfer has since been deleted
 		if errors.Is(err, database.ErrNotExist) {
+			w.logger.Info("transfer deleted", map[string]string{
+				"transfer_id": transfer.ID,
+			})
 			return nil
 		}
 		return err
@@ -144,6 +147,10 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 	if err != nil {
 		return err
 	}
+
+	w.logger.Info("transfer successful", map[string]string{
+		"transfer_id": transfer.ID,
+	})
 
 	return nil
 }

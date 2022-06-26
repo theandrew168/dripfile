@@ -140,7 +140,7 @@ func run() int {
 
 	// web: run web server forever (default)
 	if action != "web" {
-		logger.Errorf("invalid action: %s\n", action)
+		logger.Errorf("invalid action: %s", action)
 		return 1
 	}
 

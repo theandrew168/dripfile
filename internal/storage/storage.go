@@ -36,7 +36,3 @@ func New(db database.Conn) *Storage {
 	}
 	return &s
 }
-
-func (s *Storage) WithTransaction(func() error) error {
-	return nil
-}
