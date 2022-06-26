@@ -14,11 +14,7 @@ import (
 )
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"location/list.page.html",
-	}
+	page := "location/list.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -39,15 +35,11 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 		Locations: locations,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"location/read.page.html",
-	}
+	page := "location/read.page.html"
 
 	id := flow.Param(r.Context(), "id")
 	location, err := app.store.Location.Read(id)
@@ -67,15 +59,11 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 		Location: location,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"location/create.page.html",
-	}
+	page := "location/create.page.html"
 
 	data := struct {
 		Form *form.Form
@@ -83,15 +71,11 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 		Form: form.New(nil),
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"location/create.page.html",
-	}
+	page := "location/create.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -108,7 +92,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	if !f.Valid() {
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 
@@ -128,7 +112,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	conn, err := fileserver.NewS3(info)
 	if err != nil {
 		data.Form.Errors.Add("general", err.Error())
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 
@@ -136,7 +120,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	err = conn.Ping()
 	if err != nil {
 		data.Form.Errors.Add("general", err.Error())
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 

@@ -15,11 +15,7 @@ import (
 )
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"site.layout.html",
-		"auth/login.page.html",
-	}
+	page := "auth/login.page.html"
 
 	data := struct {
 		Form *form.Form
@@ -27,15 +23,11 @@ func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 		Form: form.New(nil),
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"site.layout.html",
-		"auth/login.page.html",
-	}
+	page := "auth/login.page.html"
 
 	f := form.New(r.PostForm)
 	f.Required("email", "password")
@@ -47,7 +39,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if !f.Valid() {
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 
@@ -58,7 +50,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		if errors.Is(err, database.ErrNotExist) {
 			f.Errors.Add("email", "Invalid email")
-			app.render(w, r, files, data)
+			app.render(w, r, page, data)
 			return
 		}
 
@@ -69,7 +61,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
 	if err != nil {
 		f.Errors.Add("password", "Invalid password")
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 

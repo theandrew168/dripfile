@@ -13,11 +13,7 @@ import (
 )
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"transfer/list.page.html",
-	}
+	page := "transfer/list.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -37,15 +33,11 @@ func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Reques
 		Transfers: transfers,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"transfer/read.page.html",
-	}
+	page := "transfer/read.page.html"
 
 	id := flow.Param(r.Context(), "id")
 	transfer, err := app.store.Transfer.Read(id)
@@ -65,15 +57,11 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 		Transfer: transfer,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"transfer/create.page.html",
-	}
+	page := "transfer/create.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -103,15 +91,11 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 		Form:      form.New(nil),
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"transfer/create.page.html",
-	}
+	page := "transfer/create.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -145,7 +129,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	if !f.Valid() {
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 

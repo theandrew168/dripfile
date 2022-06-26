@@ -16,6 +16,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/stripe"
+	"github.com/theandrew168/dripfile/internal/tmpl"
 )
 
 //go:embed static/img/logo-white.svg
@@ -35,6 +36,7 @@ type Application struct {
 	template fs.FS
 
 	cfg     config.Config
+	tm      tmpl.Map
 	logger  *jsonlog.Logger
 	store   *storage.Storage
 	queue   *asynq.Client
@@ -70,11 +72,17 @@ func NewApplication(
 		}
 	}
 
+	tm, err := tmpl.NewMap(template)
+	if err != nil {
+		panic(err)
+	}
+
 	app := Application{
 		static:   static,
 		template: template,
 
 		cfg:     cfg,
+		tm:      tm,
 		logger:  logger,
 		store:   store,
 		queue:   queue,

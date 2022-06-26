@@ -5,13 +5,8 @@ import (
 )
 
 func (app *Application) handleBillingSetup(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"billing/setup.page.html",
-	}
-
-	app.render(w, r, files, nil)
+	page := "billing/setup.page.html"
+	app.render(w, r, page, nil)
 }
 
 func (app *Application) handleBillingCheckout(w http.ResponseWriter, r *http.Request) {

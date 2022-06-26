@@ -17,11 +17,7 @@ import (
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"site.layout.html",
-		"auth/register.page.html",
-	}
+	page := "auth/register.page.html"
 
 	data := struct {
 		Form *form.Form
@@ -29,15 +25,11 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 		Form: form.New(nil),
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"site.layout.html",
-		"auth/register.page.html",
-	}
+	page := "auth/register.page.html"
 
 	f := form.New(r.PostForm)
 	f.Required("email", "password")
@@ -49,7 +41,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	if !f.Valid() {
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 
@@ -66,7 +58,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	_, err = app.store.Account.ReadByEmail(email)
 	if err == nil || !errors.Is(err, database.ErrNotExist) {
 		f.Errors.Add("email", "An account with this email already exists")
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 
@@ -100,7 +92,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		if errors.Is(err, database.ErrExist) {
 			f.Errors.Add("email", "An account with this email already exists")
-			app.render(w, r, files, data)
+			app.render(w, r, page, data)
 			return
 		}
 

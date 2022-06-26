@@ -24,11 +24,7 @@ var shortcuts = map[string]string{
 }
 
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"schedule/list.page.html",
-	}
+	page := "schedule/list.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -49,15 +45,11 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 		Schedules: schedules,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"schedule/read.page.html",
-	}
+	page := "schedule/read.page.html"
 
 	id := flow.Param(r.Context(), "id")
 	schedule, err := app.store.Schedule.Read(id)
@@ -77,15 +69,11 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 		Schedule: schedule,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"schedule/create.page.html",
-	}
+	page := "schedule/create.page.html"
 
 	data := struct {
 		Form *form.Form
@@ -93,15 +81,11 @@ func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Requ
 		Form: form.New(nil),
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"schedule/create.page.html",
-	}
+	page := "schedule/create.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -135,7 +119,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	if !f.Valid() {
-		app.render(w, r, files, data)
+		app.render(w, r, page, data)
 		return
 	}
 

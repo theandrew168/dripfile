@@ -7,11 +7,7 @@ import (
 )
 
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"account/read.page.html",
-	}
+	page := "account/read.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -25,7 +21,7 @@ func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request
 		Account: session.Account,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
 
 func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.Request) {

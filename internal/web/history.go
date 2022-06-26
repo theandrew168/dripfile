@@ -7,11 +7,7 @@ import (
 )
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"app.layout.html",
-		"history/list.page.html",
-	}
+	page := "history/list.page.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -34,5 +30,5 @@ func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request
 		Histories: histories,
 	}
 
-	app.render(w, r, files, data)
+	app.render(w, r, page, data)
 }
