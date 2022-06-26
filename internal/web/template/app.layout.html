@@ -1,6 +1,6 @@
 {{template "base" .}}
 
-{{define "body"}}
+{{define "app"}}
 <body class="app">
 	<header class="nav">
 		<nav>
@@ -63,7 +63,7 @@
 			</form>
 		</div>
 
-		{{template "main" .}}
+		{{block "main" .}}{{end}}
 	</main>
 </body>
 {{end}}

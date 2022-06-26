@@ -1,6 +1,6 @@
 {{template "base" .}}
 
-{{define "body"}}
+{{define "site"}}
 <body class="site">
 	<header class="nav">
 		<nav>
@@ -16,7 +16,7 @@
 	</header>
 
 	<main>
-		{{template "main" .}}
+		{{block "main" .}}{{end}}
 	</main>
 
 	<footer>

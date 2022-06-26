@@ -16,7 +16,8 @@
 	<script src="/static/js/htmx.min.js" defer></script>
 </head>
 
-{{template "body" .}}
+{{block "site" .}}{{end}}
+{{block "app" .}}{{end}}
 
 </html>
 {{end}}
