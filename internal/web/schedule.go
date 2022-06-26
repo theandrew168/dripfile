@@ -37,7 +37,7 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 	}
 
 	project := session.Account.Project
-	schedules, err := app.storage.Schedule.ReadAllByProject(project)
+	schedules, err := app.store.Schedule.ReadAllByProject(project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -60,7 +60,7 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 	}
 
 	id := flow.Param(r.Context(), "id")
-	schedule, err := app.storage.Schedule.Read(id)
+	schedule, err := app.store.Schedule.Read(id)
 	if err != nil {
 		if errors.Is(err, database.ErrNotExist) {
 			app.notFoundResponse(w, r)
@@ -141,7 +141,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 
 	project := session.Account.Project
 	schedule := core.NewSchedule(name, expr, project)
-	err = app.storage.Schedule.Create(&schedule)
+	err = app.store.Schedule.Create(&schedule)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -166,13 +166,13 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 	// TODO: assert account role is owner, admin, or editor
 	id := r.PostForm.Get("id")
 
-	schedule, err := app.storage.Schedule.Read(id)
+	schedule, err := app.store.Schedule.Read(id)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	err = app.storage.Schedule.Delete(schedule)
+	err = app.store.Schedule.Delete(schedule)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

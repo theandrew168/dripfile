@@ -15,7 +15,7 @@ import (
 type Worker struct {
 	cfg     config.Config
 	logger  *jsonlog.Logger
-	storage *storage.Storage
+	store   *storage.Storage
 	box     *secret.Box
 	mailer  mail.Mailer
 	billing stripe.Billing
@@ -24,7 +24,7 @@ type Worker struct {
 func NewWorker(
 	cfg config.Config,
 	logger *jsonlog.Logger,
-	storage *storage.Storage,
+	store *storage.Storage,
 	box *secret.Box,
 	mailer mail.Mailer,
 	billing stripe.Billing,
@@ -32,7 +32,7 @@ func NewWorker(
 	w := Worker{
 		cfg:     cfg,
 		logger:  logger,
-		storage: storage,
+		store:   store,
 		box:     box,
 		mailer:  mailer,
 		billing: billing,

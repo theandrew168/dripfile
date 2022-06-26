@@ -16,14 +16,14 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 
 	// check for session in database
 	sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID.Value)))
-	session, err := app.storage.Session.Read(sessionHash)
+	session, err := app.store.Session.Read(sessionHash)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
 	// delete session from database
-	err = app.storage.Session.Delete(session)
+	err = app.store.Session.Delete(session)
 	if err != nil {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return

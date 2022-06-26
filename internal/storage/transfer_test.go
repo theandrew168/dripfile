@@ -20,35 +20,35 @@ func mockTransfer(src, dst core.Location, schedule core.Schedule, project core.P
 }
 
 func TestTransferCreate(t *testing.T) {
-	storage, closer := test.Storage(t)
+	store, closer := test.Storage(t)
 	defer closer()
 
 	project := mockProject()
-	err := storage.Project.Create(&project)
+	err := store.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	schedule := mockSchedule(project)
-	err = storage.Schedule.Create(&schedule)
+	err = store.Schedule.Create(&schedule)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	src := mockLocation(project)
-	err = storage.Location.Create(&src)
+	err = store.Location.Create(&src)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	dst := mockLocation(project)
-	err = storage.Location.Create(&dst)
+	err = store.Location.Create(&dst)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	transfer := mockTransfer(src, dst, schedule, project)
-	err = storage.Transfer.Create(&transfer)
+	err = store.Transfer.Create(&transfer)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -27,7 +27,7 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 	}
 
 	project := session.Account.Project
-	locations, err := app.storage.Location.ReadAllByProject(project)
+	locations, err := app.store.Location.ReadAllByProject(project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -50,7 +50,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 	}
 
 	id := flow.Param(r.Context(), "id")
-	location, err := app.storage.Location.Read(id)
+	location, err := app.store.Location.Read(id)
 	if err != nil {
 		if errors.Is(err, database.ErrNotExist) {
 			app.notFoundResponse(w, r)
@@ -158,7 +158,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	name := info.Endpoint + "/" + info.BucketName
 	project := session.Account.Project
 	location := core.NewLocation(core.KindS3, name, encryptedInfo, project)
-	err = app.storage.Location.Create(&location)
+	err = app.store.Location.Create(&location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -183,13 +183,13 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 	// TODO: assert account role is owner, admin, or editor
 	id := r.PostForm.Get("id")
 
-	location, err := app.storage.Location.Read(id)
+	location, err := app.store.Location.Read(id)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	err = app.storage.Location.Delete(location)
+	err = app.store.Location.Delete(location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

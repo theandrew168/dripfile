@@ -54,7 +54,7 @@ func (app *Application) handleBillingSuccess(w http.ResponseWriter, r *http.Requ
 
 	project := session.Account.Project
 	project.SubscriptionItemID = subscriptionItemID
-	err = app.storage.Project.Update(project)
+	err = app.store.Project.Update(project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

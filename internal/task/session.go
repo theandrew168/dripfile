@@ -25,7 +25,7 @@ func NewSessionPruneTask() (*asynq.Task, error) {
 }
 
 func (w *Worker) HandleSessionPrune(ctx context.Context, t *asynq.Task) error {
-	err := w.storage.Session.DeleteExpired()
+	err := w.store.Session.DeleteExpired()
 	if err != nil {
 		return err
 	}

@@ -18,12 +18,12 @@ func mockProject() core.Project {
 }
 
 func TestProject(t *testing.T) {
-	storage, closer := test.Storage(t)
+	store, closer := test.Storage(t)
 	defer closer()
 
 	// create
 	project := mockProject()
-	err := storage.Project.Create(&project)
+	err := store.Project.Create(&project)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,13 +33,13 @@ func TestProject(t *testing.T) {
 	}
 
 	// duplicate
-	err = storage.Project.Create(&project)
+	err = store.Project.Create(&project)
 	if !errors.Is(err, database.ErrExist) {
 		t.Fatal("duplicate record should return an error")
 	}
 
 	// read
-	got, err := storage.Project.Read(project.ID)
+	got, err := store.Project.Read(project.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func TestProject(t *testing.T) {
 	}
 
 	// read all
-	projects, err := storage.Project.ReadAll()
+	projects, err := store.Project.ReadAll()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -75,12 +75,12 @@ func TestProject(t *testing.T) {
 	project.CustomerID = random.String(8)
 	project.SubscriptionItemID = random.String(8)
 
-	err = storage.Project.Update(project)
+	err = store.Project.Update(project)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	got, err = storage.Project.Read(project.ID)
+	got, err = store.Project.Read(project.ID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,13 +93,13 @@ func TestProject(t *testing.T) {
 	}
 
 	// delete
-	err = storage.Project.Delete(project)
+	err = store.Project.Delete(project)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// verify that ID isn't present anymore
-	_, err = storage.Project.Read(project.ID)
+	_, err = store.Project.Read(project.ID)
 	if !errors.Is(err, database.ErrNotExist) {
 		t.Fatal("record ID should be gone after delete")
 	}

@@ -54,7 +54,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	email := f.Get("email")
 	password := f.Get("password")
 
-	account, err := app.storage.Account.ReadByEmail(email)
+	account, err := app.store.Account.ReadByEmail(email)
 	if err != nil {
 		if errors.Is(err, database.ErrNotExist) {
 			f.Errors.Add("email", "Invalid email")
@@ -85,7 +85,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	// create session model and store in the database
 	session := core.NewSession(sessionHash, expiry, account)
-	err = app.storage.Session.Create(&session)
+	err = app.store.Session.Create(&session)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

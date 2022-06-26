@@ -36,7 +36,7 @@ type Application struct {
 
 	cfg     config.Config
 	logger  *jsonlog.Logger
-	storage *storage.Storage
+	store   *storage.Storage
 	queue   *asynq.Client
 	box     *secret.Box
 	billing stripe.Billing
@@ -45,7 +45,7 @@ type Application struct {
 func NewApplication(
 	cfg config.Config,
 	logger *jsonlog.Logger,
-	storage *storage.Storage,
+	store *storage.Storage,
 	queue *asynq.Client,
 	box *secret.Box,
 	billing stripe.Billing,
@@ -76,7 +76,7 @@ func NewApplication(
 
 		cfg:     cfg,
 		logger:  logger,
-		storage: storage,
+		store:   store,
 		queue:   queue,
 		box:     box,
 		billing: billing,
@@ -84,6 +84,27 @@ func NewApplication(
 
 	return &app
 }
+
+// Redirects:
+// 303 See Other         - for GETs after POSTs (like a login / register form)
+// 302 Found             - all other temporary redirects
+// 301 Moved Permanently - permanent redirects
+
+// Route Handler Naming Ideas:
+//
+// basic page handlers:
+// GET - handleIndex
+// GET - handleDashboard
+//
+// basic page w/ form handlers:
+// GET  - handleLogin
+// POST - handleLoginForm
+//
+// CRUD handlers:
+// C POST   - handleCreateFoo[Form]
+// R GET    - handleReadFoo[s]
+// U PUT    - handleUpdateFoo[Form]
+// D DELETE - handleDeleteFoo[Form]
 
 func (app *Application) Handler(api http.Handler) http.Handler {
 	mux := flow.New()

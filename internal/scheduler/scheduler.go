@@ -14,23 +14,23 @@ import (
 )
 
 type Scheduler struct {
-	cfg     config.Config
-	logger  *jsonlog.Logger
-	storage *storage.Storage
-	queue   *asynq.Client
+	cfg    config.Config
+	logger *jsonlog.Logger
+	store  *storage.Storage
+	queue  *asynq.Client
 }
 
 func New(
 	cfg config.Config,
 	logger *jsonlog.Logger,
-	storage *storage.Storage,
+	store *storage.Storage,
 	queue *asynq.Client,
 ) *Scheduler {
 	s := Scheduler{
-		cfg:     cfg,
-		logger:  logger,
-		storage: storage,
-		queue:   queue,
+		cfg:    cfg,
+		logger: logger,
+		store:  store,
+		queue:  queue,
 	}
 	return &s
 }
@@ -83,7 +83,7 @@ func (s *Scheduler) Run() error {
 		}
 
 		// read all transfers from database
-		transfers, err := s.storage.Transfer.ReadAll()
+		transfers, err := s.store.Transfer.ReadAll()
 		if err != nil {
 			s.logger.Error(err, nil)
 			continue

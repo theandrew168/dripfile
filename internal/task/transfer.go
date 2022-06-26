@@ -46,7 +46,7 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 	start := time.Now()
 
 	// lookup transfer by ID
-	transfer, err := w.storage.Transfer.Read(payload.TransferID)
+	transfer, err := w.store.Transfer.Read(payload.TransferID)
 	if err != nil {
 		// transfer has since been deleted
 		if errors.Is(err, database.ErrNotExist) {
@@ -135,7 +135,7 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 		transfer.Project,
 	)
 
-	err = w.storage.History.Create(&history)
+	err = w.store.History.Create(&history)
 	if err != nil {
 		return err
 	}

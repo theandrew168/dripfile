@@ -63,7 +63,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// ensure email isn't already taken
-	_, err = app.storage.Account.ReadByEmail(email)
+	_, err = app.store.Account.ReadByEmail(email)
 	if err == nil || !errors.Is(err, database.ErrNotExist) {
 		f.Errors.Add("email", "An account with this email already exists")
 		app.render(w, r, files, data)
@@ -80,7 +80,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	// create new project and new account within a single transaction
 	var project core.Project
 	var account core.Account
-	err = app.storage.WithTransaction(func(store *storage.Storage) error {
+	err = app.store.WithTransaction(func(store *storage.Storage) error {
 		// create project for the new account
 		project = core.NewProject(customerID)
 		err := store.Project.Create(&project)
@@ -120,7 +120,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	// create session model and store in the database
 	session := core.NewSession(sessionHash, expiry, account)
-	err = app.storage.Session.Create(&session)
+	err = app.store.Session.Create(&session)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

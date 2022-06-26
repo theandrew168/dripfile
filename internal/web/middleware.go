@@ -39,7 +39,7 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 
 		// check for session in database
 		sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID.Value)))
-		session, err := app.storage.Session.Read(sessionHash)
+		session, err := app.store.Session.Read(sessionHash)
 		if err != nil {
 			// user has an invalid session cookie, delete it
 			if errors.Is(err, database.ErrNotExist) {
