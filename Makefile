@@ -48,7 +48,7 @@ release:
 
 .PHONY: lint
 lint:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fast --issues-exit-code 0
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fast
 
 .PHONY: format
 format:

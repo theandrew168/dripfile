@@ -2,14 +2,14 @@ package web
 
 import (
 	"bytes"
-	"html/template"
+	"fmt"
 	"net/http"
 )
 
-func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, code int, files []string) {
-	// parse template files
-	ts, err := template.ParseFS(app.template, files...)
-	if err != nil {
+func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, code int, page string) {
+	ts, ok := app.tm[page]
+	if !ok {
+		err := fmt.Errorf("web: template does not exist: %s", page)
 		app.logger.Error(err, nil)
 
 		code := http.StatusInternalServerError
@@ -19,7 +19,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, co
 
 	// render template to a temp buffer
 	var buf bytes.Buffer
-	err = ts.ExecuteTemplate(&buf, "base", nil)
+	err := ts.ExecuteTemplate(&buf, "base", nil)
 	if err != nil {
 		app.logger.Error(err, nil)
 
@@ -35,36 +35,24 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, co
 }
 
 func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"error/400.page.html",
-	}
-	app.errorResponse(w, r, http.StatusBadRequest, files)
+	page := "error/400.page.html"
+	app.errorResponse(w, r, http.StatusBadRequest, page)
 }
 
 func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"error/404.page.html",
-	}
-	app.errorResponse(w, r, http.StatusNotFound, files)
+	page := "error/404.page.html"
+	app.errorResponse(w, r, http.StatusNotFound, page)
 }
 
 func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"base.layout.html",
-		"error/405.page.html",
-	}
-	app.errorResponse(w, r, http.StatusMethodNotAllowed, files)
+	page := "error/405.page.html"
+	app.errorResponse(w, r, http.StatusMethodNotAllowed, page)
 }
 
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	// log details of the error locally but the user sees a generic 500
 	app.logger.Error(err, nil)
 
-	files := []string{
-		"base.layout.html",
-		"error/500.page.html",
-	}
-	app.errorResponse(w, r, http.StatusInternalServerError, files)
+	page := "error/500.page.html"
+	app.errorResponse(w, r, http.StatusInternalServerError, page)
 }
