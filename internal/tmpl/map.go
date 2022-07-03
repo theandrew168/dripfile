@@ -13,17 +13,17 @@ type Map map[string]*template.Template
 func NewMap(dir fs.FS) (Map, error) {
 	cache := make(map[string]*template.Template)
 
-	appPages, err := listPages(dir, "app")
+	appPages, err := listTemplates(dir, "app")
 	if err != nil {
 		return nil, err
 	}
 
-	sitePages, err := listPages(dir, "site")
+	sitePages, err := listTemplates(dir, "site")
 	if err != nil {
 		return nil, err
 	}
 
-	errorPages, err := listPages(dir, "error")
+	errorPages, err := listTemplates(dir, "error")
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func NewMap(dir fs.FS) (Map, error) {
 
 	// Create a unique template set for each page.
 	for _, page := range pages {
-		ts, err := readPage(dir, page)
+		ts, err := parseTemplate(dir, page)
 		if err != nil {
 			return nil, err
 		}
@@ -46,14 +46,14 @@ func NewMap(dir fs.FS) (Map, error) {
 	return cache, nil
 }
 
-func listPages(dir fs.FS, root string) ([]string, error) {
-	var pages []string
+func listTemplates(dir fs.FS, root string) ([]string, error) {
+	var templates []string
 	err := fs.WalkDir(dir, root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if strings.HasSuffix(path, ".page.html") {
-			pages = append(pages, path)
+		if strings.HasSuffix(path, ".html") {
+			templates = append(templates, path)
 		}
 		return nil
 	})
@@ -61,30 +61,41 @@ func listPages(dir fs.FS, root string) ([]string, error) {
 		return nil, err
 	}
 
-	return pages, nil
+	return templates, nil
 }
 
-func readPage(dir fs.FS, page string) (*template.Template, error) {
-	// Parse base layout into the template set.
-	ts, err := template.ParseFS(dir, "base.layout.html")
+func parseTemplate(dir fs.FS, page string) (*template.Template, error) {
+	// base layout
+	ts, err := template.ParseFS(dir, "layout/base.html")
 	if err != nil {
 		return nil, err
 	}
 
-	// Parse sub-layouts if necessary
+	// sub-layouts (if necessary)
 	if strings.HasPrefix(page, "app/") {
-		ts, err = ts.ParseFS(dir, "app.layout.html")
+		ts, err = ts.ParseFS(dir, "layout/app.html")
 		if err != nil {
 			return nil, err
 		}
 	} else if strings.HasPrefix(page, "site/") {
-		ts, err = ts.ParseFS(dir, "site.layout.html")
+		ts, err = ts.ParseFS(dir, "layout/site.html")
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	// Parse page into the template set.
+	// partials
+	partials, err := listTemplates(dir, "partial")
+	if err != nil {
+		return nil, err
+	}
+
+	ts, err = ts.ParseFS(dir, partials...)
+	if err != nil {
+		return nil, err
+	}
+
+	// page
 	ts, err = ts.ParseFS(dir, page)
 	if err != nil {
 		return nil, err

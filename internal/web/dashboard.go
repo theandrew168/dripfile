@@ -5,6 +5,6 @@ import (
 )
 
 func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
-	page := "app/dashboard.page.html"
+	page := "app/dashboard.html"
 	app.render(w, r, page, nil)
 }

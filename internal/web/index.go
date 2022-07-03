@@ -5,6 +5,6 @@ import (
 )
 
 func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
-	page := "site/index.page.html"
+	page := "site/index.html"
 	app.render(w, r, page, nil)
 }

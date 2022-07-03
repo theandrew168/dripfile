@@ -14,7 +14,7 @@ import (
 )
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/list.page.html"
+	page := "app/location/list.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -39,7 +39,7 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/read.page.html"
+	page := "app/location/read.html"
 
 	id := flow.Param(r.Context(), "id")
 	location, err := app.store.Location.Read(id)
@@ -63,7 +63,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/create.page.html"
+	page := "app/location/create.html"
 
 	data := struct {
 		Form *form.Form
@@ -75,7 +75,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 }
 
 func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/create.page.html"
+	page := "app/location/create.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {

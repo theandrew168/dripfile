@@ -13,7 +13,7 @@ import (
 )
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/list.page.html"
+	page := "app/transfer/list.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -37,7 +37,7 @@ func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/read.page.html"
+	page := "app/transfer/read.html"
 
 	id := flow.Param(r.Context(), "id")
 	transfer, err := app.store.Transfer.Read(id)
@@ -61,7 +61,7 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/create.page.html"
+	page := "app/transfer/create.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -95,7 +95,7 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 }
 
 func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/create.page.html"
+	page := "app/transfer/create.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {

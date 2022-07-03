@@ -7,7 +7,7 @@ import (
 )
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
-	page := "app/history/list.page.html"
+	page := "app/history/list.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {

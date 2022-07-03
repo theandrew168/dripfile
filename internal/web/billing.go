@@ -5,7 +5,7 @@ import (
 )
 
 func (app *Application) handleBillingSetup(w http.ResponseWriter, r *http.Request) {
-	page := "app/billing/setup.page.html"
+	page := "app/billing/setup.html"
 	app.render(w, r, page, nil)
 }
 

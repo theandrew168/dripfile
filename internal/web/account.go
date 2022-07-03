@@ -7,7 +7,7 @@ import (
 )
 
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
-	page := "app/account/read.page.html"
+	page := "app/account/read.html"
 
 	session, err := app.requestSession(r)
 	if err != nil {

@@ -15,7 +15,7 @@ import (
 )
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
-	page := "site/auth/login.page.html"
+	page := "site/auth/login.html"
 
 	data := struct {
 		Form *form.Form
@@ -27,7 +27,7 @@ func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
-	page := "site/auth/login.page.html"
+	page := "site/auth/login.html"
 
 	f := form.New(r.PostForm)
 	f.Required("email", "password")

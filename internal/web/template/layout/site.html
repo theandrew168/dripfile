@@ -16,11 +16,9 @@
 	</header>
 
 	<main>
-		{{block "main" .}}{{end}}
+		{{template "main" .}}
 	</main>
 
-	<footer>
-		<p>TODO: Put something interesting here.</p>
-	</footer>
+	{{template "footer" .}}
 </body>
 {{end}}

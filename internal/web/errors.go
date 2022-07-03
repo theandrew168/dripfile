@@ -35,17 +35,17 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, co
 }
 
 func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request) {
-	page := "error/400.page.html"
+	page := "error/400.html"
 	app.errorResponse(w, r, http.StatusBadRequest, page)
 }
 
 func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
-	page := "error/404.page.html"
+	page := "error/404.html"
 	app.errorResponse(w, r, http.StatusNotFound, page)
 }
 
 func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
-	page := "error/405.page.html"
+	page := "error/405.html"
 	app.errorResponse(w, r, http.StatusMethodNotAllowed, page)
 }
 
@@ -53,6 +53,6 @@ func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Reque
 	// log details of the error locally but the user sees a generic 500
 	app.logger.Error(err, nil)
 
-	page := "error/500.page.html"
+	page := "error/500.html"
 	app.errorResponse(w, r, http.StatusInternalServerError, page)
 }
