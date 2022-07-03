@@ -2,6 +2,7 @@ package api
 
 import (
 	"embed"
+	"html/template"
 	"io/fs"
 	"net/http"
 
@@ -14,19 +15,24 @@ import (
 var templateFS embed.FS
 
 type Application struct {
-	template fs.FS
+	index *template.Template
 
 	logger *jsonlog.Logger
 }
 
 func NewApplication(logger *jsonlog.Logger) *Application {
-	template, err := fs.Sub(templateFS, "template")
+	dir, err := fs.Sub(templateFS, "template")
+	if err != nil {
+		panic(err)
+	}
+
+	index, err := template.ParseFS(dir, "index.html")
 	if err != nil {
 		panic(err)
 	}
 
 	app := Application{
-		template: template,
+		index: index,
 
 		logger: logger,
 	}

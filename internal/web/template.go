@@ -1,17 +1,26 @@
-package tmpl
+package web
 
 import (
+	"fmt"
 	"html/template"
 	"io/fs"
 	"strings"
 )
 
-type Map map[string]*template.Template
+type TemplateCache struct {
+	dir    fs.FS
+	cache  map[string]*template.Template
+	reload bool
+}
 
 // Based on:
 // Let's Go - Chapter 5.3 (Alex Edwards)
-func NewMap(dir fs.FS) (Map, error) {
-	cache := make(map[string]*template.Template)
+func NewTemplateCache(dir fs.FS, reload bool) (*TemplateCache, error) {
+	tc := TemplateCache{
+		dir:    dir,
+		cache:  make(map[string]*template.Template),
+		reload: reload,
+	}
 
 	appPages, err := listTemplates(dir, "app")
 	if err != nil {
@@ -35,15 +44,34 @@ func NewMap(dir fs.FS) (Map, error) {
 
 	// Create a unique template set for each page.
 	for _, page := range pages {
-		ts, err := parseTemplate(dir, page)
+		t, err := parseTemplate(dir, page)
 		if err != nil {
 			return nil, err
 		}
 
-		cache[page] = ts
+		tc.cache[page] = t
 	}
 
-	return cache, nil
+	return &tc, nil
+}
+
+func (tc *TemplateCache) Get(page string) (*template.Template, error) {
+	if tc.reload {
+		t, err := parseTemplate(tc.dir, page)
+		if err != nil {
+			return nil, err
+		}
+
+		return t, nil
+	}
+
+	t, ok := tc.cache[page]
+	if !ok {
+		err := fmt.Errorf("web: template does not exist: %s", page)
+		return nil, err
+	}
+
+	return t, nil
 }
 
 func listTemplates(dir fs.FS, root string) ([]string, error) {
@@ -66,19 +94,19 @@ func listTemplates(dir fs.FS, root string) ([]string, error) {
 
 func parseTemplate(dir fs.FS, page string) (*template.Template, error) {
 	// base layout
-	ts, err := template.ParseFS(dir, "layout/base.html")
+	t, err := template.ParseFS(dir, "layout/base.html")
 	if err != nil {
 		return nil, err
 	}
 
 	// sub-layouts (if necessary)
 	if strings.HasPrefix(page, "app/") {
-		ts, err = ts.ParseFS(dir, "layout/app.html")
+		t, err = t.ParseFS(dir, "layout/app.html")
 		if err != nil {
 			return nil, err
 		}
 	} else if strings.HasPrefix(page, "site/") {
-		ts, err = ts.ParseFS(dir, "layout/site.html")
+		t, err = t.ParseFS(dir, "layout/site.html")
 		if err != nil {
 			return nil, err
 		}
@@ -90,16 +118,16 @@ func parseTemplate(dir fs.FS, page string) (*template.Template, error) {
 		return nil, err
 	}
 
-	ts, err = ts.ParseFS(dir, partials...)
+	t, err = t.ParseFS(dir, partials...)
 	if err != nil {
 		return nil, err
 	}
 
 	// page
-	ts, err = ts.ParseFS(dir, page)
+	t, err = t.ParseFS(dir, page)
 	if err != nil {
 		return nil, err
 	}
 
-	return ts, nil
+	return t, nil
 }

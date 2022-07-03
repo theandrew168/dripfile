@@ -16,7 +16,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/stripe"
-	"github.com/theandrew168/dripfile/internal/tmpl"
 )
 
 //go:embed static/img/logo-white.svg
@@ -33,10 +32,9 @@ var templateFS embed.FS
 
 type Application struct {
 	static   fs.FS
-	template fs.FS
+	template *TemplateCache
 
 	cfg     config.Config
-	tm      tmpl.Map
 	logger  *jsonlog.Logger
 	store   *storage.Storage
 	queue   *asynq.Client
@@ -52,27 +50,29 @@ func NewApplication(
 	box *secret.Box,
 	billing stripe.Billing,
 ) *Application {
-	var static fs.FS
-	var template fs.FS
+	var template *TemplateCache
+	var err error
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
-		static = os.DirFS("./internal/web/static/")
-		template = os.DirFS("./internal/web/template/")
-	} else {
-		// else use the embedded template FS
-		var err error
-		static, err = fs.Sub(staticFS, "static")
+		dir := os.DirFS("./internal/web/template/")
+		template, err = NewTemplateCache(dir, true)
 		if err != nil {
 			panic(err)
 		}
-		template, err = fs.Sub(templateFS, "template")
+	} else {
+		// else use the embedded template FS
+		dir, err := fs.Sub(templateFS, "template")
+		if err != nil {
+			panic(err)
+		}
+		template, err = NewTemplateCache(dir, false)
 		if err != nil {
 			panic(err)
 		}
 	}
 
-	tm, err := tmpl.NewMap(template)
+	static, err := fs.Sub(staticFS, "static")
 	if err != nil {
 		panic(err)
 	}
@@ -82,7 +82,6 @@ func NewApplication(
 		template: template,
 
 		cfg:     cfg,
-		tm:      tm,
 		logger:  logger,
 		store:   store,
 		queue:   queue,

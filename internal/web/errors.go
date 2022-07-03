@@ -2,14 +2,12 @@ package web
 
 import (
 	"bytes"
-	"fmt"
 	"net/http"
 )
 
 func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, code int, page string) {
-	ts, ok := app.tm[page]
-	if !ok {
-		err := fmt.Errorf("web: template does not exist: %s", page)
+	t, err := app.template.Get(page)
+	if err != nil {
 		app.logger.Error(err, nil)
 
 		code := http.StatusInternalServerError
@@ -19,7 +17,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, co
 
 	// render template to a temp buffer
 	var buf bytes.Buffer
-	err := ts.ExecuteTemplate(&buf, "base", nil)
+	err = t.ExecuteTemplate(&buf, "base", nil)
 	if err != nil {
 		app.logger.Error(err, nil)
 
