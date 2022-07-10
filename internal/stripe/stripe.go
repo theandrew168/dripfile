@@ -41,6 +41,7 @@ func (b *stripeBilling) CreateCustomer(email string) (string, error) {
 
 	customer, err := b.client.Customers.New(&params)
 	if err != nil {
+		// TODO: check for dupe email error?
 		return "", err
 	}
 

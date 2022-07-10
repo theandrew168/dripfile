@@ -11,59 +11,61 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/form"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 )
 
+type registerForm struct {
+	Form
+	Email    string
+	Password string
+}
+
+type registerData struct {
+	Form registerForm
+}
+
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/register.html"
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: form.New(nil),
-	}
-
+	data := registerData{}
 	app.render(w, r, page, data)
 }
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/register.html"
+	data := registerData{}
 
-	f := form.New(r.PostForm)
-	f.Required("email", "password")
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: f,
+	form := registerForm{
+		Email:    r.PostForm.Get("email"),
+		Password: r.PostForm.Get("password"),
 	}
 
-	if !f.Valid() {
+	form.CheckField(NotBlank(form.Email), "email", "This field cannot be blank")
+	form.CheckField(NotBlank(form.Password), "password", "This field cannot be blank")
+
+	if !form.Valid() {
+		data.Form = form
 		app.render(w, r, page, data)
 		return
 	}
 
-	email := f.Get("email")
-	password := f.Get("password")
-
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	// ensure email isn't already taken
-	_, err = app.store.Account.ReadByEmail(email)
+	_, err = app.store.Account.ReadByEmail(form.Email)
 	if err == nil || !errors.Is(err, database.ErrNotExist) {
-		f.Errors.Add("email", "An account with this email already exists")
+		form.AddError("email", "An account with this email already exists")
+		data.Form = form
 		app.render(w, r, page, data)
 		return
 	}
 
 	// create Stripe customer
-	customerID, err := app.billing.CreateCustomer(email)
+	customerID, err := app.billing.CreateCustomer(form.Email)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -81,7 +83,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		}
 
 		// create the new account
-		account = core.NewAccount(email, string(hash), core.RoleOwner, project)
+		account = core.NewAccount(form.Email, string(hash), core.RoleOwner, project)
 		err = store.Account.Create(&account)
 		if err != nil {
 			return err
@@ -90,8 +92,12 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return nil
 	})
 	if err != nil {
+		// check for TOCTOU race on account email
 		if errors.Is(err, database.ErrExist) {
-			f.Errors.Add("email", "An account with this email already exists")
+			// TODO: delete Stripe customer
+
+			form.AddError("email", "An account with this email already exists")
+			data.Form = form
 			app.render(w, r, page, data)
 			return
 		}
