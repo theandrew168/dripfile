@@ -94,11 +94,15 @@ func run() int {
 
 	// init the mailer interface
 	var mailer mail.Mailer
-	if cfg.PostmarkAPIKey != "" {
-		mailer = mail.NewPostmarkMailer(cfg.PostmarkAPIKey)
+	if cfg.SMTPURI != "" {
+		mailer, err = mail.NewSMTPMailer(cfg.SMTPURI)
 	} else {
 		logger.Infof("using mock mailer")
-		mailer = mail.NewMockMailer(logger)
+		mailer, err = mail.NewMockMailer(logger)
+	}
+	if err != nil {
+		logger.Error(err, nil)
+		return 1
 	}
 
 	// scheduler: run scheduler forever

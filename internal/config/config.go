@@ -11,12 +11,12 @@ import (
 const DefaultPort = "5000"
 
 type Config struct {
-	SiteURL        string `toml:"site_url"`
-	SecretKey      string `toml:"secret_key"`
-	DatabaseURI    string `toml:"database_uri"`
-	RedisURI       string `toml:"redis_uri"`
-	PostmarkAPIKey string `toml:"postmark_api_key"`
-	Port           string `toml:"port"`
+	SiteURL     string `toml:"site_url"`
+	SecretKey   string `toml:"secret_key"`
+	DatabaseURI string `toml:"database_uri"`
+	RedisURI    string `toml:"redis_uri"`
+	SMTPURI     string `toml:"smtp_uri"`
+	Port        string `toml:"port"`
 }
 
 func Read(data string) (Config, error) {

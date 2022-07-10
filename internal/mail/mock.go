@@ -8,11 +8,11 @@ type mockMailer struct {
 	logger *jsonlog.Logger
 }
 
-func NewMockMailer(logger *jsonlog.Logger) Mailer {
+func NewMockMailer(logger *jsonlog.Logger) (Mailer, error) {
 	m := mockMailer{
 		logger: logger,
 	}
-	return &m
+	return &m, nil
 }
 
 func (m *mockMailer) SendEmail(fromName, fromEmail, toName, toEmail, subject, body string) error {
