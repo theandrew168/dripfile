@@ -4,7 +4,6 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/hibiken/asynq"
 
-	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/secret"
@@ -12,39 +11,34 @@ import (
 )
 
 type Worker struct {
-	cfg    config.Config
 	logger *jsonlog.Logger
 	store  *storage.Storage
 	box    *secret.Box
 	mailer mail.Mailer
+
+	asynqServer *asynq.Server
 }
 
 func NewWorker(
-	cfg config.Config,
 	logger *jsonlog.Logger,
 	store *storage.Storage,
 	box *secret.Box,
 	mailer mail.Mailer,
+	asynqServer *asynq.Server,
 ) *Worker {
 	w := Worker{
-		cfg:    cfg,
 		logger: logger,
 		store:  store,
 		box:    box,
 		mailer: mailer,
+
+		asynqServer: asynqServer,
 	}
 	return &w
 }
 
 // TODO: signals and stuff?
 func (w *Worker) Run() error {
-	redis, err := asynq.ParseRedisURI(w.cfg.RedisURI)
-	if err != nil {
-		return err
-	}
-
-	srv := asynq.NewServer(redis, asynq.Config{Concurrency: 10})
-
 	mux := asynq.NewServeMux()
 	mux.HandleFunc(TypeSessionPrune, w.HandleSessionPrune)
 	mux.HandleFunc(TypeEmailSend, w.HandleEmailSend)
@@ -53,7 +47,7 @@ func (w *Worker) Run() error {
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
-	err = srv.Run(mux)
+	err := w.asynqServer.Run(mux)
 	if err != nil {
 		return err
 	}

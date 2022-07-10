@@ -212,7 +212,7 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	_, err = app.queue.Enqueue(t)
+	_, err = app.asynqClient.Enqueue(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

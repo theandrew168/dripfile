@@ -89,8 +89,8 @@ func run() int {
 		return 1
 	}
 
-	queue := asynq.NewClient(redis)
-	defer queue.Close()
+	asynqClient := asynq.NewClient(redis)
+	asynqServer := asynq.NewServer(redis, asynq.Config{Concurrency: 10})
 
 	// init the mailer interface
 	var mailer mail.Mailer
@@ -107,7 +107,7 @@ func run() int {
 
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
-		sched := scheduler.New(cfg, logger, store, queue)
+		sched := scheduler.New(cfg, logger, store, asynqClient)
 		err := sched.Run()
 		if err != nil {
 			logger.Error(err, nil)
@@ -118,7 +118,7 @@ func run() int {
 
 	// worker: run worker forever
 	if action == "worker" {
-		worker := task.NewWorker(cfg, logger, store, box, mailer)
+		worker := task.NewWorker(logger, store, box, mailer, asynqServer)
 		err := worker.Run()
 		if err != nil {
 			logger.Error(err, nil)
@@ -135,7 +135,7 @@ func run() int {
 
 	// instantiate applications (DI happens here)
 	apiApp := api.NewApplication(logger)
-	webApp := web.NewApplication(cfg, logger, store, queue, box)
+	webApp := web.NewApplication(logger, store, box, asynqClient)
 
 	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)

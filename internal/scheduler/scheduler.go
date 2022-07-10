@@ -17,20 +17,22 @@ type Scheduler struct {
 	cfg    config.Config
 	logger *jsonlog.Logger
 	store  *storage.Storage
-	queue  *asynq.Client
+
+	asynqClient *asynq.Client
 }
 
 func New(
 	cfg config.Config,
 	logger *jsonlog.Logger,
 	store *storage.Storage,
-	queue *asynq.Client,
+	asynqClient *asynq.Client,
 ) *Scheduler {
 	s := Scheduler{
 		cfg:    cfg,
 		logger: logger,
 		store:  store,
-		queue:  queue,
+
+		asynqClient: asynqClient,
 	}
 	return &s
 }
@@ -51,7 +53,7 @@ func (s *Scheduler) Run() error {
 			return
 		}
 
-		_, err = s.queue.Enqueue(t)
+		_, err = s.asynqClient.Enqueue(t)
 		if err != nil {
 			s.logger.Error(err, nil)
 			return
@@ -115,7 +117,7 @@ func (s *Scheduler) Run() error {
 					return
 				}
 
-				_, err = s.queue.Enqueue(t)
+				_, err = s.asynqClient.Enqueue(t)
 				if err != nil {
 					s.logger.Error(err, nil)
 					return

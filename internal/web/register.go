@@ -132,7 +132,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// submit email task
-	_, err = app.queue.Enqueue(t)
+	_, err = app.asynqClient.Enqueue(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

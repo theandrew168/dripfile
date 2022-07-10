@@ -11,7 +11,6 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -33,19 +32,18 @@ type Application struct {
 	static   fs.FS
 	template *TemplateCache
 
-	cfg    config.Config
 	logger *jsonlog.Logger
 	store  *storage.Storage
-	queue  *asynq.Client
 	box    *secret.Box
+
+	asynqClient *asynq.Client
 }
 
 func NewApplication(
-	cfg config.Config,
 	logger *jsonlog.Logger,
 	store *storage.Storage,
-	queue *asynq.Client,
 	box *secret.Box,
+	asynqClient *asynq.Client,
 ) *Application {
 	var template *TemplateCache
 	var err error
@@ -78,11 +76,11 @@ func NewApplication(
 		static:   static,
 		template: template,
 
-		cfg:    cfg,
 		logger: logger,
 		store:  store,
-		queue:  queue,
 		box:    box,
+
+		asynqClient: asynqClient,
 	}
 
 	return &app
