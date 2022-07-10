@@ -15,7 +15,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
-	"github.com/theandrew168/dripfile/internal/stripe"
 )
 
 //go:embed static/img/logo-white.svg
@@ -34,12 +33,11 @@ type Application struct {
 	static   fs.FS
 	template *TemplateCache
 
-	cfg     config.Config
-	logger  *jsonlog.Logger
-	store   *storage.Storage
-	queue   *asynq.Client
-	box     *secret.Box
-	billing stripe.Billing
+	cfg    config.Config
+	logger *jsonlog.Logger
+	store  *storage.Storage
+	queue  *asynq.Client
+	box    *secret.Box
 }
 
 func NewApplication(
@@ -48,7 +46,6 @@ func NewApplication(
 	store *storage.Storage,
 	queue *asynq.Client,
 	box *secret.Box,
-	billing stripe.Billing,
 ) *Application {
 	var template *TemplateCache
 	var err error
@@ -81,12 +78,11 @@ func NewApplication(
 		static:   static,
 		template: template,
 
-		cfg:     cfg,
-		logger:  logger,
-		store:   store,
-		queue:   queue,
-		box:     box,
-		billing: billing,
+		cfg:    cfg,
+		logger: logger,
+		store:  store,
+		queue:  queue,
+		box:    box,
 	}
 
 	return &app
@@ -165,43 +161,31 @@ func (app *Application) Handler(api http.Handler) http.Handler {
 	mux.Group(func(mux *flow.Mux) {
 		mux.Use(app.requireAuth)
 
-		// only requires auth because billing might not be setup yet
-		mux.HandleFunc("/billing/setup", app.handleBillingSetup, "GET")
-		mux.HandleFunc("/billing/checkout", app.handleBillingCheckout, "GET")
-		mux.HandleFunc("/billing/success", app.handleBillingSuccess, "GET")
-		mux.HandleFunc("/billing/cancel", app.handleBillingCancel, "GET")
+		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
-		// only requires auth so that new / old accounts can be managed w/o billing
 		mux.HandleFunc("/account", app.handleAccountRead, "GET")
 		mux.Handle("/account/delete", app.parseFormFunc(app.handleAccountDeleteForm), "POST")
 
-		// these routes require auth AND billing
-		mux.Group(func(mux *flow.Mux) {
-			mux.Use(app.requireBillingSetup)
+		mux.HandleFunc("/transfer", app.handleTransferList, "GET")
+		mux.HandleFunc("/transfer/create", app.handleTransferCreate, "GET")
+		mux.Handle("/transfer/create", app.parseFormFunc(app.handleTransferCreateForm), "POST")
+		mux.Handle("/transfer/delete", app.parseFormFunc(app.handleTransferDeleteForm), "POST")
+		mux.Handle("/transfer/run", app.parseFormFunc(app.handleTransferRunForm), "POST")
+		mux.HandleFunc("/transfer/:id", app.handleTransferRead, "GET")
 
-			mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
+		mux.HandleFunc("/location", app.handleLocationList, "GET")
+		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
+		mux.Handle("/location/create", app.parseFormFunc(app.handleLocationCreateForm), "POST")
+		mux.Handle("/location/delete", app.parseFormFunc(app.handleLocationDeleteForm), "POST")
+		mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
 
-			mux.HandleFunc("/transfer", app.handleTransferList, "GET")
-			mux.HandleFunc("/transfer/create", app.handleTransferCreate, "GET")
-			mux.Handle("/transfer/create", app.parseFormFunc(app.handleTransferCreateForm), "POST")
-			mux.Handle("/transfer/delete", app.parseFormFunc(app.handleTransferDeleteForm), "POST")
-			mux.Handle("/transfer/run", app.parseFormFunc(app.handleTransferRunForm), "POST")
-			mux.HandleFunc("/transfer/:id", app.handleTransferRead, "GET")
+		mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
+		mux.HandleFunc("/schedule/create", app.handleScheduleCreate, "GET")
+		mux.Handle("/schedule/create", app.parseFormFunc(app.handleScheduleCreateForm), "POST")
+		mux.Handle("/schedule/delete", app.parseFormFunc(app.handleScheduleDeleteForm), "POST")
+		mux.HandleFunc("/schedule/:id", app.handleScheduleRead, "GET")
 
-			mux.HandleFunc("/location", app.handleLocationList, "GET")
-			mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
-			mux.Handle("/location/create", app.parseFormFunc(app.handleLocationCreateForm), "POST")
-			mux.Handle("/location/delete", app.parseFormFunc(app.handleLocationDeleteForm), "POST")
-			mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
-
-			mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
-			mux.HandleFunc("/schedule/create", app.handleScheduleCreate, "GET")
-			mux.Handle("/schedule/create", app.parseFormFunc(app.handleScheduleCreateForm), "POST")
-			mux.Handle("/schedule/delete", app.parseFormFunc(app.handleScheduleDeleteForm), "POST")
-			mux.HandleFunc("/schedule/:id", app.handleScheduleRead, "GET")
-
-			mux.HandleFunc("/history", app.handleHistoryList, "GET")
-		})
+		mux.HandleFunc("/history", app.handleHistoryList, "GET")
 	})
 
 	return mux

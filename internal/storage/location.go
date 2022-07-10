@@ -57,9 +57,7 @@ func (s *Location) Read(id string) (core.Location, error) {
 			location.kind,
 			location.name,
 			location.info,
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM location
 		INNER JOIN project
 			ON project.id = location.project_id
@@ -72,8 +70,6 @@ func (s *Location) Read(id string) (core.Location, error) {
 		&location.Name,
 		&location.Info,
 		&location.Project.ID,
-		&location.Project.CustomerID,
-		&location.Project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -150,9 +146,7 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 			location.kind,
 			location.name,
 			location.info,
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM location
 		INNER JOIN project
 			ON project.id = location.project_id
@@ -176,8 +170,6 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 			&location.Name,
 			&location.Info,
 			&location.Project.ID,
-			&location.Project.CustomerID,
-			&location.Project.SubscriptionItemID,
 		}
 
 		err := database.Scan(rows, dest...)

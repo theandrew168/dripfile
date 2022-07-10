@@ -25,7 +25,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
-	"github.com/theandrew168/dripfile/internal/stripe"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/web"
 )
@@ -102,20 +101,6 @@ func run() int {
 		mailer = mail.NewMockMailer(logger)
 	}
 
-	// init the stripe billing interface
-	var billing stripe.Billing
-	if cfg.StripeSecretKey != "" {
-		billing = stripe.NewBilling(
-			logger,
-			cfg.StripeSecretKey,
-			cfg.SiteURL+"/billing/success",
-			cfg.SiteURL+"/billing/cancel",
-		)
-	} else {
-		logger.Infof("using mock billing")
-		billing = stripe.NewMockBilling(logger)
-	}
-
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
 		sched := scheduler.New(cfg, logger, store, queue)
@@ -129,7 +114,7 @@ func run() int {
 
 	// worker: run worker forever
 	if action == "worker" {
-		worker := task.NewWorker(cfg, logger, store, box, mailer, billing)
+		worker := task.NewWorker(cfg, logger, store, box, mailer)
 		err := worker.Run()
 		if err != nil {
 			logger.Error(err, nil)
@@ -146,7 +131,7 @@ func run() int {
 
 	// instantiate applications (DI happens here)
 	apiApp := api.NewApplication(logger)
-	webApp := web.NewApplication(cfg, logger, store, queue, box, billing)
+	webApp := web.NewApplication(cfg, logger, store, queue, box)
 
 	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)

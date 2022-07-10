@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"math"
 	"time"
 
 	"github.com/hibiken/asynq"
@@ -121,9 +120,6 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 		totalBytes += file.Size
 	}
 
-	// convert total bytes to megabytes
-	mb := math.Ceil(float64(totalBytes) / (1000 * 1000))
-
 	// update history table
 	finish := time.Now()
 	history := core.NewHistory(
@@ -136,14 +132,6 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 	)
 
 	err = w.store.History.Create(&history)
-	if err != nil {
-		return err
-	}
-
-	// create usage record
-	customerID := transfer.Project.CustomerID
-	subscriptionItemID := transfer.Project.SubscriptionItemID
-	err = w.billing.CreateUsageRecord(customerID, subscriptionItemID, int64(mb))
 	if err != nil {
 		return err
 	}

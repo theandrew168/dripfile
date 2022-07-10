@@ -57,26 +57,6 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 	})
 }
 
-// check for valid Stripe subscription ID
-func (app *Application) requireBillingSetup(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// check for session
-		session, err := app.requestSession(r)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		// check if project has verified billing
-		if session.Account.Project.SubscriptionItemID == "" {
-			http.Redirect(w, r, "/billing/setup", http.StatusSeeOther)
-			return
-		}
-
-		next.ServeHTTP(w, r)
-	})
-}
-
 // set size limit and attempt to parse POSTed form data
 func (app *Application) parseForm(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

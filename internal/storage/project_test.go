@@ -6,14 +6,11 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/random"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
 func mockProject() core.Project {
-	project := core.NewProject(
-		random.String(8),
-	)
+	project := core.NewProject()
 	return project
 }
 
@@ -30,12 +27,6 @@ func TestProject(t *testing.T) {
 
 	if project.ID == "" {
 		t.Fatal("record ID should be non-empty after create")
-	}
-
-	// duplicate
-	err = store.Project.Create(&project)
-	if !errors.Is(err, database.ErrExist) {
-		t.Fatal("duplicate record should return an error")
 	}
 
 	// read
@@ -69,27 +60,6 @@ func TestProject(t *testing.T) {
 
 	if !found {
 		t.Fatal("record ID should be found in list of all records")
-	}
-
-	// update
-	project.CustomerID = random.String(8)
-	project.SubscriptionItemID = random.String(8)
-
-	err = store.Project.Update(project)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	got, err = store.Project.Read(project.ID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if got.CustomerID != project.CustomerID {
-		t.Fatal("CustomerID should be match after update")
-	}
-	if got.SubscriptionItemID != project.SubscriptionItemID {
-		t.Fatal("SubscriptionItemID should be match after update")
 	}
 
 	// delete

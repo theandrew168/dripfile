@@ -55,9 +55,7 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 			schedule.id,
 			schedule.name,
 			schedule.expr,
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM schedule
 		INNER JOIN project
 			ON project.id = schedule.project_id
@@ -69,8 +67,6 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 		&schedule.Name,
 		&schedule.Expr,
 		&schedule.Project.ID,
-		&schedule.Project.CustomerID,
-		&schedule.Project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -119,9 +115,7 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 			schedule.id,
 			schedule.name,
 			schedule.expr,
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM schedule
 		INNER JOIN project
 			ON project.id = schedule.project_id
@@ -144,8 +138,6 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 			&schedule.Name,
 			&schedule.Expr,
 			&schedule.Project.ID,
-			&schedule.Project.CustomerID,
-			&schedule.Project.SubscriptionItemID,
 		}
 
 		err := database.Scan(rows, dest...)

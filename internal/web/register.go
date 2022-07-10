@@ -64,19 +64,12 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// create Stripe customer
-	customerID, err := app.billing.CreateCustomer(form.Email)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
 	// create new project and new account within a single transaction
 	var project core.Project
 	var account core.Account
 	err = app.store.WithTransaction(func(store *storage.Storage) error {
 		// create project for the new account
-		project = core.NewProject(customerID)
+		project = core.NewProject()
 		err := store.Project.Create(&project)
 		if err != nil {
 			return err
@@ -94,7 +87,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		// check for TOCTOU race on account email
 		if errors.Is(err, database.ErrExist) {
-			// TODO: delete Stripe customer
+			// TODO: delete project
 
 			form.AddError("email", "An account with this email already exists")
 			data.Form = form
@@ -158,6 +151,6 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		"account_id": session.Account.ID,
 	})
 
-	// redirect to billing setup
-	http.Redirect(w, r, "/billing/setup", http.StatusSeeOther)
+	// redirect to dashboard
+	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }

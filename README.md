@@ -62,27 +62,20 @@ make test
 * Schedule-based transfers
 * Polling-based transfers
 * Automatic retries
-* Pay-as-you-go pricing ($0.10 per GB)
-* Generous free tier (first 10GB free)
-* Seamless integration with isolated networks
-* Unlimited team members per project
 * Role-based access controls
 * Detailed, customizable notifications
 * Notify via email, text, etc
 * Automatic compression and encryption
 * Works with S3, FTP, FTPS, SFTP, etc
 * Choose from common schedules or build your own
-* Database backups (postgresql, mysql, mongodb)
 
 ## User Stories
 * Guest registers and is logged in
 * Guest logs in
 * User verifies their email address (required to log in?)
-* User switches current project
 * User invites a Guest to their project (by email)
 * User deletes another User from their project (owner or admin)
 * User updates another User's role (owner or admin)
-* User updates payment info (require upon reg?)
 * User deletes Account (and all ref'd info)
 * User CRUDs a Location (no delete if affected Transfers)
 * User CRUDs a Transfer (history entries persist but won't link back)
@@ -92,6 +85,4 @@ make test
 * User reruns a completed Transfer adhoc
 * User views Transfer history
 * User cancels an in-progress Transfer
-* User updates their payment info
-* User views old invoices
 * User switches account auth method (email, github, google, etc)

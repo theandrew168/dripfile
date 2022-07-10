@@ -9,16 +9,14 @@ import (
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
-	"github.com/theandrew168/dripfile/internal/stripe"
 )
 
 type Worker struct {
-	cfg     config.Config
-	logger  *jsonlog.Logger
-	store   *storage.Storage
-	box     *secret.Box
-	mailer  mail.Mailer
-	billing stripe.Billing
+	cfg    config.Config
+	logger *jsonlog.Logger
+	store  *storage.Storage
+	box    *secret.Box
+	mailer mail.Mailer
 }
 
 func NewWorker(
@@ -27,15 +25,13 @@ func NewWorker(
 	store *storage.Storage,
 	box *secret.Box,
 	mailer mail.Mailer,
-	billing stripe.Billing,
 ) *Worker {
 	w := Worker{
-		cfg:     cfg,
-		logger:  logger,
-		store:   store,
-		box:     box,
-		mailer:  mailer,
-		billing: billing,
+		cfg:    cfg,
+		logger: logger,
+		store:  store,
+		box:    box,
+		mailer: mailer,
 	}
 	return &w
 }

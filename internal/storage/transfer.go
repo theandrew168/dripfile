@@ -70,9 +70,7 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 			schedule.name,
 			schedule.expr,
 			schedule.project_id,
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM transfer
 		INNER JOIN location src
 			ON src.id = transfer.src_id
@@ -103,8 +101,6 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 		&transfer.Schedule.Expr,
 		&transfer.Schedule.Project.ID,
 		&transfer.Project.ID,
-		&transfer.Project.CustomerID,
-		&transfer.Project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -130,7 +126,7 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 			pattern = $2,
 			src_id = $3,
 			dst_id = $4,
-			schedule_id = $5,
+			schedule_id = $5
 		WHERE id = $1`
 
 	args := []interface{}{
@@ -195,9 +191,7 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 			schedule.name,
 			schedule.expr,
 			schedule.project_id,
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM transfer
 		INNER JOIN location src
 			ON src.id = transfer.src_id
@@ -238,8 +232,6 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 			&transfer.Schedule.Expr,
 			&transfer.Schedule.Project.ID,
 			&transfer.Project.ID,
-			&transfer.Project.CustomerID,
-			&transfer.Project.SubscriptionItemID,
 		}
 
 		err := database.Scan(rows, dest...)
@@ -280,9 +272,7 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 			schedule.name,
 			schedule.expr,
 			schedule.project_id,
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM transfer
 		INNER JOIN location src
 			ON src.id = transfer.src_id
@@ -324,8 +314,6 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 			&transfer.Schedule.Expr,
 			&transfer.Schedule.Project.ID,
 			&transfer.Project.ID,
-			&transfer.Project.CustomerID,
-			&transfer.Project.SubscriptionItemID,
 		}
 
 		err := database.Scan(rows, dest...)

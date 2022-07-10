@@ -22,15 +22,11 @@ func NewProject(db database.Conn) *Project {
 func (s *Project) Create(project *core.Project) error {
 	stmt := `
 		INSERT INTO project
-			(customer_id, subscription_item_id)
 		VALUES
-			($1, $2)
+			(default)
 		RETURNING id`
 
-	args := []interface{}{
-		project.CustomerID,
-		project.SubscriptionItemID,
-	}
+	args := []interface{}{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -51,17 +47,13 @@ func (s *Project) Create(project *core.Project) error {
 func (s *Project) Read(id string) (core.Project, error) {
 	stmt := `
 		SELECT
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM project
 		WHERE project.id = $1`
 
 	var project core.Project
 	dest := []interface{}{
 		&project.ID,
-		&project.CustomerID,
-		&project.SubscriptionItemID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -78,35 +70,6 @@ func (s *Project) Read(id string) (core.Project, error) {
 	}
 
 	return project, nil
-}
-
-func (s *Project) Update(project core.Project) error {
-	stmt := `
-		UPDATE project
-		SET
-			customer_id = $2,
-			subscription_item_id = $3
-		WHERE id = $1`
-
-	args := []interface{}{
-		project.ID,
-		project.CustomerID,
-		project.SubscriptionItemID,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	err := database.Exec(s.db, ctx, stmt, args...)
-	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
-			return s.Update(project)
-		}
-
-		return err
-	}
-
-	return nil
 }
 
 func (s *Project) Delete(project core.Project) error {
@@ -132,9 +95,7 @@ func (s *Project) Delete(project core.Project) error {
 func (s *Project) ReadAll() ([]core.Project, error) {
 	stmt := `
 		SELECT
-			project.id,
-			project.customer_id,
-			project.subscription_item_id
+			project.id
 		FROM project`
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -151,8 +112,6 @@ func (s *Project) ReadAll() ([]core.Project, error) {
 		var project core.Project
 		dest := []interface{}{
 			&project.ID,
-			&project.CustomerID,
-			&project.SubscriptionItemID,
 		}
 
 		err := database.Scan(rows, dest...)
