@@ -27,7 +27,7 @@ func Database(t *testing.T) (database.Conn, CloserFunc) {
 	t.Helper()
 
 	cfg := Config(t)
-	conn, err := database.Connect(cfg.DatabaseURI)
+	conn, err := database.Connect(cfg.PostgresURL)
 	if err != nil {
 		t.Fatal(err)
 	}

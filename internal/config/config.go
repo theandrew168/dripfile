@@ -11,11 +11,10 @@ import (
 const DefaultPort = "5000"
 
 type Config struct {
-	SiteURL     string `toml:"site_url"`
 	SecretKey   string `toml:"secret_key"`
-	DatabaseURI string `toml:"database_uri"`
-	RedisURI    string `toml:"redis_uri"`
-	SMTPURI     string `toml:"smtp_uri"`
+	PostgresURL string `toml:"postgres_url"`
+	RedisURL    string `toml:"redis_url"`
+	SMTPURL     string `toml:"smtp_url"`
 	Port        string `toml:"port"`
 }
 
@@ -50,10 +49,9 @@ func Read(data string) (Config, error) {
 	}
 
 	required := []string{
-		"site_url",
 		"secret_key",
-		"database_uri",
-		"redis_uri",
+		"postgres_url",
+		"redis_url",
 	}
 
 	// gather missing values

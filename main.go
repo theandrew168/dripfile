@@ -55,7 +55,7 @@ func run() int {
 	copy(secretKey[:], secretKeyBytes)
 	box := secret.NewBox(secretKey)
 
-	pool, err := database.ConnectPool(cfg.DatabaseURI)
+	pool, err := database.ConnectPool(cfg.PostgresURL)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1
@@ -83,7 +83,7 @@ func run() int {
 
 	store := storage.New(pool)
 
-	redis, err := asynq.ParseRedisURI(cfg.RedisURI)
+	redis, err := asynq.ParseRedisURI(cfg.RedisURL)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1
@@ -94,8 +94,8 @@ func run() int {
 
 	// init the mailer interface
 	var mailer mail.Mailer
-	if cfg.SMTPURI != "" {
-		mailer, err = mail.NewSMTPMailer(cfg.SMTPURI)
+	if cfg.SMTPURL != "" {
+		mailer, err = mail.NewSMTPMailer(cfg.SMTPURL)
 	} else {
 		logger.Infof("using mock mailer")
 		mailer, err = mail.NewMockMailer(logger)
