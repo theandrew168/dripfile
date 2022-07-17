@@ -118,6 +118,8 @@ func (app *Application) Handler(api http.Handler) http.Handler {
 	mux.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	mux.Use(app.recoverPanic)
+	mux.Use(app.setSecureHeaders)
+	mux.Use(app.limitRequestSize)
 
 	// healthcheck endpoint
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
