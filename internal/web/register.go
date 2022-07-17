@@ -13,10 +13,11 @@ import (
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/validator"
 )
 
 type registerForm struct {
-	Form
+	validator.Validator
 	Email    string
 	Password string
 }
@@ -39,8 +40,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		Password: r.PostForm.Get("Password"),
 	}
 
-	form.CheckNotBlank(form.Email, "Email")
-	form.CheckNotBlank(form.Password, "Password")
+	form.CheckRequired(form.Email, "Email")
+	form.CheckRequired(form.Password, "Password")
 
 	if !form.Valid() {
 		data := registerData{
@@ -59,7 +60,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	// ensure email isn't already taken
 	_, err = app.store.Account.ReadByEmail(form.Email)
 	if err == nil || !errors.Is(err, postgresql.ErrNotExist) {
-		form.AddError("email", "An account with this email already exists")
+		form.SetFieldError("Email", "An account with this email already exists")
 
 		data := registerData{
 			Form: form,
@@ -91,7 +92,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		// check for TOCTOU race on account email
 		if errors.Is(err, postgresql.ErrExist) {
-			form.AddError("email", "An account with this email already exists")
+			form.SetFieldError("Email", "An account with this email already exists")
 
 			data := registerData{
 				Form: form,

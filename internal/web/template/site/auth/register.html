@@ -10,7 +10,7 @@
 
 			<p>
 				<label for="input-email">E-Mail</label>
-				{{with .Form.Errors.Email}}
+				{{with .Form.FieldError.Email}}
 				<small id="error-email">{{.}}</small>
 				{{end}}
 				<input id="input-email" name="Email" type="email" value="{{.Form.Email}}" />
@@ -18,7 +18,7 @@
 
 			<p>
 				<label for="input-password">Password</label>
-				{{with .Form.Errors.Password}}
+				{{with .Form.FieldError.Password}}
 				<small id="error-password">{{.}}</small>
 				{{end}}
 				<input id="input-password" name="Password" type="password" />

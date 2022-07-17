@@ -2,10 +2,12 @@ package web
 
 import (
 	"net/http"
+
+	"github.com/theandrew168/dripfile/internal/validator"
 )
 
 type dashboardForm struct {
-	Form
+	validator.Validator
 	Search string
 }
 

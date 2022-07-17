@@ -11,10 +11,11 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/validator"
 )
 
 type loginForm struct {
-	Form
+	validator.Validator
 	Email    string
 	Password string
 }
@@ -37,8 +38,8 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		Password: r.PostForm.Get("Password"),
 	}
 
-	form.CheckNotBlank(form.Email, "Email")
-	form.CheckNotBlank(form.Password, "Password")
+	form.CheckRequired(form.Email, "Email")
+	form.CheckRequired(form.Password, "Password")
 
 	if !form.Valid() {
 		data := loginData{
@@ -51,7 +52,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	account, err := app.store.Account.ReadByEmail(form.Email)
 	if err != nil {
 		if errors.Is(err, postgresql.ErrNotExist) {
-			form.Error = "Invalid email or password"
+			form.SetError("Invalid email or password")
 
 			data := loginData{
 				Form: form,
@@ -66,7 +67,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(form.Password))
 	if err != nil {
-		form.Error = "Invalid email or password"
+		form.SetError("Invalid email or password")
 
 		data := loginData{
 			Form: form,

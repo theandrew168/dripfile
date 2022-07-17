@@ -9,10 +9,11 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/validator"
 )
 
 type transferForm struct {
-	Form
+	validator.Validator
 	Pattern    string
 	SrcID      string
 	DstID      string
@@ -126,7 +127,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		ScheduleID: r.PostForm.Get("ScheduleID"),
 	}
 
-	form.CheckNotBlank(form.Pattern, "Pattern")
+	form.CheckRequired(form.Pattern, "Pattern")
 
 	if !form.Valid() {
 		data := transferData{

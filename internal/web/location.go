@@ -10,10 +10,11 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/fileserver"
 	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/validator"
 )
 
 type locationForm struct {
-	Form
+	validator.Validator
 	Endpoint        string
 	BucketName      string
 	AccessKeyID     string
@@ -91,10 +92,10 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		SecretAccessKey: r.PostForm.Get("SecretAccessKey"),
 	}
 
-	form.CheckNotBlank(form.Endpoint, "Endpoint")
-	form.CheckNotBlank(form.BucketName, "BucketName")
-	form.CheckNotBlank(form.AccessKeyID, "AccessKeyID")
-	form.CheckNotBlank(form.SecretAccessKey, "SecretAccessKey")
+	form.CheckRequired(form.Endpoint, "Endpoint")
+	form.CheckRequired(form.BucketName, "BucketName")
+	form.CheckRequired(form.AccessKeyID, "AccessKeyID")
+	form.CheckRequired(form.SecretAccessKey, "SecretAccessKey")
 
 	if !form.Valid() {
 		data := locationData{
@@ -113,7 +114,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 
 	conn, err := fileserver.NewS3(info)
 	if err != nil {
-		form.Error = err.Error()
+		form.SetError(err.Error())
 
 		data := locationData{
 			Form: form,
@@ -125,7 +126,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	// verify connection
 	err = conn.Ping()
 	if err != nil {
-		form.Error = err.Error()
+		form.SetError(err.Error())
 
 		data := locationData{
 			Form: form,

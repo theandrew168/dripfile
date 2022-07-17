@@ -9,6 +9,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/validator"
 )
 
 // https://gist.github.com/jpluimers/6510369
@@ -23,7 +24,7 @@ var shortcuts = map[string]string{
 }
 
 type scheduleForm struct {
-	Form
+	validator.Validator
 	Expr string
 }
 
@@ -101,7 +102,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		Expr: r.PostForm.Get("Expr"),
 	}
 
-	form.CheckNotBlank(form.Expr, "Expr")
+	form.CheckRequired(form.Expr, "Expr")
 
 	if !form.Valid() {
 		data := scheduleData{
@@ -119,7 +120,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 
 	name, err := dtor.ToDescription(expr, cron.Locale_en)
 	if err != nil {
-		form.AddError("Expr", "Invalid cron expression")
+		form.SetFieldError("Expr", "Invalid cron expression")
 		data := scheduleData{
 			Form: form,
 		}

@@ -10,7 +10,7 @@
 
 			<p>
 				<label for="input-pattern">Pattern</label>
-				{{with .Form.Errors.Pattern}}
+				{{with .Form.FieldError.Pattern}}
 				<small id="error-pattern">{{.}}</small>
 				{{end}}
 				<input id="input-pattern" name="Pattern" type="text" value='{{.Form.Pattern}}' />
