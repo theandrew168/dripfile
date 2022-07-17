@@ -25,7 +25,8 @@ var shortcuts = map[string]string{
 
 type scheduleForm struct {
 	validator.Validator `form:"-"`
-	Expr                string `form:"Expr"`
+
+	Expr string `form:"Expr"`
 }
 
 type scheduleData struct {

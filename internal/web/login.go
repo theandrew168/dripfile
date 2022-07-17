@@ -16,8 +16,9 @@ import (
 
 type loginForm struct {
 	validator.Validator `form:"-"`
-	Email               string `form:"Email"`
-	Password            string `form:"Password"`
+
+	Email    string `form:"Email"`
+	Password string `form:"Password"`
 }
 
 type loginData struct {

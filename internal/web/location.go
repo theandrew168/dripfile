@@ -15,10 +15,11 @@ import (
 
 type locationForm struct {
 	validator.Validator `form:"-"`
-	Endpoint            string `form:"Endpoint"`
-	BucketName          string `form:"BucketName"`
-	AccessKeyID         string `form:"AccessKeyID"`
-	SecretAccessKey     string `form:"SecretAccessKey"`
+
+	Endpoint        string `form:"Endpoint"`
+	BucketName      string `form:"BucketName"`
+	AccessKeyID     string `form:"AccessKeyID"`
+	SecretAccessKey string `form:"SecretAccessKey"`
 }
 
 type locationData struct {

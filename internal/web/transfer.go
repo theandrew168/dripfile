@@ -14,20 +14,23 @@ import (
 
 type transferCreateForm struct {
 	validator.Validator `form:"-"`
-	Pattern             string `form:"Pattern"`
-	SrcID               string `form:"SrcID"`
-	DstID               string `form:"DstID"`
-	ScheduleID          string `form:"ScheduleID"`
+
+	Pattern    string `form:"Pattern"`
+	SrcID      string `form:"SrcID"`
+	DstID      string `form:"DstID"`
+	ScheduleID string `form:"ScheduleID"`
 }
 
 type transferRunForm struct {
 	validator.Validator `form:"-"`
-	TransferID          string `form:"TransferID"`
+
+	TransferID string `form:"TransferID"`
 }
 
 type transferDeleteForm struct {
 	validator.Validator `form:"-"`
-	TransferID          string `form:"TransferID"`
+
+	TransferID string `form:"TransferID"`
 }
 
 type transferData struct {
