@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 )
@@ -57,7 +57,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	// ensure email isn't already taken
 	_, err = app.store.Account.ReadByEmail(form.Email)
-	if err == nil || !errors.Is(err, database.ErrNotExist) {
+	if err == nil || !errors.Is(err, postgresql.ErrNotExist) {
 		form.AddError("email", "An account with this email already exists")
 		data.Form = form
 		app.render(w, r, page, data)
@@ -86,7 +86,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	})
 	if err != nil {
 		// check for TOCTOU race on account email
-		if errors.Is(err, database.ErrExist) {
+		if errors.Is(err, postgresql.ErrExist) {
 			// TODO: delete project
 
 			form.AddError("email", "An account with this email already exists")

@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
@@ -70,7 +70,7 @@ func TestProject(t *testing.T) {
 
 	// verify that ID isn't present anymore
 	_, err = store.Project.Read(project.ID)
-	if !errors.Is(err, database.ErrNotExist) {
+	if !errors.Is(err, postgresql.ErrNotExist) {
 		t.Fatal("record ID should be gone after delete")
 	}
 }

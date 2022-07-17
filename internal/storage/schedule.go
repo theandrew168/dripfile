@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Schedule struct {
-	db database.Conn
+	db postgresql.Conn
 }
 
-func NewSchedule(db database.Conn) *Schedule {
+func NewSchedule(db postgresql.Conn) *Schedule {
 	s := Schedule{
 		db: db,
 	}
@@ -37,9 +37,9 @@ func (s *Schedule) Create(schedule *core.Schedule) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := database.Scan(row, &schedule.ID)
+	err := postgresql.Scan(row, &schedule.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Create(schedule)
 		}
 
@@ -73,9 +73,9 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
+	err := postgresql.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -97,9 +97,9 @@ func (s *Schedule) Delete(schedule core.Schedule) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, schedule.ID)
+	err := postgresql.Exec(s.db, ctx, stmt, schedule.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Delete(schedule)
 		}
 
@@ -140,9 +140,9 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 			&schedule.Project.ID,
 		}
 
-		err := database.Scan(rows, dest...)
+		err := postgresql.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, database.ErrRetry) {
+			if errors.Is(err, postgresql.ErrRetry) {
 				return s.ReadAllByProject(project)
 			}
 

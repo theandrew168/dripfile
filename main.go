@@ -18,10 +18,10 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -55,7 +55,7 @@ func run() int {
 	copy(secretKey[:], secretKeyBytes)
 	box := secret.NewBox(secretKey)
 
-	pool, err := database.ConnectPool(cfg.PostgresURL)
+	pool, err := postgresql.ConnectPool(cfg.PostgreSQLURL)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1

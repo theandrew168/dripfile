@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Location struct {
-	db database.Conn
+	db postgresql.Conn
 }
 
-func NewLocation(db database.Conn) *Location {
+func NewLocation(db postgresql.Conn) *Location {
 	s := Location{
 		db: db,
 	}
@@ -38,9 +38,9 @@ func (s *Location) Create(location *core.Location) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := database.Scan(row, &location.ID)
+	err := postgresql.Scan(row, &location.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Create(location)
 		}
 
@@ -76,9 +76,9 @@ func (s *Location) Read(id string) (core.Location, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
+	err := postgresql.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -107,9 +107,9 @@ func (s *Location) Update(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, args...)
+	err := postgresql.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Update(location)
 		}
 
@@ -127,9 +127,9 @@ func (s *Location) Delete(location core.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, location.ID)
+	err := postgresql.Exec(s.db, ctx, stmt, location.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Delete(location)
 		}
 
@@ -172,9 +172,9 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 			&location.Project.ID,
 		}
 
-		err := database.Scan(rows, dest...)
+		err := postgresql.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, database.ErrRetry) {
+			if errors.Is(err, postgresql.ErrRetry) {
 				return s.ReadAllByProject(project)
 			}
 

@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Transfer struct {
-	db database.Conn
+	db postgresql.Conn
 }
 
-func NewTransfer(db database.Conn) *Transfer {
+func NewTransfer(db postgresql.Conn) *Transfer {
 	s := Transfer{
 		db: db,
 	}
@@ -39,9 +39,9 @@ func (s *Transfer) Create(transfer *core.Transfer) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := database.Scan(row, &transfer.ID)
+	err := postgresql.Scan(row, &transfer.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Create(transfer)
 		}
 
@@ -107,9 +107,9 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
+	err := postgresql.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -140,9 +140,9 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, args...)
+	err := postgresql.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Update(transfer)
 		}
 
@@ -160,9 +160,9 @@ func (s *Transfer) Delete(transfer core.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, transfer.ID)
+	err := postgresql.Exec(s.db, ctx, stmt, transfer.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Delete(transfer)
 		}
 
@@ -234,9 +234,9 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 			&transfer.Project.ID,
 		}
 
-		err := database.Scan(rows, dest...)
+		err := postgresql.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, database.ErrRetry) {
+			if errors.Is(err, postgresql.ErrRetry) {
 				return s.ReadAll()
 			}
 
@@ -316,9 +316,9 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 			&transfer.Project.ID,
 		}
 
-		err := database.Scan(rows, dest...)
+		err := postgresql.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, database.ErrRetry) {
+			if errors.Is(err, postgresql.ErrRetry) {
 				return s.ReadAllByProject(project)
 			}
 

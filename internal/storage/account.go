@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Account struct {
-	db database.Conn
+	db postgresql.Conn
 }
 
-func NewAccount(db database.Conn) *Account {
+func NewAccount(db postgresql.Conn) *Account {
 	s := Account{
 		db: db,
 	}
@@ -39,9 +39,9 @@ func (s *Account) Create(account *core.Account) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := database.Scan(row, &account.ID)
+	err := postgresql.Scan(row, &account.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Create(account)
 		}
 
@@ -79,9 +79,9 @@ func (s *Account) Read(id string) (core.Account, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
+	err := postgresql.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -112,9 +112,9 @@ func (s *Account) Update(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, args...)
+	err := postgresql.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Update(account)
 		}
 
@@ -132,9 +132,9 @@ func (s *Account) Delete(account core.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, account.ID)
+	err := postgresql.Exec(s.db, ctx, stmt, account.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Delete(account)
 		}
 
@@ -172,9 +172,9 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, email)
-	err := database.Scan(row, dest...)
+	err := postgresql.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.ReadByEmail(email)
 		}
 
@@ -199,9 +199,9 @@ func (s *Account) CountByProject(project core.Project) (int, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, project.ID)
-	err := database.Scan(row, &count)
+	err := postgresql.Scan(row, &count)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.CountByProject(project)
 		}
 

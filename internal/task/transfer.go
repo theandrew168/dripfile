@@ -9,8 +9,8 @@ import (
 	"github.com/hibiken/asynq"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/fileserver"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 const (
@@ -48,7 +48,7 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 	transfer, err := w.store.Transfer.Read(payload.TransferID)
 	if err != nil {
 		// transfer has since been deleted
-		if errors.Is(err, database.ErrNotExist) {
+		if errors.Is(err, postgresql.ErrNotExist) {
 			w.logger.Info("transfer deleted", map[string]string{
 				"transfer_id": transfer.ID,
 			})

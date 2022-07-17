@@ -11,11 +11,11 @@ import (
 const DefaultPort = "5000"
 
 type Config struct {
-	SecretKey   string `toml:"secret_key"`
-	PostgresURL string `toml:"postgres_url"`
-	RedisURL    string `toml:"redis_url"`
-	SMTPURL     string `toml:"smtp_url"`
-	Port        string `toml:"port"`
+	SecretKey     string `toml:"secret_key"`
+	PostgreSQLURL string `toml:"postgresql_url"`
+	RedisURL      string `toml:"redis_url"`
+	SMTPURL       string `toml:"smtp_url"`
+	Port          string `toml:"port"`
 }
 
 func Read(data string) (Config, error) {
@@ -50,7 +50,7 @@ func Read(data string) (Config, error) {
 
 	required := []string{
 		"secret_key",
-		"postgres_url",
+		"postgresql_url",
 		"redis_url",
 	}
 

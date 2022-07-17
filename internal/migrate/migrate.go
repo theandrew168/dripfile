@@ -7,14 +7,14 @@ import (
 	"io/fs"
 	"sort"
 
-	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 //go:embed migration
 var migrationFS embed.FS
 
-func Migrate(logger *jsonlog.Logger, db database.Conn) error {
+func Migrate(logger *jsonlog.Logger, db postgresql.Conn) error {
 	ctx := context.Background()
 
 	// attempt to create extensions and ignore errors

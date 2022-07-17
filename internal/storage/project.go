@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Project struct {
-	db database.Conn
+	db postgresql.Conn
 }
 
-func NewProject(db database.Conn) *Project {
+func NewProject(db postgresql.Conn) *Project {
 	s := Project{
 		db: db,
 	}
@@ -32,9 +32,9 @@ func (s *Project) Create(project *core.Project) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := database.Scan(row, &project.ID)
+	err := postgresql.Scan(row, &project.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Create(project)
 		}
 
@@ -60,9 +60,9 @@ func (s *Project) Read(id string) (core.Project, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
+	err := postgresql.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -80,9 +80,9 @@ func (s *Project) Delete(project core.Project) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := database.Exec(s.db, ctx, stmt, project.ID)
+	err := postgresql.Exec(s.db, ctx, stmt, project.ID)
 	if err != nil {
-		if errors.Is(err, database.ErrRetry) {
+		if errors.Is(err, postgresql.ErrRetry) {
 			return s.Delete(project)
 		}
 
@@ -114,9 +114,9 @@ func (s *Project) ReadAll() ([]core.Project, error) {
 			&project.ID,
 		}
 
-		err := database.Scan(rows, dest...)
+		err := postgresql.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, database.ErrRetry) {
+			if errors.Is(err, postgresql.ErrRetry) {
 				return s.ReadAll()
 			}
 

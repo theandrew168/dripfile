@@ -8,8 +8,8 @@ import (
 	"github.com/lnquy/cron"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/form"
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 // https://gist.github.com/jpluimers/6510369
@@ -54,7 +54,7 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 	id := flow.Param(r.Context(), "id")
 	schedule, err := app.store.Schedule.Read(id)
 	if err != nil {
-		if errors.Is(err, database.ErrNotExist) {
+		if errors.Is(err, postgresql.ErrNotExist) {
 			app.notFoundResponse(w, r)
 			return
 		}
