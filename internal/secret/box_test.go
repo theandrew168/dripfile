@@ -3,12 +3,12 @@ package secret_test
 import (
 	"testing"
 
-	"github.com/theandrew168/dripfile/internal/random"
 	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/internal/test"
 )
 
 func TestEncryptDecrypt(t *testing.T) {
-	secretKeyBytes := random.Bytes(32)
+	secretKeyBytes := test.RandomBytes(32)
 
 	var secretKey [32]byte
 	copy(secretKey[:], secretKeyBytes)

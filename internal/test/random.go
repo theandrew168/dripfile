@@ -1,4 +1,4 @@
-package random
+package test
 
 import (
 	"math/rand"
@@ -9,7 +9,7 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func Bytes(n int) []byte {
+func RandomBytes(n int) []byte {
 	valid := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
 
 	buf := make([]byte, n)
@@ -20,14 +20,14 @@ func Bytes(n int) []byte {
 	return buf
 }
 
-func String(n int) string {
-	return string(Bytes(n))
+func RandomString(n int) string {
+	return string(RandomBytes(n))
 }
 
-func URL(n int) string {
-	return "https://" + String(n)
+func RandomURL(n int) string {
+	return "https://" + RandomString(n)
 }
 
-func Time() time.Time {
+func RandomTime() time.Time {
 	return time.Now().UTC()
 }

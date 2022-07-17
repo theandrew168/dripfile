@@ -2,14 +2,14 @@ package storage_test
 
 import (
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/random"
+	"github.com/theandrew168/dripfile/internal/test"
 )
 
 func mockAccount(project core.Project) core.Account {
 	account := core.NewAccount(
-		random.String(8),
-		random.String(8),
-		random.String(8),
+		test.RandomString(8),
+		test.RandomString(8),
+		test.RandomString(8),
 		project,
 	)
 	return account

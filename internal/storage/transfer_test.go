@@ -4,13 +4,12 @@ import (
 	"testing"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/random"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
 func mockTransfer(src, dst core.Location, schedule core.Schedule, project core.Project) core.Transfer {
 	transfer := core.NewTransfer(
-		random.String(8),
+		test.RandomString(8),
 		src,
 		dst,
 		schedule,
