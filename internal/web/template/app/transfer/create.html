@@ -10,12 +10,15 @@
 
 			<p>
 				<label for="input-pattern">Pattern</label>
-				<input id="input-pattern" name="pattern" type="text" value='{{.Form.Get "pattern"}}' />
+				{{with .Form.Errors.Pattern}}
+				<small id="error-pattern">{{.}}</small>
+				{{end}}
+				<input id="input-pattern" name="Pattern" type="text" value='{{.Form.Pattern}}' />
 			</p>
 
 			<p>
 				<label for="select-src-id">Source</label>
-				<select id="select-src-id" name="src-id">
+				<select id="select-src-id" name="SrcID">
 					{{range .Locations}}
 					<option value="{{.ID}}">{{.Name}}</option>
 					{{end}}
@@ -24,7 +27,7 @@
 
 			<p>
 				<label for="select-dst-id">Destination</label>
-				<select id="select-dst-id" name="dst-id">
+				<select id="select-dst-id" name="DstID">
 					{{range .Locations}}
 					<option value="{{.ID}}">{{.Name}}</option>
 					{{end}}
@@ -33,7 +36,7 @@
 
 			<p>
 				<label for="select-schedule-id">Schedule</label>
-				<select id="select-schedule-id" name="schedule-id">
+				<select id="select-schedule-id" name="ScheduleID">
 					{{range .Schedules}}
 					<option value="{{.ID}}">{{.Name}}</option>
 					{{end}}
@@ -41,7 +44,7 @@
 			</p>
 
 			<p>
-				{{with .Form.Errors.Get "general"}}
+				{{with .Form.Error}}
 				<small id="error-general">{{.}}</small>
 				{{end}}
 				<button id="submit-create" type="submit">Create</button>

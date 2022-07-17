@@ -37,7 +37,7 @@
 	<br>
 	<form action="/transfer/delete" method="POST">
 		<p>
-			<input id="id" name="id" type="hidden" value="{{.Transfer.ID}}" />
+			<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
 			<button id="submit-delete" type="submit" class="danger">Delete</button>
 		</p>
 	</form>
@@ -45,8 +45,8 @@
 	<br>
 	<form action="/transfer/run" method="POST">
 		<p>
-			<input id="id" name="id" type="hidden" value="{{.Transfer.ID}}" />
-			<button id="submit-delete" type="submit">Run now</button>
+			<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
+			<button id="submit-run" type="submit">Run now</button>
 		</p>
 	</form>
 </section>

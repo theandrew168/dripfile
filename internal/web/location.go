@@ -175,9 +175,8 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 
 	// TODO: assert id belongs to session->account->project
 	// TODO: assert account role is owner, admin, or editor
-	id := r.PostForm.Get("id")
-
-	location, err := app.store.Location.Read(id)
+	locationID := r.PostForm.Get("LocationID")
+	location, err := app.store.Location.Read(locationID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return

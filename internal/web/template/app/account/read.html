@@ -13,7 +13,7 @@
 
 	<form action="/account/delete" method="POST">
 		<p>
-			<input id="id" name="id" type="hidden" value="{{.Account.ID}}" />
+			<input id="hidden-account-id" name="AccountID" type="hidden" value="{{.Account.ID}}" />
 			<button id="submit-delete" type="submit" class="danger">Delete</button>
 		</p>
 	</form>

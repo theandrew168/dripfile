@@ -55,4 +55,9 @@ func TestTransferCreate(t *testing.T) {
 	if transfer.ID == "" {
 		t.Fatal("record ID should be non-empty after create")
 	}
+
+	err = store.Project.Delete(project)
+	if err != nil {
+		t.Fatal(err)
+	}
 }

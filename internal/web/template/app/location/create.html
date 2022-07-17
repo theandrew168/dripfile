@@ -11,7 +11,7 @@
 			<p>
 				<label for="input-endpoint">Endpoint</label>
 				{{with .Form.Errors.Endpoint}}
-				<small id="error-email">{{.}}</small>
+				<small id="error-endpoint">{{.}}</small>
 				{{end}}
 				<input id="input-endpoint" name="Endpoint" type="text" value='{{.Form.Endpoint}}' />
 			</p>
@@ -19,7 +19,7 @@
 			<p>
 				<label for="input-bucket-name">Bucket Name</label>
 				{{with .Form.Errors.BucketName}}
-				<small id="error-email">{{.}}</small>
+				<small id="error-bucket-name">{{.}}</small>
 				{{end}}
 				<input id="input-bucket-name" name="BucketName" type="text" value='{{.Form.BucketName}}' />
 			</p>
@@ -27,7 +27,7 @@
 			<p>
 				<label for="input-access-key-id">Access Key ID</label>
 				{{with .Form.Errors.AccessKeyID}}
-				<small id="error-email">{{.}}</small>
+				<small id="error-access-key-id">{{.}}</small>
 				{{end}}
 				<input id="input-access-key-id" name="AccessKeyID" type="text" value='{{.Form.AccessKeyID}}' />
 			</p>
@@ -35,7 +35,7 @@
 			<p>
 				<label for="input-secret-access-key">Secret Access Key</label>
 				{{with .Form.Errors.SecretAccessKey}}
-				<small id="error-email">{{.}}</small>
+				<small id="error-secret-access-key">{{.}}</small>
 				{{end}}
 				<input id="input-secret-access-key" name="SecretAccessKey" type="password" />
 			</p>

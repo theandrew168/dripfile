@@ -8,7 +8,6 @@ import (
 	"github.com/lnquy/cron"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/form"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -21,6 +20,17 @@ var shortcuts = map[string]string{
 	"@daily":    "0 0 * * *",
 	"@midnight": "0 0 * * *",
 	"@hourly":   "0 * * * *",
+}
+
+type scheduleForm struct {
+	Form
+	Expr string
+}
+
+type scheduleData struct {
+	Schedules []core.Schedule
+	Schedule  core.Schedule
+	Form      scheduleForm
 }
 
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
@@ -39,12 +49,9 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := struct {
-		Schedules []core.Schedule
-	}{
+	data := scheduleData{
 		Schedules: schedules,
 	}
-
 	app.render(w, r, page, data)
 }
 
@@ -63,24 +70,15 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := struct {
-		Schedule core.Schedule
-	}{
+	data := scheduleData{
 		Schedule: schedule,
 	}
-
 	app.render(w, r, page, data)
 }
 
 func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Request) {
 	page := "app/schedule/create.html"
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: form.New(nil),
-	}
-
+	data := scheduleData{}
 	app.render(w, r, page, data)
 }
 
@@ -99,26 +97,32 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	f := form.New(r.PostForm)
-	f.Required("expr")
+	form := scheduleForm{
+		Expr: r.PostForm.Get("Expr"),
+	}
 
-	expr := f.Get("expr")
+	form.CheckNotBlank(form.Expr, "Expr")
+
+	if !form.Valid() {
+		data := scheduleData{
+			Form: form,
+		}
+		app.render(w, r, page, data)
+		return
+	}
+
+	// check for shortcut exprs
+	expr := form.Expr
 	if shortcut, ok := shortcuts[expr]; ok {
 		expr = shortcut
 	}
 
 	name, err := dtor.ToDescription(expr, cron.Locale_en)
 	if err != nil {
-		f.Errors.Add("expr", "invalid cron expression")
-	}
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: f,
-	}
-
-	if !f.Valid() {
+		form.AddError("Expr", "Invalid cron expression")
+		data := scheduleData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}
@@ -148,9 +152,8 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 
 	// TODO: assert id belongs to session->account->project
 	// TODO: assert account role is owner, admin, or editor
-	id := r.PostForm.Get("id")
-
-	schedule, err := app.store.Schedule.Read(id)
+	scheduleID := r.PostForm.Get("ScheduleID")
+	schedule, err := app.store.Schedule.Read(scheduleID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return

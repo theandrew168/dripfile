@@ -31,6 +31,7 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// TODO: use form AccountID or just session.Account?
 	err = app.store.Account.Delete(session.Account)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
