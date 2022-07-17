@@ -87,8 +87,6 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		// check for TOCTOU race on account email
 		if errors.Is(err, postgresql.ErrExist) {
-			// TODO: delete project
-
 			form.AddError("email", "An account with this email already exists")
 			data.Form = form
 			app.render(w, r, page, data)

@@ -10,46 +10,48 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/theandrew168/dripfile/internal/core"
-	"github.com/theandrew168/dripfile/internal/form"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
+type loginForm struct {
+	Form
+	Email    string
+	Password string
+}
+
+type loginData struct {
+	Form loginForm
+}
+
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/login.html"
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: form.New(nil),
-	}
-
+	data := loginData{}
 	app.render(w, r, page, data)
 }
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/login.html"
+	data := loginData{}
 
-	f := form.New(r.PostForm)
-	f.Required("email", "password")
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: f,
+	form := loginForm{
+		Email:    r.PostForm.Get("email"),
+		Password: r.PostForm.Get("password"),
 	}
 
-	if !f.Valid() {
+	form.CheckField(NotBlank(form.Email), "email", "This field cannot be blank")
+	form.CheckField(NotBlank(form.Password), "password", "This field cannot be blank")
+
+	if !form.Valid() {
+		data.Form = form
 		app.render(w, r, page, data)
 		return
 	}
 
-	email := f.Get("email")
-	password := f.Get("password")
-
-	account, err := app.store.Account.ReadByEmail(email)
+	account, err := app.store.Account.ReadByEmail(form.Email)
 	if err != nil {
 		if errors.Is(err, postgresql.ErrNotExist) {
-			f.Errors.Add("email", "Invalid email")
+			form.AddError("general", "Invalid email or password")
+			data.Form = form
 			app.render(w, r, page, data)
 			return
 		}
@@ -58,9 +60,10 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(form.Password))
 	if err != nil {
-		f.Errors.Add("password", "Invalid password")
+		form.AddError("general", "Invalid email or password")
+		data.Form = form
 		app.render(w, r, page, data)
 		return
 	}

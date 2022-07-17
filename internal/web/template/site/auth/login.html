@@ -4,35 +4,33 @@
 
 {{define "main"}}
 <section id="page-login">
-	{{with .Form}}
 	<form action="/login" method="POST">
 		<fieldset>
 			<legend>Login</legend>
 
 			<p>
 				<label for="input-email">E-Mail</label>
-				{{with .Errors.Get "email"}}
+				{{with .Form.Errors.email}}
 				<small id="error-email">{{.}}</small>
 				{{end}}
-				<input id="input-email" name="email" type="email" value='{{.Get "email"}}' />
+				<input id="input-email" name="email" type="email" value='{{.Form.Email}}' />
 			</p>
 
 			<p>
 				<label for="input-password">Password</label>
-				{{with .Errors.Get "password"}}
+				{{with .Form.Errors.password}}
 				<small id="error-password">{{.}}</small>
 				{{end}}
 				<input id="input-password" name="password" type="password" />
 			</p>
 
 			<p>
-				{{with .Errors.Get "general"}}
+				{{with .Form.Errors.general}}
 				<small id="error-general">{{.}}</small>
 				{{end}}
 				<button id="submit-login" type="submit">Login</button>
 			</p>
 		</fieldset>
 	</form>
-	{{end}}
 </section>
 {{end}}
