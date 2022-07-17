@@ -14,7 +14,7 @@ import (
 type contextKey string
 
 const (
-	contextKeySession = contextKey("session")
+	contextKeySession  = contextKey("session")
 	requestBodyMaxSize = 4096
 )
 
