@@ -6,8 +6,13 @@ import (
 	"github.com/theandrew168/dripfile/internal/core"
 )
 
+type accountData struct {
+	Account core.Account
+}
+
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
 	page := "app/account/read.html"
+	data := accountData{}
 
 	session, err := app.requestSession(r)
 	if err != nil {
@@ -15,12 +20,7 @@ func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	data := struct {
-		Account core.Account
-	}{
-		Account: session.Account,
-	}
-
+	data.Account = session.Account
 	app.render(w, r, page, data)
 }
 
@@ -44,6 +44,7 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	// TODO: keep this behavior?
 	// delete project if no more associated accounts
 	if count == 0 {
 		err = app.store.Project.Delete(session.Account.Project)
