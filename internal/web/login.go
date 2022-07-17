@@ -15,9 +15,9 @@ import (
 )
 
 type loginForm struct {
-	validator.Validator
-	Email    string
-	Password string
+	validator.Validator `form:"-"`
+	Email               string `form:"Email"`
+	Password            string `form:"Password"`
 }
 
 type loginData struct {
@@ -33,9 +33,11 @@ func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/login.html"
 
-	form := loginForm{
-		Email:    r.PostForm.Get("Email"),
-		Password: r.PostForm.Get("Password"),
+	var form loginForm
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
 	}
 
 	form.CheckRequired(form.Email, "Email")

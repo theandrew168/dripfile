@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/alexedwards/flow"
+	"github.com/go-playground/form/v4"
 	"github.com/hibiken/asynq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -31,6 +32,7 @@ var templateFS embed.FS
 type Application struct {
 	static   fs.FS
 	template *TemplateCache
+	decoder  *form.Decoder
 
 	logger *jsonlog.Logger
 	store  *storage.Storage
@@ -45,8 +47,12 @@ func NewApplication(
 	box *secret.Box,
 	asynqClient *asynq.Client,
 ) *Application {
+	static, err := fs.Sub(staticFS, "static")
+	if err != nil {
+		panic(err)
+	}
+
 	var template *TemplateCache
-	var err error
 	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
 		// reload templates from filesystem if var ENV starts with "dev"
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
@@ -67,14 +73,13 @@ func NewApplication(
 		}
 	}
 
-	static, err := fs.Sub(staticFS, "static")
-	if err != nil {
-		panic(err)
-	}
+	// use a single instance of Decoder, it caches struct info
+	decoder := form.NewDecoder()
 
 	app := Application{
 		static:   static,
 		template: template,
+		decoder:  decoder,
 
 		logger: logger,
 		store:  store,
@@ -150,10 +155,10 @@ func (app *Application) Handler(api http.Handler) http.Handler {
 
 	// register / login / logout pages, visible to anyone
 	mux.HandleFunc("/register", app.handleRegister, "GET")
-	mux.Handle("/register", app.parseFormFunc(app.handleRegisterForm), "POST")
+	mux.HandleFunc("/register", app.handleRegisterForm, "POST")
 	mux.HandleFunc("/login", app.handleLogin, "GET")
-	mux.Handle("/login", app.parseFormFunc(app.handleLoginForm), "POST")
-	mux.Handle("/logout", app.parseFormFunc(app.handleLogoutForm), "POST")
+	mux.HandleFunc("/login", app.handleLoginForm, "POST")
+	mux.HandleFunc("/logout", app.handleLogoutForm, "POST")
 
 	// app pages, visible only to authenticated users
 	mux.Group(func(mux *flow.Mux) {
@@ -162,25 +167,25 @@ func (app *Application) Handler(api http.Handler) http.Handler {
 		mux.HandleFunc("/dashboard", app.handleDashboard, "GET")
 
 		mux.HandleFunc("/account", app.handleAccountRead, "GET")
-		mux.Handle("/account/delete", app.parseFormFunc(app.handleAccountDeleteForm), "POST")
+		mux.HandleFunc("/account/delete", app.handleAccountDeleteForm, "POST")
 
 		mux.HandleFunc("/transfer", app.handleTransferList, "GET")
 		mux.HandleFunc("/transfer/create", app.handleTransferCreate, "GET")
-		mux.Handle("/transfer/create", app.parseFormFunc(app.handleTransferCreateForm), "POST")
-		mux.Handle("/transfer/delete", app.parseFormFunc(app.handleTransferDeleteForm), "POST")
-		mux.Handle("/transfer/run", app.parseFormFunc(app.handleTransferRunForm), "POST")
+		mux.HandleFunc("/transfer/create", app.handleTransferCreateForm, "POST")
+		mux.HandleFunc("/transfer/delete", app.handleTransferDeleteForm, "POST")
+		mux.HandleFunc("/transfer/run", app.handleTransferRunForm, "POST")
 		mux.HandleFunc("/transfer/:id", app.handleTransferRead, "GET")
 
 		mux.HandleFunc("/location", app.handleLocationList, "GET")
 		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
-		mux.Handle("/location/create", app.parseFormFunc(app.handleLocationCreateForm), "POST")
-		mux.Handle("/location/delete", app.parseFormFunc(app.handleLocationDeleteForm), "POST")
+		mux.HandleFunc("/location/create", app.handleLocationCreateForm, "POST")
+		mux.HandleFunc("/location/delete", app.handleLocationDeleteForm, "POST")
 		mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
 
 		mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
 		mux.HandleFunc("/schedule/create", app.handleScheduleCreate, "GET")
-		mux.Handle("/schedule/create", app.parseFormFunc(app.handleScheduleCreateForm), "POST")
-		mux.Handle("/schedule/delete", app.parseFormFunc(app.handleScheduleDeleteForm), "POST")
+		mux.HandleFunc("/schedule/create", app.handleScheduleCreateForm, "POST")
+		mux.HandleFunc("/schedule/delete", app.handleScheduleDeleteForm, "POST")
 		mux.HandleFunc("/schedule/:id", app.handleScheduleRead, "GET")
 
 		mux.HandleFunc("/history", app.handleHistoryList, "GET")

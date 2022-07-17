@@ -24,8 +24,8 @@ var shortcuts = map[string]string{
 }
 
 type scheduleForm struct {
-	validator.Validator
-	Expr string
+	validator.Validator `form:"-"`
+	Expr                string `form:"Expr"`
 }
 
 type scheduleData struct {
@@ -98,8 +98,11 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	form := scheduleForm{
-		Expr: r.PostForm.Get("Expr"),
+	var form scheduleForm
+	err = app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
 	}
 
 	form.CheckRequired(form.Expr, "Expr")

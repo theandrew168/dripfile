@@ -7,6 +7,7 @@ require (
 	github.com/alexedwards/flow v0.0.0-20220607190737-c48a87f2b4c4
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
 	github.com/go-co-op/gocron v1.15.0
+	github.com/go-playground/form/v4 v4.2.0
 	github.com/hibiken/asynq v0.23.0
 	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa

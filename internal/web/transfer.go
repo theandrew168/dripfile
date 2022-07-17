@@ -12,12 +12,22 @@ import (
 	"github.com/theandrew168/dripfile/internal/validator"
 )
 
-type transferForm struct {
-	validator.Validator
-	Pattern    string
-	SrcID      string
-	DstID      string
-	ScheduleID string
+type transferCreateForm struct {
+	validator.Validator `form:"-"`
+	Pattern             string `form:"Pattern"`
+	SrcID               string `form:"SrcID"`
+	DstID               string `form:"DstID"`
+	ScheduleID          string `form:"ScheduleID"`
+}
+
+type transferRunForm struct {
+	validator.Validator `form:"-"`
+	TransferID          string `form:"TransferID"`
+}
+
+type transferDeleteForm struct {
+	validator.Validator `form:"-"`
+	TransferID          string `form:"TransferID"`
 }
 
 type transferData struct {
@@ -25,7 +35,7 @@ type transferData struct {
 	Schedules []core.Schedule
 	Transfers []core.Transfer
 	Transfer  core.Transfer
-	Form      transferForm
+	Form      transferCreateForm
 }
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
@@ -120,11 +130,11 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	form := transferForm{
-		Pattern:    r.PostForm.Get("Pattern"),
-		SrcID:      r.PostForm.Get("SrcID"),
-		DstID:      r.PostForm.Get("DstID"),
-		ScheduleID: r.PostForm.Get("ScheduleID"),
+	var form transferCreateForm
+	err = app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
 	}
 
 	form.CheckRequired(form.Pattern, "Pattern")
@@ -197,10 +207,16 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
+	var form transferRunForm
+	err = app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
+	}
+
 	// TODO: assert id belongs to session->account->project
 	// TODO: assert account role is owner, admin, or editor
-	transferID := r.PostForm.Get("TransferID")
-	transfer, err := app.store.Transfer.Read(transferID)
+	transfer, err := app.store.Transfer.Read(form.TransferID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
@@ -236,10 +252,16 @@ func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
+	var form transferDeleteForm
+	err = app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
+	}
+
 	// TODO: assert id belongs to session->account->project
 	// TODO: assert account role is owner, admin, or editor
-	transferID := r.PostForm.Get("TransferID")
-	transfer, err := app.store.Transfer.Read(transferID)
+	transfer, err := app.store.Transfer.Read(form.TransferID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return

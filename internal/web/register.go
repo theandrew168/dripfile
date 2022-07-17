@@ -17,9 +17,9 @@ import (
 )
 
 type registerForm struct {
-	validator.Validator
-	Email    string
-	Password string
+	validator.Validator `form:"-"`
+	Email               string `form:"Email"`
+	Password            string `form:"Password"`
 }
 
 type registerData struct {
@@ -35,9 +35,11 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/register.html"
 
-	form := registerForm{
-		Email:    r.PostForm.Get("Email"),
-		Password: r.PostForm.Get("Password"),
+	var form registerForm
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
 	}
 
 	form.CheckRequired(form.Email, "Email")

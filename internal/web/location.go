@@ -14,11 +14,11 @@ import (
 )
 
 type locationForm struct {
-	validator.Validator
-	Endpoint        string
-	BucketName      string
-	AccessKeyID     string
-	SecretAccessKey string
+	validator.Validator `form:"-"`
+	Endpoint            string `form:"Endpoint"`
+	BucketName          string `form:"BucketName"`
+	AccessKeyID         string `form:"AccessKeyID"`
+	SecretAccessKey     string `form:"SecretAccessKey"`
 }
 
 type locationData struct {
@@ -85,11 +85,11 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	form := locationForm{
-		Endpoint:        r.PostForm.Get("Endpoint"),
-		BucketName:      r.PostForm.Get("BucketName"),
-		AccessKeyID:     r.PostForm.Get("AccessKeyID"),
-		SecretAccessKey: r.PostForm.Get("SecretAccessKey"),
+	var form locationForm
+	err = app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
 	}
 
 	form.CheckRequired(form.Endpoint, "Endpoint")
