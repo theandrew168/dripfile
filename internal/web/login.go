@@ -31,18 +31,19 @@ func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/login.html"
-	data := loginData{}
 
 	form := loginForm{
-		Email:    r.PostForm.Get("email"),
-		Password: r.PostForm.Get("password"),
+		Email:    r.PostForm.Get("Email"),
+		Password: r.PostForm.Get("Password"),
 	}
 
-	form.CheckField(NotBlank(form.Email), "email", "This field cannot be blank")
-	form.CheckField(NotBlank(form.Password), "password", "This field cannot be blank")
+	form.CheckNotBlank(form.Email, "Email")
+	form.CheckNotBlank(form.Password, "Password")
 
 	if !form.Valid() {
-		data.Form = form
+		data := loginData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}
@@ -50,8 +51,11 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	account, err := app.store.Account.ReadByEmail(form.Email)
 	if err != nil {
 		if errors.Is(err, postgresql.ErrNotExist) {
-			form.AddError("general", "Invalid email or password")
-			data.Form = form
+			form.Error = "Invalid email or password"
+
+			data := loginData{
+				Form: form,
+			}
 			app.render(w, r, page, data)
 			return
 		}
@@ -62,8 +66,11 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(form.Password))
 	if err != nil {
-		form.AddError("general", "Invalid email or password")
-		data.Form = form
+		form.Error = "Invalid email or password"
+
+		data := loginData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}

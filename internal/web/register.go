@@ -33,18 +33,19 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
 	page := "site/auth/register.html"
-	data := registerData{}
 
 	form := registerForm{
-		Email:    r.PostForm.Get("email"),
-		Password: r.PostForm.Get("password"),
+		Email:    r.PostForm.Get("Email"),
+		Password: r.PostForm.Get("Password"),
 	}
 
-	form.CheckField(NotBlank(form.Email), "email", "This field cannot be blank")
-	form.CheckField(NotBlank(form.Password), "password", "This field cannot be blank")
+	form.CheckNotBlank(form.Email, "Email")
+	form.CheckNotBlank(form.Password, "Password")
 
 	if !form.Valid() {
-		data.Form = form
+		data := registerData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}
@@ -59,7 +60,10 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	_, err = app.store.Account.ReadByEmail(form.Email)
 	if err == nil || !errors.Is(err, postgresql.ErrNotExist) {
 		form.AddError("email", "An account with this email already exists")
-		data.Form = form
+
+		data := registerData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}
@@ -88,7 +92,10 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		// check for TOCTOU race on account email
 		if errors.Is(err, postgresql.ErrExist) {
 			form.AddError("email", "An account with this email already exists")
-			data.Form = form
+
+			data := registerData{
+				Form: form,
+			}
 			app.render(w, r, page, data)
 			return
 		}

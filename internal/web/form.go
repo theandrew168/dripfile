@@ -8,6 +8,10 @@ import (
 // Based on:
 // Let's Go - Chapter 8.5 (Alex Edwards)
 type Form struct {
+	// general form error
+	Error string
+
+	// individual field errors
 	Errors map[string]string
 }
 
@@ -27,6 +31,10 @@ func (f *Form) CheckField(ok bool, key, message string) {
 	if !ok {
 		f.AddError(key, message)
 	}
+}
+
+func (f *Form) CheckNotBlank(value, key string) {
+	f.CheckField(NotBlank(value), key, "This field cannot be blank")
 }
 
 func NotBlank(value string) bool {

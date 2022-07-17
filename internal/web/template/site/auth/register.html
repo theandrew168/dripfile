@@ -10,22 +10,22 @@
 
 			<p>
 				<label for="input-email">E-Mail</label>
-				{{with .Form.Errors.email}}
+				{{with .Form.Errors.Email}}
 				<small id="error-email">{{.}}</small>
 				{{end}}
-				<input id="input-email" name="email" type="email" value="{{.Form.Email}}" />
+				<input id="input-email" name="email" type="Email" value="{{.Form.Email}}" />
 			</p>
 
 			<p>
 				<label for="input-password">Password</label>
-				{{with .Form.Errors.password}}
+				{{with .Form.Errors.Password}}
 				<small id="error-password">{{.}}</small>
 				{{end}}
-				<input id="input-password" name="password" type="password" />
+				<input id="input-password" name="Password" type="password" />
 			</p>
 
 			<p>
-				{{with .Form.Errors.general}}
+				{{with .Form.Error}}
 				<small id="error-general">{{.}}</small>
 				{{end}}
 				<button id="submit-register" type="submit">Register</button>

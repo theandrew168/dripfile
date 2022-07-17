@@ -9,9 +9,22 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/fileserver"
-	"github.com/theandrew168/dripfile/internal/form"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
+
+type locationForm struct {
+	Form
+	Endpoint        string
+	BucketName      string
+	AccessKeyID     string
+	SecretAccessKey string
+}
+
+type locationData struct {
+	Locations []core.Location
+	Location  core.Location
+	Form      locationForm
+}
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
 	page := "app/location/list.html"
@@ -29,12 +42,9 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := struct {
-		Locations []core.Location
-	}{
+	data := locationData{
 		Locations: locations,
 	}
-
 	app.render(w, r, page, data)
 }
 
@@ -53,24 +63,15 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := struct {
-		Location core.Location
-	}{
+	data := locationData{
 		Location: location,
 	}
-
 	app.render(w, r, page, data)
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
 	page := "app/location/create.html"
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: form.New(nil),
-	}
-
+	data := locationData{}
 	app.render(w, r, page, data)
 }
 
@@ -83,35 +84,40 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	f := form.New(r.PostForm)
-
-	data := struct {
-		Form *form.Form
-	}{
-		Form: f,
+	form := locationForm{
+		Endpoint:        r.PostForm.Get("Endpoint"),
+		BucketName:      r.PostForm.Get("BucketName"),
+		AccessKeyID:     r.PostForm.Get("AccessKeyID"),
+		SecretAccessKey: r.PostForm.Get("SecretAccessKey"),
 	}
 
-	if !f.Valid() {
+	form.CheckNotBlank(form.Endpoint, "Endpoint")
+	form.CheckNotBlank(form.BucketName, "BucketName")
+	form.CheckNotBlank(form.AccessKeyID, "AccessKeyID")
+	form.CheckNotBlank(form.SecretAccessKey, "SecretAccessKey")
+
+	if !form.Valid() {
+		data := locationData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}
 
-	// TODO: support other types of info
-	endpoint := f.Get("endpoint")
-	bucketName := f.Get("bucket-name")
-	accessKeyID := f.Get("access-key-id")
-	secretAccessKey := f.Get("secret-access-key")
-
 	info := fileserver.S3Info{
-		Endpoint:        endpoint,
-		BucketName:      bucketName,
-		AccessKeyID:     accessKeyID,
-		SecretAccessKey: secretAccessKey,
+		Endpoint:        form.Endpoint,
+		BucketName:      form.BucketName,
+		AccessKeyID:     form.AccessKeyID,
+		SecretAccessKey: form.SecretAccessKey,
 	}
 
 	conn, err := fileserver.NewS3(info)
 	if err != nil {
-		data.Form.Errors.Add("general", err.Error())
+		form.Error = err.Error()
+
+		data := locationData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}
@@ -119,7 +125,11 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	// verify connection
 	err = conn.Ping()
 	if err != nil {
-		data.Form.Errors.Add("general", err.Error())
+		form.Error = err.Error()
+
+		data := locationData{
+			Form: form,
+		}
 		app.render(w, r, page, data)
 		return
 	}
