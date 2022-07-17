@@ -23,7 +23,7 @@ var shortcuts = map[string]string{
 	"@hourly":   "0 * * * *",
 }
 
-type scheduleForm struct {
+type scheduleCreateForm struct {
 	validator.Validator `form:"-"`
 
 	Expr string `form:"Expr"`
@@ -32,7 +32,7 @@ type scheduleForm struct {
 type scheduleData struct {
 	Schedules []core.Schedule
 	Schedule  core.Schedule
-	Form      scheduleForm
+	Form      scheduleCreateForm
 }
 
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +99,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var form scheduleForm
+	var form scheduleCreateForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)

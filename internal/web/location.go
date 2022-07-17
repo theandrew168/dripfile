@@ -13,7 +13,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/validator"
 )
 
-type locationForm struct {
+type locationCreateForm struct {
 	validator.Validator `form:"-"`
 
 	Endpoint        string `form:"Endpoint"`
@@ -25,7 +25,7 @@ type locationForm struct {
 type locationData struct {
 	Locations []core.Location
 	Location  core.Location
-	Form      locationForm
+	Form      locationCreateForm
 }
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
@@ -86,7 +86,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var form locationForm
+	var form locationCreateForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
