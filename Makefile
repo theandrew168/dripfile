@@ -56,4 +56,4 @@ format:
 
 .PHONY: clean
 clean:
-	rm -fr dripfile c.out dist/
+	rm -fr dripfile main c.out dist/

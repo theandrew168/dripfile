@@ -1,8 +1,8 @@
-main
 dripfile
-dist/
+main
 *.test
 *.live
+dist/
 
 .DS_Store
 .vscode/
