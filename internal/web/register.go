@@ -127,7 +127,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// send welcome email
-	t, err := task.NewEmailSendTask(
+	t := task.NewEmailSendTask(
 		"DripFile",
 		"info@dripfile.com",
 		account.Email,
@@ -135,13 +135,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		"Welcome to DripFile!",
 		"Thanks for signing up with DripFile! I hope this adds some value.",
 	)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// submit email task
-	_, err = app.asynqClient.Enqueue(t)
+	err = app.queue.Push(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -4,6 +4,7 @@ dist/
 *.live
 
 .DS_Store
+.vscode/
 
 # Binaries for programs and plugins
 *.exe

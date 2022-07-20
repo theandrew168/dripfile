@@ -1,17 +1,14 @@
 package task
 
 import (
-	"context"
 	"encoding/json"
-
-	"github.com/hibiken/asynq"
 )
 
 const (
-	TypeEmailSend = "email:send"
+	KindEmailSend = "email:send"
 )
 
-type EmailSendPayload struct {
+type EmailSendInfo struct {
 	FromName  string `json:"from_name"`
 	FromEmail string `json:"from_email"`
 	ToName    string `json:"to_name"`
@@ -20,8 +17,8 @@ type EmailSendPayload struct {
 	Body      string `json:"body"`
 }
 
-func NewEmailSendTask(fromName, fromEmail, toName, toEmail, subject, body string) (*asynq.Task, error) {
-	payload := EmailSendPayload{
+func NewEmailSendTask(fromName, fromEmail, toName, toEmail, subject, body string) Task {
+	info := EmailSendInfo{
 		FromName:  fromName,
 		FromEmail: fromEmail,
 		ToName:    toName,
@@ -30,32 +27,10 @@ func NewEmailSendTask(fromName, fromEmail, toName, toEmail, subject, body string
 		Body:      body,
 	}
 
-	js, err := json.Marshal(payload)
+	js, err := json.Marshal(info)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	return asynq.NewTask(TypeEmailSend, js), nil
-}
-
-func (w *Worker) HandleEmailSend(ctx context.Context, t *asynq.Task) error {
-	var payload EmailSendPayload
-	err := json.Unmarshal(t.Payload(), &payload)
-	if err != nil {
-		return err
-	}
-
-	err = w.mailer.SendEmail(
-		payload.FromName,
-		payload.FromEmail,
-		payload.ToName,
-		payload.ToEmail,
-		payload.Subject,
-		payload.Body,
-	)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return NewTask(KindEmailSend, string(js))
 }

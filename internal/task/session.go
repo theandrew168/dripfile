@@ -1,34 +1,22 @@
 package task
 
 import (
-	"context"
 	"encoding/json"
-
-	"github.com/hibiken/asynq"
 )
 
 const (
-	TypeSessionPrune = "session:prune"
+	KindSessionPrune = "session:prune"
 )
 
-type SessionPrunePayload struct{}
+type SessionPruneInfo struct{}
 
-func NewSessionPruneTask() (*asynq.Task, error) {
-	payload := SessionPrunePayload{}
+func NewSessionPruneTask() Task {
+	info := SessionPruneInfo{}
 
-	js, err := json.Marshal(payload)
+	js, err := json.Marshal(info)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
 
-	return asynq.NewTask(TypeSessionPrune, js), nil
-}
-
-func (w *Worker) HandleSessionPrune(ctx context.Context, t *asynq.Task) error {
-	err := w.store.Session.DeleteExpired()
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return NewTask(KindSessionPrune, string(js))
 }

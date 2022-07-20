@@ -5,7 +5,6 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/go-co-op/gocron"
-	"github.com/hibiken/asynq"
 
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
@@ -17,22 +16,20 @@ type Scheduler struct {
 	cfg    config.Config
 	logger *jsonlog.Logger
 	store  *storage.Storage
-
-	asynqClient *asynq.Client
+	queue  *task.Queue
 }
 
 func New(
 	cfg config.Config,
 	logger *jsonlog.Logger,
 	store *storage.Storage,
-	asynqClient *asynq.Client,
+	queue *task.Queue,
 ) *Scheduler {
 	s := Scheduler{
 		cfg:    cfg,
 		logger: logger,
 		store:  store,
-
-		asynqClient: asynqClient,
+		queue:  queue,
 	}
 	return &s
 }
@@ -47,13 +44,8 @@ func (s *Scheduler) Run() error {
 
 	// prune sessions hourly
 	sched.Cron("* * * * *").Do(func() {
-		t, err := task.NewSessionPruneTask()
-		if err != nil {
-			s.logger.Error(err, nil)
-			return
-		}
-
-		_, err = s.asynqClient.Enqueue(t)
+		t := task.NewSessionPruneTask()
+		err := s.queue.Push(t)
 		if err != nil {
 			s.logger.Error(err, nil)
 			return
@@ -111,13 +103,8 @@ func (s *Scheduler) Run() error {
 			})
 
 			sched.Cron(transfer.Schedule.Expr).Tag(transfer.ID).Do(func() {
-				t, err := task.NewTransferTryTask(transfer.ID)
-				if err != nil {
-					s.logger.Error(err, nil)
-					return
-				}
-
-				_, err = s.asynqClient.Enqueue(t)
+				t := task.NewTransferTryTask(transfer.ID)
+				err = s.queue.Push(t)
 				if err != nil {
 					s.logger.Error(err, nil)
 					return

@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/hibiken/asynq"
 
 	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
@@ -27,6 +26,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/web"
+	"github.com/theandrew168/dripfile/internal/worker"
 )
 
 func main() {
@@ -82,15 +82,11 @@ func run() int {
 	}
 
 	store := storage.New(pool)
-
-	redis, err := asynq.ParseRedisURI(cfg.RedisURL)
+	queue, err := task.NewQueue(cfg.RedisURL)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1
 	}
-
-	asynqClient := asynq.NewClient(redis)
-	asynqServer := asynq.NewServer(redis, asynq.Config{Concurrency: 10})
 
 	// init the mailer interface
 	var mailer mail.Mailer
@@ -107,8 +103,8 @@ func run() int {
 
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
-		sched := scheduler.New(cfg, logger, store, asynqClient)
-		err := sched.Run()
+		s := scheduler.New(cfg, logger, store, queue)
+		err := s.Run()
 		if err != nil {
 			logger.Error(err, nil)
 			return 1
@@ -118,8 +114,8 @@ func run() int {
 
 	// worker: run worker forever
 	if action == "worker" {
-		worker := task.NewWorker(logger, store, box, mailer, asynqServer)
-		err := worker.Run()
+		w := worker.New(logger, store, box, mailer, cfg.RedisURL)
+		err := w.Run()
 		if err != nil {
 			logger.Error(err, nil)
 			return 1
@@ -135,7 +131,7 @@ func run() int {
 
 	// instantiate applications (DI happens here)
 	apiApp := api.NewApplication(logger)
-	webApp := web.NewApplication(logger, store, box, asynqClient)
+	webApp := web.NewApplication(logger, store, queue, box)
 
 	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)

@@ -9,12 +9,12 @@ import (
 
 	"github.com/alexedwards/flow"
 	"github.com/go-playground/form/v4"
-	"github.com/hibiken/asynq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
+	"github.com/theandrew168/dripfile/internal/task"
 )
 
 //go:embed static/img/logo-white.svg
@@ -36,16 +36,15 @@ type Application struct {
 
 	logger *jsonlog.Logger
 	store  *storage.Storage
+	queue  *task.Queue
 	box    *secret.Box
-
-	asynqClient *asynq.Client
 }
 
 func NewApplication(
 	logger *jsonlog.Logger,
 	store *storage.Storage,
+	queue *task.Queue,
 	box *secret.Box,
-	asynqClient *asynq.Client,
 ) *Application {
 	static, err := fs.Sub(staticFS, "static")
 	if err != nil {
@@ -83,9 +82,8 @@ func NewApplication(
 
 		logger: logger,
 		store:  store,
+		queue:  queue,
 		box:    box,
-
-		asynqClient: asynqClient,
 	}
 
 	return &app
