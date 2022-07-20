@@ -1,4 +1,4 @@
-package core
+package model
 
 type Project struct {
 	// readonly (from database, after creation)

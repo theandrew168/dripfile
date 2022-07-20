@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,10 +19,10 @@ const (
 )
 
 // helper for pulling a session value of a request
-func (app *Application) requestSession(r *http.Request) (core.Session, error) {
-	session, ok := r.Context().Value(contextKeySession).(core.Session)
+func (app *Application) requestSession(r *http.Request) (model.Session, error) {
+	session, ok := r.Context().Value(contextKeySession).(model.Session)
 	if !ok {
-		return core.Session{}, fmt.Errorf("invalid or missing session")
+		return model.Session{}, fmt.Errorf("invalid or missing session")
 	}
 
 	return session, nil

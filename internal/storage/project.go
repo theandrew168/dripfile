@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,7 +19,7 @@ func NewProject(db postgresql.Conn) *Project {
 	return &s
 }
 
-func (s *Project) Create(project *core.Project) error {
+func (s *Project) Create(project *model.Project) error {
 	stmt := `
 		INSERT INTO project
 		VALUES
@@ -44,14 +44,14 @@ func (s *Project) Create(project *core.Project) error {
 	return nil
 }
 
-func (s *Project) Read(id string) (core.Project, error) {
+func (s *Project) Read(id string) (model.Project, error) {
 	stmt := `
 		SELECT
 			project.id
 		FROM project
 		WHERE project.id = $1`
 
-	var project core.Project
+	var project model.Project
 	dest := []interface{}{
 		&project.ID,
 	}
@@ -66,13 +66,13 @@ func (s *Project) Read(id string) (core.Project, error) {
 			return s.Read(id)
 		}
 
-		return core.Project{}, err
+		return model.Project{}, err
 	}
 
 	return project, nil
 }
 
-func (s *Project) Delete(project core.Project) error {
+func (s *Project) Delete(project model.Project) error {
 	stmt := `
 		DELETE FROM project
 		WHERE id = $1`
@@ -92,7 +92,7 @@ func (s *Project) Delete(project core.Project) error {
 	return nil
 }
 
-func (s *Project) ReadAll() ([]core.Project, error) {
+func (s *Project) ReadAll() ([]model.Project, error) {
 	stmt := `
 		SELECT
 			project.id
@@ -107,9 +107,9 @@ func (s *Project) ReadAll() ([]core.Project, error) {
 	}
 	defer rows.Close()
 
-	var projects []core.Project
+	var projects []model.Project
 	for rows.Next() {
-		var project core.Project
+		var project model.Project
 		dest := []interface{}{
 			&project.ID,
 		}

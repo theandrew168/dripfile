@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
@@ -73,18 +73,18 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	// create new project and new account within a single transaction
-	var project core.Project
-	var account core.Account
+	var project model.Project
+	var account model.Account
 	err = app.store.WithTransaction(func(store *storage.Storage) error {
 		// create project for the new account
-		project = core.NewProject()
+		project = model.NewProject()
 		err := store.Project.Create(&project)
 		if err != nil {
 			return err
 		}
 
 		// create the new account
-		account = core.NewAccount(form.Email, string(hash), core.RoleOwner, project)
+		account = model.NewAccount(form.Email, string(hash), model.RoleOwner, project)
 		err = store.Account.Create(&account)
 		if err != nil {
 			return err
@@ -119,7 +119,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	expiry := time.Now().AddDate(0, 0, 7)
 
 	// create session model and store in the database
-	session := core.NewSession(sessionHash, expiry, account)
+	session := model.NewSession(sessionHash, expiry, account)
 	err = app.store.Session.Create(&session)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

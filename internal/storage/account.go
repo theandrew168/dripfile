@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,7 +19,7 @@ func NewAccount(db postgresql.Conn) *Account {
 	return &s
 }
 
-func (s *Account) Create(account *core.Account) error {
+func (s *Account) Create(account *model.Account) error {
 	stmt := `
 		INSERT INTO account
 			(email, password, role, verified, project_id)
@@ -51,7 +51,7 @@ func (s *Account) Create(account *core.Account) error {
 	return nil
 }
 
-func (s *Account) Read(id string) (core.Account, error) {
+func (s *Account) Read(id string) (model.Account, error) {
 	stmt := `
 		SELECT
 			account.id,
@@ -65,7 +65,7 @@ func (s *Account) Read(id string) (core.Account, error) {
 			ON project.id = account.project_id
 		WHERE account.id = $1`
 
-	var account core.Account
+	var account model.Account
 	dest := []interface{}{
 		&account.ID,
 		&account.Email,
@@ -85,13 +85,13 @@ func (s *Account) Read(id string) (core.Account, error) {
 			return s.Read(id)
 		}
 
-		return core.Account{}, err
+		return model.Account{}, err
 	}
 
 	return account, nil
 }
 
-func (s *Account) Update(account core.Account) error {
+func (s *Account) Update(account model.Account) error {
 	stmt := `
 		UPDATE account
 		SET
@@ -124,7 +124,7 @@ func (s *Account) Update(account core.Account) error {
 	return nil
 }
 
-func (s *Account) Delete(account core.Account) error {
+func (s *Account) Delete(account model.Account) error {
 	stmt := `
 		DELETE FROM account
 		WHERE id = $1`
@@ -144,7 +144,7 @@ func (s *Account) Delete(account core.Account) error {
 	return nil
 }
 
-func (s *Account) ReadByEmail(email string) (core.Account, error) {
+func (s *Account) ReadByEmail(email string) (model.Account, error) {
 	stmt := `
 		SELECT
 			account.id,
@@ -158,7 +158,7 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 			ON project.id = account.project_id
 		WHERE account.email = $1`
 
-	var account core.Account
+	var account model.Account
 	dest := []interface{}{
 		&account.ID,
 		&account.Email,
@@ -178,13 +178,13 @@ func (s *Account) ReadByEmail(email string) (core.Account, error) {
 			return s.ReadByEmail(email)
 		}
 
-		return core.Account{}, err
+		return model.Account{}, err
 	}
 
 	return account, nil
 }
 
-func (s *Account) CountByProject(project core.Project) (int, error) {
+func (s *Account) CountByProject(project model.Project) (int, error) {
 	stmt := `
 		SELECT
 			count(*)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,7 +19,7 @@ func NewHistory(db postgresql.Conn) *History {
 	return &s
 }
 
-func (s *History) Create(history *core.History) error {
+func (s *History) Create(history *model.History) error {
 	stmt := `
 		INSERT INTO history
 			(bytes, status, started_at, finished_at, transfer_id, project_id)
@@ -52,11 +52,11 @@ func (s *History) Create(history *core.History) error {
 	return nil
 }
 
-func (s *History) Read(id string) (core.History, error) {
-	return core.History{}, nil
+func (s *History) Read(id string) (model.History, error) {
+	return model.History{}, nil
 }
 
-func (s *History) ReadAllByProject(project core.Project) ([]core.History, error) {
+func (s *History) ReadAllByProject(project model.Project) ([]model.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -81,9 +81,9 @@ func (s *History) ReadAllByProject(project core.Project) ([]core.History, error)
 	}
 	defer rows.Close()
 
-	var histories []core.History
+	var histories []model.History
 	for rows.Next() {
-		var history core.History
+		var history model.History
 		dest := []interface{}{
 			&history.ID,
 			&history.Bytes,

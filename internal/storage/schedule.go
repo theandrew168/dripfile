@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,7 +19,7 @@ func NewSchedule(db postgresql.Conn) *Schedule {
 	return &s
 }
 
-func (s *Schedule) Create(schedule *core.Schedule) error {
+func (s *Schedule) Create(schedule *model.Schedule) error {
 	stmt := `
 		INSERT INTO schedule
 			(name, expr, project_id)
@@ -49,7 +49,7 @@ func (s *Schedule) Create(schedule *core.Schedule) error {
 	return nil
 }
 
-func (s *Schedule) Read(id string) (core.Schedule, error) {
+func (s *Schedule) Read(id string) (model.Schedule, error) {
 	stmt := `
 		SELECT
 			schedule.id,
@@ -61,7 +61,7 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 			ON project.id = schedule.project_id
 		WHERE schedule.id = $1`
 
-	var schedule core.Schedule
+	var schedule model.Schedule
 	dest := []interface{}{
 		&schedule.ID,
 		&schedule.Name,
@@ -79,17 +79,17 @@ func (s *Schedule) Read(id string) (core.Schedule, error) {
 			return s.Read(id)
 		}
 
-		return core.Schedule{}, err
+		return model.Schedule{}, err
 	}
 
 	return schedule, nil
 }
 
-func (s *Schedule) Update(schedule core.Schedule) error {
+func (s *Schedule) Update(schedule model.Schedule) error {
 	return nil
 }
 
-func (s *Schedule) Delete(schedule core.Schedule) error {
+func (s *Schedule) Delete(schedule model.Schedule) error {
 	stmt := `
 		DELETE FROM schedule
 		WHERE id = $1`
@@ -109,7 +109,7 @@ func (s *Schedule) Delete(schedule core.Schedule) error {
 	return nil
 }
 
-func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, error) {
+func (s *Schedule) ReadAllByProject(project model.Project) ([]model.Schedule, error) {
 	stmt := `
 		SELECT
 			schedule.id,
@@ -130,9 +130,9 @@ func (s *Schedule) ReadAllByProject(project core.Project) ([]core.Schedule, erro
 	}
 	defer rows.Close()
 
-	var schedules []core.Schedule
+	var schedules []model.Schedule
 	for rows.Next() {
-		var schedule core.Schedule
+		var schedule model.Schedule
 		dest := []interface{}{
 			&schedule.ID,
 			&schedule.Name,

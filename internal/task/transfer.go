@@ -8,8 +8,8 @@ import (
 
 	"github.com/hibiken/asynq"
 
-	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/fileserver"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -122,7 +122,7 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t *asynq.Task) error {
 
 	// update history table
 	finish := time.Now()
-	history := core.NewHistory(
+	history := model.NewHistory(
 		totalBytes,
 		"success",
 		start,

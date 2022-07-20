@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,7 +19,7 @@ func NewSession(db postgresql.Conn) *Session {
 	return &s
 }
 
-func (s *Session) Create(session *core.Session) error {
+func (s *Session) Create(session *model.Session) error {
 	stmt := `
 		INSERT INTO session
 			(hash, expiry, account_id)
@@ -47,7 +47,7 @@ func (s *Session) Create(session *core.Session) error {
 	return nil
 }
 
-func (s *Session) Read(hash string) (core.Session, error) {
+func (s *Session) Read(hash string) (model.Session, error) {
 	stmt := `
 		SELECT
 			session.hash,
@@ -65,7 +65,7 @@ func (s *Session) Read(hash string) (core.Session, error) {
 			ON project.id = account.project_id
 		WHERE session.hash = $1`
 
-	var session core.Session
+	var session model.Session
 	dest := []interface{}{
 		&session.Hash,
 		&session.Expiry,
@@ -87,13 +87,13 @@ func (s *Session) Read(hash string) (core.Session, error) {
 			return s.Read(hash)
 		}
 
-		return core.Session{}, err
+		return model.Session{}, err
 	}
 
 	return session, nil
 }
 
-func (s *Session) Delete(session core.Session) error {
+func (s *Session) Delete(session model.Session) error {
 	stmt := `
 		DELETE FROM session
 		WHERE hash = $1`

@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/validator"
 )
@@ -90,7 +90,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	expiry := time.Now().AddDate(0, 0, 7)
 
 	// create session model and store in the postgresql
-	session := core.NewSession(sessionHash, expiry, account)
+	session := model.NewSession(sessionHash, expiry, account)
 	err = app.store.Session.Create(&session)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

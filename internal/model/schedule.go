@@ -1,4 +1,4 @@
-package core
+package model
 
 type Schedule struct {
 	// readonly (from database, after creation)

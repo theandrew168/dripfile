@@ -6,7 +6,7 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/validator"
@@ -34,10 +34,10 @@ type transferDeleteForm struct {
 }
 
 type transferData struct {
-	Locations []core.Location
-	Schedules []core.Schedule
-	Transfers []core.Transfer
-	Transfer  core.Transfer
+	Locations []model.Location
+	Schedules []model.Schedule
+	Transfers []model.Transfer
+	Transfer  model.Transfer
 	Form      transferCreateForm
 }
 
@@ -186,7 +186,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	project := session.Account.Project
-	transfer := core.NewTransfer(form.Pattern, src, dst, schedule, project)
+	transfer := model.NewTransfer(form.Pattern, src, dst, schedule, project)
 	err = app.store.Transfer.Create(&transfer)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

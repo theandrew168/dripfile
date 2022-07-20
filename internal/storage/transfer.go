@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,7 +19,7 @@ func NewTransfer(db postgresql.Conn) *Transfer {
 	return &s
 }
 
-func (s *Transfer) Create(transfer *core.Transfer) error {
+func (s *Transfer) Create(transfer *model.Transfer) error {
 	stmt := `
 		INSERT INTO transfer
 			(pattern, src_id, dst_id, schedule_id, project_id)
@@ -51,7 +51,7 @@ func (s *Transfer) Create(transfer *core.Transfer) error {
 	return nil
 }
 
-func (s *Transfer) Read(id string) (core.Transfer, error) {
+func (s *Transfer) Read(id string) (model.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
@@ -82,7 +82,7 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 			ON project.id = transfer.project_id
 		WHERE transfer.id = $1`
 
-	var transfer core.Transfer
+	var transfer model.Transfer
 	dest := []interface{}{
 		&transfer.ID,
 		&transfer.Pattern,
@@ -113,13 +113,13 @@ func (s *Transfer) Read(id string) (core.Transfer, error) {
 			return s.Read(id)
 		}
 
-		return core.Transfer{}, err
+		return model.Transfer{}, err
 	}
 
 	return transfer, nil
 }
 
-func (s *Transfer) Update(transfer core.Transfer) error {
+func (s *Transfer) Update(transfer model.Transfer) error {
 	stmt := `
 		UPDATE transfer
 		SET
@@ -152,7 +152,7 @@ func (s *Transfer) Update(transfer core.Transfer) error {
 	return nil
 }
 
-func (s *Transfer) Delete(transfer core.Transfer) error {
+func (s *Transfer) Delete(transfer model.Transfer) error {
 	stmt := `
 		DELETE FROM transfer
 		WHERE id = $1`
@@ -172,7 +172,7 @@ func (s *Transfer) Delete(transfer core.Transfer) error {
 	return nil
 }
 
-func (s *Transfer) ReadAll() ([]core.Transfer, error) {
+func (s *Transfer) ReadAll() ([]model.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
@@ -211,9 +211,9 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 	}
 	defer rows.Close()
 
-	var transfers []core.Transfer
+	var transfers []model.Transfer
 	for rows.Next() {
-		var transfer core.Transfer
+		var transfer model.Transfer
 		dest := []interface{}{
 			&transfer.ID,
 			&transfer.Pattern,
@@ -253,7 +253,7 @@ func (s *Transfer) ReadAll() ([]core.Transfer, error) {
 	return transfers, nil
 }
 
-func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, error) {
+func (s *Transfer) ReadAllByProject(project model.Project) ([]model.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
@@ -293,9 +293,9 @@ func (s *Transfer) ReadAllByProject(project core.Project) ([]core.Transfer, erro
 	}
 	defer rows.Close()
 
-	var transfers []core.Transfer
+	var transfers []model.Transfer
 	for rows.Next() {
-		var transfer core.Transfer
+		var transfer model.Transfer
 		dest := []interface{}{
 			&transfer.ID,
 			&transfer.Pattern,

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
@@ -19,7 +19,7 @@ func NewLocation(db postgresql.Conn) *Location {
 	return &s
 }
 
-func (s *Location) Create(location *core.Location) error {
+func (s *Location) Create(location *model.Location) error {
 	stmt := `
 		INSERT INTO location
 			(kind, name, info, project_id)
@@ -50,7 +50,7 @@ func (s *Location) Create(location *core.Location) error {
 	return nil
 }
 
-func (s *Location) Read(id string) (core.Location, error) {
+func (s *Location) Read(id string) (model.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -63,7 +63,7 @@ func (s *Location) Read(id string) (core.Location, error) {
 			ON project.id = location.project_id
 		WHERE location.id = $1`
 
-	var location core.Location
+	var location model.Location
 	dest := []interface{}{
 		&location.ID,
 		&location.Kind,
@@ -82,13 +82,13 @@ func (s *Location) Read(id string) (core.Location, error) {
 			return s.Read(id)
 		}
 
-		return core.Location{}, err
+		return model.Location{}, err
 	}
 
 	return location, nil
 }
 
-func (s *Location) Update(location core.Location) error {
+func (s *Location) Update(location model.Location) error {
 	stmt := `
 		UPDATE location
 		SET
@@ -119,7 +119,7 @@ func (s *Location) Update(location core.Location) error {
 	return nil
 }
 
-func (s *Location) Delete(location core.Location) error {
+func (s *Location) Delete(location model.Location) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1`
@@ -139,7 +139,7 @@ func (s *Location) Delete(location core.Location) error {
 	return nil
 }
 
-func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, error) {
+func (s *Location) ReadAllByProject(project model.Project) ([]model.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -161,9 +161,9 @@ func (s *Location) ReadAllByProject(project core.Project) ([]core.Location, erro
 	}
 	defer rows.Close()
 
-	var locations []core.Location
+	var locations []model.Location
 	for rows.Next() {
-		var location core.Location
+		var location model.Location
 		dest := []interface{}{
 			&location.ID,
 			&location.Kind,

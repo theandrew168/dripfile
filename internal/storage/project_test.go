@@ -4,13 +4,13 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
-func mockProject() core.Project {
-	project := core.NewProject()
+func mockProject() model.Project {
+	project := model.NewProject()
 	return project
 }
 

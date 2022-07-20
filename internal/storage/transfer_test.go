@@ -3,12 +3,12 @@ package storage_test
 import (
 	"testing"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
-func mockTransfer(src, dst core.Location, schedule core.Schedule, project core.Project) core.Transfer {
-	transfer := core.NewTransfer(
+func mockTransfer(src, dst model.Location, schedule model.Schedule, project model.Project) model.Transfer {
+	transfer := model.NewTransfer(
 		test.RandomString(8),
 		src,
 		dst,

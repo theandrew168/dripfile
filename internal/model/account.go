@@ -1,4 +1,4 @@
-package core
+package model
 
 // enum values for account / project relationship
 const (

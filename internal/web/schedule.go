@@ -7,7 +7,7 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/lnquy/cron"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/validator"
 )
@@ -30,8 +30,8 @@ type scheduleCreateForm struct {
 }
 
 type scheduleData struct {
-	Schedules []core.Schedule
-	Schedule  core.Schedule
+	Schedules []model.Schedule
+	Schedule  model.Schedule
 	Form      scheduleCreateForm
 }
 
@@ -133,7 +133,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	project := session.Account.Project
-	schedule := core.NewSchedule(name, expr, project)
+	schedule := model.NewSchedule(name, expr, project)
 	err = app.store.Schedule.Create(&schedule)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

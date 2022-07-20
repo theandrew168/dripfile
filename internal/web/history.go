@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 )
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request
 	// TODO: add map of valid IDs to tmpl data
 
 	data := struct {
-		Histories []core.History
+		Histories []model.History
 	}{
 		Histories: histories,
 	}

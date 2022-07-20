@@ -3,11 +3,11 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/core"
+	"github.com/theandrew168/dripfile/internal/model"
 )
 
 type accountData struct {
-	Account core.Account
+	Account model.Account
 }
 
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {

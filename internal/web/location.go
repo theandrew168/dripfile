@@ -7,8 +7,8 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/core"
 	"github.com/theandrew168/dripfile/internal/fileserver"
+	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/validator"
 )
@@ -23,8 +23,8 @@ type locationCreateForm struct {
 }
 
 type locationData struct {
-	Locations []core.Location
-	Location  core.Location
+	Locations []model.Location
+	Location  model.Location
 	Form      locationCreateForm
 }
 
@@ -153,7 +153,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 
 	name := info.Endpoint + "/" + info.BucketName
 	project := session.Account.Project
-	location := core.NewLocation(core.KindS3, name, encryptedInfo, project)
+	location := model.NewLocation(model.KindS3, name, encryptedInfo, project)
 	err = app.store.Location.Create(&location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

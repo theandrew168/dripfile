@@ -1,4 +1,4 @@
-package core
+package model
 
 // enum values for location kind
 const (
