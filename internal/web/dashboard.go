@@ -15,6 +15,7 @@ type dashboardData struct {
 	Form dashboardForm
 }
 
+// TODO: show some useful data on the dashboard
 func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	page := "app/dashboard.html"
 	data := dashboardData{}

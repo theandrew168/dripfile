@@ -1,9 +1,0 @@
-SMTPMailer impl of Mailer interface
-tmp and swap for file transfers
-adhoc schedule (do nothing til ran manually)
-other file servers (sftp, ftp, ftps)
-show something on dashboard
-add other users to project? all in one proj?
-actual RBAC (admin, editor, viewer, etc)
-business layer for account create, etc?
-loc / xfer / sched organization?
