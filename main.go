@@ -133,8 +133,14 @@ func run() int {
 	apiApp := api.NewApplication(logger)
 	webApp := web.NewApplication(logger, store, queue, box)
 
+	// let port be overridable by an env var
+	port := cfg.Port
+	if os.Getenv("PORT") != "" {
+		port = os.Getenv("PORT")
+	}
+
 	// nest the API handler under the main web app
-	addr := fmt.Sprintf("127.0.0.1:%s", cfg.Port)
+	addr := fmt.Sprintf("127.0.0.1:%s", port)
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: webApp.Handler(apiApp.Handler()),
