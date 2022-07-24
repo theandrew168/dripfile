@@ -4,9 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
-
-	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
@@ -23,6 +22,8 @@ type Worker struct {
 	queue  *Queue
 	box    *secret.Box
 	mailer mail.Mailer
+
+	stop chan struct{}
 }
 
 func NewWorker(
@@ -38,41 +39,55 @@ func NewWorker(
 		queue:  queue,
 		box:    box,
 		mailer: mailer,
+
+		stop: make(chan struct{}),
 	}
 	return &w
 }
 
-// TODO: signals and stuff?
-// listen on queue, grab jobs, do the work, update as needed, success or error
-func (w *Worker) Run() error {
-	// let systemd know that we are good to go (no-op if not using systemd)
-	daemon.SdNotify(false, daemon.SdNotifyReady)
+func (w *Worker) Start() error {
+	var wg sync.WaitGroup
 
 	// check for new tasks periodically
-	c := time.Tick(time.Second)
+	ticker := time.Tick(time.Second)
 	for {
-		// kick off all new tasks
-		for {
-			t, err := w.queue.Pop()
-			if err != nil {
-				// break loop if no new tasks remain
-				if errors.Is(err, postgresql.ErrNotExist) {
-					break
+		select {
+		case <-w.stop:
+			goto stop
+		case <-ticker:
+			// kick off all new tasks
+			for {
+				t, err := w.queue.Pop()
+				if err != nil {
+					// break loop if no new tasks remain
+					if errors.Is(err, postgresql.ErrNotExist) {
+						break
+					}
+					return err
 				}
-				return err
+
+				// run task in the background
+				wg.Add(1)
+				go func() {
+					defer wg.Done()
+					w.handleTask(t)
+				}()
 			}
-
-			// run task in the background
-			go w.RunTask(t)
 		}
-
-		<-c
 	}
 
+stop:
+	wg.Wait()
 	return nil
 }
 
-func (w *Worker) RunTask(t Task) {
+func (w *Worker) Stop() error {
+	w.logger.Info("stopping worker", nil)
+	w.stop <- struct{}{}
+	return nil
+}
+
+func (w *Worker) handleTask(t Task) {
 	// TODO: use a map
 	// determine which task needs to run
 	var handler TaskHandler

@@ -23,6 +23,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/web"
@@ -110,7 +111,7 @@ func run() int {
 	// worker: run worker forever
 	if action == "worker" {
 		w := task.NewWorker(logger, store, queue, box, mailer)
-		err := w.Run()
+		err := service.Run(w)
 		if err != nil {
 			logger.Error(err, nil)
 			return 1

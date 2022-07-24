@@ -12,7 +12,7 @@ require (
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/lnquy/cron v1.1.1
-	github.com/minio/minio-go/v7 v7.0.31
+	github.com/minio/minio-go/v7 v7.0.32
 	github.com/prometheus/client_golang v1.12.2
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )

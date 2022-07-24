@@ -175,6 +175,13 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// TODO: proper form like transfer
+	err = r.ParseForm()
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
+	}
+
 	// TODO: assert id belongs to session->account->project
 	// TODO: assert account role is owner, admin, or editor
 	locationID := r.PostForm.Get("LocationID")
