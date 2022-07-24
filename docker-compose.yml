@@ -7,6 +7,10 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: postgres
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
 
   # s3cmd --no-ssl --host localhost:9000 --access_key minioadmin --secret_key minioadmin ls
   s3:
@@ -36,8 +40,3 @@ services:
 #    ports:
 #      - "2222:22"
 #    command: sftp:sftp
-
-  adminer:
-    image: adminer
-    ports:
-      - "8080:8080"
