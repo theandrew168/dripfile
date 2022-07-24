@@ -116,7 +116,10 @@ func (w *Worker) RunTask(t Task) {
 				"task_id":   t.ID,
 				"task_kind": string(t.Kind),
 			})
+			return
 		}
+
+		return
 	}
 
 	// delete the task upon success

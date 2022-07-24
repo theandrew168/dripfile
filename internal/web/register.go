@@ -130,7 +130,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	t := task.NewEmailSendTask(
 		"DripFile",
 		"info@dripfile.com",
-		account.Email,
+		"",
 		account.Email,
 		"Welcome to DripFile!",
 		"Thanks for signing up with DripFile! I hope this adds some value.",
