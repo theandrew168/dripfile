@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"encoding/json"
 )
 
@@ -33,4 +34,26 @@ func NewEmailSendTask(fromName, fromEmail, toName, toEmail, subject, body string
 	}
 
 	return NewTask(KindEmailSend, string(js))
+}
+
+func (w *Worker) HandleEmailSend(ctx context.Context, t Task) error {
+	var info EmailSendInfo
+	err := json.Unmarshal([]byte(t.Info), &info)
+	if err != nil {
+		return err
+	}
+
+	err = w.mailer.SendEmail(
+		info.FromName,
+		info.FromEmail,
+		info.ToName,
+		info.ToEmail,
+		info.Subject,
+		info.Body,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -1,4 +1,4 @@
-// Nicer wrapper around the nacl/secretbox package.
+// Package secret is a nicer wrapper around the nacl/secretbox package.
 package secret
 
 import (

@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"encoding/json"
 )
 
@@ -19,4 +20,13 @@ func NewSessionPruneTask() Task {
 	}
 
 	return NewTask(KindSessionPrune, string(js))
+}
+
+func (w *Worker) HandleSessionPrune(ctx context.Context, t Task) error {
+	err := w.store.Session.DeleteExpired()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

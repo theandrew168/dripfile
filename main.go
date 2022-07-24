@@ -26,7 +26,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/web"
-	"github.com/theandrew168/dripfile/internal/worker"
 )
 
 func main() {
@@ -82,11 +81,7 @@ func run() int {
 	}
 
 	store := storage.New(pool)
-	queue, err := task.NewQueue(cfg.RedisURL)
-	if err != nil {
-		logger.Error(err, nil)
-		return 1
-	}
+	queue := task.NewQueue(pool)
 
 	// init the mailer interface
 	var mailer mail.Mailer
@@ -114,7 +109,7 @@ func run() int {
 
 	// worker: run worker forever
 	if action == "worker" {
-		w := worker.New(logger, store, box, mailer, cfg.RedisURL)
+		w := task.NewWorker(logger, store, queue, box, mailer)
 		err := w.Run()
 		if err != nil {
 			logger.Error(err, nil)

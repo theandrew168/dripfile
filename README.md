@@ -13,7 +13,7 @@ make
 
 ## Local Development
 ### Services
-This project uses [PostgreSQL](https://www.postgresql.org/) for persistent storage and [Redis](https://redis.io/) for queuing background tasks.
+This project uses [PostgreSQL](https://www.postgresql.org/) for persistent storage and queuing background tasks.
 To develop locally, you'll need to run these services locally somehow or another.
 I find [Docker](https://www.docker.com/) to be a nice tool for this but you can do whatever works best.
 
@@ -55,8 +55,8 @@ make test
 ```
 
 ## Innovation Tokens
-* [Asynq Task Queue](https://github.com/hibiken/asynq)
 * [Tachyons CSS](https://tachyons.io/)
+* [PostgreSQL Task Queue](https://webapp.io/blog/postgres-is-the-answer/)
 
 ## Features
 * Managed file transfer (MFT) as a service

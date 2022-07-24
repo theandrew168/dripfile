@@ -13,7 +13,6 @@ const DefaultPort = "5000"
 type Config struct {
 	SecretKey     string `toml:"secret_key"`
 	PostgreSQLURL string `toml:"postgresql_url"`
-	RedisURL      string `toml:"redis_url"`
 	SMTPURL       string `toml:"smtp_url"`
 	Port          string `toml:"port"`
 }
@@ -29,7 +28,7 @@ func Read(data string) (Config, error) {
 	}
 
 	// gather extra values
-	extra := []string{}
+	var extra []string
 	for _, keys := range meta.Undecoded() {
 		key := keys[0]
 		extra = append(extra, key)
@@ -51,11 +50,10 @@ func Read(data string) (Config, error) {
 	required := []string{
 		"secret_key",
 		"postgresql_url",
-		"redis_url",
 	}
 
 	// gather missing values
-	missing := []string{}
+	var missing []string
 	for _, key := range required {
 		if _, ok := present[key]; !ok {
 			missing = append(missing, key)

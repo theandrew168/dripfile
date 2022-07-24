@@ -86,13 +86,26 @@ func Migrate(logger *jsonlog.Logger, db postgresql.Conn) error {
 		if err != nil {
 			return err
 		}
-		_, err = db.Exec(ctx, string(sql))
+
+		// apply each migration in a transaction
+		tx, err := db.Begin(context.Background())
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback(context.Background())
+
+		_, err = tx.Exec(ctx, string(sql))
 		if err != nil {
 			return err
 		}
 
 		// update migrations table
-		_, err = db.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
+		_, err = tx.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
+		if err != nil {
+			return err
+		}
+
+		err = tx.Commit(context.Background())
 		if err != nil {
 			return err
 		}

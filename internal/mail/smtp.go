@@ -4,6 +4,7 @@ type smtpMailer struct {
 }
 
 func NewSMTPMailer(uri string) (Mailer, error) {
+	// TODO: parse URI, pull out deets
 	return nil, nil
 }
 

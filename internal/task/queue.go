@@ -1,30 +1,148 @@
 package task
 
 import (
-	"github.com/hibiken/asynq"
+	"context"
+	"errors"
+	"time"
+
+	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
+// default query timeout
+const timeout = 3 * time.Second
+
 type Queue struct {
-	client *asynq.Client
+	db postgresql.Conn
 }
 
-func NewQueue(redisURL string) (*Queue, error) {
-	opts, err := asynq.ParseRedisURI(redisURL)
-	if err != nil {
-		return nil, err
-	}
-
-	client := asynq.NewClient(opts)
+func NewQueue(db postgresql.Conn) *Queue {
 	q := Queue{
-		client: client,
+		db: db,
 	}
-	return &q, nil
+	return &q
 }
 
 func (q *Queue) Push(t Task) error {
-	asynqTask := asynq.NewTask(t.Kind, []byte(t.Info))
-	_, err := q.client.Enqueue(asynqTask)
+	stmt := `
+		INSERT INTO task_queue
+			(kind, info, status, error)
+		VALUES
+			($1, $2, $3, $4)`
+
+	args := []interface{}{
+		t.Kind,
+		t.Info,
+		t.Status,
+		t.Error,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	err := postgresql.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
+		if errors.Is(err, postgresql.ErrRetry) {
+			return q.Push(t)
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+// atomically claim tasks (only run one per worker)
+// https://webapp.io/blog/database-is-the-answer/
+func (q *Queue) Pop() (Task, error) {
+	stmt := `
+		UPDATE task_queue
+		SET status = 'running'
+		WHERE id = (
+			SELECT id
+			FROM task_queue
+			WHERE status = 'new'
+			ORDER BY id
+			FOR UPDATE SKIP LOCKED
+			LIMIT 1
+		)
+		RETURNING id, kind, info, status`
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	// read the task that was selected
+	var t Task
+	dest := []interface{}{
+		&t.ID,
+		&t.Kind,
+		&t.Info,
+		&t.Status,
+	}
+
+	row := q.db.QueryRow(ctx, stmt)
+	err := postgresql.Scan(row, dest...)
+	if err != nil {
+		if errors.Is(err, postgresql.ErrRetry) {
+			return q.Pop()
+		}
+
+		return Task{}, err
+	}
+
+	return t, nil
+}
+
+func (q *Queue) Update(t Task) error {
+	stmt := `
+		UPDATE task_queue
+		SET
+			kind = $2,
+			info = $3,
+			status = $4,
+			error = $5
+		WHERE id = $1`
+
+	args := []interface{}{
+		t.ID,
+		t.Kind,
+		t.Info,
+		t.Status,
+		t.Error,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	err := postgresql.Exec(q.db, ctx, stmt, args...)
+	if err != nil {
+		if errors.Is(err, postgresql.ErrRetry) {
+			return q.Update(t)
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+func (q *Queue) Delete(t Task) error {
+	stmt := `
+		DELETE FROM task_queue
+		WHERE id = $1`
+
+	args := []interface{}{
+		t.ID,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	err := postgresql.Exec(q.db, ctx, stmt, args...)
+	if err != nil {
+		if errors.Is(err, postgresql.ErrRetry) {
+			return q.Update(t)
+		}
+
 		return err
 	}
 

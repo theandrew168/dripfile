@@ -6,6 +6,7 @@ dist/
 
 .DS_Store
 .vscode/
+.idea/
 
 # Binaries for programs and plugins
 *.exe
