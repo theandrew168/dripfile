@@ -1,9 +1,18 @@
 package mail
 
+import (
+//	"net/smtp"
+//	"net/url"
+)
+
 type smtpMailer struct {
+	hostname string
+	port     string
+	username string
+	password string
 }
 
-func NewSMTPMailer(uri string) (Mailer, error) {
+func NewSMTPMailer(smtpURL string) (Mailer, error) {
 	// TODO: parse URI, pull out deets
 	return nil, nil
 }

@@ -1,7 +1,7 @@
 dripfile
 main
-*.test
-*.live
+*.test.conf
+*.live.conf
 dist/
 
 .DS_Store
