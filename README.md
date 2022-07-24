@@ -1,5 +1,5 @@
 # DripFile
-Managed file transfer as a service
+File transfers made easy
 
 ## Setup
 This project depends on the [Go programming language](https://golang.org/dl/).
@@ -59,7 +59,6 @@ make test
 * [PostgreSQL Task Queue](https://webapp.io/blog/postgres-is-the-answer/)
 
 ## Features
-* Managed file transfer (MFT) as a service
 * Schedule-based transfers
 * Polling-based transfers
 * Automatic retries
