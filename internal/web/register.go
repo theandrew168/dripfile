@@ -135,7 +135,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		"Welcome to DripFile!",
 		"Thanks for signing up with DripFile! I hope this adds some value.",
 	)
-	err = app.queue.Push(t)
+	err = app.queue.Submit(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

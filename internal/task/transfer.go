@@ -134,9 +134,5 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t Task) error {
 		return err
 	}
 
-	w.logger.Info("transfer successful", map[string]string{
-		"transfer_id": transfer.ID,
-	})
-
 	return nil
 }

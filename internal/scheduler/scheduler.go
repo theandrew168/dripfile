@@ -45,7 +45,7 @@ func (s *Scheduler) Run() error {
 	// prune sessions hourly
 	sched.Cron("* * * * *").Do(func() {
 		t := task.NewSessionPruneTask()
-		err := s.queue.Push(t)
+		err := s.queue.Submit(t)
 		if err != nil {
 			s.logger.Error(err, nil)
 			return
@@ -104,7 +104,7 @@ func (s *Scheduler) Run() error {
 
 			sched.Cron(transfer.Schedule.Expr).Tag(transfer.ID).Do(func() {
 				t := task.NewTransferTryTask(transfer.ID)
-				err = s.queue.Push(t)
+				err = s.queue.Submit(t)
 				if err != nil {
 					s.logger.Error(err, nil)
 					return

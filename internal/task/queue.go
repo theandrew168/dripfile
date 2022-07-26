@@ -22,7 +22,7 @@ func NewQueue(db postgresql.Conn) *Queue {
 	return &q
 }
 
-func (q *Queue) Push(t Task) error {
+func (q *Queue) Submit(t Task) error {
 	stmt := `
 		INSERT INTO task_queue
 			(kind, info, status, error)
@@ -42,7 +42,7 @@ func (q *Queue) Push(t Task) error {
 	err := postgresql.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, postgresql.ErrRetry) {
-			return q.Push(t)
+			return q.Submit(t)
 		}
 
 		return err
@@ -53,7 +53,7 @@ func (q *Queue) Push(t Task) error {
 
 // atomically claim tasks (only run one per worker)
 // https://webapp.io/blog/database-is-the-answer/
-func (q *Queue) Pop() (Task, error) {
+func (q *Queue) Claim() (Task, error) {
 	stmt := `
 		UPDATE task_queue
 		SET status = 'running'
@@ -83,7 +83,7 @@ func (q *Queue) Pop() (Task, error) {
 	err := postgresql.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, postgresql.ErrRetry) {
-			return q.Pop()
+			return q.Claim()
 		}
 
 		return Task{}, err
@@ -92,20 +92,24 @@ func (q *Queue) Pop() (Task, error) {
 	return t, nil
 }
 
-func (q *Queue) Update(t Task) error {
+func (q *Queue) Finish(t Task) error {
+	if t.Status == StatusFailure {
+		return q.finishFailure(t)
+	} else {
+		return q.finishSuccess(t)
+	}
+}
+
+func (q *Queue) finishFailure(t Task) error {
 	stmt := `
 		UPDATE task_queue
 		SET
-			kind = $2,
-			info = $3,
-			status = $4,
-			error = $5
+			status = $2,
+			error = $3
 		WHERE id = $1`
 
 	args := []interface{}{
 		t.ID,
-		t.Kind,
-		t.Info,
 		t.Status,
 		t.Error,
 	}
@@ -116,7 +120,7 @@ func (q *Queue) Update(t Task) error {
 	err := postgresql.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, postgresql.ErrRetry) {
-			return q.Update(t)
+			return q.finishFailure(t)
 		}
 
 		return err
@@ -125,7 +129,7 @@ func (q *Queue) Update(t Task) error {
 	return nil
 }
 
-func (q *Queue) Delete(t Task) error {
+func (q *Queue) finishSuccess(t Task) error {
 	stmt := `
 		DELETE FROM task_queue
 		WHERE id = $1`
@@ -140,7 +144,7 @@ func (q *Queue) Delete(t Task) error {
 	err := postgresql.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, postgresql.ErrRetry) {
-			return q.Update(t)
+			return q.finishSuccess(t)
 		}
 
 		return err

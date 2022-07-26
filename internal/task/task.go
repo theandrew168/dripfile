@@ -7,7 +7,8 @@ type Status string
 const (
 	StatusNew     = "new"
 	StatusRunning = "running"
-	StatusError   = "error"
+	StatusSuccess = "success"
+	StatusFailure = "failure"
 )
 
 type Task struct {

@@ -57,7 +57,7 @@ func (w *Worker) Start() error {
 		case <-ticker:
 			// kick off all new tasks
 			for {
-				t, err := w.queue.Pop()
+				t, err := w.queue.Claim()
 				if err != nil {
 					// break loop if no new tasks remain
 					if errors.Is(err, postgresql.ErrNotExist) {
@@ -88,17 +88,15 @@ func (w *Worker) Stop() error {
 }
 
 func (w *Worker) handleTask(t Task) {
-	// TODO: use a map
 	// determine which task needs to run
-	var handler TaskHandler
-	switch t.Kind {
-	case KindSessionPrune:
-		handler = w.HandleSessionPrune
-	case KindEmailSend:
-		handler = w.HandleEmailSend
-	case KindTransferTry:
-		handler = w.HandleTransferTry
-	default:
+	handlers := map[Kind]TaskHandler{
+		KindSessionPrune: w.HandleSessionPrune,
+		KindEmailSend:    w.HandleEmailSend,
+		KindTransferTry:  w.HandleTransferTry,
+	}
+
+	handler, ok := handlers[t.Kind]
+	if !ok {
 		w.logger.Error(fmt.Errorf("unknown task kind"), map[string]string{
 			"task_id":   t.ID,
 			"task_kind": string(t.Kind),
@@ -107,49 +105,34 @@ func (w *Worker) handleTask(t Task) {
 	}
 
 	w.logger.Info("task start", map[string]string{
-		"task_id":     t.ID,
-		"task_kind":   string(t.Kind),
-		"task_status": string(t.Status),
-		"task_error":  t.Error,
+		"task_id":   t.ID,
+		"task_kind": string(t.Kind),
 	})
 
-	ctx := context.Background()
-	err := handler(ctx, t)
+	err := handler(context.Background(), t)
+	if err != nil {
+		// update status upon error
+		t.Status = StatusFailure
+		t.Error = err.Error()
+
+		w.logger.Info("task failure", map[string]string{
+			"task_id":    t.ID,
+			"task_kind":  string(t.Kind),
+			"task_error": t.Error,
+		})
+	} else {
+		w.logger.Info("task success", map[string]string{
+			"task_id":   t.ID,
+			"task_kind": string(t.Kind),
+		})
+	}
+
+	err = w.queue.Finish(t)
 	if err != nil {
 		w.logger.Error(err, map[string]string{
 			"task_id":   t.ID,
 			"task_kind": string(t.Kind),
 		})
-
-		// update status upon error
-		t.Error = err.Error()
-		t.Status = StatusError
-
-		err = w.queue.Update(t)
-		if err != nil {
-			w.logger.Error(err, map[string]string{
-				"task_id":   t.ID,
-				"task_kind": string(t.Kind),
-			})
-			return
-		}
-
 		return
 	}
-
-	// delete the task upon success
-	err = w.queue.Delete(t)
-	if err != nil {
-		w.logger.Error(err, map[string]string{
-			"task_id":   t.ID,
-			"task_kind": string(t.Kind),
-		})
-	}
-
-	w.logger.Info("task finish", map[string]string{
-		"task_id":     t.ID,
-		"task_kind":   string(t.Kind),
-		"task_status": string(t.Status),
-		"task_error":  t.Error,
-	})
 }
