@@ -1,19 +1,10 @@
 package main
 
 import (
-	"context"
 	"encoding/hex"
-	"errors"
 	"flag"
 	"fmt"
-	"net"
-	"net/http"
 	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
-	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
@@ -99,7 +90,7 @@ func run() int {
 
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
-		s := scheduler.New(cfg, logger, store, queue)
+		s := scheduler.New(logger, store, queue)
 		err := s.Run()
 		if err != nil {
 			logger.Error(err, nil)
@@ -137,65 +128,14 @@ func run() int {
 
 	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", port)
-	srv := &http.Server{
-		Addr:    addr,
-		Handler: webApp.Handler(apiApp.Handler()),
+	handler := webApp.Handler(apiApp.Handler())
 
-		IdleTimeout:  time.Minute,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 30 * time.Second,
-	}
-
-	// open up the socket listener
-	l, err := net.Listen("tcp", addr)
+	s := web.NewService(logger, addr, handler)
+	err = service.Run(s)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1
 	}
 
-	// let systemd know that we are good to go (no-op if not using systemd)
-	daemon.SdNotify(false, daemon.SdNotifyReady)
-	logger.Info("starting server", map[string]string{
-		"addr": addr,
-	})
-
-	// kick off a goroutine to listen for SIGINT and SIGTERM
-	shutdownError := make(chan error)
-	go func() {
-		// idle until a signal is caught
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
-
-		// give the web server 5 seconds to shutdown gracefully
-		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
-
-		// shutdown the web server and track any errors
-		logger.Info("stopping server", nil)
-		srv.SetKeepAlivesEnabled(false)
-		err := srv.Shutdown(ctx)
-		if err != nil {
-			shutdownError <- err
-		}
-
-		shutdownError <- nil
-	}()
-
-	// serve the app, check for ErrServerClosed (expected after shutdown)
-	err = srv.Serve(l)
-	if !errors.Is(err, http.ErrServerClosed) {
-		logger.Error(err, nil)
-		return 1
-	}
-
-	// check for shutdown errors
-	err = <-shutdownError
-	if err != nil {
-		logger.Error(err, nil)
-		return 1
-	}
-
-	logger.Infof("stopped server")
 	return 0
 }

@@ -6,27 +6,23 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/go-co-op/gocron"
 
-	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 )
 
 type Scheduler struct {
-	cfg    config.Config
 	logger *jsonlog.Logger
 	store  *storage.Storage
 	queue  *task.Queue
 }
 
 func New(
-	cfg config.Config,
 	logger *jsonlog.Logger,
 	store *storage.Storage,
 	queue *task.Queue,
 ) *Scheduler {
 	s := Scheduler{
-		cfg:    cfg,
 		logger: logger,
 		store:  store,
 		queue:  queue,
