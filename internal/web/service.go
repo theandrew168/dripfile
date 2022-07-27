@@ -16,7 +16,7 @@ type webService struct {
 }
 
 func NewService(logger *jsonlog.Logger, addr string, handler http.Handler) service.Service {
-	server := http.Server{
+	server := &http.Server{
 		Addr:    addr,
 		Handler: handler,
 
@@ -27,7 +27,7 @@ func NewService(logger *jsonlog.Logger, addr string, handler http.Handler) servi
 
 	s := webService{
 		logger: logger,
-		server: &server,
+		server: server,
 	}
 	return &s
 }

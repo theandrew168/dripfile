@@ -15,6 +15,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/web/api"
 )
 
 //go:embed static/img/logo-white.svg
@@ -110,7 +111,7 @@ func NewApplication(
 // U PUT    - handleUpdateFoo[Form]
 // D DELETE - handleDeleteFoo[Form]
 
-func (app *Application) Handler(api http.Handler) http.Handler {
+func (app *Application) Handler() http.Handler {
 	mux := flow.New()
 	mux.NotFound = http.HandlerFunc(app.notFoundResponse)
 	mux.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
@@ -143,7 +144,9 @@ func (app *Application) Handler(api http.Handler) http.Handler {
 	mux.Handle("/static/...", http.StripPrefix("/static", staticServer))
 
 	// serve API routes under /api/v1
-	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", api))
+	apiApp := api.NewApplication(app.logger)
+	apiHandler := apiApp.Handler()
+	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiHandler))
 	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/api/v1/", http.StatusMovedPermanently)
 	})

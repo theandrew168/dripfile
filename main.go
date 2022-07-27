@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
@@ -116,9 +115,8 @@ func run() int {
 		return 1
 	}
 
-	// instantiate applications (DI happens here)
-	apiApp := api.NewApplication(logger)
-	webApp := web.NewApplication(logger, store, queue, box)
+	// instantiate main web application
+	app := web.NewApplication(logger, store, queue, box)
 
 	// let port be overridable by an env var
 	port := cfg.Port
@@ -128,7 +126,7 @@ func run() int {
 
 	// nest the API handler under the main web app
 	addr := fmt.Sprintf("127.0.0.1:%s", port)
-	handler := webApp.Handler(apiApp.Handler())
+	handler := app.Handler()
 
 	s := web.NewService(logger, addr, handler)
 	err = service.Run(s)
