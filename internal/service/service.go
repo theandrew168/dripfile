@@ -9,7 +9,10 @@ import (
 )
 
 type Service interface {
+	// start the service, blocking
 	Start() error
+
+	// stop the service, unblock Start()
 	Stop() error
 }
 

@@ -57,6 +57,8 @@ func (w *Worker) Start() error {
 		case <-ticker:
 			// kick off all new tasks
 			for {
+				// TODO: use a sem to limit concurrent tasks
+
 				t, err := w.queue.Claim()
 				if err != nil {
 					// break loop if no new tasks remain
