@@ -1,21 +1,21 @@
 {{template "base" .}}
 
 {{define "body"}}
-<body class="site">
-	<header class="nav">
-		<nav>
-			<a class="logo" href="/">
-				<img alt="DripFile Logo" src="/static/img/logo-white.svg">
-				<span>DripFile</span>
+<body class="flex flex-column sans-serif">
+	<header>
+		<nav class="flex items-center justify-between bg-blue pa2">
+			<a class="flex items-center white no-underline" href="/">
+				<img class="h2 w-auto pr2" alt="DripFile Logo" src="/static/img/logo-white.svg">
+				<span class="f3 b">DripFile</span>
 			</a>
-			<ul>
-				<li><a class="button outline" id="nav-register" href="/register">Register</a></li>
-				<li><a id="nav-login" href="/dashboard">Login</a></li>
+			<ul class="list flex flex-wrap items-center">
+				<li><a class="white hover-white-80 no-underline mr2" id="nav-register" href="/register">Register</a></li>
+				<li><a class="white hover-white-80 no-underline mr2" id="nav-login" href="/dashboard">Login</a></li>
 			</ul>
 		</nav>
 	</header>
 
-	<main>
+	<main class="flex-auto pa3">
 		{{template "main" .}}
 	</main>
 

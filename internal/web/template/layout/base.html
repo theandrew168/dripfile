@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- attr order: class, id, name -->
+
 <head>
 	<title>{{template "title" .}} - DripFile</title>
 
@@ -9,10 +11,15 @@
 	<meta name="description" content="File transfers made easy" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-	<link rel="stylesheet" href="/static/css/minireset.min.css" />
-	<link rel="stylesheet" href="/static/css/dripfile.css" />
+	<link rel="stylesheet" href="/static/css/tachyons.min.css" />
 	<script src="/static/js/alpine.min.js" defer></script>
 	<script src="/static/js/htmx.min.js" defer></script>
+
+	<style>
+		html, body {
+			height: 100%;
+		}
+	</style>
 </head>
 
 {{template "body" .}}

@@ -3,10 +3,10 @@
 {{define "title"}}Transfer{{end}}
 
 {{define "main"}}
-<section id="page-transfer-read">
+<section class="bg-white br3 shadow-2 pa2 ma3" id="page-transfer-read">
 	<header>
 		<h1>Transfer</h1>
-		<a id="action-create" href="/transfer/create" class="button">Create Transfer</a>
+		<a id="action-create" href="/transfer/create">Create Transfer</a>
 	</header>
 
 	<p>
@@ -34,20 +34,14 @@
 		<p>{{.Transfer.Pattern}}</p>
 	</p>
 
-	<br>
 	<form action="/transfer/delete" method="POST">
-		<p>
-			<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
-			<button id="submit-delete" type="submit" class="danger">Delete</button>
-		</p>
+		<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
+		<button id="submit-delete" type="submit">Delete</button>
 	</form>
 
-	<br>
 	<form action="/transfer/run" method="POST">
-		<p>
-			<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
-			<button id="submit-run" type="submit">Run now</button>
-		</p>
+		<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
+		<button id="submit-run" type="submit">Run now</button>
 	</form>
 </section>
 {{end}}

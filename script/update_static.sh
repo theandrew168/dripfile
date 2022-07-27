@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# update minireset.css
-# https://jgthms.com/minireset.css/
-curl -L -o internal/web/static/css/minireset.min.css  \
-  https://raw.githubusercontent.com/jgthms/minireset.css/master/minireset.min.css
+# update tachyons.css
+# https://tachyons.io/
+curl -L -o internal/web/static/css/tachyons.min.css  \
+  https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css
 
 # update Alpine.js
 # https://alpinejs.dev/

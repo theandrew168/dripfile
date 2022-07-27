@@ -3,7 +3,7 @@
 {{define "title"}}Profile{{end}}
 
 {{define "main"}}
-<section id="page-account-read">
+<section class="bg-white br3 shadow-2 pa2 ma3" id="page-account-read">
 	<header>
 		<h1>Account ({{.Account.Email}})</h1>
 		<form action="/logout" method="POST">
@@ -14,7 +14,7 @@
 	<form action="/account/delete" method="POST">
 		<p>
 			<input id="hidden-account-id" name="AccountID" type="hidden" value="{{.Account.ID}}" />
-			<button id="submit-delete" type="submit" class="danger">Delete</button>
+			<button id="submit-delete" type="submit">Delete</button>
 		</p>
 	</form>
 </section>
