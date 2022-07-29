@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -18,6 +19,9 @@ import (
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/web"
 )
+
+//go:embed migration
+var migrationFS embed.FS
 
 func main() {
 	os.Exit(run())
@@ -63,7 +67,7 @@ func run() int {
 
 	// migrate: apply migrations and exit
 	if action == "migrate" {
-		err := migrate.Migrate(logger, pool)
+		err := migrate.Migrate(logger, pool, migrationFS)
 		if err != nil {
 			logger.Error(err, nil)
 			return 1

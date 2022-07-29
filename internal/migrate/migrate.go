@@ -11,10 +11,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
-//go:embed migration
-var migrationFS embed.FS
-
-func Migrate(logger *jsonlog.Logger, db postgresql.Conn) error {
+func Migrate(logger *jsonlog.Logger, db postgresql.Conn, files embed.FS) error {
 	ctx := context.Background()
 
 	// attempt to create extensions and ignore errors
@@ -59,7 +56,7 @@ func Migrate(logger *jsonlog.Logger, db postgresql.Conn) error {
 	}
 
 	// get migrations that should be applied (from migrations FS)
-	subdir, _ := fs.Sub(migrationFS, "migration")
+	subdir, _ := fs.Sub(files, "migration")
 	migrations, err := fs.ReadDir(subdir, ".")
 	if err != nil {
 		return err
@@ -76,12 +73,13 @@ func Migrate(logger *jsonlog.Logger, db postgresql.Conn) error {
 
 	// sort missing migrations to preserve order
 	sort.Strings(missing)
+
+	// apply each missing migration
 	for _, name := range missing {
 		logger.Info("applying migration", map[string]string{
 			"name": name,
 		})
 
-		// apply the missing ones
 		sql, err := fs.ReadFile(subdir, name)
 		if err != nil {
 			return err
@@ -99,7 +97,7 @@ func Migrate(logger *jsonlog.Logger, db postgresql.Conn) error {
 			return err
 		}
 
-		// update migrations table
+		// update migration table
 		_, err = tx.Exec(ctx, "INSERT INTO migration (name) VALUES ($1)", name)
 		if err != nil {
 			return err

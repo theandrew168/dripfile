@@ -6,7 +6,6 @@ import (
 	"io"
 	"runtime/debug"
 	"sync"
-	"time"
 )
 
 const (
@@ -48,13 +47,11 @@ func (l *Logger) print(level, message string, properties map[string]string) (int
 	// use an anon struct to represent the log entry
 	entry := struct {
 		Level      string            `json:"level"`
-		Time       string            `json:"time"`
 		Message    string            `json:"message"`
 		Properties map[string]string `json:"properties,omitempty"`
 		Trace      string            `json:"trace,omitempty"`
 	}{
 		Level:      level,
-		Time:       time.Now().UTC().Format(time.RFC3339),
 		Message:    message,
 		Properties: properties,
 	}
