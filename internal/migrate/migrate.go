@@ -14,8 +14,8 @@ import (
 func Migrate(logger *jsonlog.Logger, db postgresql.Conn, files embed.FS) error {
 	ctx := context.Background()
 
-	// attempt to create extensions and ignore errors
-	// (local container needs it, deployed version gets it via ansible)
+	// attempt to create extensions (requires superuser privileges)
+	// (works against local container, deployed DB needs these at setup)
 	exts := []string{
 		"citext",
 		"pgcrypto",

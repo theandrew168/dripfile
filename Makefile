@@ -1,6 +1,8 @@
 .POSIX:
 .SUFFIXES:
 
+CONF = dripfile.conf
+
 .PHONY: default
 default: build
 
@@ -10,19 +12,19 @@ build:
 
 .PHONY: web
 web: migrate
-	ENV=dev go run main.go web
+	ENV=dev go run main.go -conf $(CONF) web
 
 .PHONY: worker
 worker: migrate
-	ENV=dev go run main.go worker
+	ENV=dev go run main.go -conf $(CONF) worker
 
 .PHONY: scheduler
 scheduler: migrate
-	ENV=dev go run main.go scheduler
+	ENV=dev go run main.go -conf $(CONF) scheduler
 
 .PHONY: migrate
 migrate:
-	ENV=dev go run main.go migrate
+	ENV=dev go run main.go -conf $(CONF) migrate
 
 .PHONY: update
 update:
