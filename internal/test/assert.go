@@ -28,3 +28,15 @@ func AssertNilError(t *testing.T, got error) {
 		t.Fatalf("got: %v; want: nil", got)
 	}
 }
+
+func AssertErrorContains(t *testing.T, got error, want string) {
+	t.Helper()
+
+	if got == nil {
+		t.Fatalf("got: nil; want: error to contain: %q", want)
+	}
+
+	if !strings.Contains(got.Error(), want) {
+		t.Fatalf("got %q; want to contain: %q", got.Error(), want)
+	}
+}
