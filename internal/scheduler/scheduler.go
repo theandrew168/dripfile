@@ -75,6 +75,7 @@ func (s *Scheduler) Start() error {
 	}
 
 stop:
+	sched.Stop()
 	return nil
 }
 
