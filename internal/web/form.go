@@ -9,7 +9,7 @@ import (
 
 // Based on:
 // Let's Go - Chapter 8.6 (Alex Edwards)
-func (app *Application) decodePostForm(r *http.Request, dst interface{}) error {
+func (app *Application) decodePostForm(r *http.Request, dst any) error {
 	err := r.ParseForm()
 	if err != nil {
 		return err

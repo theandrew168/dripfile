@@ -29,7 +29,7 @@ func (q *Queue) Submit(t Task) error {
 		VALUES
 			($1, $2, $3, $4)`
 
-	args := []interface{}{
+	args := []any{
 		t.Kind,
 		t.Info,
 		t.Status,
@@ -72,7 +72,7 @@ func (q *Queue) Claim() (Task, error) {
 
 	// read the task that was selected
 	var t Task
-	dest := []interface{}{
+	dest := []any{
 		&t.ID,
 		&t.Kind,
 		&t.Info,
@@ -108,7 +108,7 @@ func (q *Queue) finishFailure(t Task) error {
 			error = $3
 		WHERE id = $1`
 
-	args := []interface{}{
+	args := []any{
 		t.ID,
 		t.Status,
 		t.Error,
@@ -134,7 +134,7 @@ func (q *Queue) finishSuccess(t Task) error {
 		DELETE FROM task_queue
 		WHERE id = $1`
 
-	args := []interface{}{
+	args := []any{
 		t.ID,
 	}
 

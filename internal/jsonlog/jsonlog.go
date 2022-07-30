@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"runtime/debug"
 	"sync"
 )
 
@@ -29,8 +28,8 @@ func (l *Logger) Info(message string, properties map[string]string) {
 	l.print(LevelInfo, message, properties)
 }
 
-func (l *Logger) Infof(format string, a ...interface{}) {
-	message := fmt.Sprintf(format, a...)
+func (l *Logger) Infof(format string, args ...any) {
+	message := fmt.Sprintf(format, args...)
 	l.print(LevelInfo, message, nil)
 }
 
@@ -38,8 +37,8 @@ func (l *Logger) Error(err error, properties map[string]string) {
 	l.print(LevelError, err.Error(), properties)
 }
 
-func (l *Logger) Errorf(format string, a ...interface{}) {
-	message := fmt.Sprintf(format, a...)
+func (l *Logger) Errorf(format string, args ...any) {
+	message := fmt.Sprintf(format, args...)
 	l.print(LevelError, message, nil)
 }
 
@@ -49,16 +48,10 @@ func (l *Logger) print(level, message string, properties map[string]string) (int
 		Level      string            `json:"level"`
 		Message    string            `json:"message"`
 		Properties map[string]string `json:"properties,omitempty"`
-		Trace      string            `json:"trace,omitempty"`
 	}{
 		Level:      level,
 		Message:    message,
 		Properties: properties,
-	}
-
-	// include stack trace if error
-	if level == LevelError {
-		entry.Trace = string(debug.Stack())
 	}
 
 	var line []byte
@@ -71,8 +64,4 @@ func (l *Logger) print(level, message string, properties map[string]string) (int
 	defer l.mu.Unlock()
 
 	return l.out.Write(append(line, '\n'))
-}
-
-func (l *Logger) Write(message []byte) (int, error) {
-	return l.print(LevelError, string(message), nil)
 }

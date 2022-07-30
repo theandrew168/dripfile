@@ -26,7 +26,7 @@ func (s *Project) Create(project *model.Project) error {
 			(default)
 		RETURNING id`
 
-	args := []interface{}{}
+	args := []any{}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -52,7 +52,7 @@ func (s *Project) Read(id string) (model.Project, error) {
 		WHERE project.id = $1`
 
 	var project model.Project
-	dest := []interface{}{
+	dest := []any{
 		&project.ID,
 	}
 
@@ -110,7 +110,7 @@ func (s *Project) ReadAll() ([]model.Project, error) {
 	var projects []model.Project
 	for rows.Next() {
 		var project model.Project
-		dest := []interface{}{
+		dest := []any{
 			&project.ID,
 		}
 

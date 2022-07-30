@@ -27,7 +27,7 @@ func (s *Location) Create(location *model.Location) error {
 			($1, $2, $3, $4)
 		RETURNING id`
 
-	args := []interface{}{
+	args := []any{
 		location.Kind,
 		location.Name,
 		location.Info,
@@ -64,7 +64,7 @@ func (s *Location) Read(id string) (model.Location, error) {
 		WHERE location.id = $1`
 
 	var location model.Location
-	dest := []interface{}{
+	dest := []any{
 		&location.ID,
 		&location.Kind,
 		&location.Name,
@@ -97,7 +97,7 @@ func (s *Location) Update(location model.Location) error {
 			info = $4
 		WHERE id = $1`
 
-	args := []interface{}{
+	args := []any{
 		location.ID,
 		location.Kind,
 		location.Name,
@@ -164,7 +164,7 @@ func (s *Location) ReadAllByProject(project model.Project) ([]model.Location, er
 	var locations []model.Location
 	for rows.Next() {
 		var location model.Location
-		dest := []interface{}{
+		dest := []any{
 			&location.ID,
 			&location.Kind,
 			&location.Name,

@@ -26,7 +26,7 @@ func (s *Session) Create(session *model.Session) error {
 		VALUES
 			($1, $2, $3)`
 
-	args := []interface{}{
+	args := []any{
 		session.Hash,
 		session.Expiry,
 		session.Account.ID,
@@ -66,7 +66,7 @@ func (s *Session) Read(hash string) (model.Session, error) {
 		WHERE session.hash = $1`
 
 	var session model.Session
-	dest := []interface{}{
+	dest := []any{
 		&session.Hash,
 		&session.Expiry,
 		&session.Account.ID,

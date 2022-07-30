@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgerrcode"
 )
 
-func Exec(db Conn, ctx context.Context, stmt string, args ...interface{}) error {
+func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
 	_, err := db.Exec(ctx, stmt, args...)
 	if err != nil {
 		// check for more specific errors

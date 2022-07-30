@@ -27,7 +27,7 @@ func (s *Transfer) Create(transfer *model.Transfer) error {
 			($1, $2, $3, $4, $5)
 		RETURNING id`
 
-	args := []interface{}{
+	args := []any{
 		transfer.Pattern,
 		transfer.Src.ID,
 		transfer.Dst.ID,
@@ -83,7 +83,7 @@ func (s *Transfer) Read(id string) (model.Transfer, error) {
 		WHERE transfer.id = $1`
 
 	var transfer model.Transfer
-	dest := []interface{}{
+	dest := []any{
 		&transfer.ID,
 		&transfer.Pattern,
 		&transfer.Src.ID,
@@ -129,7 +129,7 @@ func (s *Transfer) Update(transfer model.Transfer) error {
 			schedule_id = $5
 		WHERE id = $1`
 
-	args := []interface{}{
+	args := []any{
 		transfer.ID,
 		transfer.Pattern,
 		transfer.Src.ID,
@@ -214,7 +214,7 @@ func (s *Transfer) ReadAll() ([]model.Transfer, error) {
 	var transfers []model.Transfer
 	for rows.Next() {
 		var transfer model.Transfer
-		dest := []interface{}{
+		dest := []any{
 			&transfer.ID,
 			&transfer.Pattern,
 			&transfer.Src.ID,
@@ -296,7 +296,7 @@ func (s *Transfer) ReadAllByProject(project model.Project) ([]model.Transfer, er
 	var transfers []model.Transfer
 	for rows.Next() {
 		var transfer model.Transfer
-		dest := []interface{}{
+		dest := []any{
 			&transfer.ID,
 			&transfer.Pattern,
 			&transfer.Src.ID,

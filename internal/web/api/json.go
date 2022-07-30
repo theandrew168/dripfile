@@ -9,7 +9,7 @@ import (
 )
 
 // Let's Go Further - Chapter 4.2
-func readJSON(r io.Reader, dst interface{}) error {
+func readJSON(r io.Reader, dst any) error {
 	// Decode the request body into the target destination.
 	err := json.NewDecoder(r).Decode(dst)
 	if err != nil {
@@ -64,7 +64,7 @@ func readJSON(r io.Reader, dst interface{}) error {
 }
 
 // Let's Go Further - Chapter 3.2
-func writeJSON(w http.ResponseWriter, status int, src interface{}) error {
+func writeJSON(w http.ResponseWriter, status int, src any) error {
 	// Encode the src to JSON, returning the error if there was one.
 	js, err := json.Marshal(src)
 	if err != nil {

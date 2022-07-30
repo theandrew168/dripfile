@@ -27,7 +27,7 @@ func (s *Account) Create(account *model.Account) error {
 			($1, $2, $3, $4, $5)
 		RETURNING id`
 
-	args := []interface{}{
+	args := []any{
 		account.Email,
 		account.Password,
 		account.Role,
@@ -66,7 +66,7 @@ func (s *Account) Read(id string) (model.Account, error) {
 		WHERE account.id = $1`
 
 	var account model.Account
-	dest := []interface{}{
+	dest := []any{
 		&account.ID,
 		&account.Email,
 		&account.Password,
@@ -101,7 +101,7 @@ func (s *Account) Update(account model.Account) error {
 			verified = $5
 		WHERE id = $1`
 
-	args := []interface{}{
+	args := []any{
 		account.ID,
 		account.Email,
 		account.Password,
@@ -159,7 +159,7 @@ func (s *Account) ReadByEmail(email string) (model.Account, error) {
 		WHERE account.email = $1`
 
 	var account model.Account
-	dest := []interface{}{
+	dest := []any{
 		&account.ID,
 		&account.Email,
 		&account.Password,

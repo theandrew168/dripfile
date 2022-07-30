@@ -27,7 +27,7 @@ func (s *History) Create(history *model.History) error {
 			($1, $2, $3, $4, $5, $6)
 		RETURNING id`
 
-	args := []interface{}{
+	args := []any{
 		history.Bytes,
 		history.Status,
 		history.StartedAt,
@@ -84,7 +84,7 @@ func (s *History) ReadAllByProject(project model.Project) ([]model.History, erro
 	var histories []model.History
 	for rows.Next() {
 		var history model.History
-		dest := []interface{}{
+		dest := []any{
 			&history.ID,
 			&history.Bytes,
 			&history.StartedAt,

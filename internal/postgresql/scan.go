@@ -8,7 +8,7 @@ import (
 	"github.com/jackc/pgx/v4"
 )
 
-func Scan(row pgx.Row, dest ...interface{}) error {
+func Scan(row pgx.Row, dest ...any) error {
 	err := row.Scan(dest...)
 	if err != nil {
 		// check for empty result (from QueryRow)

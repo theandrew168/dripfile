@@ -27,7 +27,7 @@ func (s *Schedule) Create(schedule *model.Schedule) error {
 			($1, $2, $3)
 		RETURNING id`
 
-	args := []interface{}{
+	args := []any{
 		schedule.Name,
 		schedule.Expr,
 		schedule.Project.ID,
@@ -62,7 +62,7 @@ func (s *Schedule) Read(id string) (model.Schedule, error) {
 		WHERE schedule.id = $1`
 
 	var schedule model.Schedule
-	dest := []interface{}{
+	dest := []any{
 		&schedule.ID,
 		&schedule.Name,
 		&schedule.Expr,
@@ -133,7 +133,7 @@ func (s *Schedule) ReadAllByProject(project model.Project) ([]model.Schedule, er
 	var schedules []model.Schedule
 	for rows.Next() {
 		var schedule model.Schedule
-		dest := []interface{}{
+		dest := []any{
 			&schedule.ID,
 			&schedule.Name,
 			&schedule.Expr,
