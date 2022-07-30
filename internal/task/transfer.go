@@ -103,6 +103,7 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t Task) error {
 
 	// transfer them all
 	// TODO: write all to temps, rename if success, else rollback
+	// TODO: perform these in parallel?
 	var totalBytes int64
 	for _, file := range files {
 		r, err := srcConn.Read(file)

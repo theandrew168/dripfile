@@ -94,7 +94,7 @@ func run() int {
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
 		s := scheduler.New(logger, store, queue)
-		err := s.Run()
+		err := service.Run(s)
 		if err != nil {
 			logger.Error(err, nil)
 			return 1

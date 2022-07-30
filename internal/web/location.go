@@ -148,7 +148,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO: encrypt connection info
+	// encrypt connection info
 	nonce, err := app.box.Nonce()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -157,6 +157,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 
 	encryptedInfo := app.box.Encrypt(nonce, jsonInfo)
 
+	// store location w/ encrypted info
 	name := info.Endpoint + "/" + info.BucketName
 	project := session.Account.Project
 	location := model.NewLocation(model.KindS3, name, encryptedInfo, project)

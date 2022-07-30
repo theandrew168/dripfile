@@ -15,6 +15,8 @@ type Scheduler struct {
 	logger *jsonlog.Logger
 	store  *storage.Storage
 	queue  *task.Queue
+
+	stop chan struct{}
 }
 
 func New(
@@ -26,13 +28,13 @@ func New(
 		logger: logger,
 		store:  store,
 		queue:  queue,
+
+		stop: make(chan struct{}),
 	}
 	return &s
 }
 
-// TODO: handle signals
-// TODO: common code for: systemd notify + run thing in FG + graceful shutdown?
-func (s *Scheduler) Run() error {
+func (s *Scheduler) Start() error {
 	// main scheduler (handles sessions, transfers, etc)
 	sched := gocron.NewScheduler(time.UTC)
 	sched.WaitForScheduleAll()
@@ -58,70 +60,88 @@ func (s *Scheduler) Run() error {
 	// Maintain set of currently scheduled transfers
 	// Every minute, read transfers
 	// For each transfer_id / tag, add or remove
-	c := time.Tick(time.Minute)
+	ticker := time.Tick(time.Minute)
 	for {
-		// read tags of currently scheduled jobs
-		have := make(map[string]bool)
-		for _, j := range sched.Jobs() {
-			// skip untagged jobs
-			tags := j.Tags()
-			if len(tags) == 0 {
-				continue
-			}
-
-			have[tags[0]] = true
-		}
-
-		// read all transfers from database
-		transfers, err := s.store.Transfer.ReadAll()
-		if err != nil {
-			s.logger.Error(err, nil)
-			continue
-		}
-
-		// read tags of transfers in database
-		want := make(map[string]bool)
-		for _, t := range transfers {
-			want[t.ID] = true
-		}
-
-		// diff scheduled transfers vs transfers in the database
-		add, remove := diff(have, want)
-
-		// add missing transfers
-		for _, transfer := range transfers {
-			if _, ok := add[transfer.ID]; !ok {
-				continue
-			}
-
-			s.logger.Info("schedule transfer", map[string]string{
-				"transfer_id": transfer.ID,
-			})
-
-			sched.Cron(transfer.Schedule.Expr).Tag(transfer.ID).Do(func() {
-				t := task.NewTransferTryTask(transfer.ID)
-				err = s.queue.Submit(t)
-				if err != nil {
-					s.logger.Error(err, nil)
-					return
-				}
-			})
-		}
-
-		// remove old transfers
-		for id := range remove {
-			s.logger.Info("unschedule transfer", map[string]string{
-				"transfer_id": id,
-			})
-
-			err = sched.RemoveByTags(id)
+		select {
+		case <-s.stop:
+			goto stop
+		case <-ticker:
+			err := s.reschedule(sched)
 			if err != nil {
 				s.logger.Error(err, nil)
 				continue
 			}
 		}
+	}
 
-		<-c
+stop:
+	return nil
+}
+
+func (s *Scheduler) Stop() error {
+	s.logger.Info("stopping scheduler", nil)
+	s.stop <- struct{}{}
+	return nil
+}
+
+func (s *Scheduler) reschedule(sched *gocron.Scheduler) error {
+	// read tags of currently scheduled jobs
+	have := make(map[string]bool)
+	for _, j := range sched.Jobs() {
+		// skip untagged jobs
+		tags := j.Tags()
+		if len(tags) == 0 {
+			continue
+		}
+
+		have[tags[0]] = true
+	}
+
+	// read all transfers from database
+	transfers, err := s.store.Transfer.ReadAll()
+	if err != nil {
+		return err
+	}
+
+	// read tags of transfers in database
+	want := make(map[string]bool)
+	for _, t := range transfers {
+		want[t.ID] = true
+	}
+
+	// diff scheduled transfers vs transfers in the database
+	add, remove := diff(have, want)
+
+	// add missing transfers
+	for _, transfer := range transfers {
+		if _, ok := add[transfer.ID]; !ok {
+			continue
+		}
+
+		s.logger.Info("schedule transfer", map[string]string{
+			"transfer_id": transfer.ID,
+		})
+
+		sched.Cron(transfer.Schedule.Expr).Tag(transfer.ID).Do(func() {
+			t := task.NewTransferTryTask(transfer.ID)
+			err = s.queue.Submit(t)
+			if err != nil {
+				s.logger.Error(err, nil)
+				return
+			}
+		})
+	}
+
+	// remove old transfers
+	for id := range remove {
+		s.logger.Info("unschedule transfer", map[string]string{
+			"transfer_id": id,
+		})
+
+		err = sched.RemoveByTags(id)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
