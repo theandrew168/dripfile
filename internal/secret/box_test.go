@@ -22,18 +22,12 @@ func TestEncryptDecrypt(t *testing.T) {
 
 	for _, input := range inputs {
 		nonce, err := box.Nonce()
-		if err != nil {
-			t.Fatal(err)
-		}
+		test.AssertNilError(t, err)
 
 		encrypted := box.Encrypt(nonce, []byte(input))
 		decrypted, err := box.Decrypt(encrypted)
-		if err != nil {
-			t.Fatal(err)
-		}
+		test.AssertNilError(t, err)
 
-		if string(decrypted) != input {
-			t.Fatal("mismatched input after encrypt / decrypt")
-		}
+		test.AssertEqual(t, string(decrypted), input)
 	}
 }
