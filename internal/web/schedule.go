@@ -29,6 +29,12 @@ type scheduleCreateForm struct {
 	Expr string `form:"Expr"`
 }
 
+type scheduleDeleteForm struct {
+	validator.Validator `form:"-"`
+
+	ScheduleID string `form:"ScheduleID"`
+}
+
 type scheduleData struct {
 	Schedules []model.Schedule
 	Schedule  model.Schedule
@@ -155,8 +161,8 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO: proper form like transfer
-	err = r.ParseForm()
+	var form scheduleDeleteForm
+	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
 		return
@@ -164,8 +170,7 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 
 	// TODO: assert id belongs to session->account->project
 	// TODO: assert account role is owner, admin, or editor
-	scheduleID := r.PostForm.Get("ScheduleID")
-	schedule, err := app.store.Schedule.Read(scheduleID)
+	schedule, err := app.store.Schedule.Read(form.ScheduleID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return

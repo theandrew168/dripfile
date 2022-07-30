@@ -22,6 +22,12 @@ type locationCreateForm struct {
 	SecretAccessKey string `form:"SecretAccessKey"`
 }
 
+type locationDeleteForm struct {
+	validator.Validator `form:"-"`
+
+	LocationID string `form:"LocationID"`
+}
+
 type locationData struct {
 	Locations []model.Location
 	Location  model.Location
@@ -175,8 +181,8 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO: proper form like transfer
-	err = r.ParseForm()
+	var form locationDeleteForm
+	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
 		return
@@ -184,8 +190,7 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 
 	// TODO: assert id belongs to session->account->project
 	// TODO: assert account role is owner, admin, or editor
-	locationID := r.PostForm.Get("LocationID")
-	location, err := app.store.Location.Read(locationID)
+	location, err := app.store.Location.Read(form.LocationID)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
