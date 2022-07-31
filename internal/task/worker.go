@@ -4,14 +4,19 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sync"
 	"time"
+
+	"golang.org/x/sync/semaphore"
 
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
+)
+
+const (
+	maxConcurrency = 1
 )
 
 type TaskHandler func(ctx context.Context, t Task) error
@@ -46,7 +51,7 @@ func NewWorker(
 }
 
 func (w *Worker) Start() error {
-	var wg sync.WaitGroup
+	sem := semaphore.NewWeighted(maxConcurrency)
 
 	// check for new tasks periodically
 	ticker := time.Tick(time.Second)
@@ -57,10 +62,14 @@ func (w *Worker) Start() error {
 		case <-ticker:
 			// kick off all new tasks
 			for {
-				// TODO: use a sem to limit concurrent tasks
+				// acquire semaphore slot
+				sem.Acquire(context.Background(), 1)
 
 				t, err := w.queue.Claim()
 				if err != nil {
+					// don't need the sem if no task was claimed
+					sem.Release(1)
+
 					// break loop if no new tasks remain
 					if errors.Is(err, postgresql.ErrNotExist) {
 						break
@@ -69,9 +78,8 @@ func (w *Worker) Start() error {
 				}
 
 				// run task in the background
-				wg.Add(1)
 				go func() {
-					defer wg.Done()
+					defer sem.Release(1)
 					w.handleTask(t)
 				}()
 			}
@@ -79,7 +87,8 @@ func (w *Worker) Start() error {
 	}
 
 stop:
-	wg.Wait()
+	// wait for all tasks to finish
+	sem.Acquire(context.Background(), maxConcurrency)
 	return nil
 }
 

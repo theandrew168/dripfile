@@ -8,7 +8,6 @@ const (
 	RoleViewer = "viewer"
 )
 
-// TODO: how does this look when using OAuth? via GitHub for example
 type Account struct {
 	// readonly (from database, after creation)
 	ID string
