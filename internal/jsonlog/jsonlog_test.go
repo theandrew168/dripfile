@@ -11,6 +11,8 @@ import (
 )
 
 func TestInfo(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		message    string
 		properties map[string]string
@@ -36,6 +38,8 @@ func TestInfo(t *testing.T) {
 }
 
 func TestInfof(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		format string
 		args   []any
@@ -58,6 +62,8 @@ func TestInfof(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		err        error
 		properties map[string]string
@@ -83,6 +89,8 @@ func TestError(t *testing.T) {
 }
 
 func TestErrorf(t *testing.T) {
+	t.Parallel()
+
 	tests := []struct {
 		format string
 		args   []any

@@ -16,6 +16,8 @@ const (
 )
 
 func TestRead(t *testing.T) {
+	t.Parallel()
+
 	data := fmt.Sprintf(`
 		secret_key = "%s"
 		postgresql_url = "%s"
@@ -33,6 +35,8 @@ func TestRead(t *testing.T) {
 }
 
 func TestOptional(t *testing.T) {
+	t.Parallel()
+
 	data := fmt.Sprintf(`
 		secret_key = "%s"
 		postgresql_url = "%s"
@@ -48,6 +52,8 @@ func TestOptional(t *testing.T) {
 }
 
 func TestRequired(t *testing.T) {
+	t.Parallel()
+
 	data := fmt.Sprintf(`
 		secret_key = "%s"
 	`, secretKey)
@@ -58,6 +64,8 @@ func TestRequired(t *testing.T) {
 }
 
 func TestExtra(t *testing.T) {
+	t.Parallel()
+
 	data := fmt.Sprintf(`
 		secret_key = "%s"
 		postgresql_url = "%s"

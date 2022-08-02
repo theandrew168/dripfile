@@ -6,15 +6,16 @@ require (
 	github.com/BurntSushi/toml v1.2.0
 	github.com/alexedwards/flow v0.0.0-20220607190737-c48a87f2b4c4
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
-	github.com/go-co-op/gocron v1.15.1
+	github.com/go-co-op/gocron v1.16.1
 	github.com/go-playground/form/v4 v4.2.0
 	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/lnquy/cron v1.1.1
-	github.com/minio/minio-go/v7 v7.0.32
+	github.com/minio/minio-go/v7 v7.0.33
 	github.com/prometheus/client_golang v1.12.2
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4
 )
 
 require (
@@ -45,8 +46,7 @@ require (
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	golang.org/x/net v0.0.0-20220728211354-c7608f3a8462 // indirect
-	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
-	golang.org/x/sys v0.0.0-20220730100132-1609e554cd39 // indirect
+	golang.org/x/sys v0.0.0-20220731174439-a90be440212d // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.66.6 // indirect

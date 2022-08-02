@@ -50,6 +50,7 @@ func NewWorker(
 	return &w
 }
 
+// TODO: fix bug where worker wont stop between tasks (need Unclaim?)
 func (w *Worker) Start() error {
 	sem := semaphore.NewWeighted(maxConcurrency)
 

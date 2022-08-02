@@ -8,6 +8,8 @@ import (
 )
 
 func TestEncryptDecrypt(t *testing.T) {
+	t.Parallel()
+
 	secretKeyBytes := test.RandomBytes(32)
 
 	var secretKey [32]byte
