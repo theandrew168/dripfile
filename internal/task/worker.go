@@ -63,8 +63,12 @@ func (w *Worker) Start() error {
 		case <-ticker:
 			// kick off all new tasks
 			for {
-				// acquire semaphore slot
-				sem.Acquire(context.Background(), 1)
+				// try to acquire semaphore slot,
+				// loop again if concurrency is already maxed
+				ok := sem.TryAcquire(1)
+				if !ok {
+					break
+				}
 
 				t, err := w.queue.Claim()
 				if err != nil {
