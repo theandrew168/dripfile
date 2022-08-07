@@ -32,6 +32,7 @@ func Run(s Service) error {
 		err := s.Stop()
 		if err != nil {
 			stopError <- err
+			return
 		}
 
 		stopError <- nil
