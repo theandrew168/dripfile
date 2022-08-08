@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"context"
 	"time"
 
 	"github.com/coreos/go-systemd/daemon"
@@ -15,8 +16,6 @@ type Scheduler struct {
 	logger *jsonlog.Logger
 	store  *storage.Storage
 	queue  *task.Queue
-
-	stop chan struct{}
 }
 
 func New(
@@ -28,13 +27,11 @@ func New(
 		logger: logger,
 		store:  store,
 		queue:  queue,
-
-		stop: make(chan struct{}),
 	}
 	return &s
 }
 
-func (s *Scheduler) Start() error {
+func (s *Scheduler) Run(ctx context.Context) error {
 	// main scheduler (handles sessions, transfers, etc)
 	sched := gocron.NewScheduler(time.UTC)
 	sched.WaitForScheduleAll()
@@ -63,7 +60,7 @@ func (s *Scheduler) Start() error {
 	ticker := time.Tick(time.Minute)
 	for {
 		select {
-		case <-s.stop:
+		case <-ctx.Done():
 			goto stop
 		case <-ticker:
 			err := s.reschedule(sched)
@@ -75,13 +72,9 @@ func (s *Scheduler) Start() error {
 	}
 
 stop:
-	sched.Stop()
-	return nil
-}
-
-func (s *Scheduler) Stop() error {
 	s.logger.Info("stopping scheduler", nil)
-	s.stop <- struct{}{}
+	sched.Stop()
+	s.logger.Info("stopped scheduler", nil)
 	return nil
 }
 

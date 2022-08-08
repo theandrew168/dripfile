@@ -12,9 +12,9 @@ import (
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/process"
 	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
-	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/web"
@@ -94,7 +94,7 @@ func run() int {
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
 		s := scheduler.New(logger, store, queue)
-		err := service.Run(s)
+		err := process.Run(s)
 		if err != nil {
 			logger.Error(err, nil)
 			return 1
@@ -105,7 +105,7 @@ func run() int {
 	// worker: run worker forever
 	if action == "worker" {
 		w := task.NewWorker(logger, store, queue, box, mailer)
-		err := service.Run(w)
+		err := process.Run(w)
 		if err != nil {
 			logger.Error(err, nil)
 			return 1
@@ -132,8 +132,8 @@ func run() int {
 	addr := fmt.Sprintf("127.0.0.1:%s", port)
 	handler := app.Handler()
 
-	s := web.NewService(logger, addr, handler)
-	err = service.Run(s)
+	p := web.NewProcess(logger, addr, handler)
+	err = process.Run(p)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1

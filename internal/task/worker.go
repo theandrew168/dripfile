@@ -27,8 +27,6 @@ type Worker struct {
 	queue  *Queue
 	box    *secret.Box
 	mailer mail.Mailer
-
-	stop chan struct{}
 }
 
 func NewWorker(
@@ -44,21 +42,18 @@ func NewWorker(
 		queue:  queue,
 		box:    box,
 		mailer: mailer,
-
-		stop: make(chan struct{}),
 	}
 	return &w
 }
 
-// TODO: fix bug where worker wont stop between tasks (need Unclaim?)
-func (w *Worker) Start() error {
+func (w *Worker) Run(ctx context.Context) error {
 	sem := semaphore.NewWeighted(maxConcurrency)
 
 	// check for new tasks periodically
 	ticker := time.Tick(time.Second)
 	for {
 		select {
-		case <-w.stop:
+		case <-ctx.Done():
 			goto stop
 		case <-ticker:
 			// kick off all new tasks
@@ -92,14 +87,12 @@ func (w *Worker) Start() error {
 	}
 
 stop:
+	w.logger.Info("stopping worker", nil)
+
 	// wait for all tasks to finish
 	sem.Acquire(context.Background(), maxConcurrency)
-	return nil
-}
 
-func (w *Worker) Stop() error {
-	w.logger.Info("stopping worker", nil)
-	w.stop <- struct{}{}
+	w.logger.Info("stopped worker", nil)
 	return nil
 }
 
