@@ -5,37 +5,17 @@ import (
 	"errors"
 	"net/http"
 	"time"
-
-	"github.com/theandrew168/dripfile/internal/jsonlog"
-	"github.com/theandrew168/dripfile/internal/process"
 )
 
-type webProcess struct {
-	logger *jsonlog.Logger
-	server *http.Server
-}
-
-func NewProcess(logger *jsonlog.Logger, addr string, handler http.Handler) process.Process {
-	server := &http.Server{
+func (app *Application) Run(ctx context.Context, addr string) error {
+	srv := http.Server{
 		Addr:    addr,
-		Handler: handler,
+		Handler: app.Handler(),
 
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
-
-	p := webProcess{
-		logger: logger,
-		server: server,
-	}
-	return &p
-}
-
-func (p *webProcess) Run(ctx context.Context) error {
-	p.logger.Info("starting server", map[string]string{
-		"addr": p.server.Addr,
-	})
 
 	// start a goro to watch for stop signal (context cancelled)
 	stopError := make(chan error)
@@ -47,9 +27,9 @@ func (p *webProcess) Run(ctx context.Context) error {
 		defer cancel()
 
 		// disable keepalives and shutdown gracefully
-		p.logger.Info("stopping web server", nil)
-		p.server.SetKeepAlivesEnabled(false)
-		err := p.server.Shutdown(timeout)
+		app.logger.Info("stopping web server", nil)
+		srv.SetKeepAlivesEnabled(false)
+		err := srv.Shutdown(timeout)
 		if err != nil {
 			stopError <- err
 		}
@@ -57,9 +37,13 @@ func (p *webProcess) Run(ctx context.Context) error {
 		close(stopError)
 	}()
 
+	app.logger.Info("starting web server", map[string]string{
+		"addr": srv.Addr,
+	})
+
 	// listen and serve forever
 	// ignore http.ErrServerClosed (expected upon stop)
-	err := p.server.ListenAndServe()
+	err := srv.ListenAndServe()
 	if err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
@@ -70,6 +54,6 @@ func (p *webProcess) Run(ctx context.Context) error {
 		return err
 	}
 
-	p.logger.Infof("stopped web server")
+	app.logger.Infof("stopped web server")
 	return nil
 }

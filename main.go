@@ -1,18 +1,22 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/coreos/go-systemd/daemon"
 
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/postgresql"
-	"github.com/theandrew168/dripfile/internal/process"
 	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -93,8 +97,12 @@ func run() int {
 
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
+		// let systemd know that we are good to go (no-op if not using systemd)
+		daemon.SdNotify(false, daemon.SdNotifyReady)
+
 		s := scheduler.New(logger, store, queue)
-		err := process.Run(s)
+		ctx := newSignalHandlerContext()
+		err := s.Run(ctx)
 		if err != nil {
 			logger.Error(err, nil)
 			return 1
@@ -104,8 +112,12 @@ func run() int {
 
 	// worker: run worker forever
 	if action == "worker" {
+		// let systemd know that we are good to go (no-op if not using systemd)
+		daemon.SdNotify(false, daemon.SdNotifyReady)
+
 		w := task.NewWorker(logger, store, queue, box, mailer)
-		err := process.Run(w)
+		ctx := newSignalHandlerContext()
+		err := w.Run(ctx)
 		if err != nil {
 			logger.Error(err, nil)
 			return 1
@@ -128,16 +140,31 @@ func run() int {
 		port = os.Getenv("PORT")
 	}
 
-	// nest the API handler under the main web app
-	addr := fmt.Sprintf("127.0.0.1:%s", port)
-	handler := app.Handler()
+	// let systemd know that we are good to go (no-op if not using systemd)
+	daemon.SdNotify(false, daemon.SdNotifyReady)
 
-	p := web.NewProcess(logger, addr, handler)
-	err = process.Run(p)
+	ctx := newSignalHandlerContext()
+	addr := fmt.Sprintf("127.0.0.1:%s", port)
+
+	err = app.Run(ctx, addr)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1
 	}
 
 	return 0
+}
+
+func newSignalHandlerContext() context.Context {
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		// idle until a signal is caught (must be a buffered channel)
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		<-quit
+
+		cancel()
+	}()
+
+	return ctx
 }
