@@ -98,11 +98,11 @@ func run() int {
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
 		s := scheduler.New(logger, store, queue)
-		ctx := newSignalHandlerContext()
 
 		// let systemd know that we are good to go (no-op if not using systemd)
 		daemon.SdNotify(false, daemon.SdNotifyReady)
 
+		ctx := newSignalHandlerContext()
 		err := s.Run(ctx)
 		if err != nil {
 			logger.Error(err, nil)
@@ -114,11 +114,11 @@ func run() int {
 	// worker: run worker forever
 	if action == "worker" {
 		w := task.NewWorker(logger, store, queue, box, mailer)
-		ctx := newSignalHandlerContext()
 
 		// let systemd know that we are good to go (no-op if not using systemd)
 		daemon.SdNotify(false, daemon.SdNotifyReady)
 
+		ctx := newSignalHandlerContext()
 		err := w.Run(ctx)
 		if err != nil {
 			logger.Error(err, nil)
@@ -141,13 +141,12 @@ func run() int {
 	if os.Getenv("PORT") != "" {
 		port = os.Getenv("PORT")
 	}
-
-	ctx := newSignalHandlerContext()
 	addr := fmt.Sprintf("127.0.0.1:%s", port)
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
+	ctx := newSignalHandlerContext()
 	err = app.Run(ctx, addr)
 	if err != nil {
 		logger.Error(err, nil)
