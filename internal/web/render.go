@@ -6,7 +6,7 @@ import (
 
 // helper for rendering templates and handling potential errors
 func (app *Application) render(w http.ResponseWriter, r *http.Request, page string, data any) {
-	t, err := app.template.Get(page)
+	t, err := app.tmpl.Get(page)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

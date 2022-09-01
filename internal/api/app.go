@@ -1,40 +1,23 @@
 package api
 
 import (
-	"embed"
-	"html/template"
-	"io/fs"
 	"net/http"
 
 	"github.com/alexedwards/flow"
 
 	"github.com/theandrew168/dripfile/internal/jsonlog"
+	"github.com/theandrew168/dripfile/internal/template"
 )
 
-//go:embed template
-var templateFS embed.FS
-
 type Application struct {
-	index *template.Template
-
 	logger *jsonlog.Logger
+	tmpl   *template.Map
 }
 
-func NewApplication(logger *jsonlog.Logger) *Application {
-	dir, err := fs.Sub(templateFS, "template")
-	if err != nil {
-		panic(err)
-	}
-
-	index, err := template.ParseFS(dir, "index.html")
-	if err != nil {
-		panic(err)
-	}
-
+func NewApplication(logger *jsonlog.Logger, tmpl *template.Map) *Application {
 	app := Application{
-		index: index,
-
 		logger: logger,
+		tmpl:   tmpl,
 	}
 	return &app
 }

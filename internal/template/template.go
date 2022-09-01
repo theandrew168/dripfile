@@ -1,4 +1,4 @@
-package web
+package template
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type TemplateCache struct {
+type Map struct {
 	dir    fs.FS
 	cache  map[string]*template.Template
 	reload bool
@@ -15,11 +15,16 @@ type TemplateCache struct {
 
 // Based on:
 // Let's Go - Chapter 5.3 (Alex Edwards)
-func NewTemplateCache(dir fs.FS, reload bool) (*TemplateCache, error) {
-	tc := TemplateCache{
+func NewMap(dir fs.FS, reload bool) (*Map, error) {
+	m := Map{
 		dir:    dir,
 		cache:  make(map[string]*template.Template),
 		reload: reload,
+	}
+
+	apiPages, err := listTemplates(dir, "api")
+	if err != nil {
+		return nil, err
 	}
 
 	appPages, err := listTemplates(dir, "app")
@@ -38,6 +43,7 @@ func NewTemplateCache(dir fs.FS, reload bool) (*TemplateCache, error) {
 	}
 
 	var pages []string
+	pages = append(pages, apiPages...)
 	pages = append(pages, appPages...)
 	pages = append(pages, sitePages...)
 	pages = append(pages, errorPages...)
@@ -49,15 +55,15 @@ func NewTemplateCache(dir fs.FS, reload bool) (*TemplateCache, error) {
 			return nil, err
 		}
 
-		tc.cache[page] = t
+		m.cache[page] = t
 	}
 
-	return &tc, nil
+	return &m, nil
 }
 
-func (tc *TemplateCache) Get(page string) (*template.Template, error) {
-	if tc.reload {
-		t, err := parseTemplate(tc.dir, page)
+func (m *Map) Get(page string) (*template.Template, error) {
+	if m.reload {
+		t, err := parseTemplate(m.dir, page)
 		if err != nil {
 			return nil, err
 		}
@@ -65,9 +71,9 @@ func (tc *TemplateCache) Get(page string) (*template.Template, error) {
 		return t, nil
 	}
 
-	t, ok := tc.cache[page]
+	t, ok := m.cache[page]
 	if !ok {
-		err := fmt.Errorf("web: template does not exist: %s", page)
+		err := fmt.Errorf("template: does not exist: %s", page)
 		return nil, err
 	}
 

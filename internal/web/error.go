@@ -6,7 +6,7 @@ import (
 )
 
 func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, code int, page string) {
-	t, err := app.template.Get(page)
+	t, err := app.tmpl.Get(page)
 	if err != nil {
 		app.logger.Error(err, nil)
 

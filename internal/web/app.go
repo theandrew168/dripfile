@@ -1,11 +1,7 @@
 package web
 
 import (
-	"embed"
-	"io/fs"
 	"net/http"
-	"os"
-	"strings"
 
 	"github.com/alexedwards/flow"
 	"github.com/go-playground/form/v4"
@@ -15,72 +11,39 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
-	"github.com/theandrew168/dripfile/internal/web/api"
+	"github.com/theandrew168/dripfile/internal/template"
 )
 
-//go:embed static/img/logo-white.svg
-var Favicon []byte
-
-//go:embed static/etc/robots.txt
-var Robots []byte
-
-//go:embed static
-var staticFS embed.FS
-
-//go:embed template
-var templateFS embed.FS
-
 type Application struct {
-	static   fs.FS
-	template *TemplateCache
-	decoder  *form.Decoder
+	decoder *form.Decoder
 
+	static http.Handler
+	api    http.Handler
 	logger *jsonlog.Logger
+	tmpl   *template.Map
 	store  *storage.Storage
 	queue  *task.Queue
 	box    *secret.Box
 }
 
 func NewApplication(
+	api http.Handler,
+	static http.Handler,
 	logger *jsonlog.Logger,
+	tmpl *template.Map,
 	store *storage.Storage,
 	queue *task.Queue,
 	box *secret.Box,
 ) *Application {
-	static, err := fs.Sub(staticFS, "static")
-	if err != nil {
-		panic(err)
-	}
-
-	var template *TemplateCache
-	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
-		// reload templates from filesystem if var ENV starts with "dev"
-		// NOTE: os.DirFS is rooted from where the app is ran, not this file
-		dir := os.DirFS("./internal/web/template/")
-		template, err = NewTemplateCache(dir, true)
-		if err != nil {
-			panic(err)
-		}
-	} else {
-		// else use the embedded template FS
-		dir, err := fs.Sub(templateFS, "template")
-		if err != nil {
-			panic(err)
-		}
-		template, err = NewTemplateCache(dir, false)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	// use a single instance of Decoder, it caches struct info
+	// use a single instance of Decoder (it caches struct info)
 	decoder := form.NewDecoder()
 
 	app := Application{
-		static:   static,
-		template: template,
-		decoder:  decoder,
+		decoder: decoder,
 
+		api:    api,
+		static: static,
+		tmpl:   tmpl,
 		logger: logger,
 		store:  store,
 		queue:  queue,
@@ -129,24 +92,17 @@ func (app *Application) Handler() http.Handler {
 	// prometheus metrics
 	mux.Handle("/metrics", promhttp.Handler(), "GET")
 
-	// top-level static files
+	// static files (and top-level redirects)
+	mux.Handle("/static/...", http.StripPrefix("/static", app.static))
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "image/svg+xml")
-		w.Write(Favicon)
+		http.Redirect(w, r, "/static/img/logo-white.svg", http.StatusMovedPermanently)
 	})
 	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write(Robots)
+		http.Redirect(w, r, "/static/etc/robots.txt", http.StatusMovedPermanently)
 	})
 
-	// static files
-	staticServer := http.FileServer(http.FS(app.static))
-	mux.Handle("/static/...", http.StripPrefix("/static", staticServer))
-
 	// serve API routes under /api/v1
-	apiApp := api.NewApplication(app.logger)
-	apiHandler := apiApp.Handler()
-	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiHandler))
+	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", app.api))
 	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/api/v1/", http.StatusMovedPermanently)
 	})

@@ -6,12 +6,16 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"io/fs"
+	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/coreos/go-systemd/daemon"
 
+	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
@@ -21,11 +25,18 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/template"
 	"github.com/theandrew168/dripfile/internal/web"
 )
 
 //go:embed migration
 var migrationFS embed.FS
+
+//go:embed static
+var staticFS embed.FS
+
+//go:embed template
+var templateFS embed.FS
 
 func main() {
 	os.Exit(run())
@@ -133,8 +144,39 @@ func run() int {
 		return 1
 	}
 
+	static, err := fs.Sub(staticFS, "static")
+	if err != nil {
+		panic(err)
+	}
+
+	var tmpl *template.Map
+	if strings.HasPrefix(os.Getenv("ENV"), "dev") {
+		// reload templates from filesystem if var ENV starts with "dev"
+		// NOTE: os.DirFS is rooted from where the app is ran, not this file
+		dir := os.DirFS("./template/")
+		tmpl, err = template.NewMap(dir, true)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		// else use the embedded template FS
+		dir, err := fs.Sub(templateFS, "template")
+		if err != nil {
+			panic(err)
+		}
+		tmpl, err = template.NewMap(dir, false)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	api := api.NewApplication(logger, tmpl)
+	apiHandler := api.Handler()
+
+	staticHandler := http.FileServer(http.FS(static))
+
 	// instantiate main web application
-	app := web.NewApplication(logger, store, queue, box)
+	app := web.NewApplication(apiHandler, staticHandler, logger, tmpl, store, queue, box)
 
 	// let port be overridable by an env var
 	port := cfg.Port
