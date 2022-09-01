@@ -1,0 +1,34 @@
+{{define "title"}}Sign in{{end}}
+
+{{define "main"}}
+<section class="pa4" id="page-login">
+	<form class="measure center" action="/login" method="POST">
+		<fieldset class="ba b--transparent ph0 mh0">
+			<legend class="f4 b ph0 mh0">Sign In</legend>
+
+			<div class="mt3">
+				<label class="db f6 b lh-copy" for="input-email">Email</label>
+				{{with .Form.FieldError.Email}}
+				<small class="red" id="error-email">{{.}}</small>
+				{{end}}
+				<input class="input-reset pa2 ba bg-transparent w-100" id="input-email" name="Email" type="email" value="{{.Form.Email}}" />
+			</div>
+
+			<div class="mv3">
+				<label class="db f6 b lh-copy" for="input-password">Password</label>
+				{{with .Form.FieldError.Password}}
+				<small class="red" id="error-password">{{.}}</small>
+				{{end}}
+				<input class="input-reset pa2 ba bg-transparent w-100" id="input-password" name="Password" type="password" />
+			</div>
+		</fieldset>
+
+		<div>
+			{{with .Form.Error}}
+			<small class="db mb2 red" id="error-general">{{.}}</small>
+			{{end}}
+			<button class="f6 b pv2 ph3 ba b--black bg-transparent grow pointer" id="submit-login" type="submit">Sign in</button>
+		</div>
+	</form>
+</section>
+{{end}}
