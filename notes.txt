@@ -1,0 +1,22 @@
+Templates:
+* Pure func: template + data = output
+* Are forms coupled to specific templates? I think so.
+* Can have multiple forms in one template
+* You know I love locality (forms close to templates?)
+* Impl a design structure similar to storage?
+
+html.Site.Index.Execute(...)
+html.Site.AuthLogin.Execute(w, html.Site.AuthLoginParams{})
+  or
+html.Site.Auth.Login.Execute(w, html.Site.Auth.LoginParams{})
+
+html.Error400(w, html.Error400Params{})
+html.Error500(w, html.Error500Params{})
+
+type Site struct {
+    Index     *template.Template
+    AuthLogin *template.Template
+    AuthLogin *template.Template
+}
+
+Template -> Form -> Validator
