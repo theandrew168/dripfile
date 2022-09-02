@@ -4,23 +4,51 @@ import (
 	"embed"
 	"html/template"
 	"io"
+	"io/fs"
+	"os"
 
 	"github.com/theandrew168/dripfile/internal/validator"
 )
 
-//go:embed *
-var files embed.FS
+//go:embed template
+var templateFS embed.FS
 
-var (
-	index        = parse("index.html")
-	authLogin    = parse("auth/login.html")
-	authRegister = parse("auth/register.html")
-)
+type Template struct {
+	debug bool
+	files fs.FS
+	cache map[string]*template.Template
+}
+
+func New() *Template {
+	debug := false
+	if os.Getenv("DEBUG") != "" {
+		debug = true
+	}
+	
+	var files fs.FS
+	if debug {
+		// reload templates from filesystem if env var DEBUG is defined
+		// NOTE: os.DirFS is rooted from where the app is ran, not this file
+		files = os.DirFS("./internal/html/site/template/")
+	} else {
+		// else use the embedded template dir
+		files, _ = fs.Sub(templateFS, "template")
+	}
+
+	cache := make(map[string]*template.Template)
+
+	t := Template{
+		debug: debug,
+		files: files,
+		cache: cache,
+	}
+	return &t
+}
 
 type IndexParams struct{}
 
-func Index(w io.Writer, p IndexParams) error {
-	return index.Execute(w, p)
+func (t *Template) Index(w io.Writer, p IndexParams) error {
+	page := "index.html"
 }
 
 type AuthLoginForm struct {
@@ -34,11 +62,29 @@ type AuthLoginParams struct {
 	Form AuthLoginForm
 }
 
-func AuthLogin(w io.Writer, p AuthLoginParams) error {
-	return authLogin.Execute(w, p)
+func (t *Template) AuthLogin(w io.Writer, p AuthLoginParams) error {
+	page := "auth/login.html"
+
 }
 
-func parse(file string) *template.Template {
-	t, err := template.New("layout.html").ParseFS(files, "layout.html", file)
-	return template.Must(t, err)
+type AuthRegisterForm struct {
+	validator.Validator `form:"-"`
+
+	Email    string `form:"Email"`
+	Password string `form:"Password"`
+}
+
+type AuthRegisterParams struct {
+	Form AuthRegisterForm
+}
+
+func (t *Template) AuthRegister(w io.Writer, p AuthRegisterParams) error {
+	page := "auth/register.html"
+
+}
+
+func (t *Template) parse(page string) *template.Template {
+	base := "layout.html"
+	tmpl, err := template.New(base).ParseFS(t.files, base, page)
+	return template.Must(tmpl, err)
 }
