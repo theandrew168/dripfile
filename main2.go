@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
+	"os"
 
 	"github.com/theandrew168/dripfile/internal/html"
 	"github.com/theandrew168/dripfile/internal/html/site"
@@ -11,12 +11,21 @@ import (
 func main() {
 	tmpl := html.New()
 
-	var b bytes.Buffer
-	err := tmpl.Site.Index(&b, site.IndexParams{})
-	err := site.Index(&b, 
+	err := tmpl.Site.Index(os.Stdout, site.IndexParams{})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(b.String())
+
+	err = tmpl.Site.AuthLogin(os.Stdout, site.AuthLoginParams{})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = tmpl.Site.AuthRegister(os.Stdout, site.AuthRegisterParams{})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }

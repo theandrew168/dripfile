@@ -49,6 +49,8 @@ type IndexParams struct{}
 
 func (t *Template) Index(w io.Writer, p IndexParams) error {
 	page := "index.html"
+	tmpl := t.parse(page)
+	return tmpl.Execute(w, p)
 }
 
 type AuthLoginForm struct {
@@ -64,7 +66,8 @@ type AuthLoginParams struct {
 
 func (t *Template) AuthLogin(w io.Writer, p AuthLoginParams) error {
 	page := "auth/login.html"
-
+	tmpl := t.parse(page)
+	return tmpl.Execute(w, p)
 }
 
 type AuthRegisterForm struct {
@@ -80,11 +83,29 @@ type AuthRegisterParams struct {
 
 func (t *Template) AuthRegister(w io.Writer, p AuthRegisterParams) error {
 	page := "auth/register.html"
-
+	tmpl := t.parse(page)
+	return tmpl.Execute(w, p)
 }
 
 func (t *Template) parse(page string) *template.Template {
-	base := "layout.html"
-	tmpl, err := template.New(base).ParseFS(t.files, base, page)
-	return template.Must(tmpl, err)
+	// load from cache if not in debug mode
+	if !t.debug {
+		tmpl, ok := t.cache[page]
+		if ok {
+			return tmpl
+		}
+	}
+
+	patterns := []string{
+		"layout.html",
+		"partial/*.html",
+		page,
+	}
+	tmpl, err := template.New(patterns[0]).ParseFS(t.files, patterns...)
+	if err != nil {
+		panic(err)
+	}
+
+	t.cache[page] = tmpl
+	return tmpl
 }
