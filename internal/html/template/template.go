@@ -10,7 +10,7 @@ import (
 type Template struct {
 	cache map[string]*template.Template
 
-	files fs.FS
+	files  fs.FS
 	reload bool
 }
 
@@ -20,7 +20,7 @@ func New(files fs.FS, reload bool) Template {
 	t := Template{
 		cache: cache,
 
-		files: files,
+		files:  files,
 		reload: reload,
 	}
 	return t

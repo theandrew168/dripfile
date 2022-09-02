@@ -9,32 +9,21 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/theandrew168/dripfile/internal/html/site"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
-	"github.com/theandrew168/dripfile/internal/validator"
 )
 
-type loginForm struct {
-	validator.Validator `form:"-"`
-
-	Email    string `form:"Email"`
-	Password string `form:"Password"`
-}
-
-type loginData struct {
-	Form loginForm
-}
-
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
-	page := "site/auth/login.html"
-	data := loginData{}
-	app.render(w, r, page, data)
+	err := app.html.Site.AuthLogin(w, site.AuthLoginParams{})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) {
-	page := "site/auth/login.html"
-
-	var form loginForm
+	var form site.AuthLoginForm
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
@@ -45,10 +34,16 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	form.CheckRequired(form.Password, "Password")
 
 	if !form.Valid() {
-		data := loginData{
+		// re-render with errors
+		params := site.AuthLoginParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Site.AuthLogin(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -57,10 +52,16 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		if errors.Is(err, postgresql.ErrNotExist) {
 			form.SetError("Invalid email or password")
 
-			data := loginData{
+			// re-render with errors
+			params := site.AuthLoginParams{
 				Form: form,
 			}
-			app.render(w, r, page, data)
+			err := app.html.Site.AuthLogin(w, params)
+			if err != nil {
+				app.serverErrorResponse(w, r, err)
+				return
+			}
+
 			return
 		}
 
@@ -72,10 +73,16 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	if err != nil {
 		form.SetError("Invalid email or password")
 
-		data := loginData{
+		// re-render with errors
+		params := site.AuthLoginParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Site.AuthLogin(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 

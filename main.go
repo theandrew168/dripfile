@@ -206,6 +206,7 @@ func run() int {
 	return 0
 }
 
+// create a context that cancels upon receiving an exit signal
 func newSignalHandlerContext() context.Context {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {

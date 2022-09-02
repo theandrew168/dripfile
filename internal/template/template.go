@@ -32,21 +32,9 @@ func NewMap(dir fs.FS, reload bool) (*Map, error) {
 		return nil, err
 	}
 
-	sitePages, err := listTemplates(dir, "site")
-	if err != nil {
-		return nil, err
-	}
-
-	errorPages, err := listTemplates(dir, "error")
-	if err != nil {
-		return nil, err
-	}
-
 	var pages []string
 	pages = append(pages, apiPages...)
 	pages = append(pages, appPages...)
-	pages = append(pages, sitePages...)
-	pages = append(pages, errorPages...)
 
 	// Create a unique template set for each page.
 	for _, page := range pages {
@@ -116,17 +104,6 @@ func parseTemplate(dir fs.FS, page string) (*template.Template, error) {
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	// partials
-	partials, err := listTemplates(dir, "partial")
-	if err != nil {
-		return nil, err
-	}
-
-	t, err = t.ParseFS(dir, partials...)
-	if err != nil {
-		return nil, err
 	}
 
 	// page

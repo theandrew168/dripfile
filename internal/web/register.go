@@ -9,34 +9,23 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/theandrew168/dripfile/internal/html/site"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
-	"github.com/theandrew168/dripfile/internal/validator"
 )
 
-type registerForm struct {
-	validator.Validator `form:"-"`
-
-	Email    string `form:"Email"`
-	Password string `form:"Password"`
-}
-
-type registerData struct {
-	Form registerForm
-}
-
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
-	page := "site/auth/register.html"
-	data := registerData{}
-	app.render(w, r, page, data)
+	err := app.html.Site.AuthRegister(w, site.AuthRegisterParams{})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
-	page := "site/auth/register.html"
-
-	var form registerForm
+	var form site.AuthRegisterForm
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
@@ -47,10 +36,16 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	form.CheckRequired(form.Password, "Password")
 
 	if !form.Valid() {
-		data := registerData{
+		// re-render with errors
+		params := site.AuthRegisterParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Site.AuthRegister(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -65,10 +60,16 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	if err == nil || !errors.Is(err, postgresql.ErrNotExist) {
 		form.SetFieldError("Email", "An account with this email already exists")
 
-		data := registerData{
+		// re-render with errors
+		params := site.AuthRegisterParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Site.AuthRegister(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -97,10 +98,16 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		if errors.Is(err, postgresql.ErrExist) {
 			form.SetFieldError("Email", "An account with this email already exists")
 
-			data := registerData{
+			// re-render with errors
+			params := site.AuthRegisterParams{
 				Form: form,
 			}
-			app.render(w, r, page, data)
+			err := app.html.Site.AuthRegister(w, params)
+			if err != nil {
+				app.serverErrorResponse(w, r, err)
+				return
+			}
+
 			return
 		}
 

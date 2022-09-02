@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- attr order: class, id, name -->
+
+<head>
+	<title>{{template "title" .}} - DripFile</title>
+
+	<meta charset="utf-8" />
+	<meta name="description" content="File transfers made easy" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<link rel="stylesheet" href="/static/css/tachyons.min.css" />
+	<script src="/static/js/alpine.min.js" defer></script>
+	<script src="/static/js/htmx.min.js" defer></script>
+
+	<style>
+		html, body {
+			height: 100%;
+		}
+		.g1 {
+			gap: 1rem;
+		}
+		.g2 {
+			gap: 2rem;
+		}
+		.g3 {
+			gap: 4rem;
+		}
+		.g4 {
+			gap: 8rem;
+		}
+		.g5 {
+			gap: 16rem;
+		}
+	</style>
+</head>
+
+{{template "body" .}}
+
+</html>
