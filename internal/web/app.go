@@ -12,7 +12,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
-	"github.com/theandrew168/dripfile/internal/template"
 )
 
 type Application struct {
@@ -21,7 +20,6 @@ type Application struct {
 	static http.Handler
 	api    http.Handler
 	logger *jsonlog.Logger
-	tmpl   *template.Map
 	html   *html.Template
 	store  *storage.Storage
 	queue  *task.Queue
@@ -32,7 +30,6 @@ func NewApplication(
 	api http.Handler,
 	static http.Handler,
 	logger *jsonlog.Logger,
-	tmpl *template.Map,
 	html *html.Template,
 	store *storage.Storage,
 	queue *task.Queue,
@@ -46,9 +43,8 @@ func NewApplication(
 
 		api:    api,
 		static: static,
-		tmpl:   tmpl,
-		html:   html,
 		logger: logger,
+		html:   html,
 		store:  store,
 		queue:  queue,
 		box:    box,

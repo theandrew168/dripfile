@@ -7,9 +7,9 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/lnquy/cron"
 
+	"github.com/theandrew168/dripfile/internal/html/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
-	"github.com/theandrew168/dripfile/internal/validator"
 )
 
 // https://gist.github.com/jpluimers/6510369
@@ -23,27 +23,7 @@ var shortcuts = map[string]string{
 	"@hourly":   "0 * * * *",
 }
 
-type scheduleCreateForm struct {
-	validator.Validator `form:"-"`
-
-	Expr string `form:"Expr"`
-}
-
-type scheduleDeleteForm struct {
-	validator.Validator `form:"-"`
-
-	ScheduleID string `form:"ScheduleID"`
-}
-
-type scheduleData struct {
-	Schedules []model.Schedule
-	Schedule  model.Schedule
-	Form      scheduleCreateForm
-}
-
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
-	page := "app/schedule/list.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -57,15 +37,17 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := scheduleData{
+	params := web.ScheduleListParams{
 		Schedules: schedules,
 	}
-	app.render(w, r, page, data)
+	err = app.html.Web.ScheduleList(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Request) {
-	page := "app/schedule/read.html"
-
 	id := flow.Param(r.Context(), "id")
 	schedule, err := app.store.Schedule.Read(id)
 	if err != nil {
@@ -78,34 +60,32 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := scheduleData{
+	params := web.ScheduleReadParams{
 		Schedule: schedule,
 	}
-	app.render(w, r, page, data)
+	err = app.html.Web.ScheduleRead(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Request) {
-	page := "app/schedule/create.html"
-	data := scheduleData{}
-	app.render(w, r, page, data)
+	err := app.html.Web.ScheduleCreate(w, web.ScheduleCreateParams{})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.Request) {
-	page := "app/schedule/create.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	dtor, err := cron.NewDescriptor()
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	var form scheduleCreateForm
+	var form web.ScheduleCreateForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
@@ -115,10 +95,16 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 	form.CheckRequired(form.Expr, "Expr")
 
 	if !form.Valid() {
-		data := scheduleData{
+		// re-render with errors
+		params := web.ScheduleCreateParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Web.ScheduleCreate(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -128,13 +114,26 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		expr = shortcut
 	}
 
+	dtor, err := cron.NewDescriptor()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	name, err := dtor.ToDescription(expr, cron.Locale_en)
 	if err != nil {
 		form.SetFieldError("Expr", "Invalid cron expression")
-		data := scheduleData{
+
+		// re-render with errors
+		params := web.ScheduleCreateParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Web.ScheduleCreate(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -161,7 +160,7 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var form scheduleDeleteForm
+	var form web.ScheduleDeleteForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)

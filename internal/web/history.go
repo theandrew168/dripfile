@@ -3,19 +3,17 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/model"
+	"github.com/theandrew168/dripfile/internal/html/web"
 )
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
-	page := "app/history/list.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	histories, err := app.store.History.ReadAllByProject(session.Account.Project)
+	history, err := app.store.History.ReadAllByProject(session.Account.Project)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -24,11 +22,12 @@ func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request
 	// TODO: check which xfer IDs are still valid
 	// TODO: add map of valid IDs to tmpl data
 
-	data := struct {
-		Histories []model.History
-	}{
-		Histories: histories,
+	params := web.HistoryListParams{
+		History: history,
 	}
-
-	app.render(w, r, page, data)
+	err = app.html.Web.HistoryList(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }

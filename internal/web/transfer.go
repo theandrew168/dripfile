@@ -6,44 +6,21 @@ import (
 
 	"github.com/alexedwards/flow"
 
+	"github.com/theandrew168/dripfile/internal/html/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/task"
-	"github.com/theandrew168/dripfile/internal/validator"
 )
 
-type transferCreateForm struct {
-	validator.Validator `form:"-"`
-
-	Pattern    string `form:"Pattern"`
-	SrcID      string `form:"SrcID"`
-	DstID      string `form:"DstID"`
-	ScheduleID string `form:"ScheduleID"`
-}
-
-type transferRunForm struct {
-	validator.Validator `form:"-"`
-
-	TransferID string `form:"TransferID"`
-}
-
-type transferDeleteForm struct {
-	validator.Validator `form:"-"`
-
-	TransferID string `form:"TransferID"`
-}
-
-type transferData struct {
-	Locations []model.Location
-	Schedules []model.Schedule
-	Transfers []model.Transfer
-	Transfer  model.Transfer
-	Form      transferCreateForm
-}
+//type transferData struct {
+//	Locations []model.Location
+//	Schedules []model.Schedule
+//	Transfers []model.Transfer
+//	Transfer  model.Transfer
+//	Form      transferCreateForm
+//}
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/list.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -56,15 +33,17 @@ func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := transferData{
+	params := web.TransferListParams{
 		Transfers: transfers,
 	}
-	app.render(w, r, page, data)
+	err = app.html.Web.TransferList(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/read.html"
-
 	id := flow.Param(r.Context(), "id")
 	transfer, err := app.store.Transfer.Read(id)
 	if err != nil {
@@ -77,15 +56,17 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := transferData{
+	params := web.TransferReadParams{
 		Transfer: transfer,
 	}
-	app.render(w, r, page, data)
+	err = app.html.Web.TransferRead(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/create.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -104,16 +85,18 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	data := transferData{
+	params := web.TransferCreateParams{
 		Locations: locations,
 		Schedules: schedules,
 	}
-	app.render(w, r, page, data)
+	err = app.html.Web.TransferCreate(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.Request) {
-	page := "app/transfer/create.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -133,7 +116,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var form transferCreateForm
+	var form web.TransferCreateForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
@@ -143,12 +126,19 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 	form.CheckRequired(form.Pattern, "Pattern")
 
 	if !form.Valid() {
-		data := transferData{
+		// re-render with errors
+		params := web.TransferCreateParams{
+			Form: form,
+
 			Locations: locations,
 			Schedules: schedules,
-			Form:      form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Web.TransferCreate(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -210,7 +200,7 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var form transferRunForm
+	var form web.TransferRunForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
@@ -250,7 +240,7 @@ func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var form transferDeleteForm
+	var form web.TransferDeleteForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
