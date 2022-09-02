@@ -13,10 +13,47 @@ html.Site.Auth.Login.Execute(w, html.Site.Auth.LoginParams{})
 html.Error400(w, html.Error400Params{})
 html.Error500(w, html.Error500Params{})
 
+Template -> Form -> Validator
+
 type Site struct {
-    Index     *template.Template
-    AuthLogin *template.Template
-    AuthLogin *template.Template
+    Index        *template.Template
+    AuthLogin    *template.Template
+    AuthRegister *template.Template
 }
 
-Template -> Form -> Validator
+^^^
+this doesn't work because it can't enforce the param types
+
+type Site struct {
+    Index(w io.Writer, p IndexParams) error
+    IndexTemplate(w io.Writer, p IndexParams) error
+    IndexRender(w io.Writer, p IndexParams) error
+    RenderIndex(w io.Writer, p IndexParams) error
+
+    AuthLogin(w io.Writer, p AuthLoginParams) error
+    AuthRegister(w io.Writer, p AuthRegisterParams) error
+}
+
+Impl:
+
+//go:embed *
+var files embed.FS
+
+type Site struct {
+    files fs.FS
+}
+
+func NewSite(files fs.FS) {
+    ...
+}
+
+func (s *Site) Index(w io.Writer, p IndexParams) error {
+    // check os.Getenv for where to load
+    // either embed.FS or os.DirFS
+}
+
+html/template
+  site
+  app
+  api
+  error
