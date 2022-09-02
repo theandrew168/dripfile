@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- attr order: class, id, name -->
+
+<head>
+	<title>{{template "title" .}} - DripFile</title>
+
+	<meta charset="utf-8" />
+	<meta name="description" content="File transfers made easy" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	<link rel="stylesheet" href="/static/css/tachyons.min.css" />
+	<script src="/static/js/alpine.min.js" defer></script>
+	<script src="/static/js/htmx.min.js" defer></script>
+
+	<style>
+		html, body {
+			height: 100%;
+		}
+		.g1 {
+			gap: 1rem;
+		}
+		.g2 {
+			gap: 2rem;
+		}
+		.g3 {
+			gap: 4rem;
+		}
+		.g4 {
+			gap: 8rem;
+		}
+		.g5 {
+			gap: 16rem;
+		}
+	</style>
+</head>
+
+{{template "body" .}}
+<body class="sans-serif flex">
+	<header>
+		<nav class="h-100 bg-blue white pa2 w5">
+			<a class="flex items-center white no-underline" href="/dashboard">
+				<img class="h2 w-auto pr2" alt="DripFile Logo" src="/static/img/logo-white.svg">
+				<span class="f3 b">DripFile</span>
+			</a>
+			<ul class="list flex flex-column ph2">
+				<li><a class="link flex white no-underline items-center hover-bg-light-blue pv1 ph2 br3" id="nav-dashboard" href="/dashboard">
+					<!-- Heroicon name: outline/home -->
+					<svg class="flex-none w2 h2 mr2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+					</svg>
+					Dashboard
+				</a></li>
+				<li><a class="link flex white no-underline items-center hover-bg-light-blue pv1 ph2 br3" id="nav-transfer" href="/transfer">
+					<!-- Heroicon name: outline/folder -->
+					<svg class="flex-none w2 h2 mr2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+					</svg>
+					Transfers
+				</a></li>
+				<li><a class="link flex white no-underline items-center hover-bg-light-blue pv1 ph2 br3" id="nav-location" href="/location">
+					<!-- Heroicon name: outline/desktop-computer -->
+					<svg class="flex-none w2 h2 mr2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+					  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+					</svg>
+					Locations
+				</a></li>
+				<li><a class="link flex white no-underline items-center hover-bg-light-blue pv1 ph2 br3" id="nav-schedule" href="/schedule">
+					<!-- Heroicon name: outline/calendar -->
+					<svg class="flex-none w2 h2 mr2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+					</svg>
+					Schedules
+				</a></li>
+				<li><a class="link flex white no-underline items-center hover-bg-light-blue pv1 ph2 br3" id="nav-history" href="/history">
+					<!-- Heroicon name: outline/chart-bar -->
+					<svg class="flex-none w2 h2 mr2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+					</svg>
+					History
+				</a></li>
+				<li><a class="link flex white no-underline items-center hover-bg-light-blue pv1 ph2 br3" id="nav-account" href="/account">
+					<!-- Heroicon name: outline/users -->
+					<svg class="flex-none w2 h2 mr2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+					</svg>
+					Account
+				</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main class="w-100 bg-light-gray">
+		<!-- search bar -->
+		<div class="bg-white pa2 w-100 shadow-2">
+			<form action="/dashboard" method="GET">
+				<input id="input-search" name="Search" />
+			</form>
+		</div>
+
+		{{template "main" .}}
+	</main>
+</body>
+{{end}}
+
+</html>

@@ -1,0 +1,47 @@
+{{template "body" .}}
+
+{{define "title"}}Transfer{{end}}
+
+{{define "main"}}
+<section class="bg-white br3 shadow-2 pa2 ma3" id="page-transfer-read">
+	<header>
+		<h1>Transfer</h1>
+		<a id="action-create" href="/transfer/create">Create Transfer</a>
+	</header>
+
+	<p>
+		<h2>ID</h2>
+		<p>{{.Transfer.ID}}</p>
+	</p>
+
+	<p>
+		<h2>Source</h2>
+		<p><a href="/location/{{.Transfer.Src.ID}}">{{.Transfer.Src.Name}}</a></p>
+	</p>
+
+	<p>
+		<h2>Destination</h2>
+		<p><a href="/location/{{.Transfer.Dst.ID}}">{{.Transfer.Dst.Name}}</a></p>
+	</p>
+
+	<p>
+		<h2>Schedule</h2>
+		<p><a href="/schedule/{{.Transfer.Schedule.ID}}">{{.Transfer.Schedule.Name}}</a></p>
+	</p>
+
+	<p>
+		<h2>Pattern</h2>
+		<p>{{.Transfer.Pattern}}</p>
+	</p>
+
+	<form action="/transfer/delete" method="POST">
+		<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
+		<button id="submit-delete" type="submit">Delete</button>
+	</form>
+
+	<form action="/transfer/run" method="POST">
+		<input id="hidden-transfer-id" name="TransferID" type="hidden" value="{{.Transfer.ID}}" />
+		<button id="submit-run" type="submit">Run now</button>
+	</form>
+</section>
+{{end}}
