@@ -3,21 +3,14 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/validator"
+	"github.com/theandrew168/dripfile/internal/html/web"
 )
-
-type dashboardForm struct {
-	validator.Validator
-	Search string
-}
-
-type dashboardData struct {
-	Form dashboardForm
-}
 
 // TODO: show some useful data on the dashboard
 func (app *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
-	page := "app/dashboard.html"
-	data := dashboardData{}
-	app.render(w, r, page, data)
+	err := app.html.Web.Dashboard(w, web.DashboardParams{})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }

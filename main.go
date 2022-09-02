@@ -178,9 +178,7 @@ func run() int {
 
 	html := html.New(debug)
 
-	api := api.NewApplication(logger, html)
-	apiHandler := api.Handler()
-
+	apiHandler := api.NewApplication(logger, html).Handler()
 	staticHandler := http.FileServer(http.FS(static))
 
 	// instantiate main web application

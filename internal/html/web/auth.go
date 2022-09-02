@@ -1,4 +1,4 @@
-package site
+package web
 
 import (
 	"io"
@@ -20,6 +20,7 @@ type AuthLoginParams struct {
 func (t *Template) AuthLogin(w io.Writer, p AuthLoginParams) error {
 	patterns := []string{
 		"layout/base.html",
+		"layout/site.html",
 		"partial/*.html",
 		"auth/login.html",
 	}
@@ -41,6 +42,7 @@ type AuthRegisterParams struct {
 func (t *Template) AuthRegister(w io.Writer, p AuthRegisterParams) error {
 	patterns := []string{
 		"layout/base.html",
+		"layout/site.html",
 		"partial/*.html",
 		"auth/register.html",
 	}

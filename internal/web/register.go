@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/theandrew168/dripfile/internal/html/site"
+	"github.com/theandrew168/dripfile/internal/html/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -17,7 +17,7 @@ import (
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
-	err := app.html.Site.AuthRegister(w, site.AuthRegisterParams{})
+	err := app.html.Web.AuthRegister(w, web.AuthRegisterParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -25,7 +25,7 @@ func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Request) {
-	var form site.AuthRegisterForm
+	var form web.AuthRegisterForm
 	err := app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
@@ -37,10 +37,10 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	if !form.Valid() {
 		// re-render with errors
-		params := site.AuthRegisterParams{
+		params := web.AuthRegisterParams{
 			Form: form,
 		}
-		err := app.html.Site.AuthRegister(w, params)
+		err := app.html.Web.AuthRegister(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -61,10 +61,10 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		form.SetFieldError("Email", "An account with this email already exists")
 
 		// re-render with errors
-		params := site.AuthRegisterParams{
+		params := web.AuthRegisterParams{
 			Form: form,
 		}
-		err := app.html.Site.AuthRegister(w, params)
+		err := app.html.Web.AuthRegister(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -99,10 +99,10 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 			form.SetFieldError("Email", "An account with this email already exists")
 
 			// re-render with errors
-			params := site.AuthRegisterParams{
+			params := web.AuthRegisterParams{
 				Form: form,
 			}
-			err := app.html.Site.AuthRegister(w, params)
+			err := app.html.Web.AuthRegister(w, params)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
 				return

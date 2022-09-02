@@ -1,4 +1,4 @@
-package site
+package web
 
 import (
 	"embed"
@@ -19,7 +19,7 @@ func New(reload bool) *Template {
 	var files fs.FS
 	if reload {
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
-		files = os.DirFS("./internal/html/site/template/")
+		files = os.DirFS("./internal/html/web/template/")
 	} else {
 		// else use the embedded template dir
 		files, _ = fs.Sub(templateFS, "template")

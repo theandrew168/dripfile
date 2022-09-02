@@ -22,18 +22,12 @@ func NewMap(dir fs.FS, reload bool) (*Map, error) {
 		reload: reload,
 	}
 
-	apiPages, err := listTemplates(dir, "api")
-	if err != nil {
-		return nil, err
-	}
-
 	appPages, err := listTemplates(dir, "app")
 	if err != nil {
 		return nil, err
 	}
 
 	var pages []string
-	pages = append(pages, apiPages...)
 	pages = append(pages, appPages...)
 
 	// Create a unique template set for each page.
