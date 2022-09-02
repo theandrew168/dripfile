@@ -3,35 +3,45 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/model"
+	"github.com/theandrew168/dripfile/internal/html/web"
 )
 
-type accountData struct {
-	Account model.Account
-}
-
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
-	page := "app/account/read.html"
-	data := accountData{}
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	data.Account = session.Account
-	app.render(w, r, page, data)
+	params := web.AccountReadParams{
+		Account: session.Account,
+	}
+	err = app.html.Web.AccountRead(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.Request) {
+	var form web.AccountDeleteForm
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.badRequestResponse(w, r)
+		return
+	}
+
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	// TODO: use form AccountID or just session.Account?
+	if form.AccountID != session.Account.ID {
+		app.badRequestResponse(w, r)
+		return
+	}
+
 	err = app.store.Account.Delete(session.Account)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

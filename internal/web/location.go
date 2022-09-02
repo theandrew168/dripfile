@@ -8,35 +8,12 @@ import (
 	"github.com/alexedwards/flow"
 
 	"github.com/theandrew168/dripfile/internal/fileserver"
+	"github.com/theandrew168/dripfile/internal/html/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
-	"github.com/theandrew168/dripfile/internal/validator"
 )
 
-type locationCreateForm struct {
-	validator.Validator `form:"-"`
-
-	Endpoint        string `form:"Endpoint"`
-	BucketName      string `form:"BucketName"`
-	AccessKeyID     string `form:"AccessKeyID"`
-	SecretAccessKey string `form:"SecretAccessKey"`
-}
-
-type locationDeleteForm struct {
-	validator.Validator `form:"-"`
-
-	LocationID string `form:"LocationID"`
-}
-
-type locationData struct {
-	Locations []model.Location
-	Location  model.Location
-	Form      locationCreateForm
-}
-
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/list.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -50,15 +27,17 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := locationData{
+	params := web.LocationListParams{
 		Locations: locations,
 	}
-	app.render(w, r, page, data)
+	err = app.html.Web.LocationList(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/read.html"
-
 	id := flow.Param(r.Context(), "id")
 	location, err := app.store.Location.Read(id)
 	if err != nil {
@@ -71,28 +50,32 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	data := locationData{
+	params := web.LocationReadParams{
 		Location: location,
 	}
-	app.render(w, r, page, data)
+	err = app.html.Web.LocationRead(w, params)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/create.html"
-	data := locationData{}
-	app.render(w, r, page, data)
+	err := app.html.Web.LocationCreate(w, web.LocationCreateParams{})
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
 }
 
 func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.Request) {
-	page := "app/location/create.html"
-
 	session, err := app.requestSession(r)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	var form locationCreateForm
+	var form web.LocationCreateForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
@@ -105,10 +88,16 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	form.CheckRequired(form.SecretAccessKey, "SecretAccessKey")
 
 	if !form.Valid() {
-		data := locationData{
+		// re-render with errors
+		params := web.LocationCreateParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Web.LocationCreate(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -123,10 +112,16 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	if err != nil {
 		form.SetError(err.Error())
 
-		data := locationData{
+		// re-render with errors
+		params := web.LocationCreateParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Web.LocationCreate(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -135,10 +130,16 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	if err != nil {
 		form.SetError(err.Error())
 
-		data := locationData{
+		// re-render with errors
+		params := web.LocationCreateParams{
 			Form: form,
 		}
-		app.render(w, r, page, data)
+		err := app.html.Web.LocationCreate(w, params)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
 		return
 	}
 
@@ -182,7 +183,7 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	var form locationDeleteForm
+	var form web.LocationDeleteForm
 	err = app.decodePostForm(r, &form)
 	if err != nil {
 		app.badRequestResponse(w, r)
