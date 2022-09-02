@@ -17,6 +17,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
+	"github.com/theandrew168/dripfile/internal/html"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
@@ -44,6 +45,11 @@ func main() {
 
 func run() int {
 	logger := jsonlog.New(os.Stdout)
+
+	debug := false
+	if os.Getenv("DEBUG") != "" {
+		debug = true
+	}
 
 	conf := flag.String("conf", "dripfile.conf", "app config file")
 	flag.Parse()
@@ -170,13 +176,15 @@ func run() int {
 		}
 	}
 
+	html := html.New(debug)
+
 	api := api.NewApplication(logger, tmpl)
 	apiHandler := api.Handler()
 
 	staticHandler := http.FileServer(http.FS(static))
 
 	// instantiate main web application
-	app := web.NewApplication(apiHandler, staticHandler, logger, tmpl, store, queue, box)
+	app := web.NewApplication(apiHandler, staticHandler, logger, tmpl, html, store, queue, box)
 
 	// let port be overridable by an env var
 	port := cfg.Port

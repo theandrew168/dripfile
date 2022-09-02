@@ -12,19 +12,19 @@ build:
 
 .PHONY: web
 web: migrate
-	ENV=dev go run main.go -conf $(CONF) web
+	DEBUG=1 go run main.go -conf $(CONF) web
 
 .PHONY: worker
 worker: migrate
-	ENV=dev go run main.go -conf $(CONF) worker
+	DEBUG=1 go run main.go -conf $(CONF) worker
 
 .PHONY: scheduler
 scheduler: migrate
-	ENV=dev go run main.go -conf $(CONF) scheduler
+	DEBUG=1 go run main.go -conf $(CONF) scheduler
 
 .PHONY: migrate
 migrate:
-	ENV=dev go run main.go -conf $(CONF) migrate
+	DEBUG=1 go run main.go -conf $(CONF) migrate
 
 .PHONY: update
 update:
