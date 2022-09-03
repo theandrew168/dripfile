@@ -6,10 +6,10 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/view/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {

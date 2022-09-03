@@ -5,8 +5,8 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/view"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
+	"github.com/theandrew168/dripfile/internal/view"
 )
 
 type Application struct {

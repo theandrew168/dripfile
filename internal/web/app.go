@@ -7,11 +7,11 @@ import (
 	"github.com/go-playground/form/v4"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/theandrew168/dripfile/internal/view"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/view"
 )
 
 type Application struct {

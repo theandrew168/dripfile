@@ -7,9 +7,9 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/lnquy/cron"
 
-	"github.com/theandrew168/dripfile/internal/view/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 // https://gist.github.com/jpluimers/6510369
