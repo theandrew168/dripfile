@@ -6,19 +6,11 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/task"
 )
-
-//type transferData struct {
-//	Locations []model.Location
-//	Schedules []model.Schedule
-//	Transfers []model.Transfer
-//	Transfer  model.Transfer
-//	Form      transferCreateForm
-//}
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
 	session, err := app.requestSession(r)
@@ -36,7 +28,7 @@ func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Reques
 	params := web.TransferListParams{
 		Transfers: transfers,
 	}
-	err = app.html.Web.TransferList(w, params)
+	err = app.view.Web.TransferList(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -59,7 +51,7 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 	params := web.TransferReadParams{
 		Transfer: transfer,
 	}
-	err = app.html.Web.TransferRead(w, params)
+	err = app.view.Web.TransferRead(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -89,7 +81,7 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 		Locations: locations,
 		Schedules: schedules,
 	}
-	err = app.html.Web.TransferCreate(w, params)
+	err = app.view.Web.TransferCreate(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -133,7 +125,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 			Locations: locations,
 			Schedules: schedules,
 		}
-		err := app.html.Web.TransferCreate(w, params)
+		err := app.view.Web.TransferCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

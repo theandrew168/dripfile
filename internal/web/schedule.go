@@ -7,7 +7,7 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/lnquy/cron"
 
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
@@ -40,7 +40,7 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 	params := web.ScheduleListParams{
 		Schedules: schedules,
 	}
-	err = app.html.Web.ScheduleList(w, params)
+	err = app.view.Web.ScheduleList(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -63,7 +63,7 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 	params := web.ScheduleReadParams{
 		Schedule: schedule,
 	}
-	err = app.html.Web.ScheduleRead(w, params)
+	err = app.view.Web.ScheduleRead(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -71,7 +71,7 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Request) {
-	err := app.html.Web.ScheduleCreate(w, web.ScheduleCreateParams{})
+	err := app.view.Web.ScheduleCreate(w, web.ScheduleCreateParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -99,7 +99,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		params := web.ScheduleCreateParams{
 			Form: form,
 		}
-		err := app.html.Web.ScheduleCreate(w, params)
+		err := app.view.Web.ScheduleCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -128,7 +128,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		params := web.ScheduleCreateParams{
 			Form: form,
 		}
-		err := app.html.Web.ScheduleCreate(w, params)
+		err := app.view.Web.ScheduleCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

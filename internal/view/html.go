@@ -1,8 +1,8 @@
-package html
+package view
 
 import (
-	"github.com/theandrew168/dripfile/internal/html/api"
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/api"
+	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 type Template struct {

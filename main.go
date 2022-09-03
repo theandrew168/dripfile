@@ -16,7 +16,6 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/html"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
@@ -25,6 +24,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
+	"github.com/theandrew168/dripfile/internal/view"
 	"github.com/theandrew168/dripfile/internal/web"
 )
 
@@ -150,13 +150,13 @@ func run() int {
 		panic(err)
 	}
 
-	html := html.New(debug)
+	view := view.New(debug)
 
-	apiHandler := api.NewApplication(logger, html).Handler()
+	apiHandler := api.NewApplication(logger, view).Handler()
 	staticHandler := http.FileServer(http.FS(static))
 
 	// instantiate main web application
-	app := web.NewApplication(apiHandler, staticHandler, logger, html, store, queue, box)
+	app := web.NewApplication(apiHandler, staticHandler, logger, view, store, queue, box)
 
 	// let port be overridable by an env var
 	port := cfg.Port

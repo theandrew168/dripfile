@@ -9,13 +9,13 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
-	err := app.html.Web.AuthLogin(w, web.AuthLoginParams{})
+	err := app.view.Web.AuthLogin(w, web.AuthLoginParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -38,7 +38,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		params := web.AuthLoginParams{
 			Form: form,
 		}
-		err := app.html.Web.AuthLogin(w, params)
+		err := app.view.Web.AuthLogin(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -56,7 +56,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 			params := web.AuthLoginParams{
 				Form: form,
 			}
-			err := app.html.Web.AuthLogin(w, params)
+			err := app.view.Web.AuthLogin(w, params)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
 				return
@@ -77,7 +77,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		params := web.AuthLoginParams{
 			Form: form,
 		}
-		err := app.html.Web.AuthLogin(w, params)
+		err := app.view.Web.AuthLogin(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

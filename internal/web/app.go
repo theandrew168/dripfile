@@ -7,7 +7,7 @@ import (
 	"github.com/go-playground/form/v4"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
-	"github.com/theandrew168/dripfile/internal/html"
+	"github.com/theandrew168/dripfile/internal/view"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -20,7 +20,7 @@ type Application struct {
 	static http.Handler
 	api    http.Handler
 	logger *jsonlog.Logger
-	html   *html.Template
+	view   *view.Template
 	store  *storage.Storage
 	queue  *task.Queue
 	box    *secret.Box
@@ -30,7 +30,7 @@ func NewApplication(
 	api http.Handler,
 	static http.Handler,
 	logger *jsonlog.Logger,
-	html *html.Template,
+	view *view.Template,
 	store *storage.Storage,
 	queue *task.Queue,
 	box *secret.Box,
@@ -44,7 +44,7 @@ func NewApplication(
 		api:    api,
 		static: static,
 		logger: logger,
-		html:   html,
+		view:   view,
 		store:  store,
 		queue:  queue,
 		box:    box,

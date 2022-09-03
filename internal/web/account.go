@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
@@ -16,7 +16,7 @@ func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request
 	params := web.AccountReadParams{
 		Account: session.Account,
 	}
-	err = app.html.Web.AccountRead(w, params)
+	err = app.view.Web.AccountRead(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

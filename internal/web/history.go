@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request
 	params := web.HistoryListParams{
 		History: history,
 	}
-	err = app.html.Web.HistoryList(w, params)
+	err = app.view.Web.HistoryList(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

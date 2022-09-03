@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request) {
 	// render template to a temp buffer
 	var b bytes.Buffer
-	err := app.html.Web.Error400(&b, web.Error400Params{})
+	err := app.view.Web.Error400(&b, web.Error400Params{})
 	if err != nil {
 		app.logger.Error(err, nil)
 
@@ -27,7 +27,7 @@ func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
 	// render template to a temp buffer
 	var b bytes.Buffer
-	err := app.html.Web.Error404(&b, web.Error404Params{})
+	err := app.view.Web.Error404(&b, web.Error404Params{})
 	if err != nil {
 		app.logger.Error(err, nil)
 
@@ -44,7 +44,7 @@ func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	// render template to a temp buffer
 	var b bytes.Buffer
-	err := app.html.Web.Error405(&b, web.Error405Params{})
+	err := app.view.Web.Error405(&b, web.Error405Params{})
 	if err != nil {
 		app.logger.Error(err, nil)
 
@@ -64,7 +64,7 @@ func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Reque
 
 	// render template to a temp buffer
 	var b bytes.Buffer
-	err = app.html.Web.Error500(&b, web.Error500Params{})
+	err = app.view.Web.Error500(&b, web.Error500Params{})
 	if err != nil {
 		code := http.StatusInternalServerError
 		http.Error(w, http.StatusText(code), code)

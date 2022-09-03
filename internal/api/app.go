@@ -5,19 +5,19 @@ import (
 
 	"github.com/alexedwards/flow"
 
-	"github.com/theandrew168/dripfile/internal/html"
+	"github.com/theandrew168/dripfile/internal/view"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 )
 
 type Application struct {
 	logger *jsonlog.Logger
-	html   *html.Template
+	view   *view.Template
 }
 
-func NewApplication(logger *jsonlog.Logger, html *html.Template) *Application {
+func NewApplication(logger *jsonlog.Logger, view *view.Template) *Application {
 	app := Application{
 		logger: logger,
-		html:   html,
+		view:   view,
 	}
 	return &app
 }

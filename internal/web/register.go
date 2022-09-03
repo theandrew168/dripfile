@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/theandrew168/dripfile/internal/html/web"
+	"github.com/theandrew168/dripfile/internal/view/web"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -17,7 +17,7 @@ import (
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
-	err := app.html.Web.AuthRegister(w, web.AuthRegisterParams{})
+	err := app.view.Web.AuthRegister(w, web.AuthRegisterParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -40,7 +40,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		params := web.AuthRegisterParams{
 			Form: form,
 		}
-		err := app.html.Web.AuthRegister(w, params)
+		err := app.view.Web.AuthRegister(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -64,7 +64,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		params := web.AuthRegisterParams{
 			Form: form,
 		}
-		err := app.html.Web.AuthRegister(w, params)
+		err := app.view.Web.AuthRegister(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -102,7 +102,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 			params := web.AuthRegisterParams{
 				Form: form,
 			}
-			err := app.html.Web.AuthRegister(w, params)
+			err := app.view.Web.AuthRegister(w, params)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
 				return
