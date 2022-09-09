@@ -7,12 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
-	"github.com/theandrew168/dripfile/internal/storage"
-	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
@@ -49,52 +45,8 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
+	account, err := app.srvc.CreateAccount(form.Email, form.Password)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// ensure email isn't already taken
-	_, err = app.store.Account.ReadByEmail(form.Email)
-	if err == nil || !errors.Is(err, postgresql.ErrNotExist) {
-		form.SetFieldError("Email", "An account with this email already exists")
-
-		// re-render with errors
-		params := web.AuthRegisterParams{
-			Form: form,
-		}
-		err := app.view.Web.AuthRegister(w, params)
-		if err != nil {
-			app.serverErrorResponse(w, r, err)
-			return
-		}
-
-		return
-	}
-
-	// create new project and new account within a single transaction
-	var project model.Project
-	var account model.Account
-	err = app.store.WithTransaction(func(store *storage.Storage) error {
-		// create project for the new account
-		project = model.NewProject()
-		err := store.Project.Create(&project)
-		if err != nil {
-			return err
-		}
-
-		// create the new account
-		account = model.NewAccount(form.Email, string(hash), model.RoleOwner, project)
-		err = store.Account.Create(&account)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if err != nil {
-		// check for TOCTOU race on account email
 		if errors.Is(err, postgresql.ErrExist) {
 			form.SetFieldError("Email", "An account with this email already exists")
 
@@ -128,21 +80,6 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	// create session model and store in the database
 	session := model.NewSession(sessionHash, expiry, account)
 	err = app.store.Session.Create(&session)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	// send welcome email
-	t := task.NewEmailSendTask(
-		"DripFile",
-		"info@dripfile.com",
-		"",
-		account.Email,
-		"Welcome to DripFile!",
-		"Thanks for signing up with DripFile! I hope this adds some value.",
-	)
-	err = app.queue.Submit(t)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

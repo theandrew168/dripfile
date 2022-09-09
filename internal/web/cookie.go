@@ -1,8 +1,6 @@
 package web
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"net/http"
 	"time"
 )
@@ -10,15 +8,6 @@ import (
 var (
 	sessionIDCookieName = "session_id"
 )
-
-func GenerateSessionID() (string, error) {
-	b := make([]byte, 32)
-	_, err := rand.Read(b)
-	if err != nil {
-		return "", err
-	}
-	return base64.RawURLEncoding.EncodeToString(b), nil
-}
 
 func NewSessionCookie(name, value string) http.Cookie {
 	cookie := http.Cookie{
