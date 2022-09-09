@@ -9,6 +9,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/view"
@@ -21,6 +22,7 @@ type Application struct {
 	api    http.Handler
 	logger *jsonlog.Logger
 	view   *view.Template
+	srvc   *service.Service
 	store  *storage.Storage
 	queue  *task.Queue
 	box    *secret.Box
@@ -31,6 +33,7 @@ func NewApplication(
 	static http.Handler,
 	logger *jsonlog.Logger,
 	view *view.Template,
+	srvc *service.Service,
 	store *storage.Storage,
 	queue *task.Queue,
 	box *secret.Box,
@@ -45,6 +48,7 @@ func NewApplication(
 		static: static,
 		logger: logger,
 		view:   view,
+		srvc:   srvc,
 		store:  store,
 		queue:  queue,
 		box:    box,

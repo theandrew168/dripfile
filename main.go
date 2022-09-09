@@ -22,6 +22,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/view"
@@ -107,6 +108,8 @@ func run() int {
 		return 1
 	}
 
+	srvc := service.New(logger, store, queue, box, mailer)
+
 	// scheduler: run scheduler forever
 	if action == "scheduler" {
 		s := scheduler.New(logger, store, queue)
@@ -152,11 +155,11 @@ func run() int {
 
 	view := view.New(debug)
 
-	apiHandler := api.NewApplication(logger, view).Handler()
+	apiHandler := api.NewApplication(logger, view, srvc).Handler()
 	staticHandler := http.FileServer(http.FS(static))
 
 	// instantiate main web application
-	app := web.NewApplication(apiHandler, staticHandler, logger, view, store, queue, box)
+	app := web.NewApplication(apiHandler, staticHandler, logger, view, srvc, store, queue, box)
 
 	// let port be overridable by an env var
 	port := cfg.Port
