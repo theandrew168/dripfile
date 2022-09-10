@@ -33,7 +33,7 @@ update:
 
 .PHONY: test
 test: migrate
-	go test -count=1 ./...
+	go test -count=1 -v ./...
 
 .PHONY: race
 race: migrate

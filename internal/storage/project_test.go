@@ -5,6 +5,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
@@ -13,40 +14,73 @@ func mockProject() model.Project {
 	return project
 }
 
-func TestProject(t *testing.T) {
-	store, closer := test.Storage(t)
-	defer closer()
+func createProject(t *testing.T, store *storage.Storage) (model.Project, DeleterFunc) {
+	t.Helper()
 
-	// create
 	project := mockProject()
 	err := store.Project.Create(&project)
 	test.AssertNilError(t, err)
 
-	test.AssertNotEqual(t, project.ID, "")
+	deleter := func(t *testing.T) {
+		err := store.Project.Delete(project)
+		test.AssertNilError(t, err)
+	}
 
-	// read
+	return project, deleter
+}
+
+func TestProjectCreate(t *testing.T) {
+	store, closer := test.Storage(t)
+	defer closer()
+
+	project, deleter := createProject(t, store)
+	defer deleter(t)
+
+	test.AssertNotEqual(t, project.ID, "")
+}
+
+func TestProjectDelete(t *testing.T) {
+	store, closer := test.Storage(t)
+	defer closer()
+
+	project, deleter := createProject(t, store)
+	deleter(t)
+
+	_, err := store.Project.Read(project.ID)
+	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
+}
+
+func TestProjectRead(t *testing.T) {
+	store, closer := test.Storage(t)
+	defer closer()
+
+	project, deleter := createProject(t, store)
+	defer deleter(t)
+
 	got, err := store.Project.Read(project.ID)
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, got.ID, project.ID)
+}
 
-	// read all
+func TestProjectReadAll(t *testing.T) {
+	store, closer := test.Storage(t)
+	defer closer()
+
+	project1, deleter1 := createProject(t, store)
+	defer deleter1(t)
+
+	project2, deleter2 := createProject(t, store)
+	defer deleter2(t)
+
 	projects, err := store.Project.ReadAll()
 	test.AssertNilError(t, err)
 
-	// verify that ID is present in list of all projects
 	var ids []string
 	for _, r := range projects {
 		ids = append(ids, r.ID)
 	}
 
-	test.AssertSliceContains(t, ids, project.ID)
-
-	// delete
-	err = store.Project.Delete(project)
-	test.AssertNilError(t, err)
-
-	// verify that ID isn't present anymore
-	_, err = store.Project.Read(project.ID)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
+	test.AssertSliceContains(t, ids, project1.ID)
+	test.AssertSliceContains(t, ids, project2.ID)
 }
