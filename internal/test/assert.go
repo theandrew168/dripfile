@@ -1,8 +1,11 @@
 package test
 
 import (
+	"errors"
 	"strings"
 	"testing"
+
+	"golang.org/x/exp/slices"
 )
 
 func AssertEqual[T comparable](t *testing.T, got, want T) {
@@ -10,6 +13,14 @@ func AssertEqual[T comparable](t *testing.T, got, want T) {
 
 	if got != want {
 		t.Fatalf("got %v; want %v", got, want)
+	}
+}
+
+func AssertNotEqual[T comparable](t *testing.T, got, notwant T) {
+	t.Helper()
+
+	if got == notwant {
+		t.Fatalf("got (but don't want) %v", got)
 	}
 }
 
@@ -21,11 +32,31 @@ func AssertStringContains(t *testing.T, got, want string) {
 	}
 }
 
+func AssertSliceContains[T comparable](t *testing.T, got []T, want T) {
+	t.Helper()
+
+	if !slices.Contains(got, want) {
+		t.Fatalf("got %v; want to contain: %v", got, want)
+	}
+}
+
 func AssertNilError(t *testing.T, got error) {
 	t.Helper()
 
 	if got != nil {
 		t.Fatalf("got: %v; want: nil", got)
+	}
+}
+
+func AssertErrorIs(t *testing.T, got error, want error) {
+	t.Helper()
+
+	if got == nil {
+		t.Fatalf("got: nil; want: %q", want)
+	}
+
+	if !errors.Is(got, want) {
+		t.Fatalf("got %q; want: %q", got, want)
 	}
 }
 
