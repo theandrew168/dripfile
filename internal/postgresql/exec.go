@@ -15,6 +15,10 @@ func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
 		// https://github.com/jackc/pgx/wiki/Error-Handling
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
+			// check for duplicate primary keys
+			if pgErr.Code == pgerrcode.UniqueViolation {
+				return ErrExist
+			}
 			// check for stale connections (database restarted)
 			if pgErr.Code == pgerrcode.AdminShutdown {
 				return ErrRetry

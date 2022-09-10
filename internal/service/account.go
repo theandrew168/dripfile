@@ -35,7 +35,7 @@ func (s *Service) CreateAccount(email, password string) (model.Account, error) {
 		return nil
 	})
 	if err != nil {
-		return model.Account{}, nil
+		return model.Account{}, err
 	}
 
 	// send welcome email
