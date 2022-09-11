@@ -183,30 +183,3 @@ func (s *Account) ReadByEmail(email string) (model.Account, error) {
 
 	return account, nil
 }
-
-func (s *Account) CountByProject(project model.Project) (int, error) {
-	stmt := `
-		SELECT
-			count(*)
-		FROM account
-		INNER JOIN project
-			ON project.id = account.project_id
-		WHERE project.id = $1`
-
-	var count int
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	row := s.db.QueryRow(ctx, stmt, project.ID)
-	err := postgresql.Scan(row, &count)
-	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
-			return s.CountByProject(project)
-		}
-
-		return 0, err
-	}
-
-	return count, nil
-}

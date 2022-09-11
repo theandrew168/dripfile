@@ -42,6 +42,8 @@ func createAccount(t *testing.T, store *storage.Storage) (model.Account, Deleter
 }
 
 func TestAccountCreate(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
@@ -52,6 +54,8 @@ func TestAccountCreate(t *testing.T) {
 }
 
 func TestAccountDelete(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
@@ -64,6 +68,8 @@ func TestAccountDelete(t *testing.T) {
 }
 
 func TestAccountCreateUnique(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
@@ -75,15 +81,54 @@ func TestAccountCreateUnique(t *testing.T) {
 }
 
 func TestAccountRead(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
 	account, deleter := createAccount(t, store)
 	defer deleter(t)
 
-	// read
 	got, err := store.Account.Read(account.ID)
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, got.ID, account.ID)
+}
+
+func TestAccountReadByEmail(t *testing.T) {
+	t.Parallel()
+
+	store, closer := test.Storage(t)
+	defer closer()
+
+	account, deleter := createAccount(t, store)
+	defer deleter(t)
+
+	got, err := store.Account.ReadByEmail(account.Email)
+	test.AssertNilError(t, err)
+
+	test.AssertEqual(t, got.ID, account.ID)
+}
+
+func TestAccountUpdate(t *testing.T) {
+	t.Parallel()
+
+	store, closer := test.Storage(t)
+	defer closer()
+
+	account, deleter := createAccount(t, store)
+	defer deleter(t)
+
+	account.Email = test.RandomString(8)
+	account.Password = test.RandomString(8)
+	account.Role = test.RandomString(8)
+	account.Verified = true
+
+	err := store.Account.Update(account)
+	test.AssertNilError(t, err)
+
+	got, err := store.Account.Read(account.ID)
+	test.AssertNilError(t, err)
+
+	test.AssertEqual(t, got, account)
 }

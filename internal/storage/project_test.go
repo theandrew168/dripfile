@@ -30,6 +30,8 @@ func createProject(t *testing.T, store *storage.Storage) (model.Project, Deleter
 }
 
 func TestProjectCreate(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
@@ -40,6 +42,8 @@ func TestProjectCreate(t *testing.T) {
 }
 
 func TestProjectDelete(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
@@ -51,6 +55,8 @@ func TestProjectDelete(t *testing.T) {
 }
 
 func TestProjectRead(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
@@ -64,6 +70,8 @@ func TestProjectRead(t *testing.T) {
 }
 
 func TestProjectReadAll(t *testing.T) {
+	t.Parallel()
+
 	store, closer := test.Storage(t)
 	defer closer()
 
