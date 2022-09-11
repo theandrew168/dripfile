@@ -20,6 +20,14 @@ func RandomBytes(n int) []byte {
 	return buf
 }
 
+func RandomInt() int {
+	return rand.Int()
+}
+
+func RandomUUID() string {
+	return "2dbb189e-d392-43a1-bef6-724c63c0550a"
+}
+
 func RandomString(n int) string {
 	return string(RandomBytes(n))
 }

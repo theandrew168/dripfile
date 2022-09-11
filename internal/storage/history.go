@@ -53,7 +53,45 @@ func (s *History) Create(history *model.History) error {
 }
 
 func (s *History) Read(id string) (model.History, error) {
-	return model.History{}, nil
+	stmt := `
+		SELECT
+			history.id,
+			history.bytes,
+			history.status,
+			history.started_at,
+			history.finished_at,
+			history.transfer_id,
+			project.id
+		FROM history
+		INNER JOIN project
+			ON project.id = history.project_id
+		WHERE history.id = $1`
+
+	var history model.History
+	dest := []any{
+		&history.ID,
+		&history.Bytes,
+		&history.Status,
+		&history.StartedAt,
+		&history.FinishedAt,
+		&history.TransferID,
+		&history.Project.ID,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	row := s.db.QueryRow(ctx, stmt, id)
+	err := postgresql.Scan(row, dest...)
+	if err != nil {
+		if errors.Is(err, postgresql.ErrRetry) {
+			return s.Read(id)
+		}
+
+		return model.History{}, err
+	}
+
+	return history, nil
 }
 
 func (s *History) ReadAllByProject(project model.Project) ([]model.History, error) {
@@ -61,6 +99,7 @@ func (s *History) ReadAllByProject(project model.Project) ([]model.History, erro
 		SELECT
 			history.id,
 			history.bytes,
+			history.status,
 			history.started_at,
 			history.finished_at,
 			history.transfer_id,
@@ -87,6 +126,7 @@ func (s *History) ReadAllByProject(project model.Project) ([]model.History, erro
 		dest := []any{
 			&history.ID,
 			&history.Bytes,
+			&history.Status,
 			&history.StartedAt,
 			&history.FinishedAt,
 			&history.TransferID,
@@ -110,4 +150,24 @@ func (s *History) ReadAllByProject(project model.Project) ([]model.History, erro
 	}
 
 	return histories, nil
+}
+
+func (s *History) Delete(history model.History) error {
+	stmt := `
+		DELETE FROM history
+		WHERE id = $1`
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	err := postgresql.Exec(s.db, ctx, stmt, history.ID)
+	if err != nil {
+		if errors.Is(err, postgresql.ErrRetry) {
+			return s.Delete(history)
+		}
+
+		return err
+	}
+
+	return nil
 }
