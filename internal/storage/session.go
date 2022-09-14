@@ -56,13 +56,10 @@ func (s *Session) Read(hash string) (model.Session, error) {
 			account.email,
 			account.password,
 			account.role,
-			account.verified,
-			project.id
+			account.verified
 		FROM session
 		INNER JOIN account
 			ON account.id = session.account_id
-		INNER JOIN project
-			ON project.id = account.project_id
 		WHERE session.hash = $1`
 
 	var session model.Session
@@ -74,7 +71,6 @@ func (s *Session) Read(hash string) (model.Session, error) {
 		&session.Account.Password,
 		&session.Account.Role,
 		&session.Account.Verified,
-		&session.Account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)

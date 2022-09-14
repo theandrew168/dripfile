@@ -109,7 +109,6 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	http.SetCookie(w, &cookie)
 
 	app.logger.Info("account login", map[string]string{
-		"project_id": session.Account.Project.ID,
 		"account_id": session.Account.ID,
 	})
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)

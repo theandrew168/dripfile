@@ -13,13 +13,7 @@ import (
 )
 
 func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Request) {
-	session, err := app.requestSession(r)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	transfers, err := app.store.Transfer.ReadAllByProject(session.Account.Project)
+	transfers, err := app.store.Transfer.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -59,19 +53,13 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Request) {
-	session, err := app.requestSession(r)
+	locations, err := app.store.Location.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	locations, err := app.store.Location.ReadAllByProject(session.Account.Project)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	schedules, err := app.store.Schedule.ReadAllByProject(session.Account.Project)
+	schedules, err := app.store.Schedule.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -96,13 +84,13 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	// reload locations and schedules in case form needs to be rerendered
-	locations, err := app.store.Location.ReadAllByProject(session.Account.Project)
+	locations, err := app.store.Location.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
-	schedules, err := app.store.Schedule.ReadAllByProject(session.Account.Project)
+	schedules, err := app.store.Schedule.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -167,8 +155,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	project := session.Account.Project
-	transfer := model.NewTransfer(form.Pattern, src, dst, schedule, project)
+	transfer := model.NewTransfer(form.Pattern, src, dst, schedule)
 	err = app.store.Transfer.Create(&transfer)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -176,7 +163,6 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	app.logger.Info("transfer create", map[string]string{
-		"project_id":  session.Account.Project.ID,
 		"account_id":  session.Account.ID,
 		"transfer_id": transfer.ID,
 		"src_id":      transfer.Src.ID,
@@ -199,8 +185,7 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	// TODO: assert id belongs to session->account->project
-	// TODO: assert account role is owner, admin, or editor
+	// TODO: assert account role is admin or editor
 	transfer, err := app.store.Transfer.Read(form.TransferID)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -216,7 +201,6 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 	}
 
 	app.logger.Info("transfer run", map[string]string{
-		"project_id":  session.Account.Project.ID,
 		"account_id":  session.Account.ID,
 		"transfer_id": transfer.ID,
 		"src_id":      transfer.Src.ID,
@@ -239,8 +223,7 @@ func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO: assert id belongs to session->account->project
-	// TODO: assert account role is owner, admin, or editor
+	// TODO: assert account role is admin or editor
 	transfer, err := app.store.Transfer.Read(form.TransferID)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -254,7 +237,6 @@ func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.
 	}
 
 	app.logger.Info("transfer delete", map[string]string{
-		"project_id":  session.Account.Project.ID,
 		"account_id":  session.Account.ID,
 		"transfer_id": transfer.ID,
 		"src_id":      transfer.Src.ID,

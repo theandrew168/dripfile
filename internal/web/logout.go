@@ -34,7 +34,6 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	http.SetCookie(w, &cookie)
 
 	app.logger.Info("account logout", map[string]string{
-		"project_id": session.Account.Project.ID,
 		"account_id": session.Account.ID,
 	})
 	http.Redirect(w, r, "/", http.StatusSeeOther)

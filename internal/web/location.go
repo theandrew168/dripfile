@@ -14,14 +14,7 @@ import (
 )
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
-	session, err := app.requestSession(r)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	project := session.Account.Project
-	locations, err := app.store.Location.ReadAllByProject(project)
+	locations, err := app.store.Location.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -160,8 +153,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 
 	// store location w/ encrypted info
 	name := info.Endpoint + "/" + info.BucketName
-	project := session.Account.Project
-	location := model.NewLocation(model.KindS3, name, encryptedInfo, project)
+	location := model.NewLocation(model.KindS3, name, encryptedInfo)
 	err = app.store.Location.Create(&location)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -169,7 +161,6 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	app.logger.Info("location create", map[string]string{
-		"project_id":  session.Account.Project.ID,
 		"account_id":  session.Account.ID,
 		"location_id": location.ID,
 	})
@@ -190,8 +181,7 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO: assert id belongs to session->account->project
-	// TODO: assert account role is owner, admin, or editor
+	// TODO: assert account role is admin or editor
 	location, err := app.store.Location.Read(form.LocationID)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -205,7 +195,6 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 	}
 
 	app.logger.Info("location delete", map[string]string{
-		"project_id":  session.Account.Project.ID,
 		"account_id":  session.Account.ID,
 		"location_id": location.ID,
 	})

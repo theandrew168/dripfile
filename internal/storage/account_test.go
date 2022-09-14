@@ -9,12 +9,11 @@ import (
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
-func mockAccount(project model.Project) model.Account {
+func mockAccount() model.Account {
 	account := model.NewAccount(
 		test.RandomString(8),
 		test.RandomString(8),
 		test.RandomString(8),
-		project,
 	)
 	return account
 }
@@ -22,19 +21,12 @@ func mockAccount(project model.Project) model.Account {
 func createAccount(t *testing.T, store *storage.Storage) (model.Account, DeleterFunc) {
 	t.Helper()
 
-	project := mockProject()
-	err := store.Project.Create(&project)
-	test.AssertNilError(t, err)
-
-	account := mockAccount(project)
-	err = store.Account.Create(&account)
+	account := mockAccount()
+	err := store.Account.Create(&account)
 	test.AssertNilError(t, err)
 
 	deleter := func(t *testing.T) {
 		err := store.Account.Delete(account)
-		test.AssertNilError(t, err)
-
-		err = store.Project.Delete(project)
 		test.AssertNilError(t, err)
 	}
 

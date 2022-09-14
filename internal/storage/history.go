@@ -22,9 +22,9 @@ func NewHistory(db postgresql.Conn) *History {
 func (s *History) Create(history *model.History) error {
 	stmt := `
 		INSERT INTO history
-			(bytes, status, started_at, finished_at, transfer_id, project_id)
+			(bytes, status, started_at, finished_at, transfer_id)
 		VALUES
-			($1, $2, $3, $4, $5, $6)
+			($1, $2, $3, $4, $5)
 		RETURNING id`
 
 	args := []any{
@@ -33,7 +33,6 @@ func (s *History) Create(history *model.History) error {
 		history.StartedAt,
 		history.FinishedAt,
 		history.TransferID,
-		history.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -60,11 +59,8 @@ func (s *History) Read(id string) (model.History, error) {
 			history.status,
 			history.started_at,
 			history.finished_at,
-			history.transfer_id,
-			project.id
+			history.transfer_id
 		FROM history
-		INNER JOIN project
-			ON project.id = history.project_id
 		WHERE history.id = $1`
 
 	var history model.History
@@ -75,7 +71,6 @@ func (s *History) Read(id string) (model.History, error) {
 		&history.StartedAt,
 		&history.FinishedAt,
 		&history.TransferID,
-		&history.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -94,7 +89,7 @@ func (s *History) Read(id string) (model.History, error) {
 	return history, nil
 }
 
-func (s *History) ReadAllByProject(project model.Project) ([]model.History, error) {
+func (s *History) ReadAll() ([]model.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -102,19 +97,15 @@ func (s *History) ReadAllByProject(project model.Project) ([]model.History, erro
 			history.status,
 			history.started_at,
 			history.finished_at,
-			history.transfer_id,
-			project.id
+			history.transfer_id
 		FROM history
-		INNER JOIN project
-			ON project.id = history.project_id
 		LEFT JOIN transfer
-			ON transfer.id = history.transfer_id
-		WHERE project.id = $1`
+			ON transfer.id = history.transfer_id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	rows, err := s.db.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -130,13 +121,12 @@ func (s *History) ReadAllByProject(project model.Project) ([]model.History, erro
 			&history.StartedAt,
 			&history.FinishedAt,
 			&history.TransferID,
-			&history.Project.ID,
 		}
 
 		err := postgresql.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, postgresql.ErrRetry) {
-				return s.ReadAllByProject(project)
+				return s.ReadAll()
 			}
 
 			return nil, err

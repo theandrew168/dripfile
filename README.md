@@ -73,8 +73,6 @@ make test
 * Guest registers and is logged in
 * Guest logs in
 * User verifies their email address (required to log in?)
-* User invites a Guest to their project (by email)
-* User deletes another User from their project (owner or admin)
 * User updates another User's role (owner or admin)
 * User deletes Account (and all ref'd info)
 * User CRUDs a Location (no delete if affected Transfers)

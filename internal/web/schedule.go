@@ -24,14 +24,7 @@ var shortcuts = map[string]string{
 }
 
 func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Request) {
-	session, err := app.requestSession(r)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	project := session.Account.Project
-	schedules, err := app.store.Schedule.ReadAllByProject(project)
+	schedules, err := app.store.Schedule.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -137,8 +130,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	project := session.Account.Project
-	schedule := model.NewSchedule(name, expr, project)
+	schedule := model.NewSchedule(name, expr)
 	err = app.store.Schedule.Create(&schedule)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
@@ -146,7 +138,6 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 	}
 
 	app.logger.Info("schedule create", map[string]string{
-		"project_id":  session.Account.Project.ID,
 		"account_id":  session.Account.ID,
 		"schedule_id": schedule.ID,
 	})
@@ -167,8 +158,7 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	// TODO: assert id belongs to session->account->project
-	// TODO: assert account role is owner, admin, or editor
+	// TODO: assert account role is admin or editor
 	schedule, err := app.store.Schedule.Read(form.ScheduleID)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -182,7 +172,6 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 	}
 
 	app.logger.Info("schedule delete", map[string]string{
-		"project_id":  session.Account.Project.ID,
 		"account_id":  session.Account.ID,
 		"schedule_id": schedule.ID,
 	})

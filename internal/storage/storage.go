@@ -13,7 +13,6 @@ const timeout = 3 * time.Second
 type Storage struct {
 	db postgresql.Conn
 
-	Project  *Project
 	Account  *Account
 	Session  *Session
 	Location *Location
@@ -26,7 +25,6 @@ func New(db postgresql.Conn) *Storage {
 	s := Storage{
 		db: db,
 
-		Project:  NewProject(db),
 		Account:  NewAccount(db),
 		Session:  NewSession(db),
 		Location: NewLocation(db),

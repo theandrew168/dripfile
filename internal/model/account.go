@@ -1,8 +1,6 @@
 package model
 
-// enum values for account / project relationship
 const (
-	RoleOwner  = "owner"
 	RoleAdmin  = "admin"
 	RoleEditor = "editor"
 	RoleViewer = "viewer"
@@ -16,16 +14,14 @@ type Account struct {
 	Password string
 	Role     string
 	Verified bool
-	Project  Project
 }
 
-func NewAccount(email, password, role string, project Project) Account {
+func NewAccount(email, password, role string) Account {
 	account := Account{
 		Email:    email,
 		Password: password,
 		Role:     role,
 		Verified: false,
-		Project:  project,
 	}
 	return account
 }

@@ -9,14 +9,13 @@ import (
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
-func mockHistory(project model.Project) model.History {
+func mockHistory() model.History {
 	history := model.NewHistory(
 		int64(test.RandomInt()),
 		test.RandomString(8),
 		test.RandomTime(),
 		test.RandomTime(),
 		test.RandomUUID(),
-		project,
 	)
 	return history
 }
@@ -24,19 +23,12 @@ func mockHistory(project model.Project) model.History {
 func createHistory(t *testing.T, store *storage.Storage) (model.History, DeleterFunc) {
 	t.Helper()
 
-	project := mockProject()
-	err := store.Project.Create(&project)
-	test.AssertNilError(t, err)
-
-	history := mockHistory(project)
-	err = store.History.Create(&history)
+	history := mockHistory()
+	err := store.History.Create(&history)
 	test.AssertNilError(t, err)
 
 	deleter := func(t *testing.T) {
 		err := store.History.Delete(history)
-		test.AssertNilError(t, err)
-
-		err = store.Project.Delete(project)
 		test.AssertNilError(t, err)
 	}
 
@@ -84,36 +76,19 @@ func TestHistoryRead(t *testing.T) {
 	test.AssertEqual(t, got.ID, history.ID)
 }
 
-func TestHistoryReadAllByProject(t *testing.T) {
+func TestHistoryReadAll(t *testing.T) {
 	t.Parallel()
 
 	store, closer := test.Storage(t)
 	defer closer()
 
-	project := mockProject()
-	err := store.Project.Create(&project)
-	test.AssertNilError(t, err)
+	history1, deleter1 := createHistory(t, store)
+	defer deleter1(t)
 
-	history1 := mockHistory(project)
-	err = store.History.Create(&history1)
-	test.AssertNilError(t, err)
+	history2, deleter2 := createHistory(t, store)
+	defer deleter2(t)
 
-	history2 := mockHistory(project)
-	err = store.History.Create(&history2)
-	test.AssertNilError(t, err)
-
-	defer func(t *testing.T) {
-		err := store.History.Delete(history2)
-		test.AssertNilError(t, err)
-
-		err = store.History.Delete(history1)
-		test.AssertNilError(t, err)
-
-		err = store.Project.Delete(project)
-		test.AssertNilError(t, err)
-	}(t)
-
-	histories, err := store.History.ReadAllByProject(project)
+	histories, err := store.History.ReadAll()
 	test.AssertNilError(t, err)
 
 	var ids []string

@@ -127,7 +127,6 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t Task) error {
 		start,
 		finish,
 		transfer.ID,
-		transfer.Project,
 	)
 
 	err = w.store.History.Create(&history)

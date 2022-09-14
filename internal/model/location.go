@@ -12,18 +12,16 @@ type Location struct {
 	// readonly (from database, after creation)
 	ID string
 
-	Kind    string
-	Name    string
-	Info    []byte
-	Project Project
+	Kind string
+	Name string
+	Info []byte
 }
 
-func NewLocation(kind, name string, info []byte, project Project) Location {
+func NewLocation(kind, name string, info []byte) Location {
 	location := Location{
-		Kind:    kind,
-		Name:    name,
-		Info:    info,
-		Project: project,
+		Kind: kind,
+		Name: name,
+		Info: info,
 	}
 	return location
 }

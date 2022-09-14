@@ -4,7 +4,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 )
 
@@ -14,26 +13,9 @@ func (s *Service) CreateAccount(email, password string) (model.Account, error) {
 		return model.Account{}, err
 	}
 
-	// create new project and new account within a single transaction
-	var project model.Project
-	var account model.Account
-	err = s.store.WithTransaction(func(store *storage.Storage) error {
-		// create project for the new account
-		project = model.NewProject()
-		err := store.Project.Create(&project)
-		if err != nil {
-			return err
-		}
-
-		// create the new account
-		account = model.NewAccount(email, string(hash), model.RoleOwner, project)
-		err = store.Account.Create(&account)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
+	// create the new account
+	account := model.NewAccount(email, string(hash), model.RoleAdmin)
+	err = s.store.Account.Create(&account)
 	if err != nil {
 		return model.Account{}, err
 	}

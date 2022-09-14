@@ -4,6 +4,8 @@ import (
 	"context"
 )
 
+// Based on:
+// https://pkg.go.dev/github.com/jackc/pgx#hdr-Transactions
 func (s *Storage) WithTransaction(operation func(store *Storage) error) error {
 	// Calling the Begin() method on the connection creates a new pgx.Tx
 	// object, which represents the in-progress database transaction.

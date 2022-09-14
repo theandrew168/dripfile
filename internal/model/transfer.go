@@ -8,16 +8,14 @@ type Transfer struct {
 	Src      Location
 	Dst      Location
 	Schedule Schedule
-	Project  Project
 }
 
-func NewTransfer(pattern string, src, dst Location, schedule Schedule, project Project) Transfer {
+func NewTransfer(pattern string, src, dst Location, schedule Schedule) Transfer {
 	transfer := Transfer{
 		Pattern:  pattern,
 		Src:      src,
 		Dst:      dst,
 		Schedule: schedule,
-		Project:  project,
 	}
 	return transfer
 }

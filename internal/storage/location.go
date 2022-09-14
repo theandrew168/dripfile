@@ -22,16 +22,15 @@ func NewLocation(db postgresql.Conn) *Location {
 func (s *Location) Create(location *model.Location) error {
 	stmt := `
 		INSERT INTO location
-			(kind, name, info, project_id)
+			(kind, name, info)
 		VALUES
-			($1, $2, $3, $4)
+			($1, $2, $3)
 		RETURNING id`
 
 	args := []any{
 		location.Kind,
 		location.Name,
 		location.Info,
-		location.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -56,11 +55,8 @@ func (s *Location) Read(id string) (model.Location, error) {
 			location.id,
 			location.kind,
 			location.name,
-			location.info,
-			project.id
+			location.info
 		FROM location
-		INNER JOIN project
-			ON project.id = location.project_id
 		WHERE location.id = $1`
 
 	var location model.Location
@@ -69,7 +65,6 @@ func (s *Location) Read(id string) (model.Location, error) {
 		&location.Kind,
 		&location.Name,
 		&location.Info,
-		&location.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -139,23 +134,19 @@ func (s *Location) Delete(location model.Location) error {
 	return nil
 }
 
-func (s *Location) ReadAllByProject(project model.Project) ([]model.Location, error) {
+func (s *Location) ReadAll() ([]model.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
 			location.kind,
 			location.name,
-			location.info,
-			project.id
-		FROM location
-		INNER JOIN project
-			ON project.id = location.project_id
-		WHERE project.id = $1`
+			location.info
+		FROM location`
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	rows, err := s.db.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -169,13 +160,12 @@ func (s *Location) ReadAllByProject(project model.Project) ([]model.Location, er
 			&location.Kind,
 			&location.Name,
 			&location.Info,
-			&location.Project.ID,
 		}
 
 		err := postgresql.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, postgresql.ErrRetry) {
-				return s.ReadAllByProject(project)
+				return s.ReadAll()
 			}
 
 			return nil, err

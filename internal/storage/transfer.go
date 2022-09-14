@@ -22,9 +22,9 @@ func NewTransfer(db postgresql.Conn) *Transfer {
 func (s *Transfer) Create(transfer *model.Transfer) error {
 	stmt := `
 		INSERT INTO transfer
-			(pattern, src_id, dst_id, schedule_id, project_id)
+			(pattern, src_id, dst_id, schedule_id)
 		VALUES
-			($1, $2, $3, $4, $5)
+			($1, $2, $3, $4)
 		RETURNING id`
 
 	args := []any{
@@ -32,7 +32,6 @@ func (s *Transfer) Create(transfer *model.Transfer) error {
 		transfer.Src.ID,
 		transfer.Dst.ID,
 		transfer.Schedule.ID,
-		transfer.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -60,17 +59,13 @@ func (s *Transfer) Read(id string) (model.Transfer, error) {
 			src.kind,
 			src.name,
 			src.info,
-			src.project_id,
 			dst.id,
 			dst.kind,
 			dst.name,
 			dst.info,
-			dst.project_id,
 			schedule.id,
 			schedule.name,
-			schedule.expr,
-			schedule.project_id,
-			project.id
+			schedule.expr
 		FROM transfer
 		INNER JOIN location src
 			ON src.id = transfer.src_id
@@ -78,8 +73,6 @@ func (s *Transfer) Read(id string) (model.Transfer, error) {
 			ON dst.id = transfer.dst_id
 		INNER JOIN schedule
 			ON schedule.id = transfer.schedule_id
-		INNER JOIN project
-			ON project.id = transfer.project_id
 		WHERE transfer.id = $1`
 
 	var transfer model.Transfer
@@ -90,17 +83,13 @@ func (s *Transfer) Read(id string) (model.Transfer, error) {
 		&transfer.Src.Kind,
 		&transfer.Src.Name,
 		&transfer.Src.Info,
-		&transfer.Src.Project.ID,
 		&transfer.Dst.ID,
 		&transfer.Dst.Kind,
 		&transfer.Dst.Name,
 		&transfer.Dst.Info,
-		&transfer.Dst.Project.ID,
 		&transfer.Schedule.ID,
 		&transfer.Schedule.Name,
 		&transfer.Schedule.Expr,
-		&transfer.Schedule.Project.ID,
-		&transfer.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -181,26 +170,20 @@ func (s *Transfer) ReadAll() ([]model.Transfer, error) {
 			src.kind,
 			src.name,
 			src.info,
-			src.project_id,
 			dst.id,
 			dst.kind,
 			dst.name,
 			dst.info,
-			dst.project_id,
 			schedule.id,
 			schedule.name,
-			schedule.expr,
-			schedule.project_id,
-			project.id
+			schedule.expr
 		FROM transfer
 		INNER JOIN location src
 			ON src.id = transfer.src_id
 		INNER JOIN location dst
 			ON dst.id = transfer.dst_id
 		INNER JOIN schedule
-			ON schedule.id = transfer.schedule_id
-		INNER JOIN project
-			ON project.id = transfer.project_id`
+			ON schedule.id = transfer.schedule_id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -221,105 +204,19 @@ func (s *Transfer) ReadAll() ([]model.Transfer, error) {
 			&transfer.Src.Kind,
 			&transfer.Src.Name,
 			&transfer.Src.Info,
-			&transfer.Src.Project.ID,
 			&transfer.Dst.ID,
 			&transfer.Dst.Kind,
 			&transfer.Dst.Name,
 			&transfer.Dst.Info,
-			&transfer.Dst.Project.ID,
 			&transfer.Schedule.ID,
 			&transfer.Schedule.Name,
 			&transfer.Schedule.Expr,
-			&transfer.Schedule.Project.ID,
-			&transfer.Project.ID,
 		}
 
 		err := postgresql.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, postgresql.ErrRetry) {
 				return s.ReadAll()
-			}
-
-			return nil, err
-		}
-
-		transfers = append(transfers, transfer)
-	}
-
-	if rows.Err() != nil {
-		return nil, rows.Err()
-	}
-
-	return transfers, nil
-}
-
-func (s *Transfer) ReadAllByProject(project model.Project) ([]model.Transfer, error) {
-	stmt := `
-		SELECT
-			transfer.id,
-			transfer.pattern,
-			src.id,
-			src.kind,
-			src.name,
-			src.info,
-			src.project_id,
-			dst.id,
-			dst.kind,
-			dst.name,
-			dst.info,
-			dst.project_id,
-			schedule.id,
-			schedule.name,
-			schedule.expr,
-			schedule.project_id,
-			project.id
-		FROM transfer
-		INNER JOIN location src
-			ON src.id = transfer.src_id
-		INNER JOIN location dst
-			ON dst.id = transfer.dst_id
-		INNER JOIN schedule
-			ON schedule.id = transfer.schedule_id
-		INNER JOIN project
-			ON project.id = transfer.project_id
-		WHERE project.id = $1`
-
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	rows, err := s.db.Query(ctx, stmt, project.ID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var transfers []model.Transfer
-	for rows.Next() {
-		var transfer model.Transfer
-		dest := []any{
-			&transfer.ID,
-			&transfer.Pattern,
-			&transfer.Src.ID,
-			&transfer.Src.Kind,
-			&transfer.Src.Name,
-			&transfer.Src.Info,
-			&transfer.Src.Project.ID,
-			&transfer.Dst.ID,
-			&transfer.Dst.Kind,
-			&transfer.Dst.Name,
-			&transfer.Dst.Info,
-			&transfer.Dst.Project.ID,
-			&transfer.Schedule.ID,
-			&transfer.Schedule.Name,
-			&transfer.Schedule.Expr,
-			&transfer.Schedule.Project.ID,
-			&transfer.Project.ID,
-		}
-
-		err := postgresql.Scan(rows, dest...)
-		if err != nil {
-			if errors.Is(err, postgresql.ErrRetry) {
-				return s.ReadAllByProject(project)
 			}
 
 			return nil, err

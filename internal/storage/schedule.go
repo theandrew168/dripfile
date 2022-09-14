@@ -22,15 +22,14 @@ func NewSchedule(db postgresql.Conn) *Schedule {
 func (s *Schedule) Create(schedule *model.Schedule) error {
 	stmt := `
 		INSERT INTO schedule
-			(name, expr, project_id)
+			(name, expr)
 		VALUES
-			($1, $2, $3)
+			($1, $2)
 		RETURNING id`
 
 	args := []any{
 		schedule.Name,
 		schedule.Expr,
-		schedule.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -54,11 +53,8 @@ func (s *Schedule) Read(id string) (model.Schedule, error) {
 		SELECT
 			schedule.id,
 			schedule.name,
-			schedule.expr,
-			project.id
+			schedule.expr
 		FROM schedule
-		INNER JOIN project
-			ON project.id = schedule.project_id
 		WHERE schedule.id = $1`
 
 	var schedule model.Schedule
@@ -66,7 +62,6 @@ func (s *Schedule) Read(id string) (model.Schedule, error) {
 		&schedule.ID,
 		&schedule.Name,
 		&schedule.Expr,
-		&schedule.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -109,22 +104,18 @@ func (s *Schedule) Delete(schedule model.Schedule) error {
 	return nil
 }
 
-func (s *Schedule) ReadAllByProject(project model.Project) ([]model.Schedule, error) {
+func (s *Schedule) ReadAll() ([]model.Schedule, error) {
 	stmt := `
 		SELECT
 			schedule.id,
 			schedule.name,
-			schedule.expr,
-			project.id
-		FROM schedule
-		INNER JOIN project
-			ON project.id = schedule.project_id
-		WHERE project.id = $1`
+			schedule.expr
+		FROM schedule`
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	rows, err := s.db.Query(ctx, stmt, project.ID)
+	rows, err := s.db.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -137,13 +128,12 @@ func (s *Schedule) ReadAllByProject(project model.Project) ([]model.Schedule, er
 			&schedule.ID,
 			&schedule.Name,
 			&schedule.Expr,
-			&schedule.Project.ID,
 		}
 
 		err := postgresql.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, postgresql.ErrRetry) {
-				return s.ReadAllByProject(project)
+				return s.ReadAll()
 			}
 
 			return nil, err

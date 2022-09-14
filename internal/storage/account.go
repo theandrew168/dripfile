@@ -22,9 +22,9 @@ func NewAccount(db postgresql.Conn) *Account {
 func (s *Account) Create(account *model.Account) error {
 	stmt := `
 		INSERT INTO account
-			(email, password, role, verified, project_id)
+			(email, password, role, verified)
 		VALUES
-			($1, $2, $3, $4, $5)
+			($1, $2, $3, $4)
 		RETURNING id`
 
 	args := []any{
@@ -32,7 +32,6 @@ func (s *Account) Create(account *model.Account) error {
 		account.Password,
 		account.Role,
 		account.Verified,
-		account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -58,11 +57,8 @@ func (s *Account) Read(id string) (model.Account, error) {
 			account.email,
 			account.password,
 			account.role,
-			account.verified,
-			project.id
+			account.verified
 		FROM account
-		INNER JOIN project
-			ON project.id = account.project_id
 		WHERE account.id = $1`
 
 	var account model.Account
@@ -72,7 +68,6 @@ func (s *Account) Read(id string) (model.Account, error) {
 		&account.Password,
 		&account.Role,
 		&account.Verified,
-		&account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
@@ -151,11 +146,8 @@ func (s *Account) ReadByEmail(email string) (model.Account, error) {
 			account.email,
 			account.password,
 			account.role,
-			account.verified,
-			project.id
+			account.verified
 		FROM account
-		INNER JOIN project
-			ON project.id = account.project_id
 		WHERE account.email = $1`
 
 	var account model.Account
@@ -165,7 +157,6 @@ func (s *Account) ReadByEmail(email string) (model.Account, error) {
 		&account.Password,
 		&account.Role,
 		&account.Verified,
-		&account.Project.ID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)

@@ -7,13 +7,7 @@ import (
 )
 
 func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request) {
-	session, err := app.requestSession(r)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	history, err := app.store.History.ReadAllByProject(session.Account.Project)
+	history, err := app.store.History.ReadAll()
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

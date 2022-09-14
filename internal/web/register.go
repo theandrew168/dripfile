@@ -90,11 +90,9 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	http.SetCookie(w, &cookie)
 
 	app.logger.Info("account create", map[string]string{
-		"project_id": session.Account.Project.ID,
 		"account_id": session.Account.ID,
 	})
 	app.logger.Info("account login", map[string]string{
-		"project_id": session.Account.Project.ID,
 		"account_id": session.Account.ID,
 	})
 
