@@ -21,7 +21,7 @@ type Application struct {
 	static http.Handler
 	api    http.Handler
 	logger *jsonlog.Logger
-	view   *view.Template
+	view   *view.View
 	srvc   *service.Service
 	store  *storage.Storage
 	queue  *task.Queue
@@ -32,7 +32,7 @@ func NewApplication(
 	api http.Handler,
 	static http.Handler,
 	logger *jsonlog.Logger,
-	view *view.Template,
+	view *view.View,
 	srvc *service.Service,
 	store *storage.Storage,
 	queue *task.Queue,

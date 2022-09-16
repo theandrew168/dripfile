@@ -17,14 +17,14 @@ type AuthLoginParams struct {
 	Form AuthLoginForm
 }
 
-func (t *Template) AuthLogin(w io.Writer, p AuthLoginParams) error {
+func (v *View) AuthLogin(w io.Writer, p AuthLoginParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/site.html",
 		"partial/*.html",
 		"auth/login.html",
 	}
-	tmpl := t.Parse(patterns...)
+	tmpl := v.r.Read(patterns...)
 	return tmpl.Execute(w, p)
 }
 
@@ -39,13 +39,13 @@ type AuthRegisterParams struct {
 	Form AuthRegisterForm
 }
 
-func (t *Template) AuthRegister(w io.Writer, p AuthRegisterParams) error {
+func (v *View) AuthRegister(w io.Writer, p AuthRegisterParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/site.html",
 		"partial/*.html",
 		"auth/register.html",
 	}
-	tmpl := t.Parse(patterns...)
+	tmpl := v.r.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

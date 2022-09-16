@@ -10,13 +10,13 @@ type HistoryListParams struct {
 	History []model.History
 }
 
-func (t *Template) HistoryList(w io.Writer, p HistoryListParams) error {
+func (v *View) HistoryList(w io.Writer, p HistoryListParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"history/list.html",
 	}
-	tmpl := t.Parse(patterns...)
+	tmpl := v.r.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

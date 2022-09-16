@@ -26,14 +26,14 @@ type LocationCreateParams struct {
 	Form LocationCreateForm
 }
 
-func (t *Template) LocationCreate(w io.Writer, p LocationCreateParams) error {
+func (v *View) LocationCreate(w io.Writer, p LocationCreateParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"location/create.html",
 	}
-	tmpl := t.Parse(patterns...)
+	tmpl := v.r.Read(patterns...)
 	return tmpl.Execute(w, p)
 }
 
@@ -41,14 +41,14 @@ type LocationReadParams struct {
 	Location model.Location
 }
 
-func (t *Template) LocationRead(w io.Writer, p LocationReadParams) error {
+func (v *View) LocationRead(w io.Writer, p LocationReadParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"location/read.html",
 	}
-	tmpl := t.Parse(patterns...)
+	tmpl := v.r.Read(patterns...)
 	return tmpl.Execute(w, p)
 }
 
@@ -56,13 +56,13 @@ type LocationListParams struct {
 	Locations []model.Location
 }
 
-func (t *Template) LocationList(w io.Writer, p LocationListParams) error {
+func (v *View) LocationList(w io.Writer, p LocationListParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"location/list.html",
 	}
-	tmpl := t.Parse(patterns...)
+	tmpl := v.r.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

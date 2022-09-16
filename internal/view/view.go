@@ -5,13 +5,13 @@ import (
 	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
-type Template struct {
-	API *api.Template
-	Web *web.Template
+type View struct {
+	API *api.View
+	Web *web.View
 }
 
-func New(reload bool) *Template {
-	t := Template{
+func New(reload bool) *View {
+	t := View{
 		API: api.New(reload),
 		Web: web.New(reload),
 	}

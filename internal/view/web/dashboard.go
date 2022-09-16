@@ -16,12 +16,12 @@ type DashboardParams struct {
 	Form DashboardForm
 }
 
-func (t *Template) Dashboard(w io.Writer, p DashboardParams) error {
+func (v *View) Dashboard(w io.Writer, p DashboardParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"dashboard.html",
 	}
-	tmpl := t.Parse(patterns...)
+	tmpl := v.r.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

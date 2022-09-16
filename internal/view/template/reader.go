@@ -7,28 +7,25 @@ import (
 	"strings"
 )
 
-type Template struct {
+type Reader struct {
 	cache map[string]*template.Template
 
 	files  fs.FS
 	reload bool
 }
 
-func New(files fs.FS, reload bool) Template {
-	cache := make(map[string]*template.Template)
-
-	t := Template{
-		cache: cache,
+func NewReader(files fs.FS, reload bool) *Reader {
+	r := Reader{
+		cache: make(map[string]*template.Template),
 
 		files:  files,
 		reload: reload,
 	}
-	return t
+	return &r
 }
 
-func (t *Template) Parse(patterns ...string) *template.Template {
-	l := len(patterns)
-	if l == 0 {
+func (r *Reader) Read(patterns ...string) *template.Template {
+	if len(patterns) == 0 {
 		return nil
 	}
 
@@ -36,8 +33,8 @@ func (t *Template) Parse(patterns ...string) *template.Template {
 	key := strings.Join(patterns, ",")
 
 	// load from cache if not doing dynamic reloads
-	if !t.reload {
-		tmpl, ok := t.cache[key]
+	if !r.reload {
+		tmpl, ok := r.cache[key]
 		if ok {
 			return tmpl
 		}
@@ -47,11 +44,11 @@ func (t *Template) Parse(patterns ...string) *template.Template {
 	// https://pkg.go.dev/text/template#Template.ParseFiles
 	name := path.Base(patterns[0])
 
-	tmpl, err := template.New(name).ParseFS(t.files, patterns...)
+	tmpl, err := template.New(name).ParseFS(r.files, patterns...)
 	if err != nil {
 		panic(err)
 	}
 
-	t.cache[key] = tmpl
+	r.cache[key] = tmpl
 	return tmpl
 }

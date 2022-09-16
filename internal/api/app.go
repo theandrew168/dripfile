@@ -12,13 +12,13 @@ import (
 
 type Application struct {
 	logger *jsonlog.Logger
-	view   *view.Template
+	view   *view.View
 	srvc   *service.Service
 }
 
 func NewApplication(
 	logger *jsonlog.Logger,
-	view *view.Template,
+	view *view.View,
 	srvc *service.Service,
 ) *Application {
 	app := Application{

@@ -11,11 +11,11 @@ import (
 //go:embed template
 var templateFS embed.FS
 
-type Template struct {
-	template.Template
+type View struct {
+	r *template.Reader
 }
 
-func New(reload bool) *Template {
+func New(reload bool) *View {
 	var files fs.FS
 	if reload {
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
@@ -25,8 +25,8 @@ func New(reload bool) *Template {
 		files, _ = fs.Sub(templateFS, "template")
 	}
 
-	t := Template{
-		template.New(files, reload),
+	v := View{
+		r: template.NewReader(files, reload),
 	}
-	return &t
+	return &v
 }
