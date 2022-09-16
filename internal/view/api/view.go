@@ -5,7 +5,7 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/theandrew168/dripfile/internal/view/template"
+	"github.com/theandrew168/dripfile/internal/template"
 )
 
 //go:embed template
