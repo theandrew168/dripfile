@@ -2,24 +2,25 @@ package test
 
 import (
 	"errors"
+	"reflect"
 	"strings"
 	"testing"
 
 	"golang.org/x/exp/slices"
 )
 
-func AssertEqual[T comparable](t *testing.T, got, want T) {
+func AssertEqual(t *testing.T, got, want any) {
 	t.Helper()
 
-	if got != want {
+	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("got %v; want %v", got, want)
 	}
 }
 
-func AssertNotEqual[T comparable](t *testing.T, got, notwant T) {
+func AssertNotEqual(t *testing.T, got, notwant any) {
 	t.Helper()
 
-	if got == notwant {
+	if reflect.DeepEqual(got, notwant) {
 		t.Fatalf("got (but don't want) %v", got)
 	}
 }

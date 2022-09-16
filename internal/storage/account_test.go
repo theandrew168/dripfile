@@ -45,20 +45,6 @@ func TestAccountCreate(t *testing.T) {
 	test.AssertNotEqual(t, account.ID, "")
 }
 
-func TestAccountDelete(t *testing.T) {
-	t.Parallel()
-
-	store, closer := test.Storage(t)
-	defer closer()
-
-	account, deleter := createAccount(t, store)
-	deleter(t)
-
-	// verify that ID isn't present anymore
-	_, err := store.Account.Read(account.ID)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
-}
-
 func TestAccountCreateUnique(t *testing.T) {
 	t.Parallel()
 
@@ -123,4 +109,18 @@ func TestAccountUpdate(t *testing.T) {
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, got, account)
+}
+
+func TestAccountDelete(t *testing.T) {
+	t.Parallel()
+
+	store, closer := test.Storage(t)
+	defer closer()
+
+	account, deleter := createAccount(t, store)
+	deleter(t)
+
+	// verify that ID isn't present anymore
+	_, err := store.Account.Read(account.ID)
+	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
 }

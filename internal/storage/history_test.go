@@ -47,20 +47,6 @@ func TestHistoryCreate(t *testing.T) {
 	test.AssertNotEqual(t, history.ID, "")
 }
 
-func TestHistoryDelete(t *testing.T) {
-	t.Parallel()
-
-	store, closer := test.Storage(t)
-	defer closer()
-
-	history, deleter := createHistory(t, store)
-	deleter(t)
-
-	// verify that ID isn't present anymore
-	_, err := store.History.Read(history.ID)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
-}
-
 func TestHistoryRead(t *testing.T) {
 	t.Parallel()
 
@@ -98,4 +84,18 @@ func TestHistoryReadAll(t *testing.T) {
 
 	test.AssertSliceContains(t, ids, history1.ID)
 	test.AssertSliceContains(t, ids, history2.ID)
+}
+
+func TestHistoryDelete(t *testing.T) {
+	t.Parallel()
+
+	store, closer := test.Storage(t)
+	defer closer()
+
+	history, deleter := createHistory(t, store)
+	deleter(t)
+
+	// verify that ID isn't present anymore
+	_, err := store.History.Read(history.ID)
+	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
 }
