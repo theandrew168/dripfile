@@ -120,7 +120,7 @@ func TestAccountDelete(t *testing.T) {
 	account, deleter := createAccount(t, store)
 	deleter(t)
 
-	// verify that ID isn't present anymore
+	// verify that the account isn't present anymore
 	_, err := store.Account.Read(account.ID)
 	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
 }

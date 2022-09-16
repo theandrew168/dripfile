@@ -95,7 +95,7 @@ func TestHistoryDelete(t *testing.T) {
 	history, deleter := createHistory(t, store)
 	deleter(t)
 
-	// verify that ID isn't present anymore
+	// verify that the record isn't present anymore
 	_, err := store.History.Read(history.ID)
 	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
 }

@@ -115,7 +115,7 @@ func TestLocationDelete(t *testing.T) {
 	location, deleter := createLocation(t, store)
 	deleter(t)
 
-	// verify that ID isn't present anymore
+	// verify that the record isn't present anymore
 	_, err := store.Location.Read(location.ID)
 	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
 }
