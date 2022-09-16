@@ -46,6 +46,9 @@ func (r *Reader) Read(patterns ...string) *template.Template {
 
 	tmpl, err := template.New(name).ParseFS(r.files, patterns...)
 	if err != nil {
+		// attempting to read a template that doesn't exist indicates
+		// a programming error: panic instead of returning an error
+		// to keep the calling code cleaner / simpler
 		panic(err)
 	}
 
