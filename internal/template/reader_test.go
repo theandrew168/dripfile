@@ -9,6 +9,17 @@ import (
 	"github.com/theandrew168/dripfile/internal/test"
 )
 
+func TestReaderEmpty(t *testing.T) {
+	t.Parallel()
+
+	reader := template.NewReader(nil, false)
+
+	tmpl := reader.Read()
+	if tmpl != nil {
+		t.Fatalf("got: %v; want: nil", tmpl)
+	}
+}
+
 func TestReaderBasic(t *testing.T) {
 	t.Parallel()
 
