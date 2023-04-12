@@ -28,13 +28,6 @@ These containers can be stopped via:
 docker compose down
 ```
 
-### Tailwind CSS
-If you plan to work on any web pages within this project, you'll want to install the [tailwindcss CLI](https://tailwindcss.com/blog/standalone-cli) in order to dynamically recompile the CSS.
-Once installed, you can use the `frontend` make target to run the web server and tailwindcss CLI concurrently:
-```
-make -j2 frontend
-```
-
 ### Running
 To start the web server:
 ```
@@ -54,6 +47,18 @@ make worker
 To apply any pending database migrations:
 ```
 make migrate
+```
+
+### Tailwind CSS
+If you plan to work on any web pages within this project, you'll want to install the [tailwindcss CLI](https://tailwindcss.com/blog/standalone-cli) in order to dynamically recompile the CSS.
+Once installed, you can use the `frontend` make target to run the web server and tailwindcss CLI concurrently:
+```
+make -j2 frontend
+```
+
+The CSS can be manually rebuilt via:
+```
+make css
 ```
 
 ### Testing
