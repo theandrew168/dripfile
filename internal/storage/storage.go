@@ -3,7 +3,7 @@ package storage
 import (
 	"time"
 
-	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/database"
 )
 
 // default query timeout
@@ -11,7 +11,7 @@ const timeout = 3 * time.Second
 
 // aggregation of core storage types
 type Storage struct {
-	db postgresql.Conn
+	db database.Conn
 
 	Account  *Account
 	Session  *Session
@@ -21,7 +21,7 @@ type Storage struct {
 	History  *History
 }
 
-func New(db postgresql.Conn) *Storage {
+func New(db database.Conn) *Storage {
 	s := Storage{
 		db: db,
 

@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Account struct {
-	db postgresql.Conn
+	db database.Conn
 }
 
-func NewAccount(db postgresql.Conn) *Account {
+func NewAccount(db database.Conn) *Account {
 	s := Account{
 		db: db,
 	}
@@ -38,9 +38,9 @@ func (s *Account) Create(account *model.Account) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := postgresql.Scan(row, &account.ID)
+	err := database.Scan(row, &account.ID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(account)
 		}
 
@@ -74,9 +74,9 @@ func (s *Account) Read(id string) (model.Account, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := postgresql.Scan(row, dest...)
+	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -107,9 +107,9 @@ func (s *Account) Update(account model.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt, args...)
+	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Update(account)
 		}
 
@@ -127,9 +127,9 @@ func (s *Account) Delete(account model.Account) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt, account.ID)
+	err := database.Exec(s.db, ctx, stmt, account.ID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(account)
 		}
 
@@ -163,9 +163,9 @@ func (s *Account) ReadByEmail(email string) (model.Account, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, email)
-	err := postgresql.Scan(row, dest...)
+	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.ReadByEmail(email)
 		}
 

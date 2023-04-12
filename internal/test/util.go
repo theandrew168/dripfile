@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/storage"
 )
 
@@ -23,11 +23,11 @@ func Config(t *testing.T) config.Config {
 	return cfg
 }
 
-func Database(t *testing.T) (postgresql.Conn, CloserFunc) {
+func Database(t *testing.T) (database.Conn, CloserFunc) {
 	t.Helper()
 
 	cfg := Config(t)
-	conn, err := postgresql.Connect(cfg.PostgreSQLURL)
+	conn, err := database.Connect(cfg.DatabaseURI)
 	if err != nil {
 		t.Fatal(err)
 	}

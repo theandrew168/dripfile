@@ -16,10 +16,10 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/scheduler"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/service"
@@ -66,7 +66,7 @@ func run() int {
 	copy(secretKey[:], secretKeyBytes)
 	box := secret.NewBox(secretKey)
 
-	pool, err := postgresql.ConnectPool(cfg.PostgreSQLURL)
+	pool, err := database.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
 		logger.Error(err, nil)
 		return 1
@@ -97,8 +97,8 @@ func run() int {
 
 	// init the mailer interface
 	var mailer mail.Mailer
-	if cfg.SMTPURL != "" {
-		mailer, err = mail.NewSMTPMailer(cfg.SMTPURL)
+	if cfg.SMTPURI != "" {
+		mailer, err = mail.NewSMTPMailer(cfg.SMTPURI)
 	} else {
 		logger.Infof("using mock mailer")
 		mailer, err = mail.NewMockMailer(logger)

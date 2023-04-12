@@ -6,8 +6,8 @@ import (
 
 	"github.com/alexedwards/flow"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/task"
 	"github.com/theandrew168/dripfile/internal/view/web"
 )
@@ -33,7 +33,7 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 	id := flow.Param(r.Context(), "id")
 	transfer, err := app.store.Transfer.Read(id)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			app.notFoundResponse(w, r)
 			return
 		}
@@ -124,7 +124,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 
 	src, err := app.store.Location.Read(form.SrcID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			app.badRequestResponse(w, r)
 			return
 		}
@@ -135,7 +135,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 
 	dst, err := app.store.Location.Read(form.DstID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			app.badRequestResponse(w, r)
 			return
 		}
@@ -146,7 +146,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 
 	schedule, err := app.store.Schedule.Read(form.ScheduleID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			app.badRequestResponse(w, r)
 			return
 		}

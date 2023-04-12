@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Location struct {
-	db postgresql.Conn
+	db database.Conn
 }
 
-func NewLocation(db postgresql.Conn) *Location {
+func NewLocation(db database.Conn) *Location {
 	s := Location{
 		db: db,
 	}
@@ -37,9 +37,9 @@ func (s *Location) Create(location *model.Location) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := postgresql.Scan(row, &location.ID)
+	err := database.Scan(row, &location.ID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(location)
 		}
 
@@ -71,9 +71,9 @@ func (s *Location) Read(id string) (model.Location, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := postgresql.Scan(row, dest...)
+	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -102,9 +102,9 @@ func (s *Location) Update(location model.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt, args...)
+	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Update(location)
 		}
 
@@ -122,9 +122,9 @@ func (s *Location) Delete(location model.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt, location.ID)
+	err := database.Exec(s.db, ctx, stmt, location.ID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(location)
 		}
 
@@ -162,9 +162,9 @@ func (s *Location) ReadAll() ([]model.Location, error) {
 			&location.Info,
 		}
 
-		err := postgresql.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, postgresql.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAll()
 			}
 

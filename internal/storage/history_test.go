@@ -3,8 +3,8 @@ package storage_test
 import (
 	"testing"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/test"
 )
@@ -97,5 +97,5 @@ func TestHistoryDelete(t *testing.T) {
 
 	// verify that the record isn't present anymore
 	_, err := store.History.Read(history.ID)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
+	test.AssertErrorIs(t, err, database.ErrNotExist)
 }

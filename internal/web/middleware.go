@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type contextKey string
@@ -38,12 +38,12 @@ func (app *Application) requireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		// check for session in postgresql
+		// check for session in database
 		sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID.Value)))
 		session, err := app.store.Session.Read(sessionHash)
 		if err != nil {
 			// user has an invalid session cookie, delete it
-			if errors.Is(err, postgresql.ErrNotExist) {
+			if errors.Is(err, database.ErrNotExist) {
 				cookie := NewExpiredCookie(sessionIDCookieName)
 				http.SetCookie(w, &cookie)
 			}

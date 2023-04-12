@@ -1,16 +1,21 @@
-package postgresql
+package database
 
 import (
-	"context"
 	"errors"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v4"
 )
 
-func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
-	_, err := db.Exec(ctx, stmt, args...)
+func Scan(row pgx.Row, dest ...any) error {
+	err := row.Scan(dest...)
 	if err != nil {
+		// check for empty result (from QueryRow)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return ErrNotExist
+		}
+
 		// check for more specific errors
 		// https://github.com/jackc/pgx/wiki/Error-Handling
 		var pgErr *pgconn.PgError

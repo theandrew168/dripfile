@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type History struct {
-	db postgresql.Conn
+	db database.Conn
 }
 
-func NewHistory(db postgresql.Conn) *History {
+func NewHistory(db database.Conn) *History {
 	s := History{
 		db: db,
 	}
@@ -39,9 +39,9 @@ func (s *History) Create(history *model.History) error {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, args...)
-	err := postgresql.Scan(row, &history.ID)
+	err := database.Scan(row, &history.ID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(history)
 		}
 
@@ -77,9 +77,9 @@ func (s *History) Read(id string) (model.History, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, id)
-	err := postgresql.Scan(row, dest...)
+	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(id)
 		}
 
@@ -123,9 +123,9 @@ func (s *History) ReadAll() ([]model.History, error) {
 			&history.TransferID,
 		}
 
-		err := postgresql.Scan(rows, dest...)
+		err := database.Scan(rows, dest...)
 		if err != nil {
-			if errors.Is(err, postgresql.ErrRetry) {
+			if errors.Is(err, database.ErrRetry) {
 				return s.ReadAll()
 			}
 
@@ -150,9 +150,9 @@ func (s *History) Delete(history model.History) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt, history.ID)
+	err := database.Exec(s.db, ctx, stmt, history.ID)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(history)
 		}
 

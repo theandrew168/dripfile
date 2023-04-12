@@ -5,17 +5,17 @@ import (
 	"errors"
 	"time"
 
-	"github.com/theandrew168/dripfile/internal/postgresql"
+	"github.com/theandrew168/dripfile/internal/database"
 )
 
 // default query timeout
 const timeout = 3 * time.Second
 
 type Queue struct {
-	db postgresql.Conn
+	db database.Conn
 }
 
-func NewQueue(db postgresql.Conn) *Queue {
+func NewQueue(db database.Conn) *Queue {
 	q := Queue{
 		db: db,
 	}
@@ -39,9 +39,9 @@ func (q *Queue) Submit(t Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(q.db, ctx, stmt, args...)
+	err := database.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return q.Submit(t)
 		}
 
@@ -80,9 +80,9 @@ func (q *Queue) Claim() (Task, error) {
 	}
 
 	row := q.db.QueryRow(ctx, stmt)
-	err := postgresql.Scan(row, dest...)
+	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return q.Claim()
 		}
 
@@ -117,9 +117,9 @@ func (q *Queue) finishFailure(t Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(q.db, ctx, stmt, args...)
+	err := database.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return q.finishFailure(t)
 		}
 
@@ -141,9 +141,9 @@ func (q *Queue) finishSuccess(t Task) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(q.db, ctx, stmt, args...)
+	err := database.Exec(q.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return q.finishSuccess(t)
 		}
 

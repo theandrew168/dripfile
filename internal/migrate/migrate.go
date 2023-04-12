@@ -7,11 +7,11 @@ import (
 	"io/fs"
 	"sort"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
-func Migrate(logger *jsonlog.Logger, db postgresql.Conn, files embed.FS) error {
+func Migrate(logger *jsonlog.Logger, db database.Conn, files embed.FS) error {
 	ctx := context.Background()
 
 	// attempt to create extensions (requires superuser privileges)

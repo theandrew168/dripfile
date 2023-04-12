@@ -8,9 +8,9 @@ import (
 
 	"golang.org/x/sync/semaphore"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
 )
@@ -71,7 +71,7 @@ func (w *Worker) Run(ctx context.Context) error {
 					sem.Release(1)
 
 					// break loop if no new tasks remain
-					if errors.Is(err, postgresql.ErrNotExist) {
+					if errors.Is(err, database.ErrNotExist) {
 						break
 					}
 					return err

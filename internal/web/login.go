@@ -9,8 +9,8 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
@@ -49,7 +49,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 
 	account, err := app.store.Account.ReadByEmail(form.Email)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			form.SetError("Invalid email or password")
 
 			// re-render with errors
@@ -96,7 +96,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	sessionHash := fmt.Sprintf("%x", sha256.Sum256([]byte(sessionID)))
 	expiry := time.Now().AddDate(0, 0, 7)
 
-	// create session model and store in the postgresql
+	// create session model and store in the database
 	session := model.NewSession(sessionHash, expiry, account)
 	err = app.store.Session.Create(&session)
 	if err != nil {

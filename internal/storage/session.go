@@ -4,15 +4,15 @@ import (
 	"context"
 	"errors"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 )
 
 type Session struct {
-	db postgresql.Conn
+	db database.Conn
 }
 
-func NewSession(db postgresql.Conn) *Session {
+func NewSession(db database.Conn) *Session {
 	s := Session{
 		db: db,
 	}
@@ -35,9 +35,9 @@ func (s *Session) Create(session *model.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt, args...)
+	err := database.Exec(s.db, ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Create(session)
 		}
 
@@ -77,9 +77,9 @@ func (s *Session) Read(hash string) (model.Session, error) {
 	defer cancel()
 
 	row := s.db.QueryRow(ctx, stmt, hash)
-	err := postgresql.Scan(row, dest...)
+	err := database.Scan(row, dest...)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Read(hash)
 		}
 
@@ -97,9 +97,9 @@ func (s *Session) Delete(session model.Session) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt, session.Hash)
+	err := database.Exec(s.db, ctx, stmt, session.Hash)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.Delete(session)
 		}
 
@@ -117,9 +117,9 @@ func (s *Session) DeleteExpired() error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	err := postgresql.Exec(s.db, ctx, stmt)
+	err := database.Exec(s.db, ctx, stmt)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrRetry) {
+		if errors.Is(err, database.ErrRetry) {
 			return s.DeleteExpired()
 		}
 

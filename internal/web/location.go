@@ -7,9 +7,9 @@ import (
 
 	"github.com/alexedwards/flow"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/fileserver"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
@@ -34,7 +34,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 	id := flow.Param(r.Context(), "id")
 	location, err := app.store.Location.Read(id)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrNotExist) {
+		if errors.Is(err, database.ErrNotExist) {
 			app.notFoundResponse(w, r)
 			return
 		}

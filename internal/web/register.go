@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
@@ -47,7 +47,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 
 	account, err := app.srvc.CreateAccount(form.Email, form.Password)
 	if err != nil {
-		if errors.Is(err, postgresql.ErrExist) {
+		if errors.Is(err, database.ErrExist) {
 			form.SetFieldError("Email", "An account with this email already exists")
 
 			// re-render with errors

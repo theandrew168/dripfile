@@ -1,8 +1,8 @@
 package storage_test
 
 import (
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/test"
 
@@ -79,7 +79,7 @@ func TestSessionDelete(t *testing.T) {
 
 	// verify that the record isn't present anymore
 	_, err := store.Session.Read(session.Hash)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
+	test.AssertErrorIs(t, err, database.ErrNotExist)
 }
 
 func TestSessionDeleteExpired(t *testing.T) {
@@ -117,9 +117,9 @@ func TestSessionDeleteExpired(t *testing.T) {
 
 	// verify that the older sessions got deleted
 	_, err = store.Session.Read(session.Hash)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
+	test.AssertErrorIs(t, err, database.ErrNotExist)
 	_, err = store.Session.Read(older.Hash)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
+	test.AssertErrorIs(t, err, database.ErrNotExist)
 
 	// verify that the newer session did NOT get deleted
 	_, err = store.Session.Read(newer.Hash)

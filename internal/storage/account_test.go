@@ -3,8 +3,8 @@ package storage_test
 import (
 	"testing"
 
+	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/postgresql"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/test"
 )
@@ -55,7 +55,7 @@ func TestAccountCreateUnique(t *testing.T) {
 	defer deleter(t)
 
 	err := store.Account.Create(&account)
-	test.AssertErrorIs(t, err, postgresql.ErrExist)
+	test.AssertErrorIs(t, err, database.ErrExist)
 }
 
 func TestAccountRead(t *testing.T) {
@@ -122,5 +122,5 @@ func TestAccountDelete(t *testing.T) {
 
 	// verify that the account isn't present anymore
 	_, err := store.Account.Read(account.ID)
-	test.AssertErrorIs(t, err, postgresql.ErrNotExist)
+	test.AssertErrorIs(t, err, database.ErrNotExist)
 }
