@@ -93,7 +93,11 @@ func run() int {
 	}
 
 	store := storage.New(pool)
-	queue := task.NewQueue(pool)
+	queue, err := task.NewQueue(pool)
+	if err != nil {
+		logger.Error(err, nil)
+		return 1
+	}
 
 	// init the mailer interface
 	var mailer mail.Mailer

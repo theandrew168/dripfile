@@ -15,11 +15,26 @@ type Queue struct {
 	db database.Conn
 }
 
-func NewQueue(db database.Conn) *Queue {
+func NewQueue(db database.Conn) (*Queue, error) {
+	ctx := context.Background()
+
+	// create task_queue table if it doesn't exist
+	_, err := db.Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS task_queue (
+			id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+			kind text NOT NULL,
+			info jsonb NOT NULL,
+			status text NOT NULL,
+			error text NOT NULL
+		)`)
+	if err != nil {
+		return nil, err
+	}
+
 	q := Queue{
 		db: db,
 	}
-	return &q
+	return &q, nil
 }
 
 func (q *Queue) Submit(t Task) error {

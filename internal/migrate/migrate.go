@@ -28,7 +28,7 @@ func Migrate(logger *jsonlog.Logger, db database.Conn, files embed.FS) error {
 		}
 	}
 
-	// create migrations table if it doesn't exist
+	// create migration table if it doesn't exist
 	_, err := db.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS migration (
 			id SERIAL PRIMARY KEY,
