@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/theandrew168/dripfile/internal/view/web"
+	"github.com/theandrew168/dripfile/internal/html/web"
 )
 
 func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {

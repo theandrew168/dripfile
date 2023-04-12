@@ -17,6 +17,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/html"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/scheduler"
@@ -24,7 +25,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
-	"github.com/theandrew168/dripfile/internal/view"
 	"github.com/theandrew168/dripfile/internal/web"
 )
 
@@ -160,7 +160,7 @@ func run() int {
 		static, _ = fs.Sub(staticFS, "static")
 	}
 
-	view := view.New(debug)
+	view := html.New(debug)
 
 	staticHandler := http.FileServer(http.FS(static))
 

@@ -8,11 +8,11 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 
+	"github.com/theandrew168/dripfile/internal/html"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
-	"github.com/theandrew168/dripfile/internal/view"
 )
 
 type Application struct {
@@ -20,7 +20,7 @@ type Application struct {
 
 	static http.Handler
 	logger *slog.Logger
-	view   *view.View
+	view   *html.View
 	srvc   *service.Service
 	store  *storage.Storage
 	queue  *task.Queue
@@ -30,7 +30,7 @@ type Application struct {
 func NewApplication(
 	static http.Handler,
 	logger *slog.Logger,
-	view *view.View,
+	view *html.View,
 	srvc *service.Service,
 	store *storage.Storage,
 	queue *task.Queue,

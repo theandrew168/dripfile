@@ -5,7 +5,7 @@ import (
 	"testing"
 	"testing/fstest"
 
-	"github.com/theandrew168/dripfile/internal/template"
+	"github.com/theandrew168/dripfile/internal/html/template"
 	"github.com/theandrew168/dripfile/internal/test"
 )
 

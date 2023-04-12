@@ -10,8 +10,8 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/fileserver"
+	"github.com/theandrew168/dripfile/internal/html/web"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {

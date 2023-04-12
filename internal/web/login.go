@@ -11,8 +11,8 @@ import (
 	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/html/web"
 	"github.com/theandrew168/dripfile/internal/model"
-	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {

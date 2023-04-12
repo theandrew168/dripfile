@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/view/web"
+	"github.com/theandrew168/dripfile/internal/html/web"
 )
 
 func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request) {
