@@ -6,6 +6,7 @@ import (
 
 	"github.com/alexedwards/flow"
 	"github.com/lnquy/cron"
+	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
@@ -137,10 +138,10 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("schedule create", map[string]string{
-		"account_id":  session.Account.ID,
-		"schedule_id": schedule.ID,
-	})
+	app.logger.Info("schedule create",
+		slog.String("account_id", session.Account.ID),
+		slog.String("schedule_id", schedule.ID),
+	)
 	http.Redirect(w, r, "/schedule/"+schedule.ID, http.StatusSeeOther)
 }
 
@@ -171,9 +172,9 @@ func (app *Application) handleScheduleDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("schedule delete", map[string]string{
-		"account_id":  session.Account.ID,
-		"schedule_id": schedule.ID,
-	})
+	app.logger.Info("schedule delete",
+		slog.String("account_id", session.Account.ID),
+		slog.String("schedule_id", schedule.ID),
+	)
 	http.Redirect(w, r, "/schedule", http.StatusSeeOther)
 }

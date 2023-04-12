@@ -3,13 +3,12 @@ package task
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
+	"golang.org/x/exp/slog"
 	"golang.org/x/sync/semaphore"
 
 	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -22,7 +21,7 @@ const (
 type TaskHandler func(ctx context.Context, t Task) error
 
 type Worker struct {
-	logger *jsonlog.Logger
+	logger *slog.Logger
 	store  *storage.Storage
 	queue  *Queue
 	box    *secret.Box
@@ -30,7 +29,7 @@ type Worker struct {
 }
 
 func NewWorker(
-	logger *jsonlog.Logger,
+	logger *slog.Logger,
 	store *storage.Storage,
 	queue *Queue,
 	box *secret.Box,
@@ -87,12 +86,12 @@ func (w *Worker) Run(ctx context.Context) error {
 	}
 
 stop:
-	w.logger.Info("stopping worker", nil)
+	w.logger.Info("stopping worker")
 
 	// wait for all tasks to finish
 	sem.Acquire(context.Background(), maxConcurrency)
 
-	w.logger.Info("stopped worker", nil)
+	w.logger.Info("stopped worker")
 	return nil
 }
 
@@ -106,17 +105,17 @@ func (w *Worker) handleTask(t Task) {
 
 	handler, ok := handlers[t.Kind]
 	if !ok {
-		w.logger.Error(fmt.Errorf("unknown task kind"), map[string]string{
-			"task_id":   t.ID,
-			"task_kind": string(t.Kind),
-		})
+		w.logger.Error("unknown task kind",
+			slog.String("task_id", t.ID),
+			slog.String("task_kind", string(t.Kind)),
+		)
 		return
 	}
 
-	w.logger.Info("task start", map[string]string{
-		"task_id":   t.ID,
-		"task_kind": string(t.Kind),
-	})
+	w.logger.Info("task start",
+		slog.String("task_id", t.ID),
+		slog.String("task_kind", string(t.Kind)),
+	)
 
 	err := handler(context.Background(), t)
 	if err != nil {
@@ -124,24 +123,24 @@ func (w *Worker) handleTask(t Task) {
 		t.Status = StatusFailure
 		t.Error = err.Error()
 
-		w.logger.Info("task failure", map[string]string{
-			"task_id":    t.ID,
-			"task_kind":  string(t.Kind),
-			"task_error": t.Error,
-		})
+		w.logger.Info("task failure",
+			slog.String("task_id", t.ID),
+			slog.String("task_kind", string(t.Kind)),
+			slog.String("task_error", t.Error),
+		)
 	} else {
-		w.logger.Info("task success", map[string]string{
-			"task_id":   t.ID,
-			"task_kind": string(t.Kind),
-		})
+		w.logger.Info("task success",
+			slog.String("task_id", t.ID),
+			slog.String("task_kind", string(t.Kind)),
+		)
 	}
 
 	err = w.queue.Finish(t)
 	if err != nil {
-		w.logger.Error(err, map[string]string{
-			"task_id":   t.ID,
-			"task_kind": string(t.Kind),
-		})
+		w.logger.Error(err.Error(),
+			slog.String("task_id", t.ID),
+			slog.String("task_kind", string(t.Kind)),
+		)
 		return
 	}
 }

@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/theandrew168/dripfile/internal/view/web"
 )
 
@@ -52,8 +54,8 @@ func (app *Application) handleAccountDeleteForm(w http.ResponseWriter, r *http.R
 	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("account delete", map[string]string{
-		"account_id": session.Account.ID,
-	})
+	app.logger.Info("account delete",
+		slog.String("account_id", session.Account.ID),
+	)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

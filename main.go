@@ -13,11 +13,11 @@ import (
 	"syscall"
 
 	"github.com/coreos/go-systemd/daemon"
+	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/scheduler"
@@ -40,7 +40,7 @@ func main() {
 }
 
 func run() int {
-	logger := jsonlog.New(os.Stdout)
+	logger := slog.New(slog.NewJSONHandler(os.Stdout))
 
 	debug := false
 	if os.Getenv("DEBUG") != "" {
@@ -52,13 +52,13 @@ func run() int {
 
 	cfg, err := config.ReadFile(*conf)
 	if err != nil {
-		logger.Error(err, nil)
+		logger.Error(err.Error())
 		return 1
 	}
 
 	secretKeyBytes, err := hex.DecodeString(cfg.SecretKey)
 	if err != nil {
-		logger.Error(err, nil)
+		logger.Error(err.Error())
 		return 1
 	}
 
@@ -68,7 +68,7 @@ func run() int {
 
 	pool, err := database.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
-		logger.Error(err, nil)
+		logger.Error(err.Error())
 		return 1
 	}
 	defer pool.Close()
@@ -86,7 +86,7 @@ func run() int {
 	if action == "migrate" {
 		err := migrate.Migrate(logger, pool, migrationFS)
 		if err != nil {
-			logger.Error(err, nil)
+			logger.Error(err.Error())
 			return 1
 		}
 		return 0
@@ -95,7 +95,7 @@ func run() int {
 	store := storage.New(pool)
 	queue, err := task.NewQueue(pool)
 	if err != nil {
-		logger.Error(err, nil)
+		logger.Error(err.Error())
 		return 1
 	}
 
@@ -104,11 +104,11 @@ func run() int {
 	if cfg.SMTPURI != "" {
 		mailer, err = mail.NewSMTPMailer(cfg.SMTPURI)
 	} else {
-		logger.Infof("using mock mailer")
+		logger.Info("using mock mailer")
 		mailer, err = mail.NewMockMailer(logger)
 	}
 	if err != nil {
-		logger.Error(err, nil)
+		logger.Error(err.Error())
 		return 1
 	}
 
@@ -124,7 +124,7 @@ func run() int {
 		ctx := newSignalHandlerContext()
 		err := s.Run(ctx)
 		if err != nil {
-			logger.Error(err, nil)
+			logger.Error(err.Error())
 			return 1
 		}
 		return 0
@@ -140,7 +140,7 @@ func run() int {
 		ctx := newSignalHandlerContext()
 		err := w.Run(ctx)
 		if err != nil {
-			logger.Error(err, nil)
+			logger.Error(err.Error())
 			return 1
 		}
 		return 0
@@ -148,7 +148,7 @@ func run() int {
 
 	// web: run web server forever (default)
 	if action != "web" {
-		logger.Errorf("invalid action: %s", action)
+		logger.Error(fmt.Sprintf("invalid action: %s", action))
 		return 1
 	}
 
@@ -178,7 +178,7 @@ func run() int {
 	ctx := newSignalHandlerContext()
 	err = app.Run(ctx, addr)
 	if err != nil {
-		logger.Error(err, nil)
+		logger.Error(err.Error())
 		return 1
 	}
 

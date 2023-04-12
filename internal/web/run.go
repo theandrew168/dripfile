@@ -5,6 +5,8 @@ import (
 	"errors"
 	"net/http"
 	"time"
+
+	"golang.org/x/exp/slog"
 )
 
 func (app *Application) Run(ctx context.Context, addr string) error {
@@ -27,7 +29,7 @@ func (app *Application) Run(ctx context.Context, addr string) error {
 		defer cancel()
 
 		// disable keepalives and shutdown gracefully
-		app.logger.Info("stopping web server", nil)
+		app.logger.Info("stopping web server")
 		srv.SetKeepAlivesEnabled(false)
 		err := srv.Shutdown(timeout)
 		if err != nil {
@@ -37,9 +39,9 @@ func (app *Application) Run(ctx context.Context, addr string) error {
 		close(stopError)
 	}()
 
-	app.logger.Info("starting web server", map[string]string{
-		"addr": srv.Addr,
-	})
+	app.logger.Info("starting web server",
+		slog.String("addr", srv.Addr),
+	)
 
 	// listen and serve forever
 	// ignore http.ErrServerClosed (expected upon stop)
@@ -54,6 +56,6 @@ func (app *Application) Run(ctx context.Context, addr string) error {
 		return err
 	}
 
-	app.logger.Infof("stopped web server")
+	app.logger.Info("stopped web server")
 	return nil
 }

@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
 	"github.com/theandrew168/dripfile/internal/view/web"
@@ -89,12 +91,12 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 	cookie := NewSessionCookie(sessionIDCookieName, sessionID)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("account create", map[string]string{
-		"account_id": session.Account.ID,
-	})
-	app.logger.Info("account login", map[string]string{
-		"account_id": session.Account.ID,
-	})
+	app.logger.Info("account create",
+		slog.String("account_id", session.Account.ID),
+	)
+	app.logger.Info("account login",
+		slog.String("account_id", session.Account.ID),
+	)
 
 	// redirect to dashboard
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)

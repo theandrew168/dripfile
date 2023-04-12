@@ -1,7 +1,8 @@
 package service
 
 import (
-	"github.com/theandrew168/dripfile/internal/jsonlog"
+	"golang.org/x/exp/slog"
+
 	"github.com/theandrew168/dripfile/internal/mail"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -9,7 +10,7 @@ import (
 )
 
 type Service struct {
-	logger *jsonlog.Logger
+	logger *slog.Logger
 	store  *storage.Storage
 	queue  *task.Queue
 	box    *secret.Box
@@ -17,7 +18,7 @@ type Service struct {
 }
 
 func New(
-	logger *jsonlog.Logger,
+	logger *slog.Logger,
 	store *storage.Storage,
 	queue *task.Queue,
 	box *secret.Box,

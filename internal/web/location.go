@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/flow"
+	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/fileserver"
@@ -160,10 +161,10 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("location create", map[string]string{
-		"account_id":  session.Account.ID,
-		"location_id": location.ID,
-	})
+	app.logger.Info("location create",
+		slog.String("account_id", session.Account.ID),
+		slog.String("location_id", location.ID),
+	)
 	http.Redirect(w, r, "/location/"+location.ID, http.StatusSeeOther)
 }
 
@@ -194,9 +195,9 @@ func (app *Application) handleLocationDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("location delete", map[string]string{
-		"account_id":  session.Account.ID,
-		"location_id": location.ID,
-	})
+	app.logger.Info("location delete",
+		slog.String("account_id", session.Account.ID),
+		slog.String("location_id", location.ID),
+	)
 	http.Redirect(w, r, "/location", http.StatusSeeOther)
 }

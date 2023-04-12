@@ -6,8 +6,8 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/go-playground/form/v4"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/storage"
@@ -20,7 +20,7 @@ type Application struct {
 
 	static http.Handler
 	api    http.Handler
-	logger *jsonlog.Logger
+	logger *slog.Logger
 	view   *view.View
 	srvc   *service.Service
 	store  *storage.Storage
@@ -31,7 +31,7 @@ type Application struct {
 func NewApplication(
 	api http.Handler,
 	static http.Handler,
-	logger *jsonlog.Logger,
+	logger *slog.Logger,
 	view *view.View,
 	srvc *service.Service,
 	store *storage.Storage,

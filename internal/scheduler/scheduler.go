@@ -6,20 +6,20 @@ import (
 
 	"github.com/coreos/go-systemd/daemon"
 	"github.com/go-co-op/gocron"
+	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/storage"
 	"github.com/theandrew168/dripfile/internal/task"
 )
 
 type Scheduler struct {
-	logger *jsonlog.Logger
+	logger *slog.Logger
 	store  *storage.Storage
 	queue  *task.Queue
 }
 
 func New(
-	logger *jsonlog.Logger,
+	logger *slog.Logger,
 	store *storage.Storage,
 	queue *task.Queue,
 ) *Scheduler {
@@ -42,7 +42,7 @@ func (s *Scheduler) Run(ctx context.Context) error {
 		t := task.NewSessionPruneTask()
 		err := s.queue.Submit(t)
 		if err != nil {
-			s.logger.Error(err, nil)
+			s.logger.Error(err.Error())
 			return
 		}
 	})
@@ -65,16 +65,16 @@ func (s *Scheduler) Run(ctx context.Context) error {
 		case <-ticker:
 			err := s.reschedule(sched)
 			if err != nil {
-				s.logger.Error(err, nil)
+				s.logger.Error(err.Error())
 				continue
 			}
 		}
 	}
 
 stop:
-	s.logger.Info("stopping scheduler", nil)
+	s.logger.Info("stopping scheduler")
 	sched.Stop()
-	s.logger.Info("stopped scheduler", nil)
+	s.logger.Info("stopped scheduler")
 	return nil
 }
 
@@ -112,15 +112,15 @@ func (s *Scheduler) reschedule(sched *gocron.Scheduler) error {
 			continue
 		}
 
-		s.logger.Info("schedule transfer", map[string]string{
-			"transfer_id": transfer.ID,
-		})
+		s.logger.Info("schedule transfer",
+			slog.String("transfer_id", transfer.ID),
+		)
 
 		sched.Cron(transfer.Schedule.Expr).Tag(transfer.ID).Do(func() {
 			t := task.NewTransferTryTask(transfer.ID)
 			err = s.queue.Submit(t)
 			if err != nil {
-				s.logger.Error(err, nil)
+				s.logger.Error(err.Error())
 				return
 			}
 		})
@@ -128,9 +128,9 @@ func (s *Scheduler) reschedule(sched *gocron.Scheduler) error {
 
 	// remove old transfers
 	for id := range remove {
-		s.logger.Info("unschedule transfer", map[string]string{
-			"transfer_id": id,
-		})
+		s.logger.Info("unschedule transfer",
+			slog.String("transfer_id", id),
+		)
 
 		err = sched.RemoveByTags(id)
 		if err != nil {

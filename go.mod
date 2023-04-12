@@ -6,13 +6,13 @@ require (
 	github.com/BurntSushi/toml v1.2.1
 	github.com/alexedwards/flow v0.0.0-20220806114457-cf11be9e0e03
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
-	github.com/go-co-op/gocron v1.19.0
+	github.com/go-co-op/gocron v1.20.1
 	github.com/go-playground/form/v4 v4.2.0
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/lnquy/cron v1.1.1
-	github.com/minio/minio-go/v7 v7.0.51
+	github.com/minio/minio-go/v7 v7.0.52
 	github.com/prometheus/client_golang v1.14.0
 	golang.org/x/crypto v0.8.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/flow"
+	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
@@ -162,12 +163,12 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("transfer create", map[string]string{
-		"account_id":  session.Account.ID,
-		"transfer_id": transfer.ID,
-		"src_id":      transfer.Src.ID,
-		"dst_id":      transfer.Dst.ID,
-	})
+	app.logger.Info("transfer create",
+		slog.String("account_id", session.Account.ID),
+		slog.String("transfer_id", transfer.ID),
+		slog.String("src_id", transfer.Src.ID),
+		slog.String("dst_id", transfer.Dst.ID),
+	)
 	http.Redirect(w, r, "/transfer/"+transfer.ID, http.StatusSeeOther)
 }
 
@@ -200,12 +201,12 @@ func (app *Application) handleTransferRunForm(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	app.logger.Info("transfer run", map[string]string{
-		"account_id":  session.Account.ID,
-		"transfer_id": transfer.ID,
-		"src_id":      transfer.Src.ID,
-		"dst_id":      transfer.Dst.ID,
-	})
+	app.logger.Info("transfer run",
+		slog.String("account_id", session.Account.ID),
+		slog.String("transfer_id", transfer.ID),
+		slog.String("src_id", transfer.Src.ID),
+		slog.String("dst_id", transfer.Dst.ID),
+	)
 	http.Redirect(w, r, "/history", http.StatusSeeOther)
 }
 
@@ -236,11 +237,11 @@ func (app *Application) handleTransferDeleteForm(w http.ResponseWriter, r *http.
 		return
 	}
 
-	app.logger.Info("transfer delete", map[string]string{
-		"account_id":  session.Account.ID,
-		"transfer_id": transfer.ID,
-		"src_id":      transfer.Src.ID,
-		"dst_id":      transfer.Dst.ID,
-	})
+	app.logger.Info("transfer delete",
+		slog.String("account_id", session.Account.ID),
+		slog.String("transfer_id", transfer.ID),
+		slog.String("src_id", transfer.Src.ID),
+		slog.String("dst_id", transfer.Dst.ID),
+	)
 	http.Redirect(w, r, "/transfer", http.StatusSeeOther)
 }

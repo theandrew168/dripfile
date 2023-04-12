@@ -33,8 +33,5 @@ func (app *Application) handleLogoutForm(w http.ResponseWriter, r *http.Request)
 	cookie := NewExpiredCookie(sessionIDCookieName)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("account logout", map[string]string{
-		"account_id": session.Account.ID,
-	})
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

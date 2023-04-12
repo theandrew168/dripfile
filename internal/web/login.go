@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/model"
@@ -108,8 +109,8 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 	cookie := NewPermanentCookie(sessionIDCookieName, sessionID, expiry)
 	http.SetCookie(w, &cookie)
 
-	app.logger.Info("account login", map[string]string{
-		"account_id": session.Account.ID,
-	})
+	app.logger.Info("account login",
+		slog.String("account_id", session.Account.ID),
+	)
 	http.Redirect(w, r, "/dashboard", http.StatusSeeOther)
 }

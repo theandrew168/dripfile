@@ -12,7 +12,7 @@ func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 	var b bytes.Buffer
 	err := app.view.Web.Error400(&b, web.Error400Params{})
 	if err != nil {
-		app.logger.Error(err, nil)
+		app.logger.Error(err.Error())
 
 		code := http.StatusInternalServerError
 		http.Error(w, http.StatusText(code), code)
@@ -29,7 +29,7 @@ func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request)
 	var b bytes.Buffer
 	err := app.view.Web.Error404(&b, web.Error404Params{})
 	if err != nil {
-		app.logger.Error(err, nil)
+		app.logger.Error(err.Error())
 
 		code := http.StatusInternalServerError
 		http.Error(w, http.StatusText(code), code)
@@ -46,7 +46,7 @@ func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 	var b bytes.Buffer
 	err := app.view.Web.Error405(&b, web.Error405Params{})
 	if err != nil {
-		app.logger.Error(err, nil)
+		app.logger.Error(err.Error())
 
 		code := http.StatusInternalServerError
 		http.Error(w, http.StatusText(code), code)
@@ -60,7 +60,7 @@ func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	// log details of the error locally but the user sees a generic 500
-	app.logger.Error(err, nil)
+	app.logger.Error(err.Error())
 
 	// render template to a temp buffer
 	var b bytes.Buffer

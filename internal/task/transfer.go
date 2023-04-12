@@ -6,6 +6,8 @@ import (
 	"errors"
 	"time"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/fileserver"
 	"github.com/theandrew168/dripfile/internal/model"
@@ -47,9 +49,9 @@ func (w *Worker) HandleTransferTry(ctx context.Context, t Task) error {
 	if err != nil {
 		// transfer has since been deleted
 		if errors.Is(err, database.ErrNotExist) {
-			w.logger.Info("transfer deleted", map[string]string{
-				"transfer_id": transfer.ID,
-			})
+			w.logger.Info("transfer deleted",
+				slog.String("transfer_id", transfer.ID),
+			)
 			return nil
 		}
 		return err

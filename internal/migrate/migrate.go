@@ -7,11 +7,12 @@ import (
 	"io/fs"
 	"sort"
 
+	"golang.org/x/exp/slog"
+
 	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/jsonlog"
 )
 
-func Migrate(logger *jsonlog.Logger, db database.Conn, files embed.FS) error {
+func Migrate(logger *slog.Logger, db database.Conn, files embed.FS) error {
 	ctx := context.Background()
 
 	// attempt to create extensions (requires superuser privileges)
@@ -76,9 +77,7 @@ func Migrate(logger *jsonlog.Logger, db database.Conn, files embed.FS) error {
 
 	// apply each missing migration
 	for _, name := range missing {
-		logger.Info("applying migration", map[string]string{
-			"name": name,
-		})
+		logger.Info("applying migration", slog.String("name", name))
 
 		sql, err := fs.ReadFile(subdir, name)
 		if err != nil {
@@ -109,6 +108,6 @@ func Migrate(logger *jsonlog.Logger, db database.Conn, files embed.FS) error {
 		}
 	}
 
-	logger.Info("migrations up to date", nil)
+	logger.Info("migrations up to date")
 	return nil
 }

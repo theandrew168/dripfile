@@ -4,20 +4,20 @@ import (
 	"net/http"
 
 	"github.com/alexedwards/flow"
+	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/jsonlog"
 	"github.com/theandrew168/dripfile/internal/service"
 	"github.com/theandrew168/dripfile/internal/view"
 )
 
 type Application struct {
-	logger *jsonlog.Logger
+	logger *slog.Logger
 	view   *view.View
 	srvc   *service.Service
 }
 
 func NewApplication(
-	logger *jsonlog.Logger,
+	logger *slog.Logger,
 	view *view.View,
 	srvc *service.Service,
 ) *Application {
