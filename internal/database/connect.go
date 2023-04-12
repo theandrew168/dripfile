@@ -7,11 +7,11 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-func Connect(postgreSQLURL string) (*pgx.Conn, error) {
+func Connect(databaseURI string) (*pgx.Conn, error) {
 	ctx := context.Background()
 
 	// open a database connection pool
-	conn, err := pgx.Connect(ctx, postgreSQLURL)
+	conn, err := pgx.Connect(ctx, databaseURI)
 	if err != nil {
 		return nil, err
 	}
@@ -25,11 +25,11 @@ func Connect(postgreSQLURL string) (*pgx.Conn, error) {
 	return conn, nil
 }
 
-func ConnectPool(postgreSQLURL string) (*pgxpool.Pool, error) {
+func ConnectPool(databaseURI string) (*pgxpool.Pool, error) {
 	ctx := context.Background()
 
 	// open a database connection pool
-	pool, err := pgxpool.Connect(ctx, postgreSQLURL)
+	pool, err := pgxpool.Connect(ctx, databaseURI)
 	if err != nil {
 		return nil, err
 	}

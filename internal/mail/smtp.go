@@ -13,8 +13,8 @@ type smtpMailer struct {
 	port     string
 }
 
-func NewSMTPMailer(smtpURL string) (Mailer, error) {
-	u, err := url.Parse(smtpURL)
+func NewSMTPMailer(smtpURI string) (Mailer, error) {
+	u, err := url.Parse(smtpURI)
 	if err != nil {
 		return nil, err
 	}
