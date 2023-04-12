@@ -20,7 +20,7 @@ type Application struct {
 
 	static http.Handler
 	logger *slog.Logger
-	view   *html.View
+	html   *html.HTML
 	srvc   *service.Service
 	store  *storage.Storage
 	queue  *task.Queue
@@ -30,7 +30,7 @@ type Application struct {
 func NewApplication(
 	static http.Handler,
 	logger *slog.Logger,
-	view *html.View,
+	html *html.HTML,
 	srvc *service.Service,
 	store *storage.Storage,
 	queue *task.Queue,
@@ -44,7 +44,7 @@ func NewApplication(
 
 		static: static,
 		logger: logger,
-		view:   view,
+		html:   html,
 		srvc:   srvc,
 		store:  store,
 		queue:  queue,

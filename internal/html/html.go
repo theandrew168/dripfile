@@ -5,13 +5,13 @@ import (
 )
 
 // TODO: site, app, docs, api, etc? split based on first part of path?
-type View struct {
-	Web *web.View
+type HTML struct {
+	Web *web.HTML
 }
 
-func New(reload bool) *View {
-	t := View{
+func New(reload bool) *HTML {
+	html := HTML{
 		Web: web.New(reload),
 	}
-	return &t
+	return &html
 }

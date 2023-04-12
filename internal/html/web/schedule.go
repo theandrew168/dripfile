@@ -23,14 +23,14 @@ type ScheduleCreateParams struct {
 	Form ScheduleCreateForm
 }
 
-func (v *View) ScheduleCreate(w io.Writer, p ScheduleCreateParams) error {
+func (html *HTML) ScheduleCreate(w io.Writer, p ScheduleCreateParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"schedule/create.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }
 
@@ -38,14 +38,14 @@ type ScheduleReadParams struct {
 	Schedule model.Schedule
 }
 
-func (v *View) ScheduleRead(w io.Writer, p ScheduleReadParams) error {
+func (html *HTML) ScheduleRead(w io.Writer, p ScheduleReadParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"schedule/read.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }
 
@@ -53,13 +53,13 @@ type ScheduleListParams struct {
 	Schedules []model.Schedule
 }
 
-func (v *View) ScheduleList(w io.Writer, p ScheduleListParams) error {
+func (html *HTML) ScheduleList(w io.Writer, p ScheduleListParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"schedule/list.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

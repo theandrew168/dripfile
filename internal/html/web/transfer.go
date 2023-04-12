@@ -35,14 +35,14 @@ type TransferCreateParams struct {
 	Schedules []model.Schedule `form:"Schedules"`
 }
 
-func (v *View) TransferCreate(w io.Writer, p TransferCreateParams) error {
+func (html *HTML) TransferCreate(w io.Writer, p TransferCreateParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"transfer/create.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }
 
@@ -50,14 +50,14 @@ type TransferReadParams struct {
 	Transfer model.Transfer
 }
 
-func (v *View) TransferRead(w io.Writer, p TransferReadParams) error {
+func (html *HTML) TransferRead(w io.Writer, p TransferReadParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"transfer/read.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }
 
@@ -65,13 +65,13 @@ type TransferListParams struct {
 	Transfers []model.Transfer
 }
 
-func (v *View) TransferList(w io.Writer, p TransferListParams) error {
+func (html *HTML) TransferList(w io.Writer, p TransferListParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"transfer/list.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

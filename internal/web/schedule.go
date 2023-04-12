@@ -34,7 +34,7 @@ func (app *Application) handleScheduleList(w http.ResponseWriter, r *http.Reques
 	params := web.ScheduleListParams{
 		Schedules: schedules,
 	}
-	err = app.view.Web.ScheduleList(w, params)
+	err = app.html.Web.ScheduleList(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -57,7 +57,7 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 	params := web.ScheduleReadParams{
 		Schedule: schedule,
 	}
-	err = app.view.Web.ScheduleRead(w, params)
+	err = app.html.Web.ScheduleRead(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -65,7 +65,7 @@ func (app *Application) handleScheduleRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleScheduleCreate(w http.ResponseWriter, r *http.Request) {
-	err := app.view.Web.ScheduleCreate(w, web.ScheduleCreateParams{})
+	err := app.html.Web.ScheduleCreate(w, web.ScheduleCreateParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -93,7 +93,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		params := web.ScheduleCreateParams{
 			Form: form,
 		}
-		err := app.view.Web.ScheduleCreate(w, params)
+		err := app.html.Web.ScheduleCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -122,7 +122,7 @@ func (app *Application) handleScheduleCreateForm(w http.ResponseWriter, r *http.
 		params := web.ScheduleCreateParams{
 			Form: form,
 		}
-		err := app.view.Web.ScheduleCreate(w, params)
+		err := app.html.Web.ScheduleCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

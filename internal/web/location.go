@@ -24,7 +24,7 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 	params := web.LocationListParams{
 		Locations: locations,
 	}
-	err = app.view.Web.LocationList(w, params)
+	err = app.html.Web.LocationList(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -47,7 +47,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 	params := web.LocationReadParams{
 		Location: location,
 	}
-	err = app.view.Web.LocationRead(w, params)
+	err = app.html.Web.LocationRead(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -55,7 +55,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
-	err := app.view.Web.LocationCreate(w, web.LocationCreateParams{})
+	err := app.html.Web.LocationCreate(w, web.LocationCreateParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -86,7 +86,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		params := web.LocationCreateParams{
 			Form: form,
 		}
-		err := app.view.Web.LocationCreate(w, params)
+		err := app.html.Web.LocationCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -110,7 +110,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		params := web.LocationCreateParams{
 			Form: form,
 		}
-		err := app.view.Web.LocationCreate(w, params)
+		err := app.html.Web.LocationCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -128,7 +128,7 @@ func (app *Application) handleLocationCreateForm(w http.ResponseWriter, r *http.
 		params := web.LocationCreateParams{
 			Form: form,
 		}
-		err := app.view.Web.LocationCreate(w, params)
+		err := app.html.Web.LocationCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

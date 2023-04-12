@@ -15,7 +15,7 @@ import (
 )
 
 func (app *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
-	err := app.view.Web.AuthRegister(w, web.AuthRegisterParams{})
+	err := app.html.Web.AuthRegister(w, web.AuthRegisterParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -38,7 +38,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 		params := web.AuthRegisterParams{
 			Form: form,
 		}
-		err := app.view.Web.AuthRegister(w, params)
+		err := app.html.Web.AuthRegister(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -56,7 +56,7 @@ func (app *Application) handleRegisterForm(w http.ResponseWriter, r *http.Reques
 			params := web.AuthRegisterParams{
 				Form: form,
 			}
-			err := app.view.Web.AuthRegister(w, params)
+			err := app.html.Web.AuthRegister(w, params)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
 				return

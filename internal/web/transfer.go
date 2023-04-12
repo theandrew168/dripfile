@@ -23,7 +23,7 @@ func (app *Application) handleTransferList(w http.ResponseWriter, r *http.Reques
 	params := web.TransferListParams{
 		Transfers: transfers,
 	}
-	err = app.view.Web.TransferList(w, params)
+	err = app.html.Web.TransferList(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -46,7 +46,7 @@ func (app *Application) handleTransferRead(w http.ResponseWriter, r *http.Reques
 	params := web.TransferReadParams{
 		Transfer: transfer,
 	}
-	err = app.view.Web.TransferRead(w, params)
+	err = app.html.Web.TransferRead(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -70,7 +70,7 @@ func (app *Application) handleTransferCreate(w http.ResponseWriter, r *http.Requ
 		Locations: locations,
 		Schedules: schedules,
 	}
-	err = app.view.Web.TransferCreate(w, params)
+	err = app.html.Web.TransferCreate(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -114,7 +114,7 @@ func (app *Application) handleTransferCreateForm(w http.ResponseWriter, r *http.
 			Locations: locations,
 			Schedules: schedules,
 		}
-		err := app.view.Web.TransferCreate(w, params)
+		err := app.html.Web.TransferCreate(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

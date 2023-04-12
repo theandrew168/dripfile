@@ -17,13 +17,13 @@ type AccountReadParams struct {
 	Account model.Account
 }
 
-func (v *View) AccountRead(w io.Writer, p AccountReadParams) error {
+func (html *HTML) AccountRead(w io.Writer, p AccountReadParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/app.html",
 		"partial/*.html",
 		"account/read.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

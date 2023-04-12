@@ -16,7 +16,7 @@ import (
 )
 
 func (app *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
-	err := app.view.Web.AuthLogin(w, web.AuthLoginParams{})
+	err := app.html.Web.AuthLogin(w, web.AuthLoginParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -39,7 +39,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		params := web.AuthLoginParams{
 			Form: form,
 		}
-		err := app.view.Web.AuthLogin(w, params)
+		err := app.html.Web.AuthLogin(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -57,7 +57,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 			params := web.AuthLoginParams{
 				Form: form,
 			}
-			err := app.view.Web.AuthLogin(w, params)
+			err := app.html.Web.AuthLogin(w, params)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
 				return
@@ -78,7 +78,7 @@ func (app *Application) handleLoginForm(w http.ResponseWriter, r *http.Request) 
 		params := web.AuthLoginParams{
 			Form: form,
 		}
-		err := app.view.Web.AuthLogin(w, params)
+		err := app.html.Web.AuthLogin(w, params)
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return

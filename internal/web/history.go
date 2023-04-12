@@ -19,7 +19,7 @@ func (app *Application) handleHistoryList(w http.ResponseWriter, r *http.Request
 	params := web.HistoryListParams{
 		History: history,
 	}
-	err = app.view.Web.HistoryList(w, params)
+	err = app.html.Web.HistoryList(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

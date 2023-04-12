@@ -7,7 +7,7 @@ import (
 )
 
 func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
-	err := app.view.Web.Index(w, web.IndexParams{})
+	err := app.html.Web.Index(w, web.IndexParams{})
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return

@@ -6,13 +6,13 @@ import (
 
 type IndexParams struct{}
 
-func (v *View) Index(w io.Writer, p IndexParams) error {
+func (html *HTML) Index(w io.Writer, p IndexParams) error {
 	patterns := []string{
 		"layout/base.html",
 		"layout/site.html",
 		"partial/*.html",
 		"index.html",
 	}
-	tmpl := v.r.Read(patterns...)
+	tmpl := html.reader.Read(patterns...)
 	return tmpl.Execute(w, p)
 }

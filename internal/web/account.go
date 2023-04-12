@@ -18,7 +18,7 @@ func (app *Application) handleAccountRead(w http.ResponseWriter, r *http.Request
 	params := web.AccountReadParams{
 		Account: session.Account,
 	}
-	err = app.view.Web.AccountRead(w, params)
+	err = app.html.Web.AccountRead(w, params)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
