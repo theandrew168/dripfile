@@ -30,7 +30,7 @@ docker compose down
 
 ### Tailwind CSS
 If you plan to work on any web pages within this project, you'll want to install the [tailwindcss CLI](https://tailwindcss.com/blog/standalone-cli) in order to dynamically recompile the CSS.
-Once installed, you can use the `frontend` Makefile target to run the web server and tailwindcss CLI concurrently:
+Once installed, you can use the `frontend` make target to run the web server and tailwindcss CLI concurrently:
 ```
 make -j2 frontend
 ```
