@@ -15,7 +15,6 @@ import (
 	"github.com/coreos/go-systemd/daemon"
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/api"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/mail"
@@ -163,11 +162,10 @@ func run() int {
 
 	view := view.New(debug)
 
-	apiHandler := api.NewApplication(logger, view, srvc).Handler()
 	staticHandler := http.FileServer(http.FS(static))
 
 	// instantiate main web application
-	app := web.NewApplication(apiHandler, staticHandler, logger, view, srvc, store, queue, box)
+	app := web.NewApplication(staticHandler, logger, view, srvc, store, queue, box)
 
 	// let port be overridable by an env var
 	port := cfg.Port

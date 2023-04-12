@@ -19,7 +19,6 @@ type Application struct {
 	decoder *form.Decoder
 
 	static http.Handler
-	api    http.Handler
 	logger *slog.Logger
 	view   *view.View
 	srvc   *service.Service
@@ -29,7 +28,6 @@ type Application struct {
 }
 
 func NewApplication(
-	api http.Handler,
 	static http.Handler,
 	logger *slog.Logger,
 	view *view.View,
@@ -44,7 +42,6 @@ func NewApplication(
 	app := Application{
 		decoder: decoder,
 
-		api:    api,
 		static: static,
 		logger: logger,
 		view:   view,
@@ -100,15 +97,6 @@ func (app *Application) Handler() http.Handler {
 	mux.Handle("/static/...", http.StripPrefix("/static", app.static))
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/static/img/logo-white.svg", http.StatusMovedPermanently)
-	})
-	mux.HandleFunc("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/static/etc/robots.txt", http.StatusMovedPermanently)
-	})
-
-	// serve API routes under /api/v1
-	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", app.api))
-	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/api/v1/", http.StatusMovedPermanently)
 	})
 
 	// primary web app (last due to being a top-level catch-all)

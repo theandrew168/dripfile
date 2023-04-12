@@ -56,7 +56,7 @@ Once installed, you can use the `frontend` make target to run the web server and
 make -j2 frontend
 ```
 
-The CSS can be manually rebuilt via:
+If needed, the CSS can always be manually rebuilt via:
 ```
 make css
 ```
