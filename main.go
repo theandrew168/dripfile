@@ -152,9 +152,13 @@ func run() int {
 		return 1
 	}
 
-	static, err := fs.Sub(staticFS, "static")
-	if err != nil {
-		panic(err)
+	var static fs.FS
+	if debug {
+		// NOTE: os.DirFS is rooted from where the app is ran, not this file
+		static = os.DirFS("./static/")
+	} else {
+		// else use the embedded static dir
+		static, _ = fs.Sub(staticFS, "static")
 	}
 
 	view := view.New(debug)

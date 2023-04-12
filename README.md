@@ -28,6 +28,13 @@ These containers can be stopped via:
 docker compose down
 ```
 
+### Tailwind CSS
+If you plan to work on any web pages within this project, you'll want to install the [tailwindcss CLI](https://tailwindcss.com/blog/standalone-cli) in order to dynamically recompile the CSS.
+Once installed, you can use the `frontend` Makefile target to run the web server and tailwindcss CLI concurrently:
+```
+make -j2 frontend
+```
+
 ### Running
 To start the web server:
 ```
@@ -56,8 +63,8 @@ make test
 ```
 
 ## Innovation Tokens
-* [Tachyons CSS](https://tachyons.io/)
-* [PostgreSQL Task Queue](https://webapp.io/blog/postgres-is-the-answer/)
+* [Tailwind CSS](https://tailwindcss.com/)
+* [PostgreSQL Task Queue](https://webapp.io/blog/postgres-is-the-answer/) ([further reading](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/))
 
 ## Features
 * Schedule-based transfers

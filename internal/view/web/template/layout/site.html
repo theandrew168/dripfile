@@ -1,19 +1,19 @@
 {{define "body"}}
-<body class="flex flex-column sans-serif">
+<body class="font-sans flex flex-col h-full">
 	<header>
-		<nav class="flex items-center justify-between bg-blue pa3">
-			<a class="flex items-center white no-underline" href="/">
-				<img class="h2 w-auto pr2" alt="DripFile Logo" src="/static/img/logo-white.svg">
-				<span class="f3 b">DripFile</span>
+		<nav class="bg-blue-600 flex flex-row items-center justify-between p-4 text-white">
+			<a class="flex flex-row items-center" href="/">
+				<img class="h-16 w-auto" alt="DripFile Logo" src="/static/img/logo-white.svg">
+				<span class="text-lg font-bold">DripFile</span>
 			</a>
-			<ul class="list flex items-center g2 mr2">
-				<li><a class="link blue bg-white hover-bg-white-80 pv2 ph3 br3" id="nav-register" href="/register">Register</a></li>
-				<li><a class="link white hover-white-80" id="nav-login" href="/dashboard">Login</a></li>
+			<ul class="flex flex-row items-center gap-4">
+				<li><a class="hover:text-gray-200" id="nav-register" href="/register">Register</a></li>
+				<li><a class="hover:text-gray-200" id="nav-login" href="/dashboard">Login</a></li>
 			</ul>
 		</nav>
 	</header>
 
-	<main class="flex-auto pa3">
+	<main class="flex-grow">
 		{{template "main" .}}
 	</main>
 

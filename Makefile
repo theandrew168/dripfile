@@ -6,6 +6,14 @@ CONF = dripfile.conf
 .PHONY: default
 default: build
 
+.PHONY: css
+css:
+	tailwindcss -o static/css/tailwind.min.css --minify
+
+.PHONY: watch-css
+watch-css:
+	tailwindcss -o static/css/tailwind.min.css --minify --watch
+
 .PHONY: build
 build:
 	go build -o dripfile main.go
@@ -26,10 +34,9 @@ scheduler: migrate
 migrate:
 	DEBUG=1 go run main.go -conf $(CONF) migrate
 
-.PHONY: update
-update:
-	go get -u ./...
-	go mod tidy
+# run the web server and tailwindcss concurrently (requires at least "-j2") 
+.PHONY: frontend
+frontend: web watch-css
 
 .PHONY: test
 test: migrate
@@ -45,7 +52,7 @@ cover: migrate
 	go tool cover -html=c.out
 
 .PHONY: release
-release:
+release: css
 	goreleaser release --snapshot --rm-dist
 
 .PHONY: lint
@@ -55,6 +62,11 @@ lint:
 .PHONY: format
 format:
 	gofmt -l -s -w .
+
+.PHONY: update
+update:
+	go get -u ./...
+	go mod tidy
 
 .PHONY: clean
 clean:
