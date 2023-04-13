@@ -100,7 +100,6 @@ func (w *Worker) handleTask(t Task) {
 	handlers := map[Kind]TaskHandler{
 		KindSessionPrune: w.HandleSessionPrune,
 		KindEmailSend:    w.HandleEmailSend,
-		KindTransferTry:  w.HandleTransferTry,
 	}
 
 	handler, ok := handlers[t.Kind]

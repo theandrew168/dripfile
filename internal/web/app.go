@@ -120,26 +120,11 @@ func (app *Application) Handler() http.Handler {
 		mux.HandleFunc("/account", app.handleAccountRead, "GET")
 		mux.HandleFunc("/account/delete", app.handleAccountDeleteForm, "POST")
 
-		mux.HandleFunc("/transfer", app.handleTransferList, "GET")
-		mux.HandleFunc("/transfer/create", app.handleTransferCreate, "GET")
-		mux.HandleFunc("/transfer/create", app.handleTransferCreateForm, "POST")
-		mux.HandleFunc("/transfer/delete", app.handleTransferDeleteForm, "POST")
-		mux.HandleFunc("/transfer/run", app.handleTransferRunForm, "POST")
-		mux.HandleFunc("/transfer/:id", app.handleTransferRead, "GET")
-
 		mux.HandleFunc("/location", app.handleLocationList, "GET")
 		mux.HandleFunc("/location/create", app.handleLocationCreate, "GET")
 		mux.HandleFunc("/location/create", app.handleLocationCreateForm, "POST")
 		mux.HandleFunc("/location/delete", app.handleLocationDeleteForm, "POST")
 		mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
-
-		mux.HandleFunc("/schedule", app.handleScheduleList, "GET")
-		mux.HandleFunc("/schedule/create", app.handleScheduleCreate, "GET")
-		mux.HandleFunc("/schedule/create", app.handleScheduleCreateForm, "POST")
-		mux.HandleFunc("/schedule/delete", app.handleScheduleDeleteForm, "POST")
-		mux.HandleFunc("/schedule/:id", app.handleScheduleRead, "GET")
-
-		mux.HandleFunc("/history", app.handleHistoryList, "GET")
 	})
 
 	return mux

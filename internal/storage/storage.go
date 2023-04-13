@@ -16,9 +16,6 @@ type Storage struct {
 	Account  *Account
 	Session  *Session
 	Location *Location
-	Transfer *Transfer
-	Schedule *Schedule
-	History  *History
 }
 
 func New(db database.Conn) *Storage {
@@ -28,9 +25,6 @@ func New(db database.Conn) *Storage {
 		Account:  NewAccount(db),
 		Session:  NewSession(db),
 		Location: NewLocation(db),
-		Transfer: NewTransfer(db),
-		Schedule: NewSchedule(db),
-		History:  NewHistory(db),
 	}
 	return &s
 }
