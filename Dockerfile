@@ -12,8 +12,8 @@ COPY . ./
 RUN CGO_ENABLED=0 go build -o /dripfile main.go
 
 ## Test
-#FROM build AS test
-#RUN go test -v -short ./...
+FROM build AS test
+RUN go test -v -short ./...
 
 ## Deploy
 FROM gcr.io/distroless/base-debian11
