@@ -11,7 +11,6 @@ require (
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v4 v4.18.1
-	github.com/lnquy/cron v1.1.1
 	github.com/minio/minio-go/v7 v7.0.52
 	github.com/prometheus/client_golang v1.14.0
 	golang.org/x/crypto v0.8.0
