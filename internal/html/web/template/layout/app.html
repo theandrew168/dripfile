@@ -1,47 +1,46 @@
 {{define "body"}}
 
-<body class="h-full">
+<body x-data="{ isSidebarOpen: false }" class="h-full">
 	<!-- Off-canvas menu for mobile, show/hide based on off-canvas menu state. -->
-	<div class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
-		<!--
-		Off-canvas menu backdrop, show/hide based on off-canvas menu state.
-  
-		Entering: "transition-opacity ease-linear duration-300"
-		  From: "opacity-0"
-		  To: "opacity-100"
-		Leaving: "transition-opacity ease-linear duration-300"
-		  From: "opacity-100"
-		  To: "opacity-0"
-	  	-->
-		<div class="fixed inset-0 bg-gray-900/80"></div>
+	<div x-show="isSidebarOpen" class="relative z-50 lg:hidden" role="dialog" aria-modal="true">
+		<!-- Off-canvas menu backdrop, show/hide based on off-canvas menu state. -->
+		<div
+			x-show="isSidebarOpen"
+			x-transition:enter="transition-opacity ease-linear duration-300"
+			x-transition:enter-start="opacity-0"
+			x-transition:enter-end="opacity-100"
+			x-transition:leave="transition-opacity ease-linear duration-300"
+			x-transition:leave-start="opacity-100"
+			x-transition:leave-end="opacity-0"
+			class="fixed inset-0 bg-gray-900/80"
+		></div>
 
 		<div class="fixed inset-0 flex">
-			<!--
-			Off-canvas menu, show/hide based on off-canvas menu state.
-	
-			Entering: "transition ease-in-out duration-300 transform"
-				From: "-translate-x-full"
-				To: "translate-x-0"
-			Leaving: "transition ease-in-out duration-300 transform"
-				From: "translate-x-0"
-				To: "-translate-x-full"
-			-->
-			<div class="relative mr-16 flex w-full max-w-xs flex-1">
-				<!--
-				Close button, show/hide based on off-canvas menu state.
-	
-				Entering: "ease-in-out duration-300"
-				From: "opacity-0"
-				To: "opacity-100"
-				Leaving: "ease-in-out duration-300"
-				From: "opacity-100"
-				To: "opacity-0"
-				-->
-				<div class="absolute left-full top-0 flex w-16 justify-center pt-5">
-					<button type="button" class="-m-2.5 p-2.5">
+			<!-- Off-canvas menu, show/hide based on off-canvas menu state. -->
+			<div
+				x-show="isSidebarOpen"
+				x-transition:enter="transition ease-in-out duration-300 transform"
+				x-transition:enter-start="-translate-x-full"
+				x-transition:enter-end="translate-x-0"
+				x-transition:leave="transition ease-in-out duration-300 transform"
+				x-transition:leave-start="translate-x-0"
+				x-transition:leave-end="-translate-x-full"
+				class="relative mr-16 flex w-full max-w-xs flex-1"
+			>
+				<!-- Close button, show/hide based on off-canvas menu state. -->
+				<div
+					x-show="isSidebarOpen"
+					x-transition:enter="ease-in-out duration-300"
+					x-transition:enter-start="opacity-0"
+					x-transition:enter-end="opacity-100"
+					x-transition:leave="ease-in-out duration-300"
+					x-transition:leave-start="opacity-100"
+					x-transition:leave-end="opacity-0"
+					class="absolute left-full top-0 flex w-16 justify-center pt-5"
+				>
+					<button x-on:click="isSidebarOpen = false" type="button" class="-m-2.5 p-2.5">
 						<span class="sr-only">Close sidebar</span>
-						<svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-							stroke="currentColor" aria-hidden="true">
+						<svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
 							<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
 						</svg>
 					</button>
@@ -58,27 +57,20 @@
 								<ul role="list" class="-mx-2 space-y-1">
 									<li>
 										<!-- Current: "bg-blue-700 text-white", Default: "text-blue-200 hover:text-white hover:bg-blue-700" -->
-										<a href="/dashboard"
-											class="bg-blue-700 text-white group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+										<a href="/dashboard" class="bg-blue-700 text-white group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
 											<!-- Heroicon name: outline/home -->
-											<svg class="h-6 w-6 shrink-0 text-white" fill="none" viewBox="0 0 24 24"
-												stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-												<path stroke-linecap="round" stroke-linejoin="round"
-													d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+											<svg class="h-6 w-6 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+												<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
 											</svg>
 											Dashboard
 										</a>
 									</li>
 
 									<li>
-										<a href="/locations"
-											class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+										<a href="/locations" class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
 											<!-- Heroicon name: outline/desktop-computer -->
-											<svg class="h-6 w-6 shrink-0 text-blue-200 group-hover:text-white"
-												fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-												aria-hidden="true">
-												<path stroke-linecap="round" stroke-linejoin="round"
-													d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+											<svg class="h-6 w-6 shrink-0 text-blue-200 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+												<path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 											</svg>
 											Locations
 										</a>
@@ -90,18 +82,20 @@
 								<ul role="list" class="-mx-2 mt-2 space-y-1">
 									<li>
 										<!-- Current: "bg-blue-700 text-white", Default: "text-blue-200 hover:text-white hover:bg-blue-700" -->
-										<a href="/docs"
-											class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-											<span
-												class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">D</span>
+										<a
+											href="/docs" target="_blank"
+											class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+										>
+											<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">D</span>
 											<span class="truncate">Documentation</span>
 										</a>
 									</li>
 									<li>
-										<a href="https://github.com/theandrew168/dripfile"
-											class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-											<span
-												class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">G</span>
+										<a
+											href="https://github.com/theandrew168/dripfile" target="_blank"
+											class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+										>
+											<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">G</span>
 											<span class="truncate">GitHub</span>
 										</a>
 									</li>
@@ -127,25 +121,19 @@
 						<ul role="list" class="-mx-2 space-y-1">
 							<li>
 								<!-- Current: "bg-blue-700 text-white", Default: "text-blue-200 hover:text-white hover:bg-blue-700" -->
-								<a href="/dashboard"
-									class="bg-blue-700 text-white group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+								<a href="/dashboard" class="bg-blue-700 text-white group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
 									<!-- Heroicon name: outline/home -->
-									<svg class="h-6 w-6 shrink-0 text-white" fill="none" viewBox="0 0 24 24"
-										stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-										<path stroke-linecap="round" stroke-linejoin="round"
-											d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+									<svg class="h-6 w-6 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
 									</svg>
 									Dashboard
 								</a>
 							</li>
 							<li>
-								<a href="/locations"
-									class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
+								<a href="/locations" class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
 									<!-- Heroicon name: outline/desktop-computer -->
-									<svg class="h-6 w-6 shrink-0 text-blue-200 group-hover:text-white" fill="none"
-										viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-										<path stroke-linecap="round" stroke-linejoin="round"
-											d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+									<svg class="h-6 w-6 shrink-0 text-blue-200 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 									</svg>
 									Locations
 								</a>
@@ -157,28 +145,28 @@
 						<ul role="list" class="-mx-2 mt-2 space-y-1">
 							<li>
 								<!-- Current: "bg-blue-700 text-white", Default: "text-blue-200 hover:text-white hover:bg-blue-700" -->
-								<a href="/docs"
-									class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-									<span
-										class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">D</span>
+								<a
+									href="/docs" target="_blank"
+									class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+								>
+									<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">D</span>
 									<span class="truncate">Documentation</span>
 								</a>
 							</li>
 							<li>
-								<a href="https://github.com/theandrew168/dripfile"
-									class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold">
-									<span
-										class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">G</span>
+								<a
+									href="https://github.com/theandrew168/dripfile" target="_blank"
+									class="text-blue-200 hover:text-white hover:bg-blue-700 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+								>
+									<span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-blue-400 bg-blue-500 text-[0.625rem] font-medium text-white">G</span>
 									<span class="truncate">GitHub</span>
 								</a>
 							</li>
 						</ul>
 					</li>
 					<li class="-mx-6 mt-auto">
-						<a href="/account"
-							class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-blue-700">
-							<img class="h-8 w-8 rounded-full bg-blue-700"
-								src="https://avatars.githubusercontent.com/u/13205759" alt="">
+						<a href="/account" class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-blue-700">
+							<img class="h-8 w-8 rounded-full bg-blue-700" src="https://avatars.githubusercontent.com/u/13205759" alt="">
 							<span class="sr-only">Your profile</span>
 							<span aria-hidden="true">Andrew Dailey</span>
 						</a>
@@ -189,19 +177,16 @@
 	</div>
 
 	<div class="sticky top-0 z-40 flex items-center gap-x-6 bg-blue-600 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
-		<button type="button" class="-m-2.5 p-2.5 text-blue-200 lg:hidden">
+		<button x-on:click="isSidebarOpen = true" type="button" class="-m-2.5 p-2.5 text-blue-200 lg:hidden">
 			<span class="sr-only">Open sidebar</span>
-			<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-				aria-hidden="true">
+			<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
 				<path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
 			</svg>
 		</button>
 		<div class="flex-1 text-sm font-semibold leading-6 text-white">Dashboard</div>
 		<a href="/account">
 			<span class="sr-only">Your profile</span>
-			<img class="h-8 w-8 rounded-full bg-blue-700"
-				src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-				alt="">
+			<img class="h-8 w-8 rounded-full bg-blue-700" src="https://avatars.githubusercontent.com/u/13205759" alt="">
 		</a>
 	</div>
 
