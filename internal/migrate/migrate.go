@@ -9,7 +9,7 @@ import (
 
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/common/database"
+	"github.com/theandrew168/dripfile/internal/database"
 )
 
 func Migrate(logger *slog.Logger, db database.Conn, files embed.FS) error {

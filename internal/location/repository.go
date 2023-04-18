@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/theandrew168/dripfile/internal/common/database"
+	"github.com/theandrew168/dripfile/internal/database"
 )
 
 type Repository interface {

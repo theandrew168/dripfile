@@ -7,9 +7,9 @@ import (
 
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/common/config"
-	"github.com/theandrew168/dripfile/internal/common/database"
-	"github.com/theandrew168/dripfile/internal/common/migrate"
+	"github.com/theandrew168/dripfile/internal/config"
+	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/migrate"
 )
 
 //go:embed migration

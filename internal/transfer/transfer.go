@@ -10,7 +10,7 @@ type Transfer struct {
 	ScheduleID     string
 }
 
-func NewTransfer(pattern, fromLocationID, toLocationID, scheduleID string) Transfer {
+func New(pattern, fromLocationID, toLocationID, scheduleID string) Transfer {
 	transfer := Transfer{
 		Pattern:        pattern,
 		FromLocationID: fromLocationID,

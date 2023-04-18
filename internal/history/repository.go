@@ -1,4 +1,4 @@
-package schedule
+package history
 
 import (
 	"context"
@@ -8,10 +8,9 @@ import (
 )
 
 type Repository interface {
-	Create(schedule *Schedule) error
-	Read(id string) (Schedule, error)
-	List() ([]Schedule, error)
-	Update(location Schedule) error
+	Create(history *History) error
+	Read(id string) (History, error)
+	List() ([]History, error)
 	Delete(id string) error
 }
 
@@ -26,27 +25,29 @@ func NewPostgresRepository(conn database.Conn) *PostgresRepository {
 	return &r
 }
 
-func (r *PostgresRepository) Create(schedule *Schedule) error {
+func (r *PostgresRepository) Create(history *History) error {
 	stmt := `
-		INSERT INTO schedule
-			(name, expr)
+		INSERT INTO history
+			(bytes, started_at, finished_at, transfer_id)
 		VALUES
-			($1, $2)
+			($1, $2, $3, $4)
 		RETURNING id`
 
 	args := []any{
-		schedule.Name,
-		schedule.Expr,
+		history.Bytes,
+		history.StartedAt,
+		history.FinishedAt,
+		history.TransferID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
 	row := r.conn.QueryRow(ctx, stmt, args...)
-	err := database.Scan(row, &schedule.ID)
+	err := database.Scan(row, &history.ID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Create(schedule)
+			return r.Create(history)
 		}
 
 		return err
@@ -55,20 +56,24 @@ func (r *PostgresRepository) Create(schedule *Schedule) error {
 	return nil
 }
 
-func (r *PostgresRepository) Read(id string) (Schedule, error) {
+func (r *PostgresRepository) Read(id string) (History, error) {
 	stmt := `
 		SELECT
-			schedule.id,
-			schedule.name,
-			schedule.expr
-		FROM schedule
-		WHERE schedule.id = $1`
+			history.id,
+			history.bytes,
+			history.started_at,
+			history.finished_at,
+			history.transfer_id
+		FROM history
+		WHERE history.id = $1`
 
-	var schedule Schedule
+	var history History
 	dest := []any{
-		&schedule.ID,
-		&schedule.Name,
-		&schedule.Expr,
+		&history.ID,
+		&history.Bytes,
+		&history.StartedAt,
+		&history.FinishedAt,
+		&history.TransferID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -81,19 +86,21 @@ func (r *PostgresRepository) Read(id string) (Schedule, error) {
 			return r.Read(id)
 		}
 
-		return Schedule{}, err
+		return History{}, err
 	}
 
-	return schedule, nil
+	return history, nil
 }
 
-func (r *PostgresRepository) List() ([]Schedule, error) {
+func (r *PostgresRepository) List() ([]History, error) {
 	stmt := `
 		SELECT
-			schedule.id,
-			schedule.name,
-			schedule.expr
-		FROM schedule`
+			history.id,
+			history.bytes,
+			history.started_at,
+			history.finished_at,
+			history.transfer_id
+		FROM history`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
@@ -104,13 +111,15 @@ func (r *PostgresRepository) List() ([]Schedule, error) {
 	}
 	defer rows.Close()
 
-	var schedules []Schedule
+	var histories []History
 	for rows.Next() {
-		var schedule Schedule
+		var history History
 		dest := []any{
-			&schedule.ID,
-			&schedule.Name,
-			&schedule.Expr,
+			&history.ID,
+			&history.Bytes,
+			&history.StartedAt,
+			&history.FinishedAt,
+			&history.TransferID,
 		}
 
 		err := database.Scan(rows, dest...)
@@ -122,32 +131,28 @@ func (r *PostgresRepository) List() ([]Schedule, error) {
 			return nil, err
 		}
 
-		schedules = append(schedules, schedule)
+		histories = append(histories, history)
 	}
 
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
 
-	return schedules, nil
+	return histories, nil
 }
 
-func (r *PostgresRepository) Update(schedule Schedule) error {
-	return errors.New("TODO: not implemented")
-}
-
-func (r *PostgresRepository) Delete(schedule Schedule) error {
+func (r *PostgresRepository) Delete(history History) error {
 	stmt := `
-		DELETE FROM schedule
+		DELETE FROM history
 		WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	err := database.Exec(r.conn, ctx, stmt, schedule.ID)
+	err := database.Exec(r.conn, ctx, stmt, history.ID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Delete(schedule)
+			return r.Delete(history)
 		}
 
 		return err

@@ -9,7 +9,7 @@ type Schedule struct {
 }
 
 // TODO: how to represent adhoc schedules (only run manually)
-func NewSchedule(name, expr string) Schedule {
+func New(name, expr string) Schedule {
 	schedule := Schedule{
 		Name: name,
 		Expr: expr,
