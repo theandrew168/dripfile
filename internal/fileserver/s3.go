@@ -26,12 +26,12 @@ type S3Info struct {
 	SecretAccessKey string `json:"secret_access_key"`
 }
 
-type s3Conn struct {
+type S3FileServer struct {
 	info   S3Info
 	client *minio.Client
 }
 
-func NewS3(info S3Info) (FileServer, error) {
+func NewS3(info S3Info) (*S3FileServer, error) {
 	creds := credentials.NewStaticV4(
 		info.AccessKeyID,
 		info.SecretAccessKey,
@@ -55,15 +55,15 @@ func NewS3(info S3Info) (FileServer, error) {
 		return nil, ErrInvalidEndpoint
 	}
 
-	conn := s3Conn{
+	fs := S3FileServer{
 		info:   info,
 		client: client,
 	}
 
-	return &conn, nil
+	return &fs, nil
 }
 
-func (c *s3Conn) Ping() error {
+func (fs *S3FileServer) Ping() error {
 	ctx := context.Background()
 	buckets, err := c.client.ListBuckets(ctx)
 	if err != nil {
@@ -72,7 +72,7 @@ func (c *s3Conn) Ping() error {
 
 	found := false
 	for _, bucket := range buckets {
-		if bucket.Name == c.info.BucketName {
+		if bucket.Name == fs.info.BucketName {
 			found = true
 			break
 		}
@@ -85,11 +85,11 @@ func (c *s3Conn) Ping() error {
 	return nil
 }
 
-func (c *s3Conn) Search(pattern string) ([]FileInfo, error) {
+func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 	ctx := context.Background()
-	objects := c.client.ListObjects(
+	objects := fs.client.ListObjects(
 		ctx,
-		c.info.BucketName,
+		fs.info.BucketName,
 		minio.ListObjectsOptions{},
 	)
 
@@ -112,11 +112,11 @@ func (c *s3Conn) Search(pattern string) ([]FileInfo, error) {
 	return files, nil
 }
 
-func (c *s3Conn) Read(file FileInfo) (io.Reader, error) {
+func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
 	ctx := context.Background()
-	obj, err := c.client.GetObject(
+	obj, err := fs.client.GetObject(
 		ctx,
-		c.info.BucketName,
+		fs.info.BucketName,
 		file.Name,
 		minio.GetObjectOptions{},
 	)
@@ -127,11 +127,11 @@ func (c *s3Conn) Read(file FileInfo) (io.Reader, error) {
 	return obj, nil
 }
 
-func (c *s3Conn) Write(file FileInfo, r io.Reader) error {
+func (fs *S3FileServer) Write(file FileInfo, r io.Reader) error {
 	ctx := context.Background()
-	_, err := c.client.PutObject(
+	_, err := fs.client.PutObject(
 		ctx,
-		c.info.BucketName,
+		fs.info.BucketName,
 		file.Name,
 		r,
 		file.Size,
@@ -144,10 +144,10 @@ func (c *s3Conn) Write(file FileInfo, r io.Reader) error {
 	return nil
 }
 
-func (c *s3Conn) Rename(src, dst FileInfo) error {
+func (fs *S3FileServer) Rename(src, dst FileInfo) error {
 	return nil
 }
-func (c *s3Conn) Delete(file FileInfo) error {
+func (fs *S3FileServer) Delete(file FileInfo) error {
 	return nil
 }
 
