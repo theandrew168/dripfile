@@ -2,10 +2,7 @@ package location
 
 // enum values for location kind
 const (
-	KindS3   = "s3"
-	KindFTP  = "ftp"
-	KindFTPS = "ftps"
-	KindSFTP = "sftp"
+	KindS3 = "s3"
 )
 
 type Location struct {

@@ -1,4 +1,4 @@
-package transfer
+package task
 
 import (
 	"encoding/json"

@@ -24,21 +24,3 @@ services:
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
-#  # ftp -np localhost 2121
-#  ftp:
-#    image: stilliard/pure-ftpd
-#    ports:
-#      - "2020:20"
-#      - "2121:21"
-#      - "30000-30009:30000-30009"
-#    environment:
-#      PUBLICHOST: ftp
-#      FTP_USER_NAME: ftp
-#      FTP_USER_PASS: ftp
-#      FTP_USER_HOME: /home/ftp
-#  # sftp -P 2222 sftp@localhost
-#  sftp:
-#    image: atmoz/sftp
-#    ports:
-#      - "2222:22"
-#    command: sftp:sftp
