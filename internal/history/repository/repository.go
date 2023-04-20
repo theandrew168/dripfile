@@ -1,16 +1,17 @@
-package history
+package repository
 
 import (
 	"context"
 	"errors"
 
 	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/history"
 )
 
 type Repository interface {
-	Create(history *History) error
-	Read(id string) (History, error)
-	List() ([]History, error)
+	Create(history *history.History) error
+	Read(id string) (history.History, error)
+	List() ([]history.History, error)
 	Delete(id string) error
 }
 
@@ -25,7 +26,7 @@ func NewPostgresRepository(conn database.Conn) *PostgresRepository {
 	return &r
 }
 
-func (r *PostgresRepository) Create(history *History) error {
+func (r *PostgresRepository) Create(history *history.History) error {
 	stmt := `
 		INSERT INTO history
 			(bytes, started_at, finished_at, transfer_id)
@@ -56,7 +57,7 @@ func (r *PostgresRepository) Create(history *History) error {
 	return nil
 }
 
-func (r *PostgresRepository) Read(id string) (History, error) {
+func (r *PostgresRepository) Read(id string) (history.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -67,13 +68,13 @@ func (r *PostgresRepository) Read(id string) (History, error) {
 		FROM history
 		WHERE history.id = $1`
 
-	var history History
+	var m history.History
 	dest := []any{
-		&history.ID,
-		&history.Bytes,
-		&history.StartedAt,
-		&history.FinishedAt,
-		&history.TransferID,
+		&m.ID,
+		&m.Bytes,
+		&m.StartedAt,
+		&m.FinishedAt,
+		&m.TransferID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -86,13 +87,13 @@ func (r *PostgresRepository) Read(id string) (History, error) {
 			return r.Read(id)
 		}
 
-		return History{}, err
+		return history.History{}, err
 	}
 
-	return history, nil
+	return m, nil
 }
 
-func (r *PostgresRepository) List() ([]History, error) {
+func (r *PostgresRepository) List() ([]history.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -111,15 +112,15 @@ func (r *PostgresRepository) List() ([]History, error) {
 	}
 	defer rows.Close()
 
-	var histories []History
+	var ms []history.History
 	for rows.Next() {
-		var history History
+		var m history.History
 		dest := []any{
-			&history.ID,
-			&history.Bytes,
-			&history.StartedAt,
-			&history.FinishedAt,
-			&history.TransferID,
+			&m.ID,
+			&m.Bytes,
+			&m.StartedAt,
+			&m.FinishedAt,
+			&m.TransferID,
 		}
 
 		err := database.Scan(rows, dest...)
@@ -131,17 +132,17 @@ func (r *PostgresRepository) List() ([]History, error) {
 			return nil, err
 		}
 
-		histories = append(histories, history)
+		ms = append(ms, m)
 	}
 
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
 
-	return histories, nil
+	return ms, nil
 }
 
-func (r *PostgresRepository) Delete(history History) error {
+func (r *PostgresRepository) Delete(history history.History) error {
 	stmt := `
 		DELETE FROM history
 		WHERE id = $1`

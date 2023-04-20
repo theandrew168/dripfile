@@ -3,7 +3,6 @@ CREATE TABLE transfer (
     pattern text NOT NULL,
     from_location_id uuid NOT NULL REFERENCES location(id) ON DELETE CASCADE,
     to_location_id uuid NOT NULL REFERENCES location(id) ON DELETE CASCADE,
-    schedule_id uuid NOT NULL REFERENCES schedule(id) ON DELETE CASCADE,
 
     -- metadata columns
     created_at timestamptz NOT NULL DEFAULT NOW(),

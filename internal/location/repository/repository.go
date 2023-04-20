@@ -1,17 +1,18 @@
-package transfer
+package repository
 
 import (
 	"context"
 	"errors"
 
 	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/location"
 )
 
 type Repository interface {
-	Create(transfer *Transfer) error
-	Read(id string) (Transfer, error)
-	List() ([]Transfer, error)
-	Update(transfer Transfer) error
+	Create(location *location.Location) error
+	Read(id string) (location.Location, error)
+	List() ([]location.Location, error)
+	Update(location location.Location) error
 	Delete(id string) error
 }
 
@@ -26,29 +27,28 @@ func NewPostgresRepository(conn database.Conn) *PostgresRepository {
 	return &r
 }
 
-func (r *PostgresRepository) Create(transfer *Transfer) error {
+func (r *PostgresRepository) Create(location *location.Location) error {
 	stmt := `
-		INSERT INTO transfer
-			(pattern, from_location_id, to_location_id, schedule_id)
+		INSERT INTO location
+			(kind, name, info)
 		VALUES
-			($1, $2, $3, $4)
+			($1, $2, $3)
 		RETURNING id`
 
 	args := []any{
-		transfer.Pattern,
-		transfer.FromLocationID,
-		transfer.ToLocationID,
-		transfer.ScheduleID,
+		location.Kind,
+		location.Name,
+		location.Info,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
 	row := r.conn.QueryRow(ctx, stmt, args...)
-	err := database.Scan(row, &transfer.ID)
+	err := database.Scan(row, &location.ID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Create(transfer)
+			return r.Create(location)
 		}
 
 		return err
@@ -57,24 +57,22 @@ func (r *PostgresRepository) Create(transfer *Transfer) error {
 	return nil
 }
 
-func (r *PostgresRepository) Read(id string) (Transfer, error) {
+func (r *PostgresRepository) Read(id string) (location.Location, error) {
 	stmt := `
 		SELECT
-			transfer.id,
-			transfer.pattern,
-			transfer.from_location_id,
-			transfer.to_location_id,
-			transfer.schedule_id
-		FROM transfer
-		WHERE transfer.id = $1`
+			location.id,
+			location.kind,
+			location.name,
+			location.info
+		FROM location
+		WHERE location.id = $1`
 
-	var transfer Transfer
+	var m location.Location
 	dest := []any{
-		&transfer.ID,
-		&transfer.Pattern,
-		&transfer.FromLocationID,
-		&transfer.ToLocationID,
-		&transfer.ScheduleID,
+		&m.ID,
+		&m.Kind,
+		&m.Name,
+		&m.Info,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -87,21 +85,20 @@ func (r *PostgresRepository) Read(id string) (Transfer, error) {
 			return r.Read(id)
 		}
 
-		return Transfer{}, err
+		return location.Location{}, err
 	}
 
-	return transfer, nil
+	return m, nil
 }
 
-func (r *PostgresRepository) List() ([]Transfer, error) {
+func (r *PostgresRepository) List() ([]location.Location, error) {
 	stmt := `
 		SELECT
-			transfer.id,
-			transfer.pattern,
-			transfer.from_location_id,
-			transfer.to_location_id,
-			transfer.schedule_id
-		FROM transfer`
+			location.id,
+			location.kind,
+			location.name,
+			location.info
+		FROM location`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
@@ -112,15 +109,14 @@ func (r *PostgresRepository) List() ([]Transfer, error) {
 	}
 	defer rows.Close()
 
-	var transfers []Transfer
+	var ms []location.Location
 	for rows.Next() {
-		var transfer Transfer
+		var m location.Location
 		dest := []any{
-			&transfer.ID,
-			&transfer.Pattern,
-			&transfer.FromLocationID,
-			&transfer.ToLocationID,
-			&transfer.ScheduleID,
+			&m.ID,
+			&m.Kind,
+			&m.Name,
+			&m.Info,
 		}
 
 		err := database.Scan(rows, dest...)
@@ -132,32 +128,30 @@ func (r *PostgresRepository) List() ([]Transfer, error) {
 			return nil, err
 		}
 
-		transfers = append(transfers, transfer)
+		ms = append(ms, m)
 	}
 
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
 
-	return transfers, nil
+	return ms, nil
 }
 
-func (r *PostgresRepository) Update(transfer Transfer) error {
+func (r *PostgresRepository) Update(location location.Location) error {
 	stmt := `
-		UPDATE transfer
+		UPDATE location
 		SET
-			pattern = $2,
-			from_location_id = $3,
-			to_location_id = $4,
-			schedule_id = $5
+			kind = $2,
+			name = $3,
+			info = $4
 		WHERE id = $1`
 
 	args := []any{
-		transfer.ID,
-		transfer.Pattern,
-		transfer.FromLocationID,
-		transfer.ToLocationID,
-		transfer.ScheduleID,
+		location.ID,
+		location.Kind,
+		location.Name,
+		location.Info,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -166,7 +160,7 @@ func (r *PostgresRepository) Update(transfer Transfer) error {
 	err := database.Exec(r.conn, ctx, stmt, args...)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Update(transfer)
+			return r.Update(location)
 		}
 
 		return err
@@ -175,18 +169,18 @@ func (r *PostgresRepository) Update(transfer Transfer) error {
 	return nil
 }
 
-func (r *PostgresRepository) Delete(transfer Transfer) error {
+func (r *PostgresRepository) Delete(location location.Location) error {
 	stmt := `
-		DELETE FROM transfer
+		DELETE FROM location
 		WHERE id = $1`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	err := database.Exec(r.conn, ctx, stmt, transfer.ID)
+	err := database.Exec(r.conn, ctx, stmt, location.ID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Delete(transfer)
+			return r.Delete(location)
 		}
 
 		return err

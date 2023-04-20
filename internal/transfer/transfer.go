@@ -7,15 +7,13 @@ type Transfer struct {
 	Pattern        string
 	FromLocationID string
 	ToLocationID   string
-	ScheduleID     string
 }
 
-func New(pattern, fromLocationID, toLocationID, scheduleID string) Transfer {
+func New(pattern, fromLocationID, toLocationID string) Transfer {
 	transfer := Transfer{
 		Pattern:        pattern,
 		FromLocationID: fromLocationID,
 		ToLocationID:   toLocationID,
-		ScheduleID:     scheduleID,
 	}
 	return transfer
 }

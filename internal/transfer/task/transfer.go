@@ -6,21 +6,40 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/fileserver"
 	"github.com/theandrew168/dripfile/internal/history"
-	"github.com/theandrew168/dripfile/internal/location"
+	historyRepo "github.com/theandrew168/dripfile/internal/history/repository"
+	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
+	transferRepo "github.com/theandrew168/dripfile/internal/transfer/repository"
 )
 
-func Run(
+type Task struct {
+	transferID   string
+	transferRepo transferRepo.Repository
+	locationRepo locationRepo.Repository
+	historyRepo  historyRepo.Repository
+}
+
+func New(
 	transferID string,
-	transferRepo Repository,
-	locationRepo location.Repository,
-	historyRepo history.Repository,
-) error {
-	transfer, err := transferRepo.Read(transferID)
+	transferRepo transferRepo.Repository,
+	locationRepo locationRepo.Repository,
+	historyRepo historyRepo.Repository,
+) *Task {
+	t := Task{
+		transferID:   transferID,
+		transferRepo: transferRepo,
+		locationRepo: locationRepo,
+		historyRepo:  historyRepo,
+	}
+	return &t
+}
+
+func (t *Task) Run() error {
+	transfer, err := t.transferRepo.Read(t.transferID)
 	if err != nil {
 		return err
 	}
 
-	fromLocation, err := locationRepo.Read(transfer.FromLocationID)
+	fromLocation, err := t.locationRepo.Read(transfer.FromLocationID)
 	if err != nil {
 		return err
 	}
@@ -36,7 +55,7 @@ func Run(
 		return err
 	}
 
-	toLocation, err := locationRepo.Read(transfer.ToLocationID)
+	toLocation, err := t.locationRepo.Read(transfer.ToLocationID)
 	if err != nil {
 		return err
 	}
@@ -84,7 +103,7 @@ func Run(
 		finish,
 		transfer.ID,
 	)
-	err = historyRepo.Create(&history)
+	err = t.historyRepo.Create(&history)
 	if err != nil {
 		return err
 	}
