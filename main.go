@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 
+	"github.com/urfave/cli/v2"
 	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/internal/config"
@@ -20,7 +21,7 @@ func main() {
 }
 
 func run() int {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout))
+	logger := slog.New(slog.NewTextHandler(os.Stdout))
 
 	conf := flag.String("conf", "dripfile.conf", "app config file")
 	flag.Parse()
@@ -38,11 +39,24 @@ func run() int {
 	}
 	defer pool.Close()
 
-	// migrate: apply migrations and exit
-	err = migrate.Migrate(logger, pool, migrationFS)
+	app := &cli.App{
+		Name:  "dripfile",
+		Usage: "Managed File Transfers as a Service",
+		Commands: []*cli.Command{
+			{
+				Name:  "migrate",
+				Usage: "Applies migrations and exits",
+				Action: func(*cli.Context) error {
+					return migrate.Migrate(logger, pool, migrationFS)
+				},
+			},
+		},
+	}
+
+	err = app.Run(os.Args)
 	if err != nil {
 		logger.Error(err.Error())
-		return 1
 	}
+
 	return 0
 }
