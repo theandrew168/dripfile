@@ -1,7 +1,6 @@
 CREATE TABLE location (
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     kind text NOT NULL,
-    name text NOT NULL,
     info bytea NOT NULL,
 
     -- metadata columns

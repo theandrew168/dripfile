@@ -30,14 +30,13 @@ func NewPostgresRepository(conn database.Conn) *PostgresRepository {
 func (r *PostgresRepository) Create(location *location.Location) error {
 	stmt := `
 		INSERT INTO location
-			(kind, name, info)
+			(kind, info)
 		VALUES
-			($1, $2, $3)
+			($1, $2)
 		RETURNING id`
 
 	args := []any{
 		location.Kind,
-		location.Name,
 		location.Info,
 	}
 
@@ -62,7 +61,6 @@ func (r *PostgresRepository) Read(id string) (location.Location, error) {
 		SELECT
 			location.id,
 			location.kind,
-			location.name,
 			location.info
 		FROM location
 		WHERE location.id = $1`
@@ -71,7 +69,6 @@ func (r *PostgresRepository) Read(id string) (location.Location, error) {
 	dest := []any{
 		&m.ID,
 		&m.Kind,
-		&m.Name,
 		&m.Info,
 	}
 
@@ -96,7 +93,6 @@ func (r *PostgresRepository) List() ([]location.Location, error) {
 		SELECT
 			location.id,
 			location.kind,
-			location.name,
 			location.info
 		FROM location`
 
@@ -115,7 +111,6 @@ func (r *PostgresRepository) List() ([]location.Location, error) {
 		dest := []any{
 			&m.ID,
 			&m.Kind,
-			&m.Name,
 			&m.Info,
 		}
 
@@ -143,14 +138,12 @@ func (r *PostgresRepository) Update(location location.Location) error {
 		UPDATE location
 		SET
 			kind = $2,
-			name = $3,
-			info = $4
+			info = $3
 		WHERE id = $1`
 
 	args := []any{
 		location.ID,
 		location.Kind,
-		location.Name,
 		location.Info,
 	}
 
@@ -169,18 +162,29 @@ func (r *PostgresRepository) Update(location location.Location) error {
 	return nil
 }
 
-func (r *PostgresRepository) Delete(location location.Location) error {
+func (r *PostgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM location
-		WHERE id = $1`
+		WHERE id = $1
+		RETURNING id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	err := database.Exec(r.conn, ctx, stmt, location.ID)
+	args := []any{
+		id,
+	}
+
+	var deletedID string
+	row := r.conn.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &deletedID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Delete(location)
+			return r.Delete(id)
+		}
+
+		if deletedID != id {
+			return database.ErrNotExist
 		}
 
 		return err

@@ -1,9 +1,7 @@
 package service
 
 import (
-	"encoding/json"
-
-	"github.com/theandrew168/dripfile/internal/fileserver"
+	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	"github.com/theandrew168/dripfile/internal/location"
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
 )
@@ -19,26 +17,26 @@ func New(locationRepo locationRepo.Repository) *Service {
 	return &s
 }
 
-func (s *Service) CreateS3(name string, info fileserver.S3Info) (location.Location, error) {
-	fs, err := fileserver.NewS3(info)
+func (s *Service) CreateS3(info s3.Info) (location.Location, error) {
+	fs, err := s3.New(info)
 	if err != nil {
-		return location.Location{}, nil
+		return location.Location{}, err
 	}
 
 	err = fs.Ping()
 	if err != nil {
-		return location.Location{}, nil
+		return location.Location{}, err
 	}
 
-	jsonInfo, err := json.Marshal(info)
+	data, err := info.ToJSON()
 	if err != nil {
-		return location.Location{}, nil
+		return location.Location{}, err
 	}
 
-	m := location.New(location.KindS3, name, jsonInfo)
+	m := location.New(location.KindS3, data)
 	err = s.locationRepo.Create(&m)
 	if err != nil {
-		return location.Location{}, nil
+		return location.Location{}, err
 	}
 
 	return m, nil

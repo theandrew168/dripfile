@@ -1,7 +1,8 @@
-package fileserver
+package s3
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/theandrew168/dripfile/internal/fileserver"
 )
 
 var (
@@ -19,19 +21,48 @@ var (
 	ErrInvalidBucket      = errors.New("s3: invalid bucket")
 )
 
-type S3Info struct {
+type Info struct {
 	Endpoint        string `json:"endpoint"`
-	BucketName      string `json:"bucket_name"`
+	Bucket          string `json:"bucket"`
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
 }
 
-type S3FileServer struct {
-	info   S3Info
+func NewInfo(endpoint, bucket, accessKeyID, secretAccessKey string) Info {
+	info := Info{
+		Endpoint:        endpoint,
+		Bucket:          bucket,
+		AccessKeyID:     accessKeyID,
+		SecretAccessKey: secretAccessKey,
+	}
+	return info
+}
+
+func NewInfoFromJSON(data []byte) (Info, error) {
+	var info Info
+	err := json.Unmarshal(data, &info)
+	if err != nil {
+		return Info{}, nil
+	}
+
+	return info, nil
+}
+
+func (info Info) ToJSON() ([]byte, error) {
+	data, err := json.Marshal(info)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+type FileServer struct {
+	info   Info
 	client *minio.Client
 }
 
-func NewS3(info S3Info) (*S3FileServer, error) {
+func New(info Info) (*FileServer, error) {
 	creds := credentials.NewStaticV4(
 		info.AccessKeyID,
 		info.SecretAccessKey,
@@ -55,7 +86,7 @@ func NewS3(info S3Info) (*S3FileServer, error) {
 		return nil, ErrInvalidEndpoint
 	}
 
-	fs := S3FileServer{
+	fs := FileServer{
 		info:   info,
 		client: client,
 	}
@@ -63,16 +94,16 @@ func NewS3(info S3Info) (*S3FileServer, error) {
 	return &fs, nil
 }
 
-func (fs *S3FileServer) Ping() error {
+func (fs *FileServer) Ping() error {
 	ctx := context.Background()
-	buckets, err := c.client.ListBuckets(ctx)
+	buckets, err := fs.client.ListBuckets(ctx)
 	if err != nil {
 		return normalize(err)
 	}
 
 	found := false
 	for _, bucket := range buckets {
-		if bucket.Name == fs.info.BucketName {
+		if bucket.Name == fs.info.Bucket {
 			found = true
 			break
 		}
@@ -85,15 +116,15 @@ func (fs *S3FileServer) Ping() error {
 	return nil
 }
 
-func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
+func (fs *FileServer) Search(pattern string) ([]fileserver.FileInfo, error) {
 	ctx := context.Background()
 	objects := fs.client.ListObjects(
 		ctx,
-		fs.info.BucketName,
+		fs.info.Bucket,
 		minio.ListObjectsOptions{},
 	)
 
-	var files []FileInfo
+	var files []fileserver.FileInfo
 	for object := range objects {
 		err := object.Err
 		if err != nil {
@@ -105,18 +136,18 @@ func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 			continue
 		}
 
-		info := FileInfo{object.Key, object.Size}
-		files = append(files, info)
+		file := fileserver.NewFileInfo(object.Key, object.Size)
+		files = append(files, file)
 	}
 
 	return files, nil
 }
 
-func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
+func (fs *FileServer) Read(file fileserver.FileInfo) (io.Reader, error) {
 	ctx := context.Background()
 	obj, err := fs.client.GetObject(
 		ctx,
-		fs.info.BucketName,
+		fs.info.Bucket,
 		file.Name,
 		minio.GetObjectOptions{},
 	)
@@ -127,11 +158,11 @@ func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
 	return obj, nil
 }
 
-func (fs *S3FileServer) Write(file FileInfo, r io.Reader) error {
+func (fs *FileServer) Write(file fileserver.FileInfo, r io.Reader) error {
 	ctx := context.Background()
 	_, err := fs.client.PutObject(
 		ctx,
-		fs.info.BucketName,
+		fs.info.Bucket,
 		file.Name,
 		r,
 		file.Size,
@@ -141,13 +172,6 @@ func (fs *S3FileServer) Write(file FileInfo, r io.Reader) error {
 		return err
 	}
 
-	return nil
-}
-
-func (fs *S3FileServer) Rename(src, dst FileInfo) error {
-	return nil
-}
-func (fs *S3FileServer) Delete(file FileInfo) error {
 	return nil
 }
 

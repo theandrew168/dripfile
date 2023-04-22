@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/theandrew168/dripfile/internal/fileserver"
+	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	"github.com/theandrew168/dripfile/internal/history"
 	historyRepo "github.com/theandrew168/dripfile/internal/history/repository"
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
@@ -44,13 +44,13 @@ func (t *Task) Run() error {
 		return err
 	}
 
-	var fromLocationInfo fileserver.S3Info
+	var fromLocationInfo s3.Info
 	err = json.Unmarshal(fromLocation.Info, &fromLocationInfo)
 	if err != nil {
 		return err
 	}
 
-	fromLocationFileServer, err := fileserver.NewS3(fromLocationInfo)
+	fromLocationFileServer, err := s3.New(fromLocationInfo)
 	if err != nil {
 		return err
 	}
@@ -60,13 +60,13 @@ func (t *Task) Run() error {
 		return err
 	}
 
-	var toLocationInfo fileserver.S3Info
+	var toLocationInfo s3.Info
 	err = json.Unmarshal(toLocation.Info, &toLocationInfo)
 	if err != nil {
 		return err
 	}
 
-	toLocationFileServer, err := fileserver.NewS3(toLocationInfo)
+	toLocationFileServer, err := s3.New(toLocationInfo)
 	if err != nil {
 		return err
 	}

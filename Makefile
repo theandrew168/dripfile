@@ -1,42 +1,16 @@
 .POSIX:
 .SUFFIXES:
 
-CONF = dripfile.conf
-
 .PHONY: default
 default: build
-
-.PHONY: css
-css:
-	tailwindcss -o static/css/tailwind.min.css --minify
-
-.PHONY: watch-css
-watch-css:
-	tailwindcss -o static/css/tailwind.min.css --minify --watch
 
 .PHONY: build
 build:
 	go build -o dripfile main.go
 
-.PHONY: web
-web: migrate
-	DEBUG=1 go run main.go -conf $(CONF) web
-
-.PHONY: worker
-worker: migrate
-	DEBUG=1 go run main.go -conf $(CONF) worker
-
-.PHONY: scheduler
-scheduler: migrate
-	DEBUG=1 go run main.go -conf $(CONF) scheduler
-
 .PHONY: migrate
 migrate:
-	DEBUG=1 go run main.go -conf $(CONF) migrate
-
-# run the web server and tailwindcss concurrently (requires at least "-j2") 
-.PHONY: frontend
-frontend: web watch-css
+	go run main.go migrate
 
 .PHONY: test
 test: migrate

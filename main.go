@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -11,7 +12,9 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
+	locationService "github.com/theandrew168/dripfile/internal/location/service"
 	"github.com/theandrew168/dripfile/internal/migrate"
 )
 
@@ -46,6 +49,13 @@ func run() int {
 	app := &cli.App{
 		Name:  "dripfile",
 		Usage: "Managed File Transfers as a Service",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "conf",
+				Usage: "Path to config file",
+				Value: "dripfile.conf",
+			},
+		},
 		Commands: []*cli.Command{
 			{
 				Name:  "migrate",
@@ -63,52 +73,65 @@ func run() int {
 						Usage: "Creates a new location",
 						Subcommands: []*cli.Command{
 							{
-								Name:  "s3",
-								Usage: "Creates a new S3 location",
-								Flags: []cli.Flag{
-									&cli.StringFlag{
-										Name:     "endpoint",
-										Usage:    "S3 endpoint URL",
-										Required: true,
-									},
-									&cli.StringFlag{
-										Name:     "bucket",
-										Usage:    "S3 bucket name",
-										Required: true,
-									},
-									&cli.StringFlag{
-										Name:     "access_key_id",
-										Usage:    "S3 access key id",
-										Required: true,
-									},
-									&cli.StringFlag{
-										Name:     "secret_access_key",
-										Usage:    "S3 secret access key",
-										Required: true,
-									},
-								},
-								Action: func(*cli.Context) error {
-									location, err := locationRepo.Read("asdf")
+								Name:      "s3",
+								Usage:     "Creates a new S3 location",
+								ArgsUsage: "endpoint bucket access_key_id secret_access_key",
+								Action: func(ctx *cli.Context) error {
+									if ctx.Args().Len() != 4 {
+										return cli.ShowSubcommandHelp(ctx)
+									}
+
+									endpoint := ctx.Args().Get(0)
+									bucket := ctx.Args().Get(1)
+									accessKeyID := ctx.Args().Get(2)
+									secretAccessKey := ctx.Args().Get(3)
+
+									srvc := locationService.New(locationRepo)
+
+									info := s3.NewInfo(endpoint, bucket, accessKeyID, secretAccessKey)
+									location, err := srvc.CreateS3(info)
 									if err != nil {
 										return err
 									}
 
-									fmt.Printf("%+v\n", location)
+									fmt.Printf("location created: %s\n", location.ID)
 									return nil
 								},
 							},
 						},
 					},
 					{
-						Name:  "read",
-						Usage: "Reads a location by its ID",
-						Action: func(*cli.Context) error {
-							location, err := locationRepo.Read("asdf")
+						Name:      "read",
+						Usage:     "Reads a location by its ID",
+						ArgsUsage: "id",
+						Action: func(ctx *cli.Context) error {
+							if ctx.Args().Len() != 1 {
+								return cli.ShowSubcommandHelp(ctx)
+							}
+
+							id := ctx.Args().Get(0)
+
+							location, err := locationRepo.Read(id)
 							if err != nil {
 								return err
 							}
 
-							fmt.Printf("%+v\n", location)
+							switch location.Kind {
+							case "s3":
+								info, err := s3.NewInfoFromJSON(location.Info)
+								if err != nil {
+									return err
+								}
+
+								fmt.Printf(
+									"%s %s %s %s\n",
+									location.ID,
+									location.Kind,
+									info.Endpoint,
+									info.Bucket,
+								)
+							}
+
 							return nil
 						},
 					},
@@ -122,9 +145,34 @@ func run() int {
 							}
 
 							for _, location := range locations {
-								fmt.Printf("%+v\n", location)
+								fmt.Println(location.ID)
 							}
 
+							return nil
+						},
+					},
+					{
+						Name:      "delete",
+						Usage:     "Deletes a location by its ID",
+						ArgsUsage: "id",
+						Action: func(ctx *cli.Context) error {
+							if ctx.Args().Len() != 1 {
+								return cli.ShowSubcommandHelp(ctx)
+							}
+
+							id := ctx.Args().Get(0)
+
+							err := locationRepo.Delete(id)
+							if err != nil {
+								if errors.Is(err, database.ErrNotExist) {
+									fmt.Printf("location does not exist: %s\n", id)
+									return nil
+								}
+
+								return err
+							}
+
+							fmt.Printf("location deleted: %s\n", id)
 							return nil
 						},
 					},
@@ -135,7 +183,7 @@ func run() int {
 
 	err = app.Run(os.Args)
 	if err != nil {
-		logger.Error(err.Error())
+		fmt.Println(err)
 	}
 
 	return 0

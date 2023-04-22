@@ -10,14 +10,12 @@ type Location struct {
 	ID string
 
 	Kind string
-	Name string
 	Info []byte
 }
 
-func New(kind, name string, info []byte) Location {
+func New(kind string, info []byte) Location {
 	location := Location{
 		Kind: kind,
-		Name: name,
 		Info: info,
 	}
 	return location
