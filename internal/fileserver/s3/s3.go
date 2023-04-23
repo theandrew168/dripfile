@@ -2,7 +2,6 @@ package s3
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -26,35 +25,6 @@ type Info struct {
 	Bucket          string `json:"bucket"`
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
-}
-
-func NewInfo(endpoint, bucket, accessKeyID, secretAccessKey string) Info {
-	info := Info{
-		Endpoint:        endpoint,
-		Bucket:          bucket,
-		AccessKeyID:     accessKeyID,
-		SecretAccessKey: secretAccessKey,
-	}
-	return info
-}
-
-func NewInfoFromJSON(data []byte) (Info, error) {
-	var info Info
-	err := json.Unmarshal(data, &info)
-	if err != nil {
-		return Info{}, nil
-	}
-
-	return info, nil
-}
-
-func (info Info) ToJSON() ([]byte, error) {
-	data, err := json.Marshal(info)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
 }
 
 type FileServer struct {

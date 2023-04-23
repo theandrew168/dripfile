@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -45,6 +46,7 @@ func run() int {
 	defer pool.Close()
 
 	locationRepo := locationRepo.NewPostgresRepository(pool)
+	locationService := locationService.New(locationRepo)
 
 	app := &cli.App{
 		Name:  "dripfile",
@@ -86,10 +88,13 @@ func run() int {
 									accessKeyID := ctx.Args().Get(2)
 									secretAccessKey := ctx.Args().Get(3)
 
-									srvc := locationService.New(locationRepo)
-
-									info := s3.NewInfo(endpoint, bucket, accessKeyID, secretAccessKey)
-									location, err := srvc.CreateS3(info)
+									info := s3.Info{
+										Endpoint:        endpoint,
+										Bucket:          bucket,
+										AccessKeyID:     accessKeyID,
+										SecretAccessKey: secretAccessKey,
+									}
+									location, err := locationService.CreateS3(info)
 									if err != nil {
 										return err
 									}
@@ -118,7 +123,8 @@ func run() int {
 
 							switch location.Kind {
 							case "s3":
-								info, err := s3.NewInfoFromJSON(location.Info)
+								var info s3.Info
+								err := json.Unmarshal(location.Info, &info)
 								if err != nil {
 									return err
 								}

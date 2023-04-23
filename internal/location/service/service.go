@@ -1,6 +1,8 @@
 package service
 
 import (
+	"encoding/json"
+
 	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	"github.com/theandrew168/dripfile/internal/location"
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
@@ -28,7 +30,7 @@ func (s *Service) CreateS3(info s3.Info) (location.Location, error) {
 		return location.Location{}, err
 	}
 
-	data, err := info.ToJSON()
+	data, err := json.Marshal(info)
 	if err != nil {
 		return location.Location{}, err
 	}
