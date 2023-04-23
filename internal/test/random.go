@@ -5,37 +5,44 @@ import (
 	"time"
 )
 
-func init() {
-	rand.Seed(time.Now().UnixNano())
+type Random struct {
+	rand *rand.Rand
 }
 
-func RandomBytes(n int) []byte {
+func NewRandom(seed int64) *Random {
+	r := Random{
+		rand: rand.New(rand.NewSource(seed)),
+	}
+	return &r
+}
+
+func (r *Random) Bytes(n int) []byte {
 	valid := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_"
 
 	buf := make([]byte, n)
 	for i := range buf {
-		buf[i] = valid[rand.Intn(len(valid))]
+		buf[i] = valid[r.rand.Intn(len(valid))]
 	}
 
 	return buf
 }
 
-func RandomInt() int {
-	return rand.Int()
+func (r *Random) Int() int {
+	return r.rand.Int()
 }
 
-func RandomUUID() string {
+func (r *Random) UUID() string {
 	return "2dbb189e-d392-43a1-bef6-724c63c0550a"
 }
 
-func RandomString(n int) string {
-	return string(RandomBytes(n))
+func (r *Random) String(n int) string {
+	return string(r.Bytes(n))
 }
 
-func RandomURL(n int) string {
-	return "https://" + RandomString(n)
+func (r *Random) URL() string {
+	return "https://" + r.String(16) + "example.com"
 }
 
-func RandomTime() time.Time {
+func (r *Random) Time() time.Time {
 	return time.Now().UTC()
 }
