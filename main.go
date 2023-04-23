@@ -126,7 +126,7 @@ func run() int {
 
 							id := ctx.Args().Get(0)
 
-							location, err := locationRepo.Read(id)
+							location, err := locationService.Read(id)
 							if err != nil {
 								return err
 							}
@@ -155,7 +155,7 @@ func run() int {
 						Name:  "list",
 						Usage: "Lists all locations",
 						Action: func(*cli.Context) error {
-							locations, err := locationRepo.List()
+							locations, err := locationService.List()
 							if err != nil {
 								return err
 							}
@@ -178,7 +178,7 @@ func run() int {
 
 							id := ctx.Args().Get(0)
 
-							err := locationRepo.Delete(id)
+							err := locationService.Delete(id)
 							if err != nil {
 								if errors.Is(err, database.ErrNotExist) {
 									fmt.Printf("location does not exist: %s\n", id)
