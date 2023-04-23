@@ -8,25 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/internal/history"
 )
 
-type Repository interface {
-	Create(history *history.History) error
-	Read(id string) (history.History, error)
-	List() ([]history.History, error)
-	Delete(id string) error
-}
-
-type PostgresRepository struct {
+type Repository struct {
 	conn database.Conn
 }
 
-func NewPostgresRepository(conn database.Conn) *PostgresRepository {
-	r := PostgresRepository{
+func New(conn database.Conn) *Repository {
+	r := Repository{
 		conn: conn,
 	}
 	return &r
 }
 
-func (r *PostgresRepository) Create(history *history.History) error {
+func (r *Repository) Create(history *history.History) error {
 	stmt := `
 		INSERT INTO history
 			(bytes, started_at, finished_at, transfer_id)
@@ -57,7 +50,7 @@ func (r *PostgresRepository) Create(history *history.History) error {
 	return nil
 }
 
-func (r *PostgresRepository) Read(id string) (history.History, error) {
+func (r *Repository) Read(id string) (history.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -93,7 +86,7 @@ func (r *PostgresRepository) Read(id string) (history.History, error) {
 	return m, nil
 }
 
-func (r *PostgresRepository) List() ([]history.History, error) {
+func (r *Repository) List() ([]history.History, error) {
 	stmt := `
 		SELECT
 			history.id,
@@ -142,7 +135,7 @@ func (r *PostgresRepository) List() ([]history.History, error) {
 	return ms, nil
 }
 
-func (r *PostgresRepository) Delete(id string) error {
+func (r *Repository) Delete(id string) error {
 	stmt := `
 		DELETE FROM history
 		WHERE id = $1

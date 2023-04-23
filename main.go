@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -17,6 +18,7 @@ import (
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
 	locationService "github.com/theandrew168/dripfile/internal/location/service"
 	"github.com/theandrew168/dripfile/internal/migrate"
+	"github.com/theandrew168/dripfile/internal/secret"
 )
 
 //go:embed migration
@@ -38,6 +40,14 @@ func run() int {
 		return 1
 	}
 
+	secretKey, err := hex.DecodeString(cfg.SecretKey)
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
+	box := secret.NewBox([32]byte(secretKey))
+
 	pool, err := database.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
 		logger.Error(err.Error())
@@ -45,8 +55,8 @@ func run() int {
 	}
 	defer pool.Close()
 
-	locationRepo := locationRepo.NewPostgresRepository(pool)
-	locationService := locationService.New(locationRepo)
+	locationRepo := locationRepo.New(pool)
+	locationService := locationService.New(box, locationRepo)
 
 	app := &cli.App{
 		Name:  "dripfile",

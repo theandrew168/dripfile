@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	ErrEncrypt = errors.New("secret: encryption error")
 	ErrDecrypt = errors.New("secret: decryption error")
 )
 
@@ -24,7 +25,29 @@ func NewBox(key [32]byte) *Box {
 	return &b
 }
 
-func (b *Box) Nonce() ([24]byte, error) {
+func (b *Box) Encrypt(message []byte) ([]byte, error) {
+	nonce, err := generateNonce()
+	if err != nil {
+		return nil, ErrEncrypt
+	}
+
+	encrypted := secretbox.Seal(nonce[:], message, &nonce, &b.key)
+	return encrypted, nil
+}
+
+func (b *Box) Decrypt(encrypted []byte) ([]byte, error) {
+	var nonce [24]byte
+	copy(nonce[:], encrypted[:24])
+
+	message, ok := secretbox.Open(nil, encrypted[24:], &nonce, &b.key)
+	if !ok {
+		return nil, ErrDecrypt
+	}
+
+	return message, nil
+}
+
+func generateNonce() ([24]byte, error) {
 	var nonce [24]byte
 	_, err := io.ReadFull(rand.Reader, nonce[:])
 	if err != nil {
@@ -32,20 +55,4 @@ func (b *Box) Nonce() ([24]byte, error) {
 	}
 
 	return nonce, nil
-}
-
-func (b *Box) Encrypt(nonce [24]byte, message []byte) []byte {
-	return secretbox.Seal(nonce[:], message, &nonce, &b.key)
-}
-
-func (b *Box) Decrypt(box []byte) ([]byte, error) {
-	var nonce [24]byte
-	copy(nonce[:], box[:24])
-
-	message, ok := secretbox.Open(nil, box[24:], &nonce, &b.key)
-	if !ok {
-		return nil, ErrDecrypt
-	}
-
-	return message, nil
 }

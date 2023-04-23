@@ -22,10 +22,9 @@ func TestEncryptDecrypt(t *testing.T) {
 	}
 
 	for _, input := range inputs {
-		nonce, err := box.Nonce()
+		encrypted, err := box.Encrypt([]byte(input))
 		test.AssertNilError(t, err)
 
-		encrypted := box.Encrypt(nonce, []byte(input))
 		decrypted, err := box.Decrypt(encrypted)
 		test.AssertNilError(t, err)
 

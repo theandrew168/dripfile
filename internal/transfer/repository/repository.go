@@ -8,26 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/internal/transfer"
 )
 
-type Repository interface {
-	Create(transfer *transfer.Transfer) error
-	Read(id string) (transfer.Transfer, error)
-	List() ([]transfer.Transfer, error)
-	Update(transfer transfer.Transfer) error
-	Delete(id string) error
-}
-
-type PostgresRepository struct {
+type Repository struct {
 	conn database.Conn
 }
 
-func NewPostgresRepository(conn database.Conn) *PostgresRepository {
-	r := PostgresRepository{
+func New(conn database.Conn) *Repository {
+	r := Repository{
 		conn: conn,
 	}
 	return &r
 }
 
-func (r *PostgresRepository) Create(transfer *transfer.Transfer) error {
+func (r *Repository) Create(transfer *transfer.Transfer) error {
 	stmt := `
 		INSERT INTO transfer
 			(pattern, from_location_id, to_location_id)
@@ -57,7 +49,7 @@ func (r *PostgresRepository) Create(transfer *transfer.Transfer) error {
 	return nil
 }
 
-func (r *PostgresRepository) Read(id string) (transfer.Transfer, error) {
+func (r *Repository) Read(id string) (transfer.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
@@ -91,7 +83,7 @@ func (r *PostgresRepository) Read(id string) (transfer.Transfer, error) {
 	return m, nil
 }
 
-func (r *PostgresRepository) List() ([]transfer.Transfer, error) {
+func (r *Repository) List() ([]transfer.Transfer, error) {
 	stmt := `
 		SELECT
 			transfer.id,
@@ -138,7 +130,7 @@ func (r *PostgresRepository) List() ([]transfer.Transfer, error) {
 	return ms, nil
 }
 
-func (r *PostgresRepository) Update(transfer transfer.Transfer) error {
+func (r *Repository) Update(transfer transfer.Transfer) error {
 	stmt := `
 		UPDATE transfer
 		SET
@@ -172,7 +164,7 @@ func (r *PostgresRepository) Update(transfer transfer.Transfer) error {
 	return nil
 }
 
-func (r *PostgresRepository) Delete(id string) error {
+func (r *Repository) Delete(id string) error {
 	stmt := `
 		DELETE FROM transfer
 		WHERE id = $1

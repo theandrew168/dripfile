@@ -8,26 +8,18 @@ import (
 	"github.com/theandrew168/dripfile/internal/location"
 )
 
-type Repository interface {
-	Create(location *location.Location) error
-	Read(id string) (location.Location, error)
-	List() ([]location.Location, error)
-	Update(location location.Location) error
-	Delete(id string) error
-}
-
-type PostgresRepository struct {
+type Repository struct {
 	conn database.Conn
 }
 
-func NewPostgresRepository(conn database.Conn) *PostgresRepository {
-	r := PostgresRepository{
+func New(conn database.Conn) *Repository {
+	r := Repository{
 		conn: conn,
 	}
 	return &r
 }
 
-func (r *PostgresRepository) Create(location *location.Location) error {
+func (r *Repository) Create(location *location.Location) error {
 	stmt := `
 		INSERT INTO location
 			(kind, info)
@@ -56,7 +48,7 @@ func (r *PostgresRepository) Create(location *location.Location) error {
 	return nil
 }
 
-func (r *PostgresRepository) Read(id string) (location.Location, error) {
+func (r *Repository) Read(id string) (location.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -88,7 +80,7 @@ func (r *PostgresRepository) Read(id string) (location.Location, error) {
 	return m, nil
 }
 
-func (r *PostgresRepository) List() ([]location.Location, error) {
+func (r *Repository) List() ([]location.Location, error) {
 	stmt := `
 		SELECT
 			location.id,
@@ -133,7 +125,7 @@ func (r *PostgresRepository) List() ([]location.Location, error) {
 	return ms, nil
 }
 
-func (r *PostgresRepository) Update(location location.Location) error {
+func (r *Repository) Update(location location.Location) error {
 	stmt := `
 		UPDATE location
 		SET
@@ -165,7 +157,7 @@ func (r *PostgresRepository) Update(location location.Location) error {
 	return nil
 }
 
-func (r *PostgresRepository) Delete(id string) error {
+func (r *Repository) Delete(id string) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1
