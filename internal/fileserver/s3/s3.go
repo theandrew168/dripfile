@@ -106,7 +106,10 @@ func (fs *FileServer) Search(pattern string) ([]fileserver.FileInfo, error) {
 			continue
 		}
 
-		file := fileserver.NewFileInfo(object.Key, object.Size)
+		file := fileserver.FileInfo{
+			Name: object.Key,
+			Size: object.Size,
+		}
 		files = append(files, file)
 	}
 

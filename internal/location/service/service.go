@@ -38,17 +38,17 @@ func (s *Service) CreateS3(info s3.Info) (location.Location, error) {
 		return location.Location{}, err
 	}
 
-	data, err := json.Marshal(info)
+	infoJSON, err := json.Marshal(info)
 	if err != nil {
 		return location.Location{}, err
 	}
 
-	encrypted, err := s.box.Encrypt(data)
+	encryptedInfoJSON, err := s.box.Encrypt(infoJSON)
 	if err != nil {
 		return location.Location{}, err
 	}
 
-	m := location.New(location.KindS3, encrypted)
+	m := location.New(location.KindS3, encryptedInfoJSON)
 	err = s.locationRepo.Create(&m)
 	if err != nil {
 		return location.Location{}, err
@@ -58,13 +58,38 @@ func (s *Service) CreateS3(info s3.Info) (location.Location, error) {
 }
 
 func (s *Service) Read(id string) (location.Location, error) {
-	// TODO: decrypt info
-	return s.locationRepo.Read(id)
+	m, err := s.locationRepo.Read(id)
+	if err != nil {
+		return location.Location{}, err
+	}
+
+	decryptedInfo, err := s.box.Decrypt(m.Info)
+	if err != nil {
+		return location.Location{}, err
+	}
+
+	m.Info = decryptedInfo
+	return m, nil
 }
 
 func (s *Service) List() ([]location.Location, error) {
-	// TODO: decrypt each location's info
-	return s.locationRepo.List()
+	encryptedLocations, err := s.locationRepo.List()
+	if err != nil {
+		return nil, err
+	}
+
+	var ms []location.Location
+	for _, m := range encryptedLocations {
+		decryptedInfo, err := s.box.Decrypt(m.Info)
+		if err != nil {
+			return nil, err
+		}
+
+		m.Info = decryptedInfo
+		ms = append(ms, m)
+	}
+
+	return ms, nil
 }
 
 func (s *Service) Update(location location.Location) error {
