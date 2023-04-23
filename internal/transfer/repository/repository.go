@@ -145,7 +145,8 @@ func (r *PostgresRepository) Update(transfer transfer.Transfer) error {
 			pattern = $2,
 			from_location_id = $3,
 			to_location_id = $4
-		WHERE id = $1`
+		WHERE id = $1
+		RETURNING id`
 
 	args := []any{
 		transfer.ID,
@@ -157,7 +158,9 @@ func (r *PostgresRepository) Update(transfer transfer.Transfer) error {
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	err := database.Exec(r.conn, ctx, stmt, args...)
+	var updatedID string
+	row := r.conn.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &updatedID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
 			return r.Update(transfer)
@@ -169,18 +172,21 @@ func (r *PostgresRepository) Update(transfer transfer.Transfer) error {
 	return nil
 }
 
-func (r *PostgresRepository) Delete(transfer transfer.Transfer) error {
+func (r *PostgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM transfer
-		WHERE id = $1`
+		WHERE id = $1
+		RETURNING id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	err := database.Exec(r.conn, ctx, stmt, transfer.ID)
+	var deletedID string
+	row := r.conn.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, &deletedID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Delete(transfer)
+			return r.Delete(id)
 		}
 
 		return err

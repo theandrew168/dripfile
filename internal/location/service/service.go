@@ -2,10 +2,15 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	"github.com/theandrew168/dripfile/internal/location"
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
+)
+
+var (
+	ErrLocationInUse = errors.New("location: in use")
 )
 
 type Service struct {
@@ -42,4 +47,21 @@ func (s *Service) CreateS3(info s3.Info) (location.Location, error) {
 	}
 
 	return m, nil
+}
+
+func (s *Service) Read(id string) (location.Location, error) {
+	return s.locationRepo.Read(id)
+}
+
+func (s *Service) List() ([]location.Location, error) {
+	return s.locationRepo.List()
+}
+
+func (s *Service) Update(location location.Location) error {
+	return s.locationRepo.Update(location)
+}
+
+func (s *Service) Delete(id string) error {
+	// TODO: check for transfers that use this location
+	return s.locationRepo.Delete(id)
 }

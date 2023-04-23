@@ -139,7 +139,8 @@ func (r *PostgresRepository) Update(location location.Location) error {
 		SET
 			kind = $2,
 			info = $3
-		WHERE id = $1`
+		WHERE id = $1
+		RETURNING id`
 
 	args := []any{
 		location.ID,
@@ -150,7 +151,9 @@ func (r *PostgresRepository) Update(location location.Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	err := database.Exec(r.conn, ctx, stmt, args...)
+	var updatedID string
+	row := r.conn.QueryRow(ctx, stmt, args...)
+	err := database.Scan(row, &updatedID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
 			return r.Update(location)
@@ -171,20 +174,12 @@ func (r *PostgresRepository) Delete(id string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	args := []any{
-		id,
-	}
-
 	var deletedID string
-	row := r.conn.QueryRow(ctx, stmt, args...)
+	row := r.conn.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, &deletedID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
 			return r.Delete(id)
-		}
-
-		if deletedID != id {
-			return database.ErrNotExist
 		}
 
 		return err

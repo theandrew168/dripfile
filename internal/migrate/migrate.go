@@ -12,7 +12,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 )
 
-func Migrate(logger *slog.Logger, db database.Conn, files embed.FS) error {
+func Migrate(logger *slog.Logger, conn database.Conn, files embed.FS) error {
 	ctx := context.Background()
 
 	// attempt to create extensions (requires superuser privileges)
@@ -23,14 +23,14 @@ func Migrate(logger *slog.Logger, db database.Conn, files embed.FS) error {
 	}
 	for _, ext := range exts {
 		stmt := fmt.Sprintf("CREATE EXTENSION IF NOT EXISTS %s", ext)
-		_, err := db.Exec(ctx, stmt)
+		_, err := conn.Exec(ctx, stmt)
 		if err != nil {
 			return err
 		}
 	}
 
 	// create migration table if it doesn't exist
-	_, err := db.Exec(ctx, `
+	_, err := conn.Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS migration (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL UNIQUE
@@ -40,7 +40,7 @@ func Migrate(logger *slog.Logger, db database.Conn, files embed.FS) error {
 	}
 
 	// get migrations that are already applied
-	rows, err := db.Query(ctx, "SELECT name FROM migration")
+	rows, err := conn.Query(ctx, "SELECT name FROM migration")
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func Migrate(logger *slog.Logger, db database.Conn, files embed.FS) error {
 		}
 
 		// apply each migration in a transaction
-		tx, err := db.Begin(context.Background())
+		tx, err := conn.Begin(context.Background())
 		if err != nil {
 			return err
 		}

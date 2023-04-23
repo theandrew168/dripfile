@@ -142,18 +142,21 @@ func (r *PostgresRepository) List() ([]history.History, error) {
 	return ms, nil
 }
 
-func (r *PostgresRepository) Delete(history history.History) error {
+func (r *PostgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM history
-		WHERE id = $1`
+		WHERE id = $1
+		RETURNING id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	err := database.Exec(r.conn, ctx, stmt, history.ID)
+	var deletedID string
+	row := r.conn.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, &deletedID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Delete(history)
+			return r.Delete(id)
 		}
 
 		return err
