@@ -7,12 +7,10 @@ import (
 	"io/fs"
 	"sort"
 
-	"golang.org/x/exp/slog"
-
 	"github.com/theandrew168/dripfile/internal/database"
 )
 
-func Migrate(logger *slog.Logger, conn database.Conn, files embed.FS) error {
+func Migrate(conn database.Conn, files embed.FS) error {
 	ctx := context.Background()
 
 	// attempt to create extensions (requires superuser privileges)
@@ -77,8 +75,6 @@ func Migrate(logger *slog.Logger, conn database.Conn, files embed.FS) error {
 
 	// apply each missing migration
 	for _, name := range missing {
-		logger.Info("applying migration", slog.String("name", name))
-
 		sql, err := fs.ReadFile(subdir, name)
 		if err != nil {
 			return err
@@ -108,6 +104,5 @@ func Migrate(logger *slog.Logger, conn database.Conn, files embed.FS) error {
 		}
 	}
 
-	logger.Info("migrations up to date")
 	return nil
 }
