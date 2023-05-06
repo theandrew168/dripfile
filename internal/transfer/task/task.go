@@ -6,23 +6,22 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	"github.com/theandrew168/dripfile/internal/history"
-	historyRepo "github.com/theandrew168/dripfile/internal/history/repository"
-	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
-	transferRepo "github.com/theandrew168/dripfile/internal/transfer/repository"
+	"github.com/theandrew168/dripfile/internal/location"
+	"github.com/theandrew168/dripfile/internal/transfer"
 )
 
 type Task struct {
 	transferID   string
-	transferRepo transferRepo.Repository
-	locationRepo locationRepo.Repository
-	historyRepo  historyRepo.Repository
+	transferRepo transfer.Repository
+	locationRepo location.Repository
+	historyRepo  history.Repository
 }
 
 func New(
 	transferID string,
-	transferRepo transferRepo.Repository,
-	locationRepo locationRepo.Repository,
-	historyRepo historyRepo.Repository,
+	transferRepo transfer.Repository,
+	locationRepo location.Repository,
+	historyRepo history.Repository,
 ) *Task {
 	t := Task{
 		transferID:   transferID,

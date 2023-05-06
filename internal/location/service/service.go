@@ -6,9 +6,8 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	"github.com/theandrew168/dripfile/internal/location"
-	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
 	"github.com/theandrew168/dripfile/internal/secret"
-	transferRepo "github.com/theandrew168/dripfile/internal/transfer/repository"
+	"github.com/theandrew168/dripfile/internal/transfer"
 )
 
 var (
@@ -17,14 +16,14 @@ var (
 
 type Service struct {
 	box          *secret.Box
-	locationRepo *locationRepo.Repository
-	transferRepo *transferRepo.Repository
+	locationRepo location.Repository
+	transferRepo transfer.Repository
 }
 
 func New(
 	box *secret.Box,
-	locationRepo *locationRepo.Repository,
-	transferRepo *transferRepo.Repository,
+	locationRepo location.Repository,
+	transferRepo transfer.Repository,
 ) *Service {
 	svc := Service{
 		box:          box,

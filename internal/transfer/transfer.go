@@ -17,3 +17,12 @@ func New(pattern, fromLocationID, toLocationID string) Transfer {
 	}
 	return transfer
 }
+
+type Repository interface {
+	Create(transfer *Transfer) error
+	Read(id string) (Transfer, error)
+	List() ([]Transfer, error)
+	ListByLocationID(locationID string) ([]Transfer, error)
+	Update(transfer Transfer) error
+	Delete(id string) error
+}

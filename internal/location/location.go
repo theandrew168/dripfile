@@ -20,3 +20,11 @@ func New(kind string, info []byte) Location {
 	}
 	return location
 }
+
+type Repository interface {
+	Create(location *Location) error
+	Read(id string) (Location, error)
+	List() ([]Location, error)
+	Update(location Location) error
+	Delete(id string) error
+}

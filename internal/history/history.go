@@ -21,3 +21,10 @@ func New(bytes int64, startedAt, finishedAt time.Time, transferID string) Histor
 	}
 	return history
 }
+
+type Repository interface {
+	Create(history *History) error
+	Read(id string) (History, error)
+	List() ([]History, error)
+	Delete(id string) error
+}
