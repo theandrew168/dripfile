@@ -51,10 +51,14 @@ func run() int {
 	}
 	defer pool.Close()
 
-	err = migrate.Migrate(pool, migrationFS)
+	applied, err := migrate.Migrate(pool, migrationFS)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
+	}
+
+	for _, migration := range applied {
+		logger.Info("applied migration", "name", migration)
 	}
 
 	locationRepo := locationRepo.New(pool)
