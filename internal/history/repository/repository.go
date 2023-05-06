@@ -13,13 +13,13 @@ type Repository struct {
 }
 
 func New(conn database.Conn) *Repository {
-	r := Repository{
+	repo := Repository{
 		conn: conn,
 	}
-	return &r
+	return &repo
 }
 
-func (r *Repository) Create(history *history.History) error {
+func (repo *Repository) Create(history *history.History) error {
 	stmt := `
 		INSERT INTO history
 			(bytes, started_at, finished_at, transfer_id)
@@ -37,11 +37,11 @@ func (r *Repository) Create(history *history.History) error {
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	row := r.conn.QueryRow(ctx, stmt, args...)
+	row := repo.conn.QueryRow(ctx, stmt, args...)
 	err := database.Scan(row, &history.ID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Create(history)
+			return repo.Create(history)
 		}
 
 		return err
@@ -50,92 +50,92 @@ func (r *Repository) Create(history *history.History) error {
 	return nil
 }
 
-func (r *Repository) Read(id string) (history.History, error) {
+func (repo *Repository) Read(id string) (history.History, error) {
 	stmt := `
 		SELECT
-			history.id,
-			history.bytes,
-			history.started_at,
-			history.finished_at,
-			history.transfer_id
+			id,
+			bytes,
+			started_at,
+			finished_at,
+			transfer_id
 		FROM history
-		WHERE history.id = $1`
+		WHERE id = $1`
 
-	var m history.History
+	var h history.History
 	dest := []any{
-		&m.ID,
-		&m.Bytes,
-		&m.StartedAt,
-		&m.FinishedAt,
-		&m.TransferID,
+		&h.ID,
+		&h.Bytes,
+		&h.StartedAt,
+		&h.FinishedAt,
+		&h.TransferID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	row := r.conn.QueryRow(ctx, stmt, id)
+	row := repo.conn.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, dest...)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Read(id)
+			return repo.Read(id)
 		}
 
 		return history.History{}, err
 	}
 
-	return m, nil
+	return h, nil
 }
 
-func (r *Repository) List() ([]history.History, error) {
+func (repo *Repository) List() ([]history.History, error) {
 	stmt := `
 		SELECT
-			history.id,
-			history.bytes,
-			history.started_at,
-			history.finished_at,
-			history.transfer_id
+			id,
+			bytes,
+			started_at,
+			finished_at,
+			transfer_id
 		FROM history`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	rows, err := r.conn.Query(ctx, stmt)
+	rows, err := repo.conn.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var ms []history.History
+	var hs []history.History
 	for rows.Next() {
-		var m history.History
+		var h history.History
 		dest := []any{
-			&m.ID,
-			&m.Bytes,
-			&m.StartedAt,
-			&m.FinishedAt,
-			&m.TransferID,
+			&h.ID,
+			&h.Bytes,
+			&h.StartedAt,
+			&h.FinishedAt,
+			&h.TransferID,
 		}
 
 		err := database.Scan(rows, dest...)
 		if err != nil {
 			if errors.Is(err, database.ErrRetry) {
-				return r.List()
+				return repo.List()
 			}
 
 			return nil, err
 		}
 
-		ms = append(ms, m)
+		hs = append(hs, h)
 	}
 
 	if rows.Err() != nil {
 		return nil, rows.Err()
 	}
 
-	return ms, nil
+	return hs, nil
 }
 
-func (r *Repository) Delete(id string) error {
+func (repo *Repository) Delete(id string) error {
 	stmt := `
 		DELETE FROM history
 		WHERE id = $1
@@ -145,11 +145,11 @@ func (r *Repository) Delete(id string) error {
 	defer cancel()
 
 	var deletedID string
-	row := r.conn.QueryRow(ctx, stmt, id)
+	row := repo.conn.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, &deletedID)
 	if err != nil {
 		if errors.Is(err, database.ErrRetry) {
-			return r.Delete(id)
+			return repo.Delete(id)
 		}
 
 		return err

@@ -8,6 +8,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/location"
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
 	"github.com/theandrew168/dripfile/internal/secret"
+	transferRepo "github.com/theandrew168/dripfile/internal/transfer/repository"
 )
 
 var (
@@ -17,17 +18,23 @@ var (
 type Service struct {
 	box          *secret.Box
 	locationRepo *locationRepo.Repository
+	transferRepo *transferRepo.Repository
 }
 
-func New(box *secret.Box, locationRepo *locationRepo.Repository) *Service {
-	s := Service{
+func New(
+	box *secret.Box,
+	locationRepo *locationRepo.Repository,
+	transferRepo *transferRepo.Repository,
+) *Service {
+	svc := Service{
 		box:          box,
 		locationRepo: locationRepo,
+		transferRepo: transferRepo,
 	}
-	return &s
+	return &svc
 }
 
-func (s *Service) CreateS3(info s3.Info) (location.Location, error) {
+func (svc *Service) CreateS3(info s3.Info) (location.Location, error) {
 	fs, err := s3.New(info)
 	if err != nil {
 		return location.Location{}, err
@@ -43,63 +50,74 @@ func (s *Service) CreateS3(info s3.Info) (location.Location, error) {
 		return location.Location{}, err
 	}
 
-	encryptedInfoJSON, err := s.box.Encrypt(infoJSON)
+	encryptedInfoJSON, err := svc.box.Encrypt(infoJSON)
 	if err != nil {
 		return location.Location{}, err
 	}
 
-	m := location.New(location.KindS3, encryptedInfoJSON)
-	err = s.locationRepo.Create(&m)
+	l := location.New(location.KindS3, encryptedInfoJSON)
+	err = svc.locationRepo.Create(&l)
 	if err != nil {
 		return location.Location{}, err
 	}
 
-	return m, nil
+	return l, nil
 }
 
-func (s *Service) Read(id string) (location.Location, error) {
-	m, err := s.locationRepo.Read(id)
+func (svc *Service) Read(id string) (location.Location, error) {
+	l, err := svc.locationRepo.Read(id)
 	if err != nil {
 		return location.Location{}, err
 	}
 
-	decryptedInfo, err := s.box.Decrypt(m.Info)
+	decryptedInfo, err := svc.box.Decrypt(l.Info)
 	if err != nil {
 		return location.Location{}, err
 	}
 
-	m.Info = decryptedInfo
-	return m, nil
+	l.Info = decryptedInfo
+	return l, nil
 }
 
-func (s *Service) List() ([]location.Location, error) {
-	encryptedLocations, err := s.locationRepo.List()
+func (svc *Service) List() ([]location.Location, error) {
+	encryptedLocations, err := svc.locationRepo.List()
 	if err != nil {
 		return nil, err
 	}
 
-	var ms []location.Location
-	for _, m := range encryptedLocations {
-		decryptedInfo, err := s.box.Decrypt(m.Info)
+	var ls []location.Location
+	for _, l := range encryptedLocations {
+		decryptedInfo, err := svc.box.Decrypt(l.Info)
 		if err != nil {
 			return nil, err
 		}
 
-		m.Info = decryptedInfo
-		ms = append(ms, m)
+		l.Info = decryptedInfo
+		ls = append(ls, l)
 	}
 
-	return ms, nil
+	return ls, nil
 }
 
-func (s *Service) Update(location location.Location) error {
-	// TODO: decrypt info
-	// TODO: make updates
-	// TODO: encrypt info
-	return s.locationRepo.Update(location)
+func (svc *Service) Update(location location.Location) error {
+	encryptedInfo, err := svc.box.Encrypt(location.Info)
+	if err != nil {
+		return err
+	}
+
+	location.Info = encryptedInfo
+	return svc.locationRepo.Update(location)
 }
 
-func (s *Service) Delete(id string) error {
-	// TODO: check for transfers that use this location
-	return s.locationRepo.Delete(id)
+func (svc *Service) Delete(id string) error {
+	transfers, err := svc.transferRepo.ListByLocationID(id)
+	if err != nil {
+		return err
+	}
+
+	if len(transfers) > 0 {
+		return ErrLocationInUse
+	}
+
+	return svc.locationRepo.Delete(id)
 }

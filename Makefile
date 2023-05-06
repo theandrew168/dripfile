@@ -8,9 +8,13 @@ default: build
 build:
 	go build -o dripfile main.go
 
+.PHONY: run
+run: migrate
+	go run main.go
+
 .PHONY: migrate
 migrate:
-	go run main.go migrate
+	go run main.go -migrate
 
 .PHONY: test
 test: migrate

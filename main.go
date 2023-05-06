@@ -15,6 +15,7 @@ import (
 	locationService "github.com/theandrew168/dripfile/internal/location/service"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/secret"
+	transferRepo "github.com/theandrew168/dripfile/internal/transfer/repository"
 )
 
 //go:embed migration
@@ -28,6 +29,7 @@ func run() int {
 	logger := slog.New(slog.NewTextHandler(os.Stdout))
 
 	conf := flag.String("conf", "dripfile.conf", "app config file")
+	migrateOnly := flag.Bool("migrate", false, "apply migrations and exit")
 	flag.Parse()
 
 	cfg, err := config.ReadFile(*conf)
@@ -61,8 +63,13 @@ func run() int {
 		logger.Info("applied migration", "name", migration)
 	}
 
+	if *migrateOnly {
+		return 0
+	}
+
 	locationRepo := locationRepo.New(pool)
-	locationService := locationService.New(box, locationRepo)
+	transferRepo := transferRepo.New(pool)
+	locationService := locationService.New(box, locationRepo, transferRepo)
 
 	cli := cli.New(locationService, flag.Args())
 	err = cli.Run()
