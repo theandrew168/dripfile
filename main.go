@@ -11,11 +11,13 @@ import (
 	"github.com/theandrew168/dripfile/internal/cli"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
+	historyRepo "github.com/theandrew168/dripfile/internal/history/repository"
 	locationRepo "github.com/theandrew168/dripfile/internal/location/repository"
 	locationService "github.com/theandrew168/dripfile/internal/location/service"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/secret"
 	transferRepo "github.com/theandrew168/dripfile/internal/transfer/repository"
+	transferService "github.com/theandrew168/dripfile/internal/transfer/service"
 )
 
 //go:embed migration
@@ -69,9 +71,11 @@ func run() int {
 
 	locationRepo := locationRepo.New(pool)
 	transferRepo := transferRepo.New(pool)
+	historyRepo := historyRepo.New(pool)
 	locationService := locationService.New(box, locationRepo, transferRepo)
+	transferService := transferService.New(transferRepo, historyRepo, locationService)
 
-	cli := cli.New(locationService, flag.Args())
+	cli := cli.New(locationService, transferService, flag.Args())
 	err = cli.Run()
 	if err != nil {
 		logger.Error(err.Error())

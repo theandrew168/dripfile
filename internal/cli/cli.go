@@ -10,17 +10,24 @@ import (
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/fileserver/s3"
 	locationService "github.com/theandrew168/dripfile/internal/location/service"
+	transferService "github.com/theandrew168/dripfile/internal/transfer/service"
 )
 
 type CLI struct {
 	locationService *locationService.Service
+	transferService *transferService.Service
 
 	args []string
 }
 
-func New(locationService *locationService.Service, args []string) *CLI {
+func New(
+	locationService *locationService.Service,
+	transferService *transferService.Service,
+	args []string,
+) *CLI {
 	c := CLI{
 		locationService: locationService,
+		transferService: transferService,
 
 		args: args,
 	}
@@ -41,9 +48,8 @@ func (c *CLI) Run() error {
 						Usage: "Creates a new location",
 						Subcommands: []*cli.Command{
 							{
-								Name:      "s3",
-								Usage:     "Creates a new S3 location",
-								ArgsUsage: "endpoint bucket access_key_id secret_access_key",
+								Name:  "s3",
+								Usage: "Creates a new S3 location",
 								Action: func(ctx *cli.Context) error {
 									endpoint, err := input("Endpoint: ")
 									if err != nil {
@@ -157,6 +163,70 @@ func (c *CLI) Run() error {
 
 							fmt.Printf("location deleted: %s\n", id)
 							return nil
+						},
+					},
+				},
+			},
+			{
+				Name:  "transfer",
+				Usage: "Options for managing transfers",
+				Subcommands: []*cli.Command{
+					{
+						Name:  "create",
+						Usage: "Creates a new transfer",
+						Action: func(ctx *cli.Context) error {
+							pattern, err := input("Pattern: ")
+							if err != nil {
+								return err
+							}
+
+							fromLocationID, err := input("Location ID (From): ")
+							if err != nil {
+								return err
+							}
+
+							toLocationID, err := input("Location ID (To): ")
+							if err != nil {
+								return err
+							}
+
+							transfer, err := c.transferService.Create(pattern, fromLocationID, toLocationID)
+							if err != nil {
+								return err
+							}
+
+							fmt.Printf("transfer created: %s\n", transfer.ID)
+							return nil
+						},
+					},
+					{
+						Name:  "list",
+						Usage: "Lists all transfers",
+						Action: func(*cli.Context) error {
+							transfers, err := c.transferService.List()
+							if err != nil {
+								return err
+							}
+
+							for _, transfer := range transfers {
+								fmt.Println(transfer.ID)
+							}
+
+							return nil
+						},
+					},
+					{
+						Name:      "execute",
+						Usage:     "Execute a transfer by its ID",
+						ArgsUsage: "id",
+						Action: func(ctx *cli.Context) error {
+							if ctx.Args().Len() != 1 {
+								return cli.ShowSubcommandHelp(ctx)
+							}
+
+							id := ctx.Args().Get(0)
+
+							return c.transferService.Execute(id)
 						},
 					},
 				},
