@@ -28,45 +28,6 @@ These containers can be stopped via:
 docker compose down
 ```
 
-### Running
-To start the web server:
-```
-make web
-```
-
-To start the periodic task scheduler:
-```
-make scheduler
-```
-
-To start a background task worker:
-```
-make worker
-```
-
-To apply any pending database migrations:
-```
-make migrate
-```
-
-### Tailwind CSS
-If you plan to work on any web pages within this project, you'll want to install the [tailwindcss CLI](https://tailwindcss.com/blog/standalone-cli) in order to dynamically recompile the CSS.
-Once installed, you can use the `frontend` make target to run the web server and tailwindcss CLI concurrently:
-```
-make -j2 frontend
-```
-
-If needed, the CSS can always be manually rebuilt via:
-```
-make css
-```
-
-### Testing
-Unit and integration tests can be ran after starting the aforementioned services:
-```
-make test
-```
-
 ## Innovation Tokens
 * [Tailwind CSS](https://tailwindcss.com/)
 * [PostgreSQL Task Queue](https://webapp.io/blog/postgres-is-the-answer/) ([further reading](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/))
