@@ -107,5 +107,15 @@ func run() int {
 		return 1
 	}
 
+	files, err := fs.Search("*")
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
+	for _, f := range files {
+		fmt.Printf("%+v\n", f)
+	}
+
 	return 0
 }
