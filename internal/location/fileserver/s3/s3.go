@@ -11,7 +11,8 @@ import (
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"github.com/theandrew168/dripfile/internal/fileserver"
+
+	"github.com/theandrew168/dripfile/internal/location/fileserver"
 )
 
 var (
@@ -25,6 +26,22 @@ type Info struct {
 	Bucket          string `json:"bucket"`
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
+}
+
+func (info Info) Validate() error {
+	if info.Endpoint == "" {
+		return errors.New("empty S3 endpoint")
+	}
+	if info.Bucket == "" {
+		return errors.New("empty S3 bucket")
+	}
+	if info.AccessKeyID == "" {
+		return errors.New("empty S3 access key id")
+	}
+	if info.SecretAccessKey == "" {
+		return errors.New("empty S3 secret access key")
+	}
+	return nil
 }
 
 type FileServer struct {

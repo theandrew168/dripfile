@@ -3,7 +3,6 @@ package migrate
 import (
 	"context"
 	"embed"
-	"fmt"
 	"io/fs"
 	"sort"
 
@@ -12,20 +11,6 @@ import (
 
 func Migrate(conn database.Conn, files embed.FS) ([]string, error) {
 	ctx := context.Background()
-
-	// attempt to create extensions (requires superuser privileges)
-	// (works against local container, deployed DB needs these at setup)
-	exts := []string{
-		"citext",
-		"pgcrypto",
-	}
-	for _, ext := range exts {
-		stmt := fmt.Sprintf("CREATE EXTENSION IF NOT EXISTS %s", ext)
-		_, err := conn.Exec(ctx, stmt)
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	// create migration table if it doesn't exist
 	_, err := conn.Exec(ctx, `

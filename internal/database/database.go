@@ -77,6 +77,7 @@ func ConnectPool(databaseURI string) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
+// TODO: retry upon database restart
 func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
 	_, err := db.Exec(ctx, stmt, args...)
 	if err != nil {
@@ -101,6 +102,7 @@ func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
 	return nil
 }
 
+// TODO: retry upon database restart
 func Scan(row pgx.Row, dest ...any) error {
 	err := row.Scan(dest...)
 	if err != nil {

@@ -1,30 +1,75 @@
 package location
 
+import (
+	"errors"
+	"fmt"
+
+	"github.com/theandrew168/dripfile/internal/location/fileserver"
+	"github.com/theandrew168/dripfile/internal/location/fileserver/s3"
+)
+
 // enum values for location kind
 const (
 	KindS3 = "s3"
 )
 
 type Location struct {
-	// readonly (from database, after creation)
-	ID string
+	id   string
+	kind string
 
-	Kind string
-	Info []byte
+	s3Info s3.Info
 }
 
-func New(kind string, info []byte) Location {
-	location := Location{
-		Kind: kind,
-		Info: info,
+func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
+	if id == "" {
+		return nil, errors.New("empty location uuid")
 	}
-	return location
+
+	info := s3.Info{
+		Endpoint:        endpoint,
+		Bucket:          bucket,
+		AccessKeyID:     accessKeyID,
+		SecretAccessKey: secretAccessKey,
+	}
+	err := info.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	l := Location{
+		id:     id,
+		kind:   KindS3,
+		s3Info: info,
+	}
+	return &l, nil
 }
 
-type Repository interface {
-	Create(location *Location) error
-	Read(id string) (Location, error)
-	List() ([]Location, error)
-	Update(location Location) error
-	Delete(id string) error
+func UnmarshalS3FromStorage(id string, info s3.Info) (*Location, error) {
+	l := Location{
+		id:     id,
+		kind:   KindS3,
+		s3Info: info,
+	}
+	return &l, nil
+}
+
+func (l Location) ID() string {
+	return l.id
+}
+
+func (l Location) Kind() string {
+	return l.kind
+}
+
+func (l Location) S3Info() s3.Info {
+	return l.s3Info
+}
+
+func (l Location) Connect() (fileserver.FileServer, error) {
+	switch l.kind {
+	case KindS3:
+		return s3.New(l.s3Info)
+	}
+
+	return nil, fmt.Errorf("unknown location kind: %s", l.kind)
 }

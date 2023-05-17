@@ -1,8 +1,6 @@
 package fileserver
 
-import (
-	"io"
-)
+import "io"
 
 type FileInfo struct {
 	Name string
