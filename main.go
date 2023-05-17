@@ -95,5 +95,17 @@ func run() int {
 
 	fmt.Printf("%+v\n", l)
 
+	fs, err := l.Connect()
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
+	err = fs.Ping()
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
 	return 0
 }

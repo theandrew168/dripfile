@@ -57,11 +57,17 @@ func (store *Storage) marshal(l *location.Location) (locationModel, error) {
 
 func (store *Storage) unmarshal(lm locationModel) (*location.Location, error) {
 	switch lm.kind {
+	case location.KindMemory:
+		return store.unmarshalMemory(lm)
 	case location.KindS3:
 		return store.unmarshalS3(lm)
 	}
 
 	return nil, fmt.Errorf("unknown location kind: %s", lm.kind)
+}
+
+func (store *Storage) unmarshalMemory(lm locationModel) (*location.Location, error) {
+	return location.UnmarshalMemoryFromStorage(lm.id)
 }
 
 func (store *Storage) unmarshalS3(lm locationModel) (*location.Location, error) {

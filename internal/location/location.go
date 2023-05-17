@@ -10,7 +10,8 @@ import (
 
 // enum values for location kind
 const (
-	KindS3 = "s3"
+	KindMemory = "memory"
+	KindS3     = "s3"
 )
 
 type Location struct {
@@ -18,6 +19,18 @@ type Location struct {
 	kind string
 
 	s3Info s3.Info
+}
+
+func NewMemory(id string) (*Location, error) {
+	if id == "" {
+		return nil, errors.New("empty location uuid")
+	}
+
+	l := Location{
+		id:   id,
+		kind: KindMemory,
+	}
+	return &l, nil
 }
 
 func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
@@ -40,6 +53,14 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 		id:     id,
 		kind:   KindS3,
 		s3Info: info,
+	}
+	return &l, nil
+}
+
+func UnmarshalMemoryFromStorage(id string) (*Location, error) {
+	l := Location{
+		id:   id,
+		kind: KindS3,
 	}
 	return &l, nil
 }
