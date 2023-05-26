@@ -13,9 +13,7 @@ import (
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
 	locationService "github.com/theandrew168/dripfile/internal/location/service"
-	"github.com/theandrew168/dripfile/internal/location/service/command"
-	"github.com/theandrew168/dripfile/internal/location/service/query"
-	locationStorage "github.com/theandrew168/dripfile/internal/location/storage/postgres"
+	locationStorage "github.com/theandrew168/dripfile/internal/location/storage"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/secret"
 )
@@ -69,11 +67,11 @@ func run() int {
 		return 0
 	}
 
-	locationStorage := locationStorage.New(pool, box)
-	locationService := locationService.New(locationStorage)
+	locationStore := locationStorage.New(pool, box)
+	locationSrvc := locationService.New(locationStore)
 
 	id, _ := uuid.NewRandom()
-	err = locationService.Command.CreateS3.Handle(command.CreateS3{
+	err = locationSrvc.AddS3(locationService.AddS3Command{
 		ID:              id.String(),
 		Endpoint:        "localhost:9000",
 		Bucket:          "foo",
@@ -85,7 +83,7 @@ func run() int {
 		return 1
 	}
 
-	l, err := locationService.Query.Read.Handle(query.Read{
+	l, err := locationSrvc.GetByID(locationService.GetByIDQuery{
 		ID: id.String(),
 	})
 	if err != nil {

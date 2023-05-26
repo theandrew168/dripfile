@@ -1,32 +1,49 @@
 package service
 
 import (
-	"github.com/theandrew168/dripfile/internal/location/service/command"
-	"github.com/theandrew168/dripfile/internal/location/service/query"
+	"github.com/theandrew168/dripfile/internal/location"
 	locationStorage "github.com/theandrew168/dripfile/internal/location/storage"
 )
 
-type Command struct {
-	CreateS3 *command.CreateS3Handler
-}
-
-type Query struct {
-	Read *query.ReadHandler
-}
-
 type Service struct {
-	Command Command
-	Query   Query
+	locationStore locationStorage.Storage
 }
 
-func New(locationStorage locationStorage.Storage) *Service {
+func New(locationStore locationStorage.Storage) *Service {
 	s := Service{
-		Command: Command{
-			CreateS3: command.NewCreateS3Handler(locationStorage),
-		},
-		Query: Query{
-			Read: query.NewReadHandler(locationStorage),
-		},
+		locationStore: locationStore,
 	}
 	return &s
+}
+
+type GetByIDQuery struct {
+	ID string
+}
+
+func (s *Service) GetByID(query GetByIDQuery) (*location.Location, error) {
+	return s.locationStore.Read(query.ID)
+}
+
+type AddS3Command struct {
+	ID string
+
+	Endpoint        string
+	Bucket          string
+	AccessKeyID     string
+	SecretAccessKey string
+}
+
+func (s *Service) AddS3(cmd AddS3Command) error {
+	l, err := location.NewS3(
+		cmd.ID,
+		cmd.Endpoint,
+		cmd.Bucket,
+		cmd.AccessKeyID,
+		cmd.SecretAccessKey,
+	)
+	if err != nil {
+		return err
+	}
+
+	return s.locationStore.Create(l)
 }
