@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"encoding/hex"
 	"flag"
@@ -10,8 +11,10 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/exp/slog"
 
+	"github.com/theandrew168/dripfile/internal/cli"
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/internal/location"
 	locationService "github.com/theandrew168/dripfile/internal/location/service"
 	locationStorage "github.com/theandrew168/dripfile/internal/location/storage"
 	"github.com/theandrew168/dripfile/internal/migrate"
@@ -67,11 +70,11 @@ func run() int {
 		return 0
 	}
 
-	locationStore := locationStorage.New(pool, box)
-	locationSrvc := locationService.New(locationStore)
+	locationStorage := locationStorage.New(pool, box)
+	locationService := locationService.New(locationStorage)
 
 	id, _ := uuid.NewRandom()
-	err = locationSrvc.AddMemory(locationService.AddMemoryCommand{
+	err = locationService.AddMemory(location.AddMemoryCommand{
 		ID: id.String(),
 	})
 	if err != nil {
@@ -80,7 +83,7 @@ func run() int {
 	}
 
 	id, _ = uuid.NewRandom()
-	err = locationSrvc.AddS3(locationService.AddS3Command{
+	err = locationService.AddS3(location.AddS3Command{
 		ID:              id.String(),
 		Endpoint:        "localhost:9000",
 		Bucket:          "foo",
@@ -92,7 +95,7 @@ func run() int {
 		return 1
 	}
 
-	l, err := locationSrvc.GetByID(locationService.GetByIDQuery{
+	l, err := locationService.GetByID(location.GetByIDQuery{
 		ID: id.String(),
 	})
 	if err != nil {
@@ -122,6 +125,13 @@ func run() int {
 
 	for _, f := range files {
 		fmt.Printf("%+v\n", f)
+	}
+
+	cli := cli.New(flag.Args(), locationService)
+	err = cli.Run(context.Background())
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
 	}
 
 	return 0

@@ -2,33 +2,20 @@ package service
 
 import (
 	"github.com/theandrew168/dripfile/internal/location"
-	locationStorage "github.com/theandrew168/dripfile/internal/location/storage"
 )
 
 type Service struct {
-	locationStore locationStorage.Storage
+	locationStorage location.Storage
 }
 
-func New(locationStore locationStorage.Storage) *Service {
-	s := Service{
-		locationStore: locationStore,
+func New(locationStorage location.Storage) *Service {
+	srvc := Service{
+		locationStorage: locationStorage,
 	}
-	return &s
+	return &srvc
 }
 
-type GetByIDQuery struct {
-	ID string
-}
-
-func (s *Service) GetByID(query GetByIDQuery) (*location.Location, error) {
-	return s.locationStore.Read(query.ID)
-}
-
-type AddMemoryCommand struct {
-	ID string
-}
-
-func (s *Service) AddMemory(cmd AddMemoryCommand) error {
+func (srvc *Service) AddMemory(cmd location.AddMemoryCommand) error {
 	l, err := location.NewMemory(
 		cmd.ID,
 	)
@@ -36,19 +23,10 @@ func (s *Service) AddMemory(cmd AddMemoryCommand) error {
 		return err
 	}
 
-	return s.locationStore.Create(l)
+	return srvc.locationStorage.Create(l)
 }
 
-type AddS3Command struct {
-	ID string
-
-	Endpoint        string
-	Bucket          string
-	AccessKeyID     string
-	SecretAccessKey string
-}
-
-func (s *Service) AddS3(cmd AddS3Command) error {
+func (srvc *Service) AddS3(cmd location.AddS3Command) error {
 	l, err := location.NewS3(
 		cmd.ID,
 		cmd.Endpoint,
@@ -60,5 +38,13 @@ func (s *Service) AddS3(cmd AddS3Command) error {
 		return err
 	}
 
-	return s.locationStore.Create(l)
+	return srvc.locationStorage.Create(l)
+}
+
+func (srvc *Service) GetByID(query location.GetByIDQuery) (*location.Location, error) {
+	return srvc.locationStorage.Read(query.ID)
+}
+
+func (srvc *Service) GetAll(query location.GetAllQuery) ([]*location.Location, error) {
+	return srvc.locationStorage.List()
 }

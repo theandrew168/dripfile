@@ -12,20 +12,13 @@ import (
 	"github.com/theandrew168/dripfile/internal/secret"
 )
 
-type Storage interface {
-	Create(l *location.Location) error
-	Read(id string) (*location.Location, error)
-	List() ([]*location.Location, error)
-	Delete(id string) error
-}
-
-type PostgresStorage struct {
+type Storage struct {
 	conn database.Conn
 	box  *secret.Box
 }
 
-func New(conn database.Conn, box *secret.Box) *PostgresStorage {
-	store := PostgresStorage{
+func New(conn database.Conn, box *secret.Box) *Storage {
+	store := Storage{
 		conn: conn,
 		box:  box,
 	}
@@ -38,7 +31,7 @@ type locationRow struct {
 	info []byte
 }
 
-func (store *PostgresStorage) marshal(l *location.Location) (locationRow, error) {
+func (store *Storage) marshal(l *location.Location) (locationRow, error) {
 	var info any
 	switch l.Kind() {
 	case location.KindMemory:
@@ -65,7 +58,7 @@ func (store *PostgresStorage) marshal(l *location.Location) (locationRow, error)
 	return lr, nil
 }
 
-func (store *PostgresStorage) unmarshal(lr locationRow) (*location.Location, error) {
+func (store *Storage) unmarshal(lr locationRow) (*location.Location, error) {
 	switch lr.kind {
 	case location.KindMemory:
 		return store.unmarshalMemory(lr)
@@ -76,7 +69,7 @@ func (store *PostgresStorage) unmarshal(lr locationRow) (*location.Location, err
 	return nil, fmt.Errorf("unknown location kind: %s", lr.kind)
 }
 
-func (store *PostgresStorage) unmarshalMemory(lr locationRow) (*location.Location, error) {
+func (store *Storage) unmarshalMemory(lr locationRow) (*location.Location, error) {
 	infoJSON, err := store.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
@@ -91,7 +84,7 @@ func (store *PostgresStorage) unmarshalMemory(lr locationRow) (*location.Locatio
 	return location.UnmarshalMemoryFromStorage(lr.id, info)
 }
 
-func (store *PostgresStorage) unmarshalS3(lr locationRow) (*location.Location, error) {
+func (store *Storage) unmarshalS3(lr locationRow) (*location.Location, error) {
 	infoJSON, err := store.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
@@ -106,7 +99,7 @@ func (store *PostgresStorage) unmarshalS3(lr locationRow) (*location.Location, e
 	return location.UnmarshalS3FromStorage(lr.id, info)
 }
 
-func (store *PostgresStorage) Create(l *location.Location) error {
+func (store *Storage) Create(l *location.Location) error {
 	stmt := `
 		INSERT INTO location
 			(id, kind, info)
@@ -130,7 +123,7 @@ func (store *PostgresStorage) Create(l *location.Location) error {
 	return database.Exec(store.conn, ctx, stmt, args...)
 }
 
-func (store *PostgresStorage) Read(id string) (*location.Location, error) {
+func (store *Storage) Read(id string) (*location.Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -158,13 +151,14 @@ func (store *PostgresStorage) Read(id string) (*location.Location, error) {
 	return store.unmarshal(lr)
 }
 
-func (store *PostgresStorage) List() ([]*location.Location, error) {
+func (store *Storage) List() ([]*location.Location, error) {
 	stmt := `
 		SELECT
 			id,
 			kind,
 			info
-		FROM location`
+		FROM location
+		ORDER BY created_at ASC`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
@@ -204,7 +198,7 @@ func (store *PostgresStorage) List() ([]*location.Location, error) {
 	return ls, nil
 }
 
-func (store *PostgresStorage) Delete(id string) error {
+func (store *Storage) Delete(id string) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1
