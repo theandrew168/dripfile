@@ -24,6 +24,21 @@ func (s *Service) GetByID(query GetByIDQuery) (*location.Location, error) {
 	return s.locationStore.Read(query.ID)
 }
 
+type AddMemoryCommand struct {
+	ID string
+}
+
+func (s *Service) AddMemory(cmd AddMemoryCommand) error {
+	l, err := location.NewMemory(
+		cmd.ID,
+	)
+	if err != nil {
+		return err
+	}
+
+	return s.locationStore.Create(l)
+}
+
 type AddS3Command struct {
 	ID string
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/location"
+	"github.com/theandrew168/dripfile/internal/location/fileserver/memory"
 	"github.com/theandrew168/dripfile/internal/location/fileserver/s3"
 	"github.com/theandrew168/dripfile/internal/secret"
 )
@@ -40,6 +41,8 @@ type locationRow struct {
 func (store *PostgresStorage) marshal(l *location.Location) (locationRow, error) {
 	var info any
 	switch l.Kind() {
+	case location.KindMemory:
+		info = l.MemoryInfo()
 	case location.KindS3:
 		info = l.S3Info()
 	}
@@ -74,7 +77,18 @@ func (store *PostgresStorage) unmarshal(lr locationRow) (*location.Location, err
 }
 
 func (store *PostgresStorage) unmarshalMemory(lr locationRow) (*location.Location, error) {
-	return location.UnmarshalMemoryFromStorage(lr.id)
+	infoJSON, err := store.box.Decrypt(lr.info)
+	if err != nil {
+		return nil, err
+	}
+
+	var info memory.Info
+	err = json.Unmarshal(infoJSON, &info)
+	if err != nil {
+		return nil, err
+	}
+
+	return location.UnmarshalMemoryFromStorage(lr.id, info)
 }
 
 func (store *PostgresStorage) unmarshalS3(lr locationRow) (*location.Location, error) {

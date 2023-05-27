@@ -3,13 +3,19 @@ package test
 import (
 	"math/rand"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Random struct {
 	rand *rand.Rand
 }
 
-func NewRandom(seed int64) *Random {
+func NewRandom() *Random {
+	return NewRandomFromSeed(time.Now().UnixNano())
+}
+
+func NewRandomFromSeed(seed int64) *Random {
 	r := Random{
 		rand: rand.New(rand.NewSource(seed)),
 	}
@@ -32,7 +38,11 @@ func (r *Random) Int() int {
 }
 
 func (r *Random) UUID() string {
-	return "2dbb189e-d392-43a1-bef6-724c63c0550a"
+	id, err := uuid.NewRandomFromReader(r.rand)
+	if err != nil {
+		panic(err)
+	}
+	return id.String()
 }
 
 func (r *Random) String(n int) string {

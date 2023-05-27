@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/theandrew168/dripfile/internal/location/fileserver"
+	"github.com/theandrew168/dripfile/internal/location/fileserver/memory"
 	"github.com/theandrew168/dripfile/internal/location/fileserver/s3"
 )
 
@@ -18,7 +19,8 @@ type Location struct {
 	id   string
 	kind string
 
-	s3Info s3.Info
+	memoryInfo memory.Info
+	s3Info     s3.Info
 }
 
 func NewMemory(id string) (*Location, error) {
@@ -26,9 +28,16 @@ func NewMemory(id string) (*Location, error) {
 		return nil, errors.New("empty location uuid")
 	}
 
+	info := memory.Info{}
+	err := info.Validate()
+	if err != nil {
+		return nil, err
+	}
+
 	l := Location{
-		id:   id,
-		kind: KindMemory,
+		id:         id,
+		kind:       KindMemory,
+		memoryInfo: info,
 	}
 	return &l, nil
 }
@@ -57,10 +66,11 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 	return &l, nil
 }
 
-func UnmarshalMemoryFromStorage(id string) (*Location, error) {
+func UnmarshalMemoryFromStorage(id string, info memory.Info) (*Location, error) {
 	l := Location{
-		id:   id,
-		kind: KindS3,
+		id:         id,
+		kind:       KindMemory,
+		memoryInfo: info,
 	}
 	return &l, nil
 }
@@ -82,12 +92,18 @@ func (l Location) Kind() string {
 	return l.kind
 }
 
+func (l Location) MemoryInfo() memory.Info {
+	return l.memoryInfo
+}
+
 func (l Location) S3Info() s3.Info {
 	return l.s3Info
 }
 
 func (l Location) Connect() (fileserver.FileServer, error) {
 	switch l.kind {
+	case KindMemory:
+		return memory.New(l.memoryInfo)
 	case KindS3:
 		return s3.New(l.s3Info)
 	}

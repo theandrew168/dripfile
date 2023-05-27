@@ -71,6 +71,15 @@ func run() int {
 	locationSrvc := locationService.New(locationStore)
 
 	id, _ := uuid.NewRandom()
+	err = locationSrvc.AddMemory(locationService.AddMemoryCommand{
+		ID: id.String(),
+	})
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
+	id, _ = uuid.NewRandom()
 	err = locationSrvc.AddS3(locationService.AddS3Command{
 		ID:              id.String(),
 		Endpoint:        "localhost:9000",
