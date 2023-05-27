@@ -2,7 +2,6 @@ package secret_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/theandrew168/dripfile/internal/secret"
 	"github.com/theandrew168/dripfile/internal/test"
@@ -11,8 +10,8 @@ import (
 func TestEncryptDecrypt(t *testing.T) {
 	t.Parallel()
 
-	random := test.NewRandom(time.Now().Unix())
-	secretKey := random.Bytes(32)
+	rand := test.NewRandom()
+	secretKey := rand.Bytes(32)
 	box := secret.NewBox([32]byte(secretKey))
 
 	inputs := []string{
