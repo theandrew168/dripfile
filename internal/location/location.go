@@ -4,38 +4,45 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
+
 	"github.com/theandrew168/dripfile/internal/location/fileserver"
 	"github.com/theandrew168/dripfile/internal/location/fileserver/memory"
 	"github.com/theandrew168/dripfile/internal/location/fileserver/s3"
 )
 
-// enum values for location kind
 const (
 	KindMemory = "memory"
 	KindS3     = "s3"
 )
 
-type Location struct {
-	id   string
-	kind string
+var (
+	ErrInvalidUUID = errors.New("location: invalid UUID")
+)
 
+type Location struct {
+	id string
+
+	kind       string
 	memoryInfo memory.Info
 	s3Info     s3.Info
 }
 
 func NewMemory(id string) (*Location, error) {
-	if id == "" {
-		return nil, errors.New("empty location uuid")
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return nil, ErrInvalidUUID
 	}
 
 	info := memory.Info{}
-	err := info.Validate()
+	err = info.Validate()
 	if err != nil {
 		return nil, err
 	}
 
 	l := Location{
-		id:         id,
+		id: id,
+
 		kind:       KindMemory,
 		memoryInfo: info,
 	}
@@ -43,8 +50,9 @@ func NewMemory(id string) (*Location, error) {
 }
 
 func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
-	if id == "" {
-		return nil, errors.New("empty location uuid")
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return nil, ErrInvalidUUID
 	}
 
 	info := s3.Info{
@@ -53,13 +61,14 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 		AccessKeyID:     accessKeyID,
 		SecretAccessKey: secretAccessKey,
 	}
-	err := info.Validate()
+	err = info.Validate()
 	if err != nil {
 		return nil, err
 	}
 
 	l := Location{
-		id:     id,
+		id: id,
+
 		kind:   KindS3,
 		s3Info: info,
 	}
@@ -68,7 +77,8 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 
 func UnmarshalMemoryFromStorage(id string, info memory.Info) (*Location, error) {
 	l := Location{
-		id:         id,
+		id: id,
+
 		kind:       KindMemory,
 		memoryInfo: info,
 	}
@@ -77,7 +87,8 @@ func UnmarshalMemoryFromStorage(id string, info memory.Info) (*Location, error) 
 
 func UnmarshalS3FromStorage(id string, info s3.Info) (*Location, error) {
 	l := Location{
-		id:     id,
+		id: id,
+
 		kind:   KindS3,
 		s3Info: info,
 	}

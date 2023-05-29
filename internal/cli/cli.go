@@ -24,7 +24,12 @@ func New(args []string, locationService location.Service) *Application {
 }
 
 func (app *Application) Run(ctx context.Context) error {
-	return app.dripfile(app.args)
+	err := app.dripfile(app.args)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return nil
 }
 
 func (app *Application) dripfile(args []string) error {
@@ -44,58 +49,21 @@ func (app *Application) dripfile(args []string) error {
 
 func (app *Application) location(args []string) error {
 	if len(args) == 0 {
-		fmt.Println("usage: dripfile location [add get]")
+		fmt.Println("usage: dripfile location [get add remove]")
 		return nil
 	}
 
 	cmd := args[0]
 	switch cmd {
-	case "add":
-		return app.locationAdd(args[1:])
 	case "get":
 		return app.locationGet(args[1:])
+	case "add":
+		return app.locationAdd(args[1:])
+	case "remove":
+		return app.locationRemove(args[1:])
 	default:
 		return fmt.Errorf("unknown command: %s", cmd)
 	}
-}
-
-func (app *Application) locationAdd(args []string) error {
-	endpoint, err := input("Endpoint: ")
-	if err != nil {
-		return err
-	}
-	bucket, err := input("Bucket: ")
-	if err != nil {
-		return err
-	}
-	accessKeyID, err := input("AccessKeyID: ")
-	if err != nil {
-		return err
-	}
-	secretAccessKey, err := input("SecretAccessKey: ")
-	if err != nil {
-		return err
-	}
-
-	id, err := uuid.NewRandom()
-	if err != nil {
-		return err
-	}
-
-	err = app.locationService.AddS3(location.AddS3Command{
-		ID: id.String(),
-
-		Endpoint:        endpoint,
-		Bucket:          bucket,
-		AccessKeyID:     accessKeyID,
-		SecretAccessKey: secretAccessKey,
-	})
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("location created: %s\n", id)
-	return nil
 }
 
 func (app *Application) locationGet(args []string) error {
@@ -139,6 +107,57 @@ func (app *Application) locationGet(args []string) error {
 	}
 
 	return nil
+}
+
+func (app *Application) locationAdd(args []string) error {
+	endpoint, err := input("Endpoint: ")
+	if err != nil {
+		return err
+	}
+	bucket, err := input("Bucket: ")
+	if err != nil {
+		return err
+	}
+	accessKeyID, err := input("AccessKeyID: ")
+	if err != nil {
+		return err
+	}
+	secretAccessKey, err := input("SecretAccessKey: ")
+	if err != nil {
+		return err
+	}
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+
+	err = app.locationService.AddS3(location.AddS3Command{
+		ID: id.String(),
+
+		Endpoint:        endpoint,
+		Bucket:          bucket,
+		AccessKeyID:     accessKeyID,
+		SecretAccessKey: secretAccessKey,
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("location created: %s\n", id)
+	return nil
+}
+
+func (app *Application) locationRemove(args []string) error {
+	if len(args) == 0 {
+		fmt.Println("usage: dripfile location remove [id]")
+		return nil
+	}
+
+	id := args[0]
+	return app.locationService.Remove(location.RemoveCommand{
+		ID: id,
+	})
 }
 
 func input(prompt string) (string, error) {

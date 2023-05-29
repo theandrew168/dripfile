@@ -19,9 +19,14 @@ type AddS3Command struct {
 	SecretAccessKey string
 }
 
+type RemoveCommand struct {
+	ID string
+}
+
 type Service interface {
-	AddMemory(cmd AddMemoryCommand) error
-	AddS3(cmd AddS3Command) error
 	GetByID(query GetByIDQuery) (*Location, error)
 	GetAll(query GetAllQuery) ([]*Location, error)
+	AddMemory(cmd AddMemoryCommand) error
+	AddS3(cmd AddS3Command) error
+	Remove(cmd RemoveCommand) error
 }

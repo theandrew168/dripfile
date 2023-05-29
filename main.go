@@ -84,7 +84,8 @@ func run() int {
 
 	id, _ = uuid.NewRandom()
 	err = locationService.AddS3(location.AddS3Command{
-		ID:              id.String(),
+		ID: id.String(),
+
 		Endpoint:        "localhost:9000",
 		Bucket:          "foo",
 		AccessKeyID:     "minioadmin",
