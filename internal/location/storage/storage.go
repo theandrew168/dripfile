@@ -26,7 +26,8 @@ func New(conn database.Conn, box *secret.Box) *Storage {
 }
 
 type locationRow struct {
-	id   string
+	id string
+
 	kind string
 	info []byte
 }
@@ -51,7 +52,8 @@ func (store *Storage) marshal(l *location.Location) (locationRow, error) {
 	}
 
 	lr := locationRow{
-		id:   l.ID(),
+		id: l.ID(),
+
 		kind: l.Kind(),
 		info: encryptedInfoJSON,
 	}

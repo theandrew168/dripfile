@@ -2,7 +2,6 @@ package location
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 
@@ -18,6 +17,7 @@ const (
 
 var (
 	ErrInvalidUUID = errors.New("location: invalid UUID")
+	ErrInvalidKind = errors.New("location: invalid kind")
 )
 
 type Location struct {
@@ -95,23 +95,23 @@ func UnmarshalS3FromStorage(id string, info s3.Info) (*Location, error) {
 	return &l, nil
 }
 
-func (l Location) ID() string {
+func (l *Location) ID() string {
 	return l.id
 }
 
-func (l Location) Kind() string {
+func (l *Location) Kind() string {
 	return l.kind
 }
 
-func (l Location) MemoryInfo() memory.Info {
+func (l *Location) MemoryInfo() memory.Info {
 	return l.memoryInfo
 }
 
-func (l Location) S3Info() s3.Info {
+func (l *Location) S3Info() s3.Info {
 	return l.s3Info
 }
 
-func (l Location) Connect() (fileserver.FileServer, error) {
+func (l *Location) Connect() (fileserver.FileServer, error) {
 	switch l.kind {
 	case KindMemory:
 		return memory.New(l.memoryInfo)
@@ -119,5 +119,5 @@ func (l Location) Connect() (fileserver.FileServer, error) {
 		return s3.New(l.s3Info)
 	}
 
-	return nil, fmt.Errorf("unknown location kind: %s", l.kind)
+	return nil, ErrInvalidKind
 }

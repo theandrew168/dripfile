@@ -5,7 +5,6 @@ import (
 	"embed"
 	"encoding/hex"
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/google/uuid"
@@ -19,6 +18,9 @@ import (
 	locationStorage "github.com/theandrew168/dripfile/internal/location/storage"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/internal/transfer"
+	transferService "github.com/theandrew168/dripfile/internal/transfer/service"
+	transferStorage "github.com/theandrew168/dripfile/internal/transfer/storage"
 )
 
 //go:embed migration
@@ -71,20 +73,14 @@ func run() int {
 	}
 
 	locationStorage := locationStorage.New(pool, box)
+	transferStorage := transferStorage.New(pool)
+
 	locationService := locationService.New(locationStorage)
+	transferService := transferService.New(locationStorage, transferStorage)
 
-	id, _ := uuid.NewRandom()
-	err = locationService.AddMemory(location.AddMemoryCommand{
-		ID: id.String(),
-	})
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	id, _ = uuid.NewRandom()
+	fooID, _ := uuid.NewRandom()
 	err = locationService.AddS3(location.AddS3Command{
-		ID: id.String(),
+		ID: fooID.String(),
 
 		Endpoint:        "localhost:9000",
 		Bucket:          "foo",
@@ -96,39 +92,34 @@ func run() int {
 		return 1
 	}
 
-	l, err := locationService.GetByID(location.GetByIDQuery{
-		ID: id.String(),
+	barID, _ := uuid.NewRandom()
+	err = locationService.AddS3(location.AddS3Command{
+		ID: barID.String(),
+
+		Endpoint:        "localhost:9000",
+		Bucket:          "bar",
+		AccessKeyID:     "minioadmin",
+		SecretAccessKey: "minioadmin",
 	})
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
 	}
 
-	fmt.Printf("%+v\n", l)
+	tID, _ := uuid.NewRandom()
+	err = transferService.Add(transfer.AddCommand{
+		ID: tID.String(),
 
-	fs, err := l.Connect()
+		Pattern:        "*.png",
+		FromLocationID: fooID.String(),
+		ToLocationID:   barID.String(),
+	})
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
 	}
 
-	err = fs.Ping()
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	files, err := fs.Search("*")
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	for _, f := range files {
-		fmt.Printf("%+v\n", f)
-	}
-
-	cli := cli.New(flag.Args(), locationService)
+	cli := cli.New(flag.Args(), locationService, transferService)
 	err = cli.Run(context.Background())
 	if err != nil {
 		logger.Error(err.Error())

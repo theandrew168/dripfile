@@ -6,19 +6,22 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/theandrew168/dripfile/internal/location"
+	"github.com/theandrew168/dripfile/internal/transfer"
 )
 
 type Application struct {
 	args []string
 
 	locationService location.Service
+	transferService transfer.Service
 }
 
-func New(args []string, locationService location.Service) *Application {
+func New(args []string, locationService location.Service, transferService transfer.Service) *Application {
 	app := Application{
 		args: args,
 
 		locationService: locationService,
+		transferService: transferService,
 	}
 	return &app
 }
@@ -34,7 +37,7 @@ func (app *Application) Run(ctx context.Context) error {
 
 func (app *Application) dripfile(args []string) error {
 	if len(args) == 0 {
-		fmt.Println("usage: dripfile [location transfer history]")
+		fmt.Println("usage: dripfile [location transfer]")
 		return nil
 	}
 
@@ -42,6 +45,8 @@ func (app *Application) dripfile(args []string) error {
 	switch cmd {
 	case "location":
 		return app.location(args[1:])
+	case "transfer":
+		return app.transfer(args[1:])
 	default:
 		return fmt.Errorf("unknown command: %s", cmd)
 	}
@@ -156,6 +161,102 @@ func (app *Application) locationRemove(args []string) error {
 
 	id := args[0]
 	return app.locationService.Remove(location.RemoveCommand{
+		ID: id,
+	})
+}
+
+func (app *Application) transfer(args []string) error {
+	if len(args) == 0 {
+		fmt.Println("usage: dripfile transfer [get add remove]")
+		return nil
+	}
+
+	cmd := args[0]
+	switch cmd {
+	case "get":
+		return app.transferGet(args[1:])
+	case "add":
+		return app.transferAdd(args[1:])
+	case "remove":
+		return app.transferRemove(args[1:])
+	default:
+		return fmt.Errorf("unknown command: %s", cmd)
+	}
+}
+
+func (app *Application) transferGet(args []string) error {
+	var ts []*transfer.Transfer
+	if len(args) == 0 {
+		var err error
+		ts, err = app.transferService.GetAll(transfer.GetAllQuery{})
+		if err != nil {
+			return err
+		}
+	} else {
+		id := args[0]
+		t, err := app.transferService.GetByID(transfer.GetByIDQuery{
+			ID: id,
+		})
+		if err != nil {
+			return err
+		}
+
+		ts = append(ts, t)
+	}
+
+	for _, t := range ts {
+		fmt.Printf(
+			"%s %s\n",
+			t.ID(),
+			t.Pattern(),
+		)
+	}
+
+	return nil
+}
+
+func (app *Application) transferAdd(args []string) error {
+	pattern, err := input("Pattern: ")
+	if err != nil {
+		return err
+	}
+	fromLocationID, err := input("FromLocationID: ")
+	if err != nil {
+		return err
+	}
+	toLocationID, err := input("ToLocationID: ")
+	if err != nil {
+		return err
+	}
+
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return err
+	}
+
+	err = app.transferService.Add(transfer.AddCommand{
+		ID: id.String(),
+
+		Pattern:        pattern,
+		FromLocationID: fromLocationID,
+		ToLocationID:   toLocationID,
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("transfer created: %s\n", id)
+	return nil
+}
+
+func (app *Application) transferRemove(args []string) error {
+	if len(args) == 0 {
+		fmt.Println("usage: dripfile transfer remove [id]")
+		return nil
+	}
+
+	id := args[0]
+	return app.transferService.Remove(transfer.RemoveCommand{
 		ID: id,
 	})
 }
