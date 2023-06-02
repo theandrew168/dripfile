@@ -119,6 +119,14 @@ func run() int {
 		return 1
 	}
 
+	err = transferService.Run(transfer.RunCommand{
+		ID: tID.String(),
+	})
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
 	cli := cli.New(flag.Args(), locationService, transferService)
 	err = cli.Run(context.Background())
 	if err != nil {

@@ -167,7 +167,7 @@ func (app *Application) locationRemove(args []string) error {
 
 func (app *Application) transfer(args []string) error {
 	if len(args) == 0 {
-		fmt.Println("usage: dripfile transfer [get add remove]")
+		fmt.Println("usage: dripfile transfer [get add remove run]")
 		return nil
 	}
 
@@ -179,6 +179,8 @@ func (app *Application) transfer(args []string) error {
 		return app.transferAdd(args[1:])
 	case "remove":
 		return app.transferRemove(args[1:])
+	case "run":
+		return app.transferRun(args[1:])
 	default:
 		return fmt.Errorf("unknown command: %s", cmd)
 	}
@@ -257,6 +259,18 @@ func (app *Application) transferRemove(args []string) error {
 
 	id := args[0]
 	return app.transferService.Remove(transfer.RemoveCommand{
+		ID: id,
+	})
+}
+
+func (app *Application) transferRun(args []string) error {
+	if len(args) == 0 {
+		fmt.Println("usage: dripfile transfer run [id]")
+		return nil
+	}
+
+	id := args[0]
+	return app.transferService.Run(transfer.RunCommand{
 		ID: id,
 	})
 }

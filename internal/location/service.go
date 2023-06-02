@@ -26,6 +26,7 @@ type RemoveCommand struct {
 type Service interface {
 	GetByID(query GetByIDQuery) (*Location, error)
 	GetAll(query GetAllQuery) ([]*Location, error)
+
 	AddMemory(cmd AddMemoryCommand) error
 	AddS3(cmd AddS3Command) error
 	Remove(cmd RemoveCommand) error

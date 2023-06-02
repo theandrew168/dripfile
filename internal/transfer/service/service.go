@@ -55,3 +55,57 @@ func (srvc *Service) Remove(cmd transfer.RemoveCommand) error {
 
 	return srvc.transferStorage.Delete(cmd.ID)
 }
+
+func (srvc *Service) Run(cmd transfer.RunCommand) error {
+	_, err := uuid.Parse(cmd.ID)
+	if err != nil {
+		return transfer.ErrInvalidUUID
+	}
+
+	t, err := srvc.transferStorage.Read(cmd.ID)
+	if err != nil {
+		return err
+	}
+
+	from, err := srvc.locationStorage.Read(t.FromLocationID())
+	if err != nil {
+		return err
+	}
+
+	to, err := srvc.locationStorage.Read(t.ToLocationID())
+	if err != nil {
+		return err
+	}
+
+	fromFS, err := from.Connect()
+	if err != nil {
+		return err
+	}
+
+	toFS, err := to.Connect()
+	if err != nil {
+		return err
+	}
+
+	files, err := fromFS.Search(t.Pattern())
+	if err != nil {
+		return err
+	}
+
+	var totalBytes int64
+	for _, file := range files {
+		r, err := fromFS.Read(file)
+		if err != nil {
+			return err
+		}
+
+		err = toFS.Write(file, r)
+		if err != nil {
+			return err
+		}
+
+		totalBytes += file.Size
+	}
+
+	return nil
+}

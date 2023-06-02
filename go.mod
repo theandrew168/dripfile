@@ -3,7 +3,7 @@ module github.com/theandrew168/dripfile
 go 1.20
 
 require (
-	github.com/BurntSushi/toml v1.2.1
+	github.com/BurntSushi/toml v1.3.0
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgconn v1.14.0
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
