@@ -1,10 +1,7 @@
 import React, { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client';
 
-function NavigationBar() {
-	// TODO: Actually implement a navigation bar	
-	return <h1>Hello from React!</h1>;
-}
+import { NavigationBar } from './NavigationBar';
 
 const domNode = document.getElementById('navigation');
 if (domNode) {
