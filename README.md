@@ -34,7 +34,7 @@ To run the backend API and watch for changes on the frontend simultaneously:
 make -j2 run
 ```
 
-To run just the backend API (wihtout watching for frontend changes):
+To run just the backend API (without watching for frontend changes):
 ```
 make run-backend
 ```
