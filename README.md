@@ -28,9 +28,16 @@ These containers can be stopped via:
 docker compose down
 ```
 
-## Innovation Tokens
-* [Tailwind CSS](https://tailwindcss.com/)
-* [PostgreSQL Task Queue](https://webapp.io/blog/postgres-is-the-answer/) ([further reading](https://www.2ndquadrant.com/en/blog/what-is-select-skip-locked-for-in-postgresql-9-5/))
+### Running
+To run the backend API and watch for changes on the frontend simultaneously:
+```
+make -j2 run
+```
+
+To run just the backend API:
+```
+make run-backend
+```
 
 ## Features
 * Schedule-based transfers

@@ -18,13 +18,16 @@ frontend: node_modules
 backend: frontend
 	go build -o dripfile main.go
 
-.PHONY: run-frontend
-run-frontend: node_modules
-	npm run dev
+.PHONY: watch-frontend
+watch-frontend: node_modules
+	npm run watch
 
 .PHONY: run-backend
 run-backend: frontend
-	go run main.go
+	DEBUG=1 go run main.go
+
+.PHONY: run
+run: watch-frontend run-backend
 
 .PHONY: migrate
 migrate:
