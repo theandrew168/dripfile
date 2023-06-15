@@ -12,7 +12,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
-	"github.com/theandrew168/dripfile/internal/location/fileserver"
+	"github.com/theandrew168/dripfile/backend/location/fileserver"
 )
 
 var (

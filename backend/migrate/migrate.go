@@ -6,7 +6,7 @@ import (
 	"io/fs"
 	"sort"
 
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/backend/database"
 )
 
 func Migrate(conn database.Conn, files embed.FS) ([]string, error) {

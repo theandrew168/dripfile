@@ -3,8 +3,8 @@ package storage
 import (
 	"context"
 
-	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/transfer"
+	"github.com/theandrew168/dripfile/backend/database"
+	"github.com/theandrew168/dripfile/backend/transfer"
 )
 
 type Storage struct {

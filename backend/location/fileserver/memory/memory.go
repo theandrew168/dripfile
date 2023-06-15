@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"io"
 
-	"github.com/theandrew168/dripfile/internal/location/fileserver"
+	"github.com/theandrew168/dripfile/backend/location/fileserver"
 )
 
 type Info struct{}

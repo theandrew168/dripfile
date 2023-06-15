@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/location"
-	"github.com/theandrew168/dripfile/internal/location/fileserver/memory"
-	"github.com/theandrew168/dripfile/internal/location/fileserver/s3"
-	"github.com/theandrew168/dripfile/internal/secret"
+	"github.com/theandrew168/dripfile/backend/database"
+	"github.com/theandrew168/dripfile/backend/location"
+	"github.com/theandrew168/dripfile/backend/location/fileserver/memory"
+	"github.com/theandrew168/dripfile/backend/location/fileserver/s3"
+	"github.com/theandrew168/dripfile/backend/secret"
 )
 
 type Storage struct {

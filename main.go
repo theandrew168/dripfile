@@ -14,16 +14,16 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/database"
-	"github.com/theandrew168/dripfile/internal/location"
-	locationStorage "github.com/theandrew168/dripfile/internal/location/storage"
-	"github.com/theandrew168/dripfile/internal/migrate"
-	"github.com/theandrew168/dripfile/internal/secret"
-	"github.com/theandrew168/dripfile/internal/transfer"
-	transferService "github.com/theandrew168/dripfile/internal/transfer/service"
-	transferStorage "github.com/theandrew168/dripfile/internal/transfer/storage"
-	"github.com/theandrew168/dripfile/internal/web"
+	"github.com/theandrew168/dripfile/backend/config"
+	"github.com/theandrew168/dripfile/backend/database"
+	"github.com/theandrew168/dripfile/backend/location"
+	locationStorage "github.com/theandrew168/dripfile/backend/location/storage"
+	"github.com/theandrew168/dripfile/backend/migrate"
+	"github.com/theandrew168/dripfile/backend/secret"
+	"github.com/theandrew168/dripfile/backend/transfer"
+	transferService "github.com/theandrew168/dripfile/backend/transfer/service"
+	transferStorage "github.com/theandrew168/dripfile/backend/transfer/storage"
+	"github.com/theandrew168/dripfile/backend/web"
 )
 
 //go:embed migration

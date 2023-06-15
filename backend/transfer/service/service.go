@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/internal/location"
-	"github.com/theandrew168/dripfile/internal/transfer"
+	"github.com/theandrew168/dripfile/backend/location"
+	"github.com/theandrew168/dripfile/backend/transfer"
 )
 
 type Service struct {

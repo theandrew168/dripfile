@@ -5,9 +5,9 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/internal/location/fileserver"
-	"github.com/theandrew168/dripfile/internal/location/fileserver/memory"
-	"github.com/theandrew168/dripfile/internal/location/fileserver/s3"
+	"github.com/theandrew168/dripfile/backend/location/fileserver"
+	"github.com/theandrew168/dripfile/backend/location/fileserver/memory"
+	"github.com/theandrew168/dripfile/backend/location/fileserver/s3"
 )
 
 const (
