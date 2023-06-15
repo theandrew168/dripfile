@@ -5,11 +5,25 @@
 default: build
 
 .PHONY: build
-build:
+build: frontend backend
+
+node_modules:
+	npm install
+
+.PHONY: frontend
+frontend: node_modules
+	npm run build
+
+.PHONY: backend
+backend: frontend
 	go build -o dripfile main.go
 
-.PHONY: run
-run: migrate
+.PHONY: run-frontend
+run-frontend: node_modules
+	npm run dev
+
+.PHONY: run-backend
+run-backend: frontend
 	go run main.go
 
 .PHONY: migrate
@@ -48,4 +62,4 @@ update:
 
 .PHONY: clean
 clean:
-	rm -fr dripfile main c.out dist/
+	rm -fr dripfile main c.out node_modules/ public/index.js dist/

@@ -3,8 +3,10 @@ package web
 import (
 	"io/fs"
 	"net/http"
+	"os"
 
 	"github.com/alexedwards/flow"
+	"github.com/klauspost/compress/gzhttp"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 )
@@ -18,11 +20,14 @@ func NewApplication(
 	logger *slog.Logger,
 	publicFS fs.FS,
 ) *Application {
-	// drill-down one level so that the contents in public/
-	// are served from the root URL of the app
-	public, err := fs.Sub(publicFS, "public")
-	if err != nil {
-		panic(err)
+	var public fs.FS
+	if os.Getenv("DEBUG") != "" {
+		// reload templates from filesystem if var ENV starts with "dev"
+		// NOTE: os.DirFS is rooted from where the app is ran, not this file
+		public = os.DirFS("./public/")
+	} else {
+		// else use the embedded template dir
+		public, _ = fs.Sub(publicFS, "public")
 	}
 
 	app := Application{
@@ -48,7 +53,7 @@ func (app *Application) Handler() http.Handler {
 	// TODO: /api/v1/ routes
 
 	public := http.FileServer(http.FS(app.public))
-	mux.Handle("/...", public)
+	mux.Handle("/...", gzhttp.GzipHandler(public))
 
 	return mux
 }

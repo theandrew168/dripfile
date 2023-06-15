@@ -1,0 +1,18 @@
+{
+	"name": "dripfile",
+	"private": true,
+	"scripts": {
+		"dev": "esbuild frontend/index.tsx --outfile=public/index.js --bundle --serve=127.0.0.1:5000 --servedir=public",
+		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --bundle --minify"
+	},
+	"dependencies": {
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
+	"devDependencies": {
+		"@types/react": "^18.2.12",
+		"@types/react-dom": "^18.2.5",
+		"esbuild": "^0.18.2",
+		"typescript": "^5.1.3"
+	}
+}

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/test"
+	"github.com/theandrew168/dripfile/backend/config"
+	"github.com/theandrew168/dripfile/backend/test"
 )
 
 const (

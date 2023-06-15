@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/theandrew168/dripfile/internal/config"
-	"github.com/theandrew168/dripfile/internal/database"
+	"github.com/theandrew168/dripfile/backend/config"
+	"github.com/theandrew168/dripfile/backend/database"
 )
 
 type CloserFunc func()

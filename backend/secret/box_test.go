@@ -3,8 +3,8 @@ package secret_test
 import (
 	"testing"
 
-	"github.com/theandrew168/dripfile/internal/secret"
-	"github.com/theandrew168/dripfile/internal/test"
+	"github.com/theandrew168/dripfile/backend/secret"
+	"github.com/theandrew168/dripfile/backend/test"
 )
 
 func TestEncryptDecrypt(t *testing.T) {
