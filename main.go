@@ -17,7 +17,6 @@ import (
 	"github.com/theandrew168/dripfile/internal/config"
 	"github.com/theandrew168/dripfile/internal/database"
 	"github.com/theandrew168/dripfile/internal/location"
-	locationService "github.com/theandrew168/dripfile/internal/location/service"
 	locationStorage "github.com/theandrew168/dripfile/internal/location/storage"
 	"github.com/theandrew168/dripfile/internal/migrate"
 	"github.com/theandrew168/dripfile/internal/secret"
@@ -79,53 +78,65 @@ func run() int {
 	locationStorage := locationStorage.New(pool, box)
 	transferStorage := transferStorage.New(pool)
 
-	locationService := locationService.New(locationStorage)
 	transferService := transferService.New(locationStorage, transferStorage)
 
 	fooID, _ := uuid.NewRandom()
-	err = locationService.AddS3(location.AddS3Command{
-		ID: fooID.String(),
+	fooLoc, err := location.NewS3(
+		fooID.String(),
+		"localhost:9000",
+		"foo",
+		"minioadmin",
+		"minioadmin",
+	)
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
 
-		Endpoint:        "localhost:9000",
-		Bucket:          "foo",
-		AccessKeyID:     "minioadmin",
-		SecretAccessKey: "minioadmin",
-	})
+	err = locationStorage.Create(fooLoc)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
 	}
 
 	barID, _ := uuid.NewRandom()
-	err = locationService.AddS3(location.AddS3Command{
-		ID: barID.String(),
-
-		Endpoint:        "localhost:9000",
-		Bucket:          "bar",
-		AccessKeyID:     "minioadmin",
-		SecretAccessKey: "minioadmin",
-	})
+	barLoc, err := location.NewS3(
+		barID.String(),
+		"localhost:9000",
+		"bar",
+		"minioadmin",
+		"minioadmin",
+	)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
 	}
 
-	tID, _ := uuid.NewRandom()
-	err = transferService.Add(transfer.AddCommand{
-		ID: tID.String(),
-
-		Pattern:        "*.png",
-		FromLocationID: fooID.String(),
-		ToLocationID:   barID.String(),
-	})
+	err = locationStorage.Create(barLoc)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
 	}
 
-	err = transferService.Run(transfer.RunCommand{
-		ID: tID.String(),
-	})
+	tfID, _ := uuid.NewRandom()
+	tf, err := transfer.New(
+		tfID.String(),
+		"*.png",
+		fooID.String(),
+		barID.String(),
+	)
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
+	err = transferStorage.Create(tf)
+	if err != nil {
+		logger.Error(err.Error())
+		return 1
+	}
+
+	err = transferService.Run(tf.ID())
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
