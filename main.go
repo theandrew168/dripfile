@@ -29,6 +29,9 @@ import (
 //go:embed migration
 var migrationFS embed.FS
 
+//go:embed public
+var publicFS embed.FS
+
 func main() {
 	os.Exit(run())
 }
@@ -142,7 +145,7 @@ func run() int {
 		return 1
 	}
 
-	app := web.NewApplication(logger)
+	app := web.NewApplication(logger, publicFS)
 
 	// let port be overridable by an env var
 	port := cfg.Port
