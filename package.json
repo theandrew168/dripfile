@@ -2,8 +2,8 @@
 	"name": "dripfile",
 	"private": true,
 	"scripts": {
-		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --bundle --minify",
-		"watch": "esbuild frontend/index.tsx --outfile=public/index.js --bundle --watch"
+		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify",
+		"watch": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --watch"
 	},
 	"dependencies": {
 		"react": "^18.2.0",
