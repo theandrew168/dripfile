@@ -1,4 +1,4 @@
-import React, { StrictMode } from 'react'
+import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { NavigationBar } from './NavigationBar';
@@ -8,7 +8,7 @@ if (domNode) {
 	const root = createRoot(domNode);
 	root.render(
 		<StrictMode>
-			<NavigationBar />			
-		</StrictMode>
+			<NavigationBar />
+		</StrictMode>,
 	);
 }

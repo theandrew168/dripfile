@@ -47,16 +47,19 @@ cover: migrate
 	go tool cover -html=c.out
 
 .PHONY: release
-release: css
-	goreleaser release --snapshot --rm-dist
+release: frontend
+	goreleaser release --snapshot --clean
 
-.PHONY: lint
-lint:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint@latest run --fast
+.PHONY: format-frontend
+format-frontend:
+	npm run format
+
+.PHONY: format-backend
+format-backend:
+	gofmt -l -s -w .
 
 .PHONY: format
-format:
-	gofmt -l -s -w .
+format: format-frontend format-backend
 
 .PHONY: update
 update:

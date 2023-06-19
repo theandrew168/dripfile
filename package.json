@@ -3,7 +3,8 @@
 	"private": true,
 	"scripts": {
 		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify",
-		"watch": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --watch"
+		"watch": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --watch",
+		"format": "prettier --write frontend/"
 	},
 	"dependencies": {
 		"react": "^18.2.0",
@@ -13,6 +14,15 @@
 		"@types/react": "^18.2.12",
 		"@types/react-dom": "^18.2.5",
 		"esbuild": "^0.18.2",
+		"prettier": "^2.8.8",
 		"typescript": "^5.1.3"
+	},
+	"prettier": {
+		"useTabs": true,
+		"semi": true,
+		"singleQuote": true,
+		"bracketSpacing": true,
+		"trailingComma": "all",
+		"printWidth": 100
 	}
 }
