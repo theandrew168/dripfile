@@ -1,15 +1,7 @@
-import React from 'react';
+import React from "react";
 
-import { NavigationBar } from './NavigationBar';
-import { Image } from './Image';
-import { CoolButton } from './CoolButton';
+import { NavigationBar } from "./NavigationBar";
 
 export function App() {
-	return (
-		<>
-			<NavigationBar />
-			<CoolButton message='Hello World' />
-			<Image src="/static/logo-black.svg" />
-		</>
-	);
+	return <NavigationBar />;
 }

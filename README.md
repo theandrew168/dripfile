@@ -34,9 +34,9 @@ docker compose down
 ```
 
 ### Running
-To run the backend API and watch for changes on the frontend simultaneously:
+To run the backend API and watch for changes on the frontend simultaneously (needs at least `-j3`):
 ```
-make -j2 run
+make -j4 run
 ```
 
 ## Features
