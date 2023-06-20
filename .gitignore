@@ -4,6 +4,7 @@ dripfile
 *.test.conf
 *.live.conf
 public/index.js
+public/index.css
 
 # Other local-only dirs
 .DS_Store

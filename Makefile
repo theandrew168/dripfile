@@ -51,7 +51,7 @@ release: frontend
 	goreleaser release --snapshot --clean
 
 .PHONY: format-frontend
-format-frontend:
+format-frontend: node_modules
 	npm run format
 
 .PHONY: format-backend
@@ -61,10 +61,17 @@ format-backend:
 .PHONY: format
 format: format-frontend format-backend
 
-.PHONY: update
-update:
+.PHONY: update-frontend
+update-frontend:
+	npm update
+
+.PHONY: update-backend
+update-backend:
 	go get -u ./...
 	go mod tidy
+
+.PHONY: update
+update: update-frontend update-backend
 
 .PHONY: clean
 clean:

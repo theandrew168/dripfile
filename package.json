@@ -2,13 +2,19 @@
 	"name": "dripfile",
 	"private": true,
 	"scripts": {
-		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify",
-		"watch": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --watch",
+		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --loader:.woff=dataurl --loader:.woff2=dataurl --bundle --minify",
+		"watch": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --loader:.woff=dataurl --loader:.woff2=dataurl --bundle --watch",
 		"format": "prettier --write frontend/"
 	},
 	"dependencies": {
+		"@emotion/react": "^11.11.1",
+		"@emotion/styled": "^11.11.0",
+		"@fontsource/roboto": "^5.0.3",
+		"@mui/icons-material": "^5.11.16",
+		"@mui/material": "^5.13.5",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^6.13.0"
 	},
 	"devDependencies": {
 		"@types/react": "^18.2.12",

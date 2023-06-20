@@ -1,14 +1,16 @@
 import React, { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import CssBaseline from '@mui/material/CssBaseline';
 
-import { NavigationBar } from './NavigationBar';
+import { App } from './App';
 
-const domNode = document.getElementById('navigation');
-if (domNode) {
-	const root = createRoot(domNode);
+const app = document.getElementById('app');
+if (app) {
+	const root = createRoot(app);
 	root.render(
 		<StrictMode>
-			<NavigationBar />
+			<CssBaseline />
+			<App />
 		</StrictMode>,
 	);
 }
