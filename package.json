@@ -2,9 +2,9 @@
 	"name": "dripfile",
 	"private": true,
 	"scripts": {
-		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify && tailwindcss -i public/input.css -o public/index.css --minify",
+		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify && tailwindcss -i tailwind.config.css -o public/index.css --minify",
 		"run-js": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --watch",
-		"run-css": "tailwindcss -i public/input.css -o public/index.css --watch",
+		"run-css": "tailwindcss -i tailwind.config.css -o public/index.css --watch",
 		"format": "prettier --write frontend/"
 	},
 	"dependencies": {
