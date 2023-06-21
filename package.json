@@ -2,7 +2,10 @@
 	"name": "dripfile",
 	"private": true,
 	"scripts": {
-		"build": "tsc && esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify && tailwindcss -i tailwind.config.css -o public/index.css --minify",
+		"build-types": "tsc",
+		"build-js": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify",
+		"build-css": "tailwindcss -i tailwind.config.css -o public/index.css --minify",
+		"build": "npm run build-types && npm run build-js && npm run build-css",
 		"run-js": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --watch",
 		"run-css": "tailwindcss -i tailwind.config.css -o public/index.css --watch",
 		"format": "prettier --write frontend/"

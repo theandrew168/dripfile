@@ -10,9 +10,20 @@ build: frontend backend
 node_modules:
 	npm install
 
+.PHONY: frontend-types
+frontend-types: node_modules
+	npm run build-types
+
+.PHONY: frontend-js
+frontend-js: node_modules
+	npm run build-js
+
+.PHONY: frontend-css
+frontend-css: node_modules
+	npm run build-css
+
 .PHONY: frontend
-frontend: node_modules
-	npm run build
+frontend: frontend-types frontend-js frontend-css
 
 .PHONY: backend
 backend: frontend
@@ -31,7 +42,7 @@ run-frontend: run-frontend-js run-frontend-css
 
 .PHONY: run-backend
 run-backend:
-	DEBUG=1 go run main.go
+	DEBUG=1 go run github.com/cosmtrek/air@latest
 
 .PHONY: run
 run: run-frontend run-backend

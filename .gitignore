@@ -10,6 +10,7 @@ public/index.css
 .DS_Store
 .vscode/
 .idea/
+tmp/
 
 # Binaries for programs and plugins
 *.exe

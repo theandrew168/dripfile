@@ -1,0 +1,3 @@
+[build]
+include_dir = ["backend"]
+include_file = ["main.go"]

@@ -13,7 +13,7 @@ brew install go node
 ## Building
 To build the application into a standalone binary, run:
 ```
-make
+make -j4
 ```
 
 ## Local Development
@@ -34,7 +34,7 @@ docker compose down
 ```
 
 ### Running
-To run the backend API and watch for changes on the frontend simultaneously (needs at least `-j3`):
+To run (and auto-reload) the backend and frontend simultaneously (needs at least `-j3`):
 ```
 make -j4 run
 ```
