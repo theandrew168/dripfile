@@ -20,7 +20,7 @@ func NewApplication(logger *slog.Logger) *Application {
 	return &app
 }
 
-func (app *Application) Router() http.Handler {
+func (app *Application) Handler() http.Handler {
 	mux := flow.New()
 	mux.NotFound = http.HandlerFunc(app.notFoundResponse)
 	mux.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)

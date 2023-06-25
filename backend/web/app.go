@@ -55,7 +55,7 @@ func (app *Application) Handler() http.Handler {
 
 	// REST API routes
 	apiV1 := api.NewApplication(app.logger)
-	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Router()))
+	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Handler()))
 
 	// public files to be served (and auto-compressed)
 	public := gzhttp.GzipHandler(http.FileServer(http.FS(app.public)))
