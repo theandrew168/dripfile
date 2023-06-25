@@ -1,4 +1,4 @@
-# DripFile
+# Dripfile
 File transfers made easy
 
 ## Setup

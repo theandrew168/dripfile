@@ -1,4 +1,4 @@
-package web
+package api
 
 import (
 	"encoding/json"
@@ -7,6 +7,8 @@ import (
 	"io"
 	"net/http"
 )
+
+type envelope map[string]interface{}
 
 // Let's Go Further - Chapter 4.2
 func readJSON(r io.Reader, dst any) error {

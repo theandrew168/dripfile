@@ -20,7 +20,7 @@ export default function App() {
 			element: (
 				<div>
 					Cool image, huh?
-					<Image src="/static/logo-black.svg" />
+					<Image src="/static/img/logo-black.svg" />
 				</div>
 			),
 		},

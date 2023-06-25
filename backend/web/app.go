@@ -9,6 +9,9 @@ import (
 	"github.com/klauspost/compress/gzhttp"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
+
+	"github.com/theandrew168/dripfile/backend/web/api"
+	"github.com/theandrew168/dripfile/backend/web/middleware"
 )
 
 type Application struct {
@@ -39,6 +42,7 @@ func NewApplication(
 
 func (app *Application) Handler() http.Handler {
 	mux := flow.New()
+	mux.Use(middleware.RecoverPanic)
 
 	// healthcheck endpoint
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
@@ -50,13 +54,8 @@ func (app *Application) Handler() http.Handler {
 	mux.Handle("/metrics", promhttp.Handler(), "GET")
 
 	// REST API routes
-	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "/api/v1/", http.StatusMovedPermanently)
-	})
-	mux.HandleFunc("/api/v1/...", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte("TODO: /api/v1 routes!!!\n"))
-	}, "GET")
+	apiV1 := api.NewApplication(app.logger)
+	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Router()))
 
 	// public files to be served (and auto-compressed)
 	public := gzhttp.GzipHandler(http.FileServer(http.FS(app.public)))
@@ -64,6 +63,7 @@ func (app *Application) Handler() http.Handler {
 	mux.Handle("/index.html", public)
 	mux.Handle("/index.js", public)
 	mux.Handle("/index.css", public)
+	mux.Handle("/robots.txt", public)
 	mux.Handle("/favicon.ico", public)
 	mux.Handle("/static/...", public)
 
