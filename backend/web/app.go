@@ -69,11 +69,12 @@ func (app *Application) Handler() http.Handler {
 
 	// all other routes should return the index page
 	// so that the frontend router can take over
-	index, err := fs.ReadFile(app.public, "index.html")
-	if err != nil {
-		panic(err)
-	}
 	mux.Handle("/...", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		index, err := fs.ReadFile(app.public, "index.html")
+		if err != nil {
+			panic(err)
+		}
+
 		w.Write(index)
 	}))
 

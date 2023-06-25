@@ -4,6 +4,6 @@ type Props = {
 	src: string;
 };
 
-export function Image({ src }: Props) {
+export default function Image({ src }: Props) {
 	return <img src={src}></img>;
 }

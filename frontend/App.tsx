@@ -1,9 +1,10 @@
 import React from "react";
-
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import { Image } from "./Image";
 
-export function App() {
+import Image from "./Image";
+import ErrorPage from "./ErrorPage";
+
+export default function App() {
 	const router = createBrowserRouter([
 		{
 			path: "/",
@@ -12,6 +13,7 @@ export function App() {
 					Hello router! <a href="/image">View an image!</a>
 				</div>
 			),
+			errorElement: <ErrorPage />,
 		},
 		{
 			path: "/image",
