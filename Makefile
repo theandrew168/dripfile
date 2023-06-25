@@ -93,4 +93,4 @@ update: update-frontend update-backend
 
 .PHONY: clean
 clean:
-	rm -fr dripfile main c.out node_modules/ public/index.js dist/
+	rm -fr dripfile main c.out public/index.js public/index.css dist/
