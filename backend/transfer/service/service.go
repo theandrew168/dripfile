@@ -1,8 +1,11 @@
 package service
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 
+	"github.com/theandrew168/dripfile/backend/history"
 	"github.com/theandrew168/dripfile/backend/location"
 	"github.com/theandrew168/dripfile/backend/transfer"
 )
@@ -10,12 +13,18 @@ import (
 type Service struct {
 	locationStorage location.Storage
 	transferStorage transfer.Storage
+	historyStorage  history.Storage
 }
 
-func New(locationStorage location.Storage, transferStorage transfer.Storage) *Service {
+func New(
+	locationStorage location.Storage,
+	transferStorage transfer.Storage,
+	historyStorage history.Storage,
+) *Service {
 	srvc := Service{
 		locationStorage: locationStorage,
 		transferStorage: transferStorage,
+		historyStorage:  historyStorage,
 	}
 	return &srvc
 }
@@ -25,6 +34,8 @@ func (srvc *Service) Run(transferID string) error {
 	if err != nil {
 		return transfer.ErrInvalidUUID
 	}
+
+	start := time.Now().UTC()
 
 	t, err := srvc.transferStorage.Read(transferID)
 	if err != nil {
@@ -69,6 +80,19 @@ func (srvc *Service) Run(transferID string) error {
 		}
 
 		totalBytes += file.Size
+	}
+
+	finish := time.Now().UTC()
+
+	hID, _ := uuid.NewRandom()
+	h, err := history.New(hID.String(), totalBytes, start, finish, t.ID())
+	if err != nil {
+		return err
+	}
+
+	err = srvc.historyStorage.Create(h)
+	if err != nil {
+		return err
 	}
 
 	return nil
