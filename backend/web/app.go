@@ -39,7 +39,6 @@ func NewApplication(
 
 func (app *Application) Handler() http.Handler {
 	mux := flow.New()
-	// TODO: api 404 / 405 responses
 
 	// healthcheck endpoint
 	mux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
@@ -50,10 +49,33 @@ func (app *Application) Handler() http.Handler {
 	// prometheus metrics
 	mux.Handle("/metrics", promhttp.Handler(), "GET")
 
-	// TODO: /api/v1/ routes
+	// REST API routes
+	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/api/v1/", http.StatusMovedPermanently)
+	})
+	mux.HandleFunc("/api/v1/...", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte("TODO: /api/v1 routes!!!\n"))
+	}, "GET")
 
-	public := http.FileServer(http.FS(app.public))
-	mux.Handle("/...", gzhttp.GzipHandler(public))
+	// public files to be served (and auto-compressed)
+	public := gzhttp.GzipHandler(http.FileServer(http.FS(app.public)))
+	mux.Handle("/", public)
+	mux.Handle("/index.html", public)
+	mux.Handle("/index.js", public)
+	mux.Handle("/index.css", public)
+	mux.Handle("/favicon.ico", public)
+	mux.Handle("/static/...", public)
+
+	// all other routes should return the index page
+	// so that the frontend router can take over
+	index, err := fs.ReadFile(app.public, "index.html")
+	if err != nil {
+		panic(err)
+	}
+	mux.Handle("/...", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write(index)
+	}))
 
 	return mux
 }
