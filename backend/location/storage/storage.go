@@ -6,9 +6,8 @@ import (
 	"fmt"
 
 	"github.com/theandrew168/dripfile/backend/database"
+	"github.com/theandrew168/dripfile/backend/fileserver"
 	"github.com/theandrew168/dripfile/backend/location"
-	"github.com/theandrew168/dripfile/backend/location/fileserver/memory"
-	"github.com/theandrew168/dripfile/backend/location/fileserver/s3"
 	"github.com/theandrew168/dripfile/backend/secret"
 )
 
@@ -77,7 +76,7 @@ func (store *Storage) unmarshalMemory(lr locationRow) (*location.Location, error
 		return nil, err
 	}
 
-	var info memory.Info
+	var info fileserver.MemoryInfo
 	err = json.Unmarshal(infoJSON, &info)
 	if err != nil {
 		return nil, err
@@ -92,7 +91,7 @@ func (store *Storage) unmarshalS3(lr locationRow) (*location.Location, error) {
 		return nil, err
 	}
 
-	var info s3.Info
+	var info fileserver.S3Info
 	err = json.Unmarshal(infoJSON, &info)
 	if err != nil {
 		return nil, err

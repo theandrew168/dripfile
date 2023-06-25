@@ -5,9 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/backend/location/fileserver"
-	"github.com/theandrew168/dripfile/backend/location/fileserver/memory"
-	"github.com/theandrew168/dripfile/backend/location/fileserver/s3"
+	"github.com/theandrew168/dripfile/backend/fileserver"
 )
 
 const (
@@ -24,8 +22,8 @@ type Location struct {
 	id string
 
 	kind       string
-	memoryInfo memory.Info
-	s3Info     s3.Info
+	memoryInfo fileserver.MemoryInfo
+	s3Info     fileserver.S3Info
 }
 
 func NewMemory(id string) (*Location, error) {
@@ -34,7 +32,7 @@ func NewMemory(id string) (*Location, error) {
 		return nil, ErrInvalidUUID
 	}
 
-	info := memory.Info{}
+	info := fileserver.MemoryInfo{}
 	err = info.Validate()
 	if err != nil {
 		return nil, err
@@ -55,7 +53,7 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 		return nil, ErrInvalidUUID
 	}
 
-	info := s3.Info{
+	info := fileserver.S3Info{
 		Endpoint:        endpoint,
 		Bucket:          bucket,
 		AccessKeyID:     accessKeyID,
@@ -75,7 +73,7 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 	return &l, nil
 }
 
-func UnmarshalMemoryFromStorage(id string, info memory.Info) (*Location, error) {
+func UnmarshalMemoryFromStorage(id string, info fileserver.MemoryInfo) (*Location, error) {
 	l := Location{
 		id: id,
 
@@ -85,7 +83,7 @@ func UnmarshalMemoryFromStorage(id string, info memory.Info) (*Location, error) 
 	return &l, nil
 }
 
-func UnmarshalS3FromStorage(id string, info s3.Info) (*Location, error) {
+func UnmarshalS3FromStorage(id string, info fileserver.S3Info) (*Location, error) {
 	l := Location{
 		id: id,
 
@@ -103,20 +101,20 @@ func (l *Location) Kind() string {
 	return l.kind
 }
 
-func (l *Location) MemoryInfo() memory.Info {
+func (l *Location) MemoryInfo() fileserver.MemoryInfo {
 	return l.memoryInfo
 }
 
-func (l *Location) S3Info() s3.Info {
+func (l *Location) S3Info() fileserver.S3Info {
 	return l.s3Info
 }
 
 func (l *Location) Connect() (fileserver.FileServer, error) {
 	switch l.kind {
 	case KindMemory:
-		return memory.New(l.memoryInfo)
+		return fileserver.NewMemory(l.memoryInfo)
 	case KindS3:
-		return s3.New(l.s3Info)
+		return fileserver.NewS3(l.s3Info)
 	}
 
 	return nil, ErrInvalidKind
