@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -10,8 +9,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 
 	err := writeJSON(w, status, env)
 	if err != nil {
-		// TODO: replace with a logger call
-		fmt.Println(err)
+		app.logger.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -35,8 +33,7 @@ func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 }
 
 func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
-	// TODO: replace with a logger call
-	fmt.Println(err)
+	app.logger.Error(err.Error())
 
 	code := http.StatusInternalServerError
 	text := http.StatusText(code)

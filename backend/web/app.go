@@ -10,6 +10,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 
+	"github.com/theandrew168/dripfile/backend/history"
+	"github.com/theandrew168/dripfile/backend/location"
+	"github.com/theandrew168/dripfile/backend/transfer"
 	"github.com/theandrew168/dripfile/backend/web/api"
 	"github.com/theandrew168/dripfile/backend/web/middleware"
 )
@@ -17,11 +20,21 @@ import (
 type Application struct {
 	logger *slog.Logger
 	public fs.FS
+
+	locationStorage location.Storage
+	transferStorage transfer.Storage
+	historyStorage  history.Storage
+
+	transferService transfer.Service
 }
 
 func NewApplication(
 	logger *slog.Logger,
 	publicFS fs.FS,
+	locationStorage location.Storage,
+	transferStorage transfer.Storage,
+	historyStorage history.Storage,
+	transferService transfer.Service,
 ) *Application {
 	var public fs.FS
 	if os.Getenv("DEBUG") != "" {
@@ -36,6 +49,12 @@ func NewApplication(
 	app := Application{
 		logger: logger,
 		public: public,
+
+		locationStorage: locationStorage,
+		transferStorage: transferStorage,
+		historyStorage:  historyStorage,
+
+		transferService: transferService,
 	}
 	return &app
 }
@@ -54,7 +73,13 @@ func (app *Application) Handler() http.Handler {
 	mux.Handle("/metrics", promhttp.Handler(), "GET")
 
 	// REST API routes
-	apiV1 := api.NewApplication(app.logger)
+	apiV1 := api.NewApplication(
+		app.logger,
+		app.locationStorage,
+		app.transferStorage,
+		app.historyStorage,
+		app.transferService,
+	)
 	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Handler()))
 
 	// public files to be served (and auto-compressed)

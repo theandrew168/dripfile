@@ -147,7 +147,14 @@ func run() int {
 		return 1
 	}
 
-	app := web.NewApplication(logger, publicFS)
+	app := web.NewApplication(
+		logger,
+		publicFS,
+		locationStorage,
+		transferStorage,
+		historyStorage,
+		transferService,
+	)
 
 	// let port be overridable by an env var
 	port := cfg.Port

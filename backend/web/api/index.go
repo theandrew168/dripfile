@@ -26,6 +26,6 @@ const html = `
 </html>
 `
 
-func (app *Application) HandleIndex(w http.ResponseWriter, r *http.Request) {
+func (app *Application) handleIndex(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(html))
 }
