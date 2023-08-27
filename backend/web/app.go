@@ -23,7 +23,7 @@ type Application struct {
 
 	locationStorage location.Repository
 	transferStorage transfer.Repository
-	historyStorage  history.Storage
+	historyStorage  history.Repository
 
 	transferService transfer.Service
 }
@@ -33,7 +33,7 @@ func NewApplication(
 	publicFS fs.FS,
 	locationStorage location.Repository,
 	transferStorage transfer.Repository,
-	historyStorage history.Storage,
+	historyStorage history.Repository,
 	transferService transfer.Service,
 ) *Application {
 	var public fs.FS

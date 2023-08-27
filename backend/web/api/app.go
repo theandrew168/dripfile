@@ -17,7 +17,7 @@ type Application struct {
 
 	locationStorage location.Repository
 	transferStorage transfer.Repository
-	historyStorage  history.Storage
+	historyStorage  history.Repository
 
 	transferService transfer.Service
 }
@@ -26,7 +26,7 @@ func NewApplication(
 	logger *slog.Logger,
 	locationStorage location.Repository,
 	transferStorage transfer.Repository,
-	historyStorage history.Storage,
+	historyStorage history.Repository,
 	transferService transfer.Service,
 ) *Application {
 	app := Application{

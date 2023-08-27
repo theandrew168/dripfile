@@ -16,7 +16,7 @@ import (
 
 	"github.com/theandrew168/dripfile/backend/config"
 	"github.com/theandrew168/dripfile/backend/database"
-	historyStorage "github.com/theandrew168/dripfile/backend/history/storage"
+	"github.com/theandrew168/dripfile/backend/history"
 	"github.com/theandrew168/dripfile/backend/location"
 	"github.com/theandrew168/dripfile/backend/migrate"
 	"github.com/theandrew168/dripfile/backend/secret"
@@ -79,9 +79,9 @@ func run() int {
 
 	locationRepo := location.NewRepository(pool, box)
 	transferRepo := transfer.NewRepository(pool)
-	historyStorage := historyStorage.New(pool)
+	historyRepo := history.NewRepository(pool)
 
-	transferService := transferService.New(locationRepo, transferRepo, historyStorage)
+	transferService := transferService.New(locationRepo, transferRepo, historyRepo)
 
 	fooID, _ := uuid.NewRandom()
 	fooLoc, err := location.NewS3(
@@ -150,7 +150,7 @@ func run() int {
 		publicFS,
 		locationRepo,
 		transferRepo,
-		historyStorage,
+		historyRepo,
 		transferService,
 	)
 

@@ -11,20 +11,20 @@ import (
 )
 
 type Service struct {
-	locationRepo   location.Repository
-	transferRepo   transfer.Repository
-	historyStorage history.Storage
+	locationRepo location.Repository
+	transferRepo transfer.Repository
+	historyRepo  history.Repository
 }
 
 func New(
 	locationRepo location.Repository,
 	transferRepo transfer.Repository,
-	historyStorage history.Storage,
+	historyRepo history.Repository,
 ) *Service {
 	srvc := Service{
-		locationRepo:   locationRepo,
-		transferRepo:   transferRepo,
-		historyStorage: historyStorage,
+		locationRepo: locationRepo,
+		transferRepo: transferRepo,
+		historyRepo:  historyRepo,
 	}
 	return &srvc
 }
@@ -90,7 +90,7 @@ func (srvc *Service) Run(transferID string) error {
 		return err
 	}
 
-	err = srvc.historyStorage.Create(h)
+	err = srvc.historyRepo.Create(h)
 	if err != nil {
 		return err
 	}
