@@ -6,6 +6,9 @@ import (
 	"github.com/theandrew168/dripfile/backend/database"
 )
 
+// ensure Repository interface is satisfied
+var _ Repository = (*PostgresRepository)(nil)
+
 // repository interface (other code depends on this)
 type Repository interface {
 	Create(t *Transfer) error
@@ -15,12 +18,12 @@ type Repository interface {
 }
 
 // repository implementation (knows about domain internals)
-type postgresRepository struct {
+type PostgresRepository struct {
 	conn database.Conn
 }
 
-func NewRepository(conn database.Conn) Repository {
-	repo := postgresRepository{
+func NewRepository(conn database.Conn) *PostgresRepository {
+	repo := PostgresRepository{
 		conn: conn,
 	}
 	return &repo
@@ -34,7 +37,7 @@ type transferRow struct {
 	toLocationID   string
 }
 
-func (repo *postgresRepository) marshal(t *Transfer) (transferRow, error) {
+func (repo *PostgresRepository) marshal(t *Transfer) (transferRow, error) {
 	tr := transferRow{
 		id: t.ID(),
 
@@ -45,7 +48,7 @@ func (repo *postgresRepository) marshal(t *Transfer) (transferRow, error) {
 	return tr, nil
 }
 
-func (repo *postgresRepository) unmarshal(tr transferRow) (*Transfer, error) {
+func (repo *PostgresRepository) unmarshal(tr transferRow) (*Transfer, error) {
 	t := Transfer{
 		id: tr.id,
 
@@ -56,7 +59,7 @@ func (repo *postgresRepository) unmarshal(tr transferRow) (*Transfer, error) {
 	return &t, nil
 }
 
-func (repo *postgresRepository) Create(t *Transfer) error {
+func (repo *PostgresRepository) Create(t *Transfer) error {
 	stmt := `
 		INSERT INTO transfer
 			(id, pattern, from_location_id, to_location_id)
@@ -81,7 +84,7 @@ func (repo *postgresRepository) Create(t *Transfer) error {
 	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (repo *postgresRepository) Read(id string) (*Transfer, error) {
+func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
 	stmt := `
 		SELECT
 			id,
@@ -111,7 +114,7 @@ func (repo *postgresRepository) Read(id string) (*Transfer, error) {
 	return repo.unmarshal(tr)
 }
 
-func (repo *postgresRepository) List() ([]*Transfer, error) {
+func (repo *PostgresRepository) List() ([]*Transfer, error) {
 	stmt := `
 		SELECT
 			id,
@@ -160,7 +163,7 @@ func (repo *postgresRepository) List() ([]*Transfer, error) {
 	return ts, nil
 }
 
-func (repo *postgresRepository) Delete(id string) error {
+func (repo *PostgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM transfer
 		WHERE id = $1

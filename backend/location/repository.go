@@ -10,6 +10,9 @@ import (
 	"github.com/theandrew168/dripfile/backend/secret"
 )
 
+// ensure Repository interface is satisfied
+var _ Repository = (*PostgresRepository)(nil)
+
 // repository interface (other code depends on this)
 type Repository interface {
 	Create(l *Location) error
@@ -19,13 +22,13 @@ type Repository interface {
 }
 
 // repository implementation (knows about domain internals)
-type postgresRepository struct {
+type PostgresRepository struct {
 	conn database.Conn
 	box  *secret.Box
 }
 
-func NewRepository(conn database.Conn, box *secret.Box) Repository {
-	repo := postgresRepository{
+func NewRepository(conn database.Conn, box *secret.Box) *PostgresRepository {
+	repo := PostgresRepository{
 		conn: conn,
 		box:  box,
 	}
@@ -39,7 +42,7 @@ type locationRow struct {
 	info []byte
 }
 
-func (repo *postgresRepository) marshal(l *Location) (locationRow, error) {
+func (repo *PostgresRepository) marshal(l *Location) (locationRow, error) {
 	var info any
 	switch l.Kind() {
 	case KindMemory:
@@ -67,7 +70,7 @@ func (repo *postgresRepository) marshal(l *Location) (locationRow, error) {
 	return lr, nil
 }
 
-func (repo *postgresRepository) unmarshal(lr locationRow) (*Location, error) {
+func (repo *PostgresRepository) unmarshal(lr locationRow) (*Location, error) {
 	switch lr.kind {
 	case KindMemory:
 		return repo.unmarshalMemory(lr)
@@ -78,7 +81,7 @@ func (repo *postgresRepository) unmarshal(lr locationRow) (*Location, error) {
 	return nil, fmt.Errorf("unknown location kind: %s", lr.kind)
 }
 
-func (repo *postgresRepository) unmarshalMemory(lr locationRow) (*Location, error) {
+func (repo *PostgresRepository) unmarshalMemory(lr locationRow) (*Location, error) {
 	infoJSON, err := repo.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
@@ -99,7 +102,7 @@ func (repo *postgresRepository) unmarshalMemory(lr locationRow) (*Location, erro
 	return &l, nil
 }
 
-func (repo *postgresRepository) unmarshalS3(lr locationRow) (*Location, error) {
+func (repo *PostgresRepository) unmarshalS3(lr locationRow) (*Location, error) {
 	infoJSON, err := repo.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
@@ -120,7 +123,7 @@ func (repo *postgresRepository) unmarshalS3(lr locationRow) (*Location, error) {
 	return &l, nil
 }
 
-func (repo *postgresRepository) Create(l *Location) error {
+func (repo *PostgresRepository) Create(l *Location) error {
 	stmt := `
 		INSERT INTO location
 			(id, kind, info)
@@ -144,7 +147,7 @@ func (repo *postgresRepository) Create(l *Location) error {
 	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (repo *postgresRepository) Read(id string) (*Location, error) {
+func (repo *PostgresRepository) Read(id string) (*Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -172,7 +175,7 @@ func (repo *postgresRepository) Read(id string) (*Location, error) {
 	return repo.unmarshal(lr)
 }
 
-func (repo *postgresRepository) List() ([]*Location, error) {
+func (repo *PostgresRepository) List() ([]*Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -219,7 +222,7 @@ func (repo *postgresRepository) List() ([]*Location, error) {
 	return ls, nil
 }
 
-func (repo *postgresRepository) Delete(id string) error {
+func (repo *PostgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1

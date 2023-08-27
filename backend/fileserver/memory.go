@@ -5,19 +5,22 @@ import (
 	"io"
 )
 
+// ensure FileServer interface is satisfied
+var _ FileServer = (*MemoryFileServer)(nil)
+
 type MemoryInfo struct{}
 
 func (info MemoryInfo) Validate() error {
 	return nil
 }
 
-type memoryFileServer struct {
+type MemoryFileServer struct {
 	info MemoryInfo
 	data map[string]*bytes.Buffer
 }
 
-func NewMemory(info MemoryInfo) (FileServer, error) {
-	fs := memoryFileServer{
+func NewMemory(info MemoryInfo) (*MemoryFileServer, error) {
+	fs := MemoryFileServer{
 		info: info,
 		data: make(map[string]*bytes.Buffer),
 	}
@@ -25,21 +28,21 @@ func NewMemory(info MemoryInfo) (FileServer, error) {
 	return &fs, nil
 }
 
-func (fs *memoryFileServer) Ping() error {
+func (fs *MemoryFileServer) Ping() error {
 	return nil
 }
 
-func (fs *memoryFileServer) Search(pattern string) ([]FileInfo, error) {
+func (fs *MemoryFileServer) Search(pattern string) ([]FileInfo, error) {
 	// TODO: implement this
 	return []FileInfo{}, nil
 }
 
-func (fs *memoryFileServer) Read(file FileInfo) (io.Reader, error) {
+func (fs *MemoryFileServer) Read(file FileInfo) (io.Reader, error) {
 	// TODO: implement this
 	return nil, nil
 }
 
-func (fs *memoryFileServer) Write(file FileInfo, r io.Reader) error {
+func (fs *MemoryFileServer) Write(file FileInfo, r io.Reader) error {
 	// TODO: implement this
 	return nil
 }

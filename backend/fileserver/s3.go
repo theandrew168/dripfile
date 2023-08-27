@@ -13,6 +13,9 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
+// ensure FileServer interface is satisfied
+var _ FileServer = (*S3FileServer)(nil)
+
 var (
 	ErrInvalidEndpoint    = errors.New("s3: invalid endpoint")
 	ErrInvalidCredentials = errors.New("s3: invalid credentials")
@@ -42,12 +45,12 @@ func (info S3Info) Validate() error {
 	return nil
 }
 
-type s3FileServer struct {
+type S3FileServer struct {
 	info   S3Info
 	client *minio.Client
 }
 
-func NewS3(info S3Info) (FileServer, error) {
+func NewS3(info S3Info) (*S3FileServer, error) {
 	creds := credentials.NewStaticV4(
 		info.AccessKeyID,
 		info.SecretAccessKey,
@@ -71,7 +74,7 @@ func NewS3(info S3Info) (FileServer, error) {
 		return nil, ErrInvalidEndpoint
 	}
 
-	fs := s3FileServer{
+	fs := S3FileServer{
 		info:   info,
 		client: client,
 	}
@@ -79,7 +82,7 @@ func NewS3(info S3Info) (FileServer, error) {
 	return &fs, nil
 }
 
-func (fs *s3FileServer) Ping() error {
+func (fs *S3FileServer) Ping() error {
 	ctx := context.Background()
 	buckets, err := fs.client.ListBuckets(ctx)
 	if err != nil {
@@ -101,7 +104,7 @@ func (fs *s3FileServer) Ping() error {
 	return nil
 }
 
-func (fs *s3FileServer) Search(pattern string) ([]FileInfo, error) {
+func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 	ctx := context.Background()
 	objects := fs.client.ListObjects(
 		ctx,
@@ -131,7 +134,7 @@ func (fs *s3FileServer) Search(pattern string) ([]FileInfo, error) {
 	return files, nil
 }
 
-func (fs *s3FileServer) Read(file FileInfo) (io.Reader, error) {
+func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
 	ctx := context.Background()
 	obj, err := fs.client.GetObject(
 		ctx,
@@ -146,7 +149,7 @@ func (fs *s3FileServer) Read(file FileInfo) (io.Reader, error) {
 	return obj, nil
 }
 
-func (fs *s3FileServer) Write(file FileInfo, r io.Reader) error {
+func (fs *S3FileServer) Write(file FileInfo, r io.Reader) error {
 	ctx := context.Background()
 	_, err := fs.client.PutObject(
 		ctx,
