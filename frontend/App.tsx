@@ -3,6 +3,8 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import Image from "./Image";
 import ErrorPage from "./ErrorPage";
+import LocationList from "./LocationList";
+import LocationRead from "./LocationRead";
 
 export default function App() {
 	const router = createBrowserRouter([
@@ -23,6 +25,14 @@ export default function App() {
 					<Image src="/static/img/logo-black.svg" />
 				</div>
 			),
+		},
+		{
+			path: "/locations",
+			element: <LocationList />,
+		},
+		{
+			path: "/locations/:id",
+			element: <LocationRead />,
 		},
 	]);
 
