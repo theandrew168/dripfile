@@ -82,6 +82,9 @@ func (app *Application) Handler() http.Handler {
 		app.transferService,
 	)
 	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Handler()))
+	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/api/v1/", http.StatusMovedPermanently)
+	})
 
 	// public files to be served (and auto-compressed)
 	public := gzhttp.GzipHandler(http.FileServer(http.FS(app.public)))
