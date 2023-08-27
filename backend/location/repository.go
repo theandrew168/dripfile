@@ -90,7 +90,13 @@ func (repo *repository) unmarshalMemory(lr locationRow) (*Location, error) {
 		return nil, err
 	}
 
-	return UnmarshalMemoryFromStorage(lr.id, info)
+	l := Location{
+		id: lr.id,
+
+		kind:       KindMemory,
+		memoryInfo: info,
+	}
+	return &l, nil
 }
 
 func (repo *repository) unmarshalS3(lr locationRow) (*Location, error) {
@@ -105,7 +111,13 @@ func (repo *repository) unmarshalS3(lr locationRow) (*Location, error) {
 		return nil, err
 	}
 
-	return UnmarshalS3FromStorage(lr.id, info)
+	l := Location{
+		id: lr.id,
+
+		kind:   KindS3,
+		s3Info: info,
+	}
+	return &l, nil
 }
 
 func (repo *repository) Create(l *Location) error {

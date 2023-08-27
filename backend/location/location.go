@@ -73,26 +73,6 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 	return &l, nil
 }
 
-func UnmarshalMemoryFromStorage(id string, info fileserver.MemoryInfo) (*Location, error) {
-	l := Location{
-		id: id,
-
-		kind:       KindMemory,
-		memoryInfo: info,
-	}
-	return &l, nil
-}
-
-func UnmarshalS3FromStorage(id string, info fileserver.S3Info) (*Location, error) {
-	l := Location{
-		id: id,
-
-		kind:   KindS3,
-		s3Info: info,
-	}
-	return &l, nil
-}
-
 func (l *Location) ID() string {
 	return l.id
 }
