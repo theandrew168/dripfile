@@ -10,26 +10,26 @@ import (
 	"github.com/theandrew168/dripfile/backend/secret"
 )
 
-// storage interface (other code depends on this)
-type Storage interface {
+// repository interface (other code depends on this)
+type Repository interface {
 	Create(l *Location) error
 	Read(id string) (*Location, error)
 	List() ([]*Location, error)
 	Delete(id string) error
 }
 
-// storage implementation (knows about domain internals)
-type storage struct {
+// repository implementation (knows about domain internals)
+type repository struct {
 	conn database.Conn
 	box  *secret.Box
 }
 
-func NewStorage(conn database.Conn, box *secret.Box) Storage {
-	store := storage{
+func NewRepository(conn database.Conn, box *secret.Box) Repository {
+	repo := repository{
 		conn: conn,
 		box:  box,
 	}
-	return &store
+	return &repo
 }
 
 type locationRow struct {
@@ -39,7 +39,7 @@ type locationRow struct {
 	info []byte
 }
 
-func (store *storage) marshal(l *Location) (locationRow, error) {
+func (repo *repository) marshal(l *Location) (locationRow, error) {
 	var info any
 	switch l.Kind() {
 	case KindMemory:
@@ -53,7 +53,7 @@ func (store *storage) marshal(l *Location) (locationRow, error) {
 		return locationRow{}, err
 	}
 
-	encryptedInfoJSON, err := store.box.Encrypt(infoJSON)
+	encryptedInfoJSON, err := repo.box.Encrypt(infoJSON)
 	if err != nil {
 		return locationRow{}, err
 	}
@@ -67,19 +67,19 @@ func (store *storage) marshal(l *Location) (locationRow, error) {
 	return lr, nil
 }
 
-func (store *storage) unmarshal(lr locationRow) (*Location, error) {
+func (repo *repository) unmarshal(lr locationRow) (*Location, error) {
 	switch lr.kind {
 	case KindMemory:
-		return store.unmarshalMemory(lr)
+		return repo.unmarshalMemory(lr)
 	case KindS3:
-		return store.unmarshalS3(lr)
+		return repo.unmarshalS3(lr)
 	}
 
 	return nil, fmt.Errorf("unknown location kind: %s", lr.kind)
 }
 
-func (store *storage) unmarshalMemory(lr locationRow) (*Location, error) {
-	infoJSON, err := store.box.Decrypt(lr.info)
+func (repo *repository) unmarshalMemory(lr locationRow) (*Location, error) {
+	infoJSON, err := repo.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +93,8 @@ func (store *storage) unmarshalMemory(lr locationRow) (*Location, error) {
 	return UnmarshalMemoryFromStorage(lr.id, info)
 }
 
-func (store *storage) unmarshalS3(lr locationRow) (*Location, error) {
-	infoJSON, err := store.box.Decrypt(lr.info)
+func (repo *repository) unmarshalS3(lr locationRow) (*Location, error) {
+	infoJSON, err := repo.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
 	}
@@ -108,14 +108,14 @@ func (store *storage) unmarshalS3(lr locationRow) (*Location, error) {
 	return UnmarshalS3FromStorage(lr.id, info)
 }
 
-func (store *storage) Create(l *Location) error {
+func (repo *repository) Create(l *Location) error {
 	stmt := `
 		INSERT INTO location
 			(id, kind, info)
 		VALUES
 			($1, $2, $3)`
 
-	lr, err := store.marshal(l)
+	lr, err := repo.marshal(l)
 	if err != nil {
 		return err
 	}
@@ -129,10 +129,10 @@ func (store *storage) Create(l *Location) error {
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	return database.Exec(store.conn, ctx, stmt, args...)
+	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (store *storage) Read(id string) (*Location, error) {
+func (repo *repository) Read(id string) (*Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -151,16 +151,16 @@ func (store *storage) Read(id string) (*Location, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	row := store.conn.QueryRow(ctx, stmt, id)
+	row := repo.conn.QueryRow(ctx, stmt, id)
 	err := database.Scan(row, dest...)
 	if err != nil {
 		return nil, err
 	}
 
-	return store.unmarshal(lr)
+	return repo.unmarshal(lr)
 }
 
-func (store *storage) List() ([]*Location, error) {
+func (repo *repository) List() ([]*Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -172,7 +172,7 @@ func (store *storage) List() ([]*Location, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	rows, err := store.conn.Query(ctx, stmt)
+	rows, err := repo.conn.Query(ctx, stmt)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func (store *storage) List() ([]*Location, error) {
 			return nil, err
 		}
 
-		l, err := store.unmarshal(lr)
+		l, err := repo.unmarshal(lr)
 		if err != nil {
 			return nil, err
 		}
@@ -207,7 +207,7 @@ func (store *storage) List() ([]*Location, error) {
 	return ls, nil
 }
 
-func (store *storage) Delete(id string) error {
+func (repo *repository) Delete(id string) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1
@@ -217,6 +217,6 @@ func (store *storage) Delete(id string) error {
 	defer cancel()
 
 	var deletedID string
-	row := store.conn.QueryRow(ctx, stmt, id)
+	row := repo.conn.QueryRow(ctx, stmt, id)
 	return database.Scan(row, &deletedID)
 }

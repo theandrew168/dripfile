@@ -15,7 +15,7 @@ import (
 type Application struct {
 	logger *slog.Logger
 
-	locationStorage location.Storage
+	locationStorage location.Repository
 	transferStorage transfer.Storage
 	historyStorage  history.Storage
 
@@ -24,7 +24,7 @@ type Application struct {
 
 func NewApplication(
 	logger *slog.Logger,
-	locationStorage location.Storage,
+	locationStorage location.Repository,
 	transferStorage transfer.Storage,
 	historyStorage history.Storage,
 	transferService transfer.Service,

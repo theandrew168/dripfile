@@ -78,11 +78,11 @@ func run() int {
 		return 0
 	}
 
-	locationStorage := location.NewStorage(pool, box)
+	locationRepo := location.NewRepository(pool, box)
 	transferStorage := transferStorage.New(pool)
 	historyStorage := historyStorage.New(pool)
 
-	transferService := transferService.New(locationStorage, transferStorage, historyStorage)
+	transferService := transferService.New(locationRepo, transferStorage, historyStorage)
 
 	fooID, _ := uuid.NewRandom()
 	fooLoc, err := location.NewS3(
@@ -97,7 +97,7 @@ func run() int {
 		return 1
 	}
 
-	err = locationStorage.Create(fooLoc)
+	err = locationRepo.Create(fooLoc)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
@@ -116,7 +116,7 @@ func run() int {
 		return 1
 	}
 
-	err = locationStorage.Create(barLoc)
+	err = locationRepo.Create(barLoc)
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
@@ -149,7 +149,7 @@ func run() int {
 	app := web.NewApplication(
 		logger,
 		publicFS,
-		locationStorage,
+		locationRepo,
 		transferStorage,
 		historyStorage,
 		transferService,

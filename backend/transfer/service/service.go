@@ -11,18 +11,18 @@ import (
 )
 
 type Service struct {
-	locationStorage location.Storage
+	locationRepo    location.Repository
 	transferStorage transfer.Storage
 	historyStorage  history.Storage
 }
 
 func New(
-	locationStorage location.Storage,
+	locationRepo location.Repository,
 	transferStorage transfer.Storage,
 	historyStorage history.Storage,
 ) *Service {
 	srvc := Service{
-		locationStorage: locationStorage,
+		locationRepo:    locationRepo,
 		transferStorage: transferStorage,
 		historyStorage:  historyStorage,
 	}
@@ -42,12 +42,12 @@ func (srvc *Service) Run(transferID string) error {
 		return err
 	}
 
-	from, err := srvc.locationStorage.Read(t.FromLocationID())
+	from, err := srvc.locationRepo.Read(t.FromLocationID())
 	if err != nil {
 		return err
 	}
 
-	to, err := srvc.locationStorage.Read(t.ToLocationID())
+	to, err := srvc.locationRepo.Read(t.ToLocationID())
 	if err != nil {
 		return err
 	}
