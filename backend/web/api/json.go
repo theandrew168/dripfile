@@ -8,8 +8,6 @@ import (
 	"net/http"
 )
 
-type envelope map[string]interface{}
-
 // Let's Go Further - Chapter 4.2
 func readJSON(r io.Reader, dst any) error {
 	// Decode the request body into the target destination.

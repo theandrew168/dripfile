@@ -4,10 +4,16 @@ import (
 	"net/http"
 )
 
-func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
-	env := envelope{"error": message}
+type ErrorResponse struct {
+	Error any `json:"error"`
+}
 
-	err := writeJSON(w, status, env)
+func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message any) {
+	resp := ErrorResponse{
+		Error: message,
+	}
+
+	err := writeJSON(w, status, resp)
 	if err != nil {
 		app.logger.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

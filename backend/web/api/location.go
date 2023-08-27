@@ -13,6 +13,14 @@ type Location struct {
 	Kind string `json:"kind"`
 }
 
+type SingleLocationResponse struct {
+	Location Location `json:"location"`
+}
+
+type MultipleLocationResponse struct {
+	Locations []Location `json:"locations"`
+}
+
 func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
 	locations, err := app.locationStorage.List()
 	if err != nil {
@@ -29,7 +37,10 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 		ls = append(ls, l)
 	}
 
-	err = writeJSON(w, 200, envelope{"locations": ls})
+	resp := MultipleLocationResponse{
+		Locations: ls,
+	}
+	err = writeJSON(w, 200, resp)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -55,7 +66,39 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 		Kind: location.Kind(),
 	}
 
-	err = writeJSON(w, 200, envelope{"location": l})
+	resp := SingleLocationResponse{
+		Location: l,
+	}
+	err = writeJSON(w, 200, resp)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
+	id := flow.Param(r.Context(), "id")
+
+	location, err := app.locationStorage.Read(id)
+	if err != nil {
+		if errors.Is(err, database.ErrNotExist) {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	l := Location{
+		ID:   location.ID(),
+		Kind: location.Kind(),
+	}
+
+	resp := SingleLocationResponse{
+		Location: l,
+	}
+	err = writeJSON(w, 200, resp)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
