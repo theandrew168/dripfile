@@ -22,7 +22,8 @@ const html = `
 	<rapi-doc
 		spec-url="/static/etc/openapi.yaml"
 		render-style="read"
-	></rapi-doc></body>
+	></rapi-doc>
+</body>
 </html>
 `
 
