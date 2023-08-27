@@ -18,7 +18,6 @@ import (
 	"github.com/theandrew168/dripfile/backend/database"
 	historyStorage "github.com/theandrew168/dripfile/backend/history/storage"
 	"github.com/theandrew168/dripfile/backend/location"
-	locationStorage "github.com/theandrew168/dripfile/backend/location/storage"
 	"github.com/theandrew168/dripfile/backend/migrate"
 	"github.com/theandrew168/dripfile/backend/secret"
 	"github.com/theandrew168/dripfile/backend/transfer"
@@ -79,7 +78,7 @@ func run() int {
 		return 0
 	}
 
-	locationStorage := locationStorage.New(pool, box)
+	locationStorage := location.NewStorage(pool, box)
 	transferStorage := transferStorage.New(pool)
 	historyStorage := historyStorage.New(pool)
 
