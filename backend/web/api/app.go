@@ -9,6 +9,7 @@ import (
 	"github.com/theandrew168/dripfile/backend/history"
 	"github.com/theandrew168/dripfile/backend/location"
 	"github.com/theandrew168/dripfile/backend/transfer"
+	transferService "github.com/theandrew168/dripfile/backend/transfer/service"
 	"github.com/theandrew168/dripfile/backend/web/middleware"
 )
 
@@ -19,7 +20,7 @@ type Application struct {
 	transferStorage transfer.Repository
 	historyStorage  history.Repository
 
-	transferService transfer.Service
+	transferService transferService.Service
 }
 
 func NewApplication(
@@ -27,7 +28,7 @@ func NewApplication(
 	locationStorage location.Repository,
 	transferStorage transfer.Repository,
 	historyStorage history.Repository,
-	transferService transfer.Service,
+	transferService transferService.Service,
 ) *Application {
 	app := Application{
 		logger: logger,

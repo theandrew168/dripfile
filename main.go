@@ -81,8 +81,6 @@ func run() int {
 	transferRepo := transfer.NewRepository(pool)
 	historyRepo := history.NewRepository(pool)
 
-	transferService := transferService.New(locationRepo, transferRepo, historyRepo)
-
 	fooID, _ := uuid.NewRandom()
 	fooLoc, err := location.NewS3(
 		fooID.String(),
@@ -139,7 +137,13 @@ func run() int {
 		return 1
 	}
 
-	err = transferService.Run(tf.ID())
+	transferService := transferService.New(
+		locationRepo,
+		transferRepo,
+		historyRepo,
+	)
+
+	err = transferService.RunApplication(tf.ID())
 	if err != nil {
 		logger.Error(err.Error())
 		return 1
