@@ -49,17 +49,6 @@ func New(id, pattern, fromLocationID, toLocationID string) (*Transfer, error) {
 	return &t, nil
 }
 
-func UnmarshalFromStorage(id, pattern, fromLocationID, toLocationID string) (*Transfer, error) {
-	t := Transfer{
-		id: id,
-
-		pattern:        pattern,
-		fromLocationID: fromLocationID,
-		toLocationID:   toLocationID,
-	}
-	return &t, nil
-}
-
 func (t *Transfer) ID() string {
 	return t.id
 }

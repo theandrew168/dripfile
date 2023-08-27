@@ -22,7 +22,7 @@ type Application struct {
 	public fs.FS
 
 	locationStorage location.Repository
-	transferStorage transfer.Storage
+	transferStorage transfer.Repository
 	historyStorage  history.Storage
 
 	transferService transfer.Service
@@ -32,7 +32,7 @@ func NewApplication(
 	logger *slog.Logger,
 	publicFS fs.FS,
 	locationStorage location.Repository,
-	transferStorage transfer.Storage,
+	transferStorage transfer.Repository,
 	historyStorage history.Storage,
 	transferService transfer.Service,
 ) *Application {
