@@ -16,26 +16,26 @@ import (
 type Application struct {
 	logger *slog.Logger
 
-	locationStorage location.Repository
-	transferStorage transfer.Repository
-	historyStorage  history.Repository
+	locationRepo location.Repository
+	transferRepo transfer.Repository
+	historyRepo  history.Repository
 
 	transferService transferService.Service
 }
 
 func NewApplication(
 	logger *slog.Logger,
-	locationStorage location.Repository,
-	transferStorage transfer.Repository,
-	historyStorage history.Repository,
+	locationRepo location.Repository,
+	transferRepo transfer.Repository,
+	historyRepo history.Repository,
 	transferService transferService.Service,
 ) *Application {
 	app := Application{
 		logger: logger,
 
-		locationStorage: locationStorage,
-		transferStorage: transferStorage,
-		historyStorage:  historyStorage,
+		locationRepo: locationRepo,
+		transferRepo: transferRepo,
+		historyRepo:  historyRepo,
 
 		transferService: transferService,
 	}
@@ -48,7 +48,6 @@ func (app *Application) Handler() http.Handler {
 	mux.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 
 	mux.Use(middleware.RecoverPanic)
-	mux.Use(middleware.SecureHeaders)
 	mux.Use(middleware.EnableCORS)
 
 	mux.HandleFunc("/", app.handleIndex, "GET")

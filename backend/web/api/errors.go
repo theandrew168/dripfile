@@ -21,7 +21,8 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	}
 }
 
-func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+// func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
+func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, errors string) {
 	code := http.StatusBadRequest
 	app.errorResponse(w, r, code, errors)
 }
