@@ -42,12 +42,12 @@ func (info S3Info) Validate() error {
 	return nil
 }
 
-type S3FileServer struct {
+type s3FileServer struct {
 	info   S3Info
 	client *minio.Client
 }
 
-func NewS3(info S3Info) (*S3FileServer, error) {
+func NewS3(info S3Info) (FileServer, error) {
 	creds := credentials.NewStaticV4(
 		info.AccessKeyID,
 		info.SecretAccessKey,
@@ -71,7 +71,7 @@ func NewS3(info S3Info) (*S3FileServer, error) {
 		return nil, ErrInvalidEndpoint
 	}
 
-	fs := S3FileServer{
+	fs := s3FileServer{
 		info:   info,
 		client: client,
 	}
@@ -79,7 +79,7 @@ func NewS3(info S3Info) (*S3FileServer, error) {
 	return &fs, nil
 }
 
-func (fs *S3FileServer) Ping() error {
+func (fs *s3FileServer) Ping() error {
 	ctx := context.Background()
 	buckets, err := fs.client.ListBuckets(ctx)
 	if err != nil {
@@ -101,7 +101,7 @@ func (fs *S3FileServer) Ping() error {
 	return nil
 }
 
-func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
+func (fs *s3FileServer) Search(pattern string) ([]FileInfo, error) {
 	ctx := context.Background()
 	objects := fs.client.ListObjects(
 		ctx,
@@ -131,7 +131,7 @@ func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 	return files, nil
 }
 
-func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
+func (fs *s3FileServer) Read(file FileInfo) (io.Reader, error) {
 	ctx := context.Background()
 	obj, err := fs.client.GetObject(
 		ctx,
@@ -146,7 +146,7 @@ func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
 	return obj, nil
 }
 
-func (fs *S3FileServer) Write(file FileInfo, r io.Reader) error {
+func (fs *s3FileServer) Write(file FileInfo, r io.Reader) error {
 	ctx := context.Background()
 	_, err := fs.client.PutObject(
 		ctx,

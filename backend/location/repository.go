@@ -19,13 +19,13 @@ type Repository interface {
 }
 
 // repository implementation (knows about domain internals)
-type repository struct {
+type postgresRepository struct {
 	conn database.Conn
 	box  *secret.Box
 }
 
 func NewRepository(conn database.Conn, box *secret.Box) Repository {
-	repo := repository{
+	repo := postgresRepository{
 		conn: conn,
 		box:  box,
 	}
@@ -39,7 +39,7 @@ type locationRow struct {
 	info []byte
 }
 
-func (repo *repository) marshal(l *Location) (locationRow, error) {
+func (repo *postgresRepository) marshal(l *Location) (locationRow, error) {
 	var info any
 	switch l.Kind() {
 	case KindMemory:
@@ -67,7 +67,7 @@ func (repo *repository) marshal(l *Location) (locationRow, error) {
 	return lr, nil
 }
 
-func (repo *repository) unmarshal(lr locationRow) (*Location, error) {
+func (repo *postgresRepository) unmarshal(lr locationRow) (*Location, error) {
 	switch lr.kind {
 	case KindMemory:
 		return repo.unmarshalMemory(lr)
@@ -78,7 +78,7 @@ func (repo *repository) unmarshal(lr locationRow) (*Location, error) {
 	return nil, fmt.Errorf("unknown location kind: %s", lr.kind)
 }
 
-func (repo *repository) unmarshalMemory(lr locationRow) (*Location, error) {
+func (repo *postgresRepository) unmarshalMemory(lr locationRow) (*Location, error) {
 	infoJSON, err := repo.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
@@ -99,7 +99,7 @@ func (repo *repository) unmarshalMemory(lr locationRow) (*Location, error) {
 	return &l, nil
 }
 
-func (repo *repository) unmarshalS3(lr locationRow) (*Location, error) {
+func (repo *postgresRepository) unmarshalS3(lr locationRow) (*Location, error) {
 	infoJSON, err := repo.box.Decrypt(lr.info)
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func (repo *repository) unmarshalS3(lr locationRow) (*Location, error) {
 	return &l, nil
 }
 
-func (repo *repository) Create(l *Location) error {
+func (repo *postgresRepository) Create(l *Location) error {
 	stmt := `
 		INSERT INTO location
 			(id, kind, info)
@@ -144,7 +144,7 @@ func (repo *repository) Create(l *Location) error {
 	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (repo *repository) Read(id string) (*Location, error) {
+func (repo *postgresRepository) Read(id string) (*Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -172,7 +172,7 @@ func (repo *repository) Read(id string) (*Location, error) {
 	return repo.unmarshal(lr)
 }
 
-func (repo *repository) List() ([]*Location, error) {
+func (repo *postgresRepository) List() ([]*Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -219,7 +219,7 @@ func (repo *repository) List() ([]*Location, error) {
 	return ls, nil
 }
 
-func (repo *repository) Delete(id string) error {
+func (repo *postgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1

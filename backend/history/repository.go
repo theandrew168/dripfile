@@ -7,18 +7,20 @@ import (
 	"github.com/theandrew168/dripfile/backend/database"
 )
 
+// repository interface (other code depends on this)
 type Repository interface {
 	Create(l *History) error
 	Read(id string) (*History, error)
 	List() ([]*History, error)
 }
 
-type repository struct {
+// repository implementation (knows about domain internals)
+type postgresRepository struct {
 	conn database.Conn
 }
 
 func NewRepository(conn database.Conn) Repository {
-	repo := repository{
+	repo := postgresRepository{
 		conn: conn,
 	}
 	return &repo
@@ -33,7 +35,7 @@ type historyRow struct {
 	transferID string
 }
 
-func (repo *repository) marshal(h *History) (historyRow, error) {
+func (repo *postgresRepository) marshal(h *History) (historyRow, error) {
 	hr := historyRow{
 		id: h.ID(),
 
@@ -45,11 +47,11 @@ func (repo *repository) marshal(h *History) (historyRow, error) {
 	return hr, nil
 }
 
-func (repo *repository) unmarshal(hr historyRow) (*History, error) {
+func (repo *postgresRepository) unmarshal(hr historyRow) (*History, error) {
 	return UnmarshalFromStorage(hr.id, hr.totalBytes, hr.startedAt, hr.finishedAt, hr.transferID)
 }
 
-func (repo *repository) Create(h *History) error {
+func (repo *postgresRepository) Create(h *History) error {
 	stmt := `
 		INSERT INTO history
 			(id, total_bytes, started_at, finished_at, transfer_id)
@@ -75,7 +77,7 @@ func (repo *repository) Create(h *History) error {
 	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (repo *repository) Read(id string) (*History, error) {
+func (repo *postgresRepository) Read(id string) (*History, error) {
 	stmt := `
 		SELECT
 			id,
@@ -107,7 +109,7 @@ func (repo *repository) Read(id string) (*History, error) {
 	return repo.unmarshal(hr)
 }
 
-func (repo *repository) List() ([]*History, error) {
+func (repo *postgresRepository) List() ([]*History, error) {
 	stmt := `
 		SELECT
 			id,
