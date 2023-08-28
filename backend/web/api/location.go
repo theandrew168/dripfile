@@ -97,15 +97,25 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
+	// manually limit body size here since this handler reads the request body onces
+	// and decodes JSON multiple times (based on the location "kind")
+	r.Body = http.MaxBytesReader(w, r.Body, MaxBytes)
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
+		var maxBytesError *http.MaxBytesError
+		if errors.As(err, &maxBytesError) {
+			app.badRequestResponse(w, r, err.Error())
+			return
+		}
+
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 
 	// just read the location "kind" for now
 	var req CreateLocationRequest
-	err = readJSON(bytes.NewBuffer(body), &req)
+	err = readJSONFromReader(bytes.NewBuffer(body), &req, false)
 	if err != nil {
 		app.badRequestResponse(w, r, err.Error())
 		return
@@ -123,9 +133,9 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 		}
 	} else if req.Kind == location.KindS3 {
 		var req CreateS3LocationRequest
-		err = readJSON(bytes.NewBuffer(body), &req)
+		err = readJSONFromReader(bytes.NewBuffer(body), &req, true)
 		if err != nil {
-			app.serverErrorResponse(w, r, err)
+			app.badRequestResponse(w, r, err.Error())
 			return
 		}
 
