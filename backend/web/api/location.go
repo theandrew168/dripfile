@@ -126,7 +126,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 		}
 	} else if req.Kind == location.KindS3 {
 		var req CreateS3LocationRequest
-		err = readJSON(bytes.NewReader(body), &req, true)
+		err = readJSON(bytes.NewReader(b), &req, true)
 		if err != nil {
 			app.badRequestResponse(w, r, err.Error())
 			return
