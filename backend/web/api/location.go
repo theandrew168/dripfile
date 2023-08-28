@@ -328,4 +328,6 @@ func (app *Application) handleLocationDelete(w http.ResponseWriter, r *http.Requ
 		app.serverErrorResponse(w, r, err)
 		return
 	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
