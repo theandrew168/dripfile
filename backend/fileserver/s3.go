@@ -23,10 +23,10 @@ var (
 )
 
 type S3Info struct {
-	Endpoint        string `json:"endpoint"`
-	Bucket          string `json:"bucket"`
-	AccessKeyID     string `json:"access_key_id"`
-	SecretAccessKey string `json:"secret_access_key"`
+	Endpoint        string
+	Bucket          string
+	AccessKeyID     string
+	SecretAccessKey string
 }
 
 func (info S3Info) Validate() error {

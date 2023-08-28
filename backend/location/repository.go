@@ -18,6 +18,7 @@ type Repository interface {
 	Create(l *Location) error
 	List() ([]*Location, error)
 	Read(id string) (*Location, error)
+	Update(l *Location) error
 	Delete(id string) error
 }
 
@@ -220,6 +221,35 @@ func (repo *PostgresRepository) Read(id string) (*Location, error) {
 	}
 
 	return repo.unmarshal(lr)
+}
+
+func (repo *PostgresRepository) Update(l *Location) error {
+	stmt := `
+		UPDATE location
+		SET
+			kind = $2,
+			info = $3,
+			version = version + 1
+		WHERE id = $1
+		RETURNING id`
+
+	lr, err := repo.marshal(l)
+	if err != nil {
+		return err
+	}
+
+	args := []any{
+		lr.id,
+		lr.kind,
+		lr.info,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
+	defer cancel()
+
+	var updatedID string
+	row := repo.conn.QueryRow(ctx, stmt, args...)
+	return database.Scan(row, &updatedID)
 }
 
 func (repo *PostgresRepository) Delete(id string) error {

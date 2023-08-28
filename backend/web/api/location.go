@@ -9,6 +9,7 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
 	"github.com/theandrew168/dripfile/backend/database"
+	"github.com/theandrew168/dripfile/backend/fileserver"
 	"github.com/theandrew168/dripfile/backend/location"
 	"github.com/theandrew168/dripfile/backend/validator"
 )
@@ -189,6 +190,119 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 	l := Location{
 		ID:   location.ID(),
 		Kind: location.Kind(),
+	}
+
+	resp := SingleLocationResponse{
+		Location: l,
+	}
+	err = writeJSON(w, 200, resp)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Request) {
+	id := flow.Param(r.Context(), "id")
+
+	loc, err := app.locationRepo.Read(id)
+	if err != nil {
+		if errors.Is(err, database.ErrNotExist) {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	v := validator.New()
+	body := readBody(w, r)
+
+	// read the body info a buffer since we'll be decoding it (into JSON) mulitple times
+	b, err := io.ReadAll(body)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	// just read the location "kind" for now
+	var req CreateLocationRequest
+	err = readJSON(bytes.NewReader(b), &req, false)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	req.Validate(v)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	// read more specific details based on the "kind"
+	if req.Kind == location.KindMemory {
+		var req CreateMemoryLocationRequest
+		err = readJSON(bytes.NewReader(b), &req, true)
+		if err != nil {
+			app.badRequestResponse(w, r, err)
+			return
+		}
+
+		req.Validate(v)
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
+			return
+		}
+
+		info := fileserver.MemoryInfo{}
+		err := loc.SetMemory(info)
+		if err != nil {
+			app.badRequestResponse(w, r, err)
+			return
+		}
+	} else if req.Kind == location.KindS3 {
+		var req CreateS3LocationRequest
+		err = readJSON(bytes.NewReader(b), &req, true)
+		if err != nil {
+			app.badRequestResponse(w, r, err)
+			return
+		}
+
+		req.Validate(v)
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
+			return
+		}
+
+		info := fileserver.S3Info{
+			Endpoint:        req.Endpoint,
+			Bucket:          req.Bucket,
+			AccessKeyID:     req.AccessKeyID,
+			SecretAccessKey: req.SecretAccessKey,
+		}
+		err := loc.SetS3(info)
+		if err != nil {
+			app.badRequestResponse(w, r, err)
+			return
+		}
+	}
+
+	// update the existing location
+	err = app.locationRepo.Update(loc)
+	if err != nil {
+		if errors.Is(err, database.ErrNotExist) {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	l := Location{
+		ID:   loc.ID(),
+		Kind: loc.Kind(),
 	}
 
 	resp := SingleLocationResponse{

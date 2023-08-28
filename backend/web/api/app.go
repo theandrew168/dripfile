@@ -55,6 +55,7 @@ func (app *Application) Handler() http.Handler {
 	mux.HandleFunc("/locations", app.handleLocationCreate, "POST")
 	mux.HandleFunc("/locations", app.handleLocationList, "GET")
 	mux.HandleFunc("/locations/:id", app.handleLocationRead, "GET")
+	mux.HandleFunc("/locations/:id", app.handleLocationUpdate, "PUT")
 	mux.HandleFunc("/locations/:id", app.handleLocationDelete, "DELETE")
 
 	return mux

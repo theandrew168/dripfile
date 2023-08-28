@@ -89,6 +89,28 @@ func (l *Location) S3Info() fileserver.S3Info {
 	return l.s3Info
 }
 
+func (l *Location) SetMemory(info fileserver.MemoryInfo) error {
+	err := info.Validate()
+	if err != nil {
+		return err
+	}
+
+	l.kind = KindMemory
+	l.memoryInfo = info
+	return nil
+}
+
+func (l *Location) SetS3(info fileserver.S3Info) error {
+	err := info.Validate()
+	if err != nil {
+		return err
+	}
+
+	l.kind = KindS3
+	l.s3Info = info
+	return nil
+}
+
 func (l *Location) Connect() (fileserver.FileServer, error) {
 	switch l.kind {
 	case KindMemory:
