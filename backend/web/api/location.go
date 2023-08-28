@@ -55,61 +55,6 @@ func (req *CreateS3LocationRequest) Validate(v *validator.Validator) {
 	v.Check(req.SecretAccessKey != "", "secret_access_key", "must be provided")
 }
 
-func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
-	locations, err := app.locationRepo.List()
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	var ls []Location
-	for _, location := range locations {
-		l := Location{
-			ID:   location.ID(),
-			Kind: location.Kind(),
-		}
-		ls = append(ls, l)
-	}
-
-	resp := MultipleLocationResponse{
-		Locations: ls,
-	}
-	err = writeJSON(w, 200, resp)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-}
-
-func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
-	id := flow.Param(r.Context(), "id")
-
-	location, err := app.locationRepo.Read(id)
-	if err != nil {
-		if errors.Is(err, database.ErrNotExist) {
-			app.notFoundResponse(w, r)
-			return
-		}
-
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-
-	l := Location{
-		ID:   location.ID(),
-		Kind: location.Kind(),
-	}
-
-	resp := SingleLocationResponse{
-		Location: l,
-	}
-	err = writeJSON(w, 200, resp)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
-		return
-	}
-}
-
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
 	v := validator.New()
 	body := readBody(w, r)
@@ -196,6 +141,76 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 	}
 	err = writeJSON(w, 200, resp)
 	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Request) {
+	locations, err := app.locationRepo.List()
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	var ls []Location
+	for _, location := range locations {
+		l := Location{
+			ID:   location.ID(),
+			Kind: location.Kind(),
+		}
+		ls = append(ls, l)
+	}
+
+	resp := MultipleLocationResponse{
+		Locations: ls,
+	}
+	err = writeJSON(w, 200, resp)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
+	id := flow.Param(r.Context(), "id")
+
+	location, err := app.locationRepo.Read(id)
+	if err != nil {
+		if errors.Is(err, database.ErrNotExist) {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	l := Location{
+		ID:   location.ID(),
+		Kind: location.Kind(),
+	}
+
+	resp := SingleLocationResponse{
+		Location: l,
+	}
+	err = writeJSON(w, 200, resp)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
+
+func (app *Application) handleLocationDelete(w http.ResponseWriter, r *http.Request) {
+	id := flow.Param(r.Context(), "id")
+
+	err := app.locationRepo.Delete(id)
+	if err != nil {
+		if errors.Is(err, database.ErrNotExist) {
+			app.notFoundResponse(w, r)
+			return
+		}
+
 		app.serverErrorResponse(w, r, err)
 		return
 	}

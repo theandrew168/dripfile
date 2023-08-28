@@ -12,8 +12,8 @@ var _ Repository = (*PostgresRepository)(nil)
 // repository interface (other code depends on this)
 type Repository interface {
 	Create(t *Transfer) error
-	Read(id string) (*Transfer, error)
 	List() ([]*Transfer, error)
+	Read(id string) (*Transfer, error)
 	Delete(id string) error
 }
 
@@ -84,36 +84,6 @@ func (repo *PostgresRepository) Create(t *Transfer) error {
 	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
-	stmt := `
-		SELECT
-			id,
-			pattern,
-			from_location_id,
-			to_location_id
-		FROM transfer
-		WHERE id = $1`
-
-	var tr transferRow
-	dest := []any{
-		&tr.id,
-		&tr.pattern,
-		&tr.fromLocationID,
-		&tr.toLocationID,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
-	defer cancel()
-
-	row := repo.conn.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
-	if err != nil {
-		return nil, err
-	}
-
-	return repo.unmarshal(tr)
-}
-
 func (repo *PostgresRepository) List() ([]*Transfer, error) {
 	stmt := `
 		SELECT
@@ -161,6 +131,36 @@ func (repo *PostgresRepository) List() ([]*Transfer, error) {
 	}
 
 	return ts, nil
+}
+
+func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
+	stmt := `
+		SELECT
+			id,
+			pattern,
+			from_location_id,
+			to_location_id
+		FROM transfer
+		WHERE id = $1`
+
+	var tr transferRow
+	dest := []any{
+		&tr.id,
+		&tr.pattern,
+		&tr.fromLocationID,
+		&tr.toLocationID,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
+	defer cancel()
+
+	row := repo.conn.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.unmarshal(tr)
 }
 
 func (repo *PostgresRepository) Delete(id string) error {

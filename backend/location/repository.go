@@ -16,8 +16,8 @@ var _ Repository = (*PostgresRepository)(nil)
 // repository interface (other code depends on this)
 type Repository interface {
 	Create(l *Location) error
-	Read(id string) (*Location, error)
 	List() ([]*Location, error)
+	Read(id string) (*Location, error)
 	Delete(id string) error
 }
 
@@ -147,34 +147,6 @@ func (repo *PostgresRepository) Create(l *Location) error {
 	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (repo *PostgresRepository) Read(id string) (*Location, error) {
-	stmt := `
-		SELECT
-			id,
-			kind,
-			info
-		FROM location
-		WHERE id = $1`
-
-	var lr locationRow
-	dest := []any{
-		&lr.id,
-		&lr.kind,
-		&lr.info,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
-	defer cancel()
-
-	row := repo.conn.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
-	if err != nil {
-		return nil, err
-	}
-
-	return repo.unmarshal(lr)
-}
-
 func (repo *PostgresRepository) List() ([]*Location, error) {
 	stmt := `
 		SELECT
@@ -220,6 +192,34 @@ func (repo *PostgresRepository) List() ([]*Location, error) {
 	}
 
 	return ls, nil
+}
+
+func (repo *PostgresRepository) Read(id string) (*Location, error) {
+	stmt := `
+		SELECT
+			id,
+			kind,
+			info
+		FROM location
+		WHERE id = $1`
+
+	var lr locationRow
+	dest := []any{
+		&lr.id,
+		&lr.kind,
+		&lr.info,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
+	defer cancel()
+
+	row := repo.conn.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.unmarshal(lr)
 }
 
 func (repo *PostgresRepository) Delete(id string) error {

@@ -12,6 +12,8 @@ import (
 )
 
 const Timeout = 3 * time.Second
+const MaxConns = 25
+const MaxConnsIdleTime = "15m"
 
 var (
 	// based the os package error names:
@@ -63,6 +65,14 @@ func ConnectPool(databaseURI string) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
+	maxConnIdleTime, err := time.ParseDuration(MaxConnsIdleTime)
+	if err != nil {
+		return nil, err
+	}
+
+	config.MaxConns = MaxConns
+	config.MaxConnIdleTime = maxConnIdleTime
+
 	pool, err := pgxpool.ConnectConfig(ctx, config)
 	if err != nil {
 		return nil, err
@@ -77,7 +87,7 @@ func ConnectPool(databaseURI string) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
-// TODO: retry upon database restart
+// TODO: retry upon database restart?
 func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
 	_, err := db.Exec(ctx, stmt, args...)
 	if err != nil {
@@ -102,7 +112,7 @@ func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
 	return nil
 }
 
-// TODO: retry upon database restart
+// TODO: retry upon database restart?
 func Scan(row pgx.Row, dest ...any) error {
 	err := row.Scan(dest...)
 	if err != nil {

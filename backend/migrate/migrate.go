@@ -2,14 +2,13 @@ package migrate
 
 import (
 	"context"
-	"embed"
 	"io/fs"
 	"sort"
 
 	"github.com/theandrew168/dripfile/backend/database"
 )
 
-func Migrate(conn database.Conn, files embed.FS) ([]string, error) {
+func Migrate(conn database.Conn, files fs.FS) ([]string, error) {
 	ctx := context.Background()
 
 	// create migration table if it doesn't exist

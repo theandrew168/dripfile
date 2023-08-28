@@ -13,8 +13,8 @@ var _ Repository = (*PostgresRepository)(nil)
 // repository interface (other code depends on this)
 type Repository interface {
 	Create(l *History) error
-	Read(id string) (*History, error)
 	List() ([]*History, error)
+	Read(id string) (*History, error)
 }
 
 // repository implementation (knows about domain internals)
@@ -80,38 +80,6 @@ func (repo *PostgresRepository) Create(h *History) error {
 	return database.Exec(repo.conn, ctx, stmt, args...)
 }
 
-func (repo *PostgresRepository) Read(id string) (*History, error) {
-	stmt := `
-		SELECT
-			id,
-			total_bytes,
-			started_at,
-			finished_at
-			transfer_id
-		FROM history
-		WHERE id = $1`
-
-	var hr historyRow
-	dest := []any{
-		&hr.id,
-		&hr.totalBytes,
-		&hr.startedAt,
-		&hr.finishedAt,
-		&hr.transferID,
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
-	defer cancel()
-
-	row := repo.conn.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
-	if err != nil {
-		return nil, err
-	}
-
-	return repo.unmarshal(hr)
-}
-
 func (repo *PostgresRepository) List() ([]*History, error) {
 	stmt := `
 		SELECT
@@ -161,4 +129,36 @@ func (repo *PostgresRepository) List() ([]*History, error) {
 	}
 
 	return hs, nil
+}
+
+func (repo *PostgresRepository) Read(id string) (*History, error) {
+	stmt := `
+		SELECT
+			id,
+			total_bytes,
+			started_at,
+			finished_at
+			transfer_id
+		FROM history
+		WHERE id = $1`
+
+	var hr historyRow
+	dest := []any{
+		&hr.id,
+		&hr.totalBytes,
+		&hr.startedAt,
+		&hr.finishedAt,
+		&hr.transferID,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
+	defer cancel()
+
+	row := repo.conn.QueryRow(ctx, stmt, id)
+	err := database.Scan(row, dest...)
+	if err != nil {
+		return nil, err
+	}
+
+	return repo.unmarshal(hr)
 }
