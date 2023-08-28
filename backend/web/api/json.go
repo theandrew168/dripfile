@@ -12,15 +12,14 @@ import (
 // Limit the size of the request body to 1MB.
 const MaxBytes = 1024 * 1024
 
-// Let's Go Further - Chapter 4.3
-func readJSON(w http.ResponseWriter, r *http.Request, dst any) error {
+func readBody(w http.ResponseWriter, r *http.Request) io.Reader {
 	// Use http.MaxBytesReader() to limit the size of the request body.
 	r.Body = http.MaxBytesReader(w, r.Body, MaxBytes)
-	return readJSONFromReader(r.Body, dst, true)
+	return r.Body
 }
 
 // Let's Go Further - Chapter 4.3
-func readJSONFromReader(r io.Reader, dst any, strict bool) error {
+func readJSON(r io.Reader, dst any, strict bool) error {
 	// Initialize the json.Decoder, and call the DisallowUnknownFields() method on it
 	// before decoding (if strict). This means that if the JSON from the client now
 	// includes any field which cannot be mapped to the target destination, the decoder
