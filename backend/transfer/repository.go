@@ -2,6 +2,7 @@ package transfer
 
 import (
 	"context"
+	"time"
 
 	"github.com/theandrew168/dripfile/backend/database"
 )
@@ -35,15 +36,21 @@ type transferRow struct {
 	pattern        string
 	fromLocationID string
 	toLocationID   string
+
+	createdAt time.Time
+	version   int
 }
 
 func (repo *PostgresRepository) marshal(t *Transfer) (transferRow, error) {
 	tr := transferRow{
-		id: t.ID(),
+		id: t.id,
 
-		pattern:        t.Pattern(),
-		fromLocationID: t.FromLocationID(),
-		toLocationID:   t.ToLocationID(),
+		pattern:        t.pattern,
+		fromLocationID: t.fromLocationID,
+		toLocationID:   t.toLocationID,
+
+		createdAt: t.createdAt,
+		version:   t.version,
 	}
 	return tr, nil
 }
@@ -55,6 +62,9 @@ func (repo *PostgresRepository) unmarshal(tr transferRow) (*Transfer, error) {
 		pattern:        tr.pattern,
 		fromLocationID: tr.fromLocationID,
 		toLocationID:   tr.toLocationID,
+
+		createdAt: tr.createdAt,
+		version:   tr.version,
 	}
 	return &t, nil
 }
@@ -90,7 +100,9 @@ func (repo *PostgresRepository) List() ([]*Transfer, error) {
 			id,
 			pattern,
 			from_location_id,
-			to_location_id
+			to_location_id,
+			created_at,
+			version
 		FROM transfer
 		ORDER BY created_at ASC`
 
@@ -111,6 +123,8 @@ func (repo *PostgresRepository) List() ([]*Transfer, error) {
 			&tr.pattern,
 			&tr.fromLocationID,
 			&tr.toLocationID,
+			&tr.createdAt,
+			&tr.version,
 		}
 
 		err := database.Scan(rows, dest...)
@@ -139,7 +153,9 @@ func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
 			id,
 			pattern,
 			from_location_id,
-			to_location_id
+			to_location_id,
+			created_at,
+			version
 		FROM transfer
 		WHERE id = $1`
 
@@ -149,6 +165,8 @@ func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
 		&tr.pattern,
 		&tr.fromLocationID,
 		&tr.toLocationID,
+		&tr.createdAt,
+		&tr.version,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)

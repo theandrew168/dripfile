@@ -41,8 +41,9 @@ func NewRepository(conn database.Conn, box *secret.Box) *PostgresRepository {
 type locationRow struct {
 	id string
 
-	kind      string
-	info      []byte
+	kind string
+	info []byte
+
 	createdAt time.Time
 	version   int
 }

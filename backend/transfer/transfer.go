@@ -2,6 +2,7 @@ package transfer
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -17,6 +18,10 @@ type Transfer struct {
 	pattern        string
 	fromLocationID string
 	toLocationID   string
+
+	// internal fields used for storage conflict resolution
+	createdAt time.Time
+	version   int
 }
 
 func New(id, pattern, fromLocationID, toLocationID string) (*Transfer, error) {

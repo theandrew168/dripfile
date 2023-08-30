@@ -12,7 +12,7 @@ var _ Repository = (*PostgresRepository)(nil)
 
 // repository interface (other code depends on this)
 type Repository interface {
-	Create(l *History) error
+	Create(h *History) error
 	List() ([]*History, error)
 	Read(id string) (*History, error)
 }
@@ -36,22 +36,39 @@ type historyRow struct {
 	startedAt  time.Time
 	finishedAt time.Time
 	transferID string
+
+	createdAt time.Time
+	version   int
 }
 
 func (repo *PostgresRepository) marshal(h *History) (historyRow, error) {
 	hr := historyRow{
-		id: h.ID(),
+		id: h.id,
 
-		totalBytes: h.TotalBytes(),
-		startedAt:  h.StartedAt(),
-		finishedAt: h.FinishedAt(),
-		transferID: h.TransferID(),
+		totalBytes: h.totalBytes,
+		startedAt:  h.startedAt,
+		finishedAt: h.finishedAt,
+		transferID: h.transferID,
+
+		createdAt: h.createdAt,
+		version:   h.version,
 	}
 	return hr, nil
 }
 
 func (repo *PostgresRepository) unmarshal(hr historyRow) (*History, error) {
-	return UnmarshalFromStorage(hr.id, hr.totalBytes, hr.startedAt, hr.finishedAt, hr.transferID)
+	h := History{
+		id: hr.id,
+
+		totalBytes: hr.totalBytes,
+		startedAt:  hr.startedAt,
+		finishedAt: hr.finishedAt,
+		transferID: hr.transferID,
+
+		createdAt: hr.createdAt,
+		version:   hr.version,
+	}
+	return &h, nil
 }
 
 func (repo *PostgresRepository) Create(h *History) error {
@@ -86,8 +103,10 @@ func (repo *PostgresRepository) List() ([]*History, error) {
 			id,
 			total_bytes,
 			started_at,
-			finished_at
-			transfer_id
+			finished_at,
+			transfer_id,
+			created_at,
+			version
 		FROM history
 		ORDER BY created_at ASC`
 
@@ -109,6 +128,8 @@ func (repo *PostgresRepository) List() ([]*History, error) {
 			&hr.startedAt,
 			&hr.finishedAt,
 			&hr.transferID,
+			&hr.createdAt,
+			&hr.version,
 		}
 
 		err := database.Scan(rows, dest...)
@@ -137,8 +158,10 @@ func (repo *PostgresRepository) Read(id string) (*History, error) {
 			id,
 			total_bytes,
 			started_at,
-			finished_at
-			transfer_id
+			finished_at,
+			transfer_id,
+			created_at,
+			version
 		FROM history
 		WHERE id = $1`
 
@@ -149,6 +172,8 @@ func (repo *PostgresRepository) Read(id string) (*History, error) {
 		&hr.startedAt,
 		&hr.finishedAt,
 		&hr.transferID,
+		&hr.createdAt,
+		&hr.version,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)

@@ -18,6 +18,10 @@ type History struct {
 	startedAt  time.Time
 	finishedAt time.Time
 	transferID string
+
+	// internal fields used for storage conflict resolution
+	createdAt time.Time
+	version   int
 }
 
 func New(id string, totalBytes int64, startedAt, finishedAt time.Time, transferID string) (*History, error) {
@@ -31,18 +35,6 @@ func New(id string, totalBytes int64, startedAt, finishedAt time.Time, transferI
 		return nil, ErrInvalidUUID
 	}
 
-	h := History{
-		id: id,
-
-		totalBytes: totalBytes,
-		startedAt:  startedAt,
-		finishedAt: finishedAt,
-		transferID: transferID,
-	}
-	return &h, nil
-}
-
-func UnmarshalFromStorage(id string, totalBytes int64, startedAt, finishedAt time.Time, transferID string) (*History, error) {
 	h := History{
 		id: id,
 
