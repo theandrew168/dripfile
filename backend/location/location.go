@@ -2,6 +2,7 @@ package location
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -24,6 +25,10 @@ type Location struct {
 	kind       string
 	memoryInfo fileserver.MemoryInfo
 	s3Info     fileserver.S3Info
+
+	// internal fields used for storage conflict resolution
+	createdAt time.Time
+	version   int
 }
 
 func NewMemory(id string) (*Location, error) {

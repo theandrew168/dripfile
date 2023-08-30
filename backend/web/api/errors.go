@@ -39,6 +39,12 @@ func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 	app.errorResponse(w, r, code, text)
 }
 
+func (app *Application) conflictResponse(w http.ResponseWriter, r *http.Request) {
+	code := http.StatusConflict
+	text := http.StatusText(code)
+	app.errorResponse(w, r, code, text)
+}
+
 // Note that the errors parameter here has the type map[string]string, which is exactly
 // the same as the errors map contained in our Validator type.
 func (app *Application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {

@@ -3,7 +3,9 @@ package location
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/theandrew168/dripfile/backend/database"
 	"github.com/theandrew168/dripfile/backend/fileserver"
@@ -39,17 +41,19 @@ func NewRepository(conn database.Conn, box *secret.Box) *PostgresRepository {
 type locationRow struct {
 	id string
 
-	kind string
-	info []byte
+	kind      string
+	info      []byte
+	createdAt time.Time
+	version   int
 }
 
 func (repo *PostgresRepository) marshal(l *Location) (locationRow, error) {
 	var info any
 	switch l.Kind() {
 	case KindMemory:
-		info = l.MemoryInfo()
+		info = l.memoryInfo
 	case KindS3:
-		info = l.S3Info()
+		info = l.s3Info
 	}
 
 	infoJSON, err := json.Marshal(info)
@@ -63,10 +67,13 @@ func (repo *PostgresRepository) marshal(l *Location) (locationRow, error) {
 	}
 
 	lr := locationRow{
-		id: l.ID(),
+		id: l.id,
 
-		kind: l.Kind(),
+		kind: l.kind,
 		info: encryptedInfoJSON,
+
+		createdAt: l.createdAt,
+		version:   l.version,
 	}
 	return lr, nil
 }
@@ -99,6 +106,9 @@ func (repo *PostgresRepository) unmarshalMemory(lr locationRow) (*Location, erro
 
 		kind:       KindMemory,
 		memoryInfo: info,
+
+		createdAt: lr.createdAt,
+		version:   lr.version,
 	}
 	return &l, nil
 }
@@ -120,6 +130,9 @@ func (repo *PostgresRepository) unmarshalS3(lr locationRow) (*Location, error) {
 
 		kind:   KindS3,
 		s3Info: info,
+
+		createdAt: lr.createdAt,
+		version:   lr.version,
 	}
 	return &l, nil
 }
@@ -153,7 +166,9 @@ func (repo *PostgresRepository) List() ([]*Location, error) {
 		SELECT
 			id,
 			kind,
-			info
+			info,
+			created_at,
+			version
 		FROM location
 		ORDER BY created_at ASC`
 
@@ -173,6 +188,8 @@ func (repo *PostgresRepository) List() ([]*Location, error) {
 			&lr.id,
 			&lr.kind,
 			&lr.info,
+			&lr.createdAt,
+			&lr.version,
 		}
 
 		err := database.Scan(rows, dest...)
@@ -200,7 +217,9 @@ func (repo *PostgresRepository) Read(id string) (*Location, error) {
 		SELECT
 			id,
 			kind,
-			info
+			info,
+			created_at,
+			version
 		FROM location
 		WHERE id = $1`
 
@@ -209,6 +228,8 @@ func (repo *PostgresRepository) Read(id string) (*Location, error) {
 		&lr.id,
 		&lr.kind,
 		&lr.info,
+		&lr.createdAt,
+		&lr.version,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -231,7 +252,8 @@ func (repo *PostgresRepository) Update(l *Location) error {
 			info = $3,
 			version = version + 1
 		WHERE id = $1
-		RETURNING id`
+		  AND version = $4
+		RETURNING version`
 
 	lr, err := repo.marshal(l)
 	if err != nil {
@@ -242,14 +264,22 @@ func (repo *PostgresRepository) Update(l *Location) error {
 		lr.id,
 		lr.kind,
 		lr.info,
+		lr.version,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	var updatedID string
 	row := repo.conn.QueryRow(ctx, stmt, args...)
-	return database.Scan(row, &updatedID)
+	err = database.Scan(row, &l.version)
+	if err != nil {
+		if errors.Is(err, database.ErrNotExist) {
+			return database.ErrConflict
+		}
+		return err
+	}
+
+	return err
 }
 
 func (repo *PostgresRepository) Delete(id string) error {

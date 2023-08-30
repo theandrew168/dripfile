@@ -175,6 +175,11 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
 	id := flow.Param(r.Context(), "id")
+	_, err := uuid.Parse(id)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
 
 	location, err := app.locationRepo.Read(id)
 	if err != nil {
@@ -204,6 +209,11 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 
 func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Request) {
 	id := flow.Param(r.Context(), "id")
+	_, err := uuid.Parse(id)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
 
 	loc, err := app.locationRepo.Read(id)
 	if err != nil {
@@ -291,12 +301,13 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 	// update the existing location
 	err = app.locationRepo.Update(loc)
 	if err != nil {
-		if errors.Is(err, database.ErrNotExist) {
-			app.notFoundResponse(w, r)
-			return
+		switch {
+		case errors.Is(err, database.ErrConflict):
+			app.conflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
 		}
 
-		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -317,8 +328,13 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 
 func (app *Application) handleLocationDelete(w http.ResponseWriter, r *http.Request) {
 	id := flow.Param(r.Context(), "id")
+	_, err := uuid.Parse(id)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
 
-	err := app.locationRepo.Delete(id)
+	err = app.locationRepo.Delete(id)
 	if err != nil {
 		if errors.Is(err, database.ErrNotExist) {
 			app.notFoundResponse(w, r)
