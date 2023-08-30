@@ -12,6 +12,7 @@ import (
 )
 
 const Timeout = 3 * time.Second
+
 const MaxConns = 25
 const MaxConnsIdleTime = "15m"
 
@@ -24,6 +25,9 @@ var (
 	// storage errors
 	ErrRetry    = errors.New("database: retry storage operation")
 	ErrConflict = errors.New("database: conflict in storage operation")
+
+	// data errors
+	ErrInvalidUUID = errors.New("database: invalid UUID")
 )
 
 // Common interface for pgx.Conn, pgx.Pool, pgx.Tx, etc

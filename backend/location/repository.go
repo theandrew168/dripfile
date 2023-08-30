@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/theandrew168/dripfile/backend/database"
 	"github.com/theandrew168/dripfile/backend/fileserver"
 	"github.com/theandrew168/dripfile/backend/secret"
@@ -214,6 +215,11 @@ func (repo *PostgresRepository) List() ([]*Location, error) {
 }
 
 func (repo *PostgresRepository) Read(id string) (*Location, error) {
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return nil, database.ErrInvalidUUID
+	}
+
 	stmt := `
 		SELECT
 			id,
@@ -237,7 +243,7 @@ func (repo *PostgresRepository) Read(id string) (*Location, error) {
 	defer cancel()
 
 	row := repo.conn.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
+	err = database.Scan(row, dest...)
 	if err != nil {
 		return nil, err
 	}
@@ -284,6 +290,11 @@ func (repo *PostgresRepository) Update(l *Location) error {
 }
 
 func (repo *PostgresRepository) Delete(id string) error {
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return database.ErrInvalidUUID
+	}
+
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/theandrew168/dripfile/backend/database"
 )
 
@@ -153,6 +154,11 @@ func (repo *PostgresRepository) List() ([]*History, error) {
 }
 
 func (repo *PostgresRepository) Read(id string) (*History, error) {
+	_, err := uuid.Parse(id)
+	if err != nil {
+		return nil, database.ErrInvalidUUID
+	}
+
 	stmt := `
 		SELECT
 			id,
@@ -180,7 +186,7 @@ func (repo *PostgresRepository) Read(id string) (*History, error) {
 	defer cancel()
 
 	row := repo.conn.QueryRow(ctx, stmt, id)
-	err := database.Scan(row, dest...)
+	err = database.Scan(row, dest...)
 	if err != nil {
 		return nil, err
 	}
