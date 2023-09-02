@@ -100,9 +100,9 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 		}
 
 		loc, err = location.NewMemory(id)
-		if err != nil {
-			// TODO: should be failed validation
-			app.badRequestResponse(w, r, err)
+		v.Check(err == nil, "location", err.Error())
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
 			return
 		}
 	} else if req.Kind == location.KindS3 {
@@ -120,9 +120,9 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 		}
 
 		loc, err = location.NewS3(id, req.Endpoint, req.Bucket, req.AccessKeyID, req.SecretAccessKey)
-		if err != nil {
-			// TODO: should be failed validation
-			app.badRequestResponse(w, r, err)
+		v.Check(err == nil, "location", err.Error())
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
 			return
 		}
 	}
@@ -184,12 +184,13 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 
 	location, err := app.locationRepo.Read(id)
 	if err != nil {
-		if errors.Is(err, database.ErrNotExist) {
+		switch {
+		case errors.Is(err, database.ErrNotExist):
 			app.notFoundResponse(w, r)
-			return
+		default:
+			app.serverErrorResponse(w, r, err)
 		}
 
-		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -217,12 +218,13 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 
 	loc, err := app.locationRepo.Read(id)
 	if err != nil {
-		if errors.Is(err, database.ErrNotExist) {
+		switch {
+		case errors.Is(err, database.ErrNotExist):
 			app.notFoundResponse(w, r)
-			return
+		default:
+			app.serverErrorResponse(w, r, err)
 		}
 
-		app.serverErrorResponse(w, r, err)
 		return
 	}
 
@@ -267,9 +269,9 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 
 		info := fileserver.MemoryInfo{}
 		err := loc.SetMemory(info)
-		if err != nil {
-			// TODO: should be failed validation
-			app.badRequestResponse(w, r, err)
+		v.Check(err == nil, "location", err.Error())
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
 			return
 		}
 	} else if req.Kind == location.KindS3 {
@@ -293,9 +295,9 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 			SecretAccessKey: req.SecretAccessKey,
 		}
 		err := loc.SetS3(info)
-		if err != nil {
-			// TODO: should be failed validation
-			app.badRequestResponse(w, r, err)
+		v.Check(err == nil, "location", err.Error())
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
 			return
 		}
 	}
@@ -337,12 +339,13 @@ func (app *Application) handleLocationDelete(w http.ResponseWriter, r *http.Requ
 
 	err = app.locationRepo.Delete(id)
 	if err != nil {
-		if errors.Is(err, database.ErrNotExist) {
+		switch {
+		case errors.Is(err, database.ErrNotExist):
 			app.notFoundResponse(w, r)
-			return
+		default:
+			app.serverErrorResponse(w, r, err)
 		}
 
-		app.serverErrorResponse(w, r, err)
 		return
 	}
 
