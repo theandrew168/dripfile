@@ -2,13 +2,10 @@ package transfer
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/theandrew168/dripfile/backend/database"
 )
 
@@ -98,19 +95,7 @@ func (repo *PostgresRepository) Create(t *Transfer) error {
 
 	_, err = repo.conn.Exec(ctx, stmt, args...)
 	if err != nil {
-		var pgErr *pgconn.PgError
-
-		switch {
-		case errors.As(err, &pgErr):
-			switch {
-			case pgerrcode.IsIntegrityConstraintViolation(pgErr.Code):
-				return database.ErrConflict
-			default:
-				return err
-			}
-		default:
-			return err
-		}
+		return database.CheckCreateError(err)
 	}
 
 	return nil
@@ -181,12 +166,7 @@ func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
 
 	tr, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[transferRow])
 	if err != nil {
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			return nil, database.ErrNotExist
-		default:
-			return nil, err
-		}
+		return nil, database.CheckReadError(err)
 	}
 
 	return repo.unmarshal(tr)
@@ -213,12 +193,7 @@ func (repo *PostgresRepository) Delete(id string) error {
 
 	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
 	if err != nil {
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			return database.ErrNotExist
-		default:
-			return err
-		}
+		return database.CheckDeleteError(err)
 	}
 
 	return nil

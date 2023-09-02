@@ -3,14 +3,11 @@ package location
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/theandrew168/dripfile/backend/database"
 	"github.com/theandrew168/dripfile/backend/fileserver"
 	"github.com/theandrew168/dripfile/backend/secret"
@@ -165,19 +162,7 @@ func (repo *PostgresRepository) Create(l *Location) error {
 
 	_, err = repo.conn.Exec(ctx, stmt, args...)
 	if err != nil {
-		var pgErr *pgconn.PgError
-
-		switch {
-		case errors.As(err, &pgErr):
-			switch {
-			case pgerrcode.IsIntegrityConstraintViolation(pgErr.Code):
-				return database.ErrConflict
-			default:
-				return err
-			}
-		default:
-			return err
-		}
+		return database.CheckCreateError(err)
 	}
 
 	return nil
@@ -246,12 +231,7 @@ func (repo *PostgresRepository) Read(id string) (*Location, error) {
 
 	lr, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[locationRow])
 	if err != nil {
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			return nil, database.ErrNotExist
-		default:
-			return nil, err
-		}
+		return nil, database.CheckReadError(err)
 	}
 
 	return repo.unmarshal(lr)
@@ -290,22 +270,7 @@ func (repo *PostgresRepository) Update(l *Location) error {
 
 	version, err := pgx.CollectOneRow(rows, pgx.RowTo[int])
 	if err != nil {
-		var pgErr *pgconn.PgError
-
-		switch {
-		// ErrNoRows here indicates a TOCTOU race condition
-		case errors.Is(err, pgx.ErrNoRows):
-			return database.ErrNotExist
-		case errors.As(err, &pgErr):
-			switch {
-			case pgerrcode.IsIntegrityConstraintViolation(pgErr.Code):
-				return database.ErrConflict
-			default:
-				return err
-			}
-		default:
-			return err
-		}
+		return database.CheckUpdateError(err)
 	}
 
 	l.version = version
@@ -333,12 +298,7 @@ func (repo *PostgresRepository) Delete(id string) error {
 
 	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
 	if err != nil {
-		switch {
-		case errors.Is(err, pgx.ErrNoRows):
-			return database.ErrNotExist
-		default:
-			return err
-		}
+		return database.CheckDeleteError(err)
 	}
 
 	return nil
