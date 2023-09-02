@@ -2,9 +2,13 @@ package transfer
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/theandrew168/dripfile/backend/database"
 )
 
@@ -32,40 +36,40 @@ func NewRepository(conn database.Conn) *PostgresRepository {
 }
 
 type transferRow struct {
-	id string
+	ID string `db:"id"`
 
-	pattern        string
-	fromLocationID string
-	toLocationID   string
+	Pattern        string `db:"pattern"`
+	FromLocationID string `db:"from_location_id"`
+	ToLocationID   string `db:"to_location_id"`
 
-	createdAt time.Time
-	version   int
+	CreatedAt time.Time `db:"created_at"`
+	Version   int       `db:"version"`
 }
 
 func (repo *PostgresRepository) marshal(t *Transfer) (transferRow, error) {
 	tr := transferRow{
-		id: t.id,
+		ID: t.id,
 
-		pattern:        t.pattern,
-		fromLocationID: t.fromLocationID,
-		toLocationID:   t.toLocationID,
+		Pattern:        t.pattern,
+		FromLocationID: t.fromLocationID,
+		ToLocationID:   t.toLocationID,
 
-		createdAt: t.createdAt,
-		version:   t.version,
+		CreatedAt: t.createdAt,
+		Version:   t.version,
 	}
 	return tr, nil
 }
 
 func (repo *PostgresRepository) unmarshal(tr transferRow) (*Transfer, error) {
 	t := Transfer{
-		id: tr.id,
+		id: tr.ID,
 
-		pattern:        tr.pattern,
-		fromLocationID: tr.fromLocationID,
-		toLocationID:   tr.toLocationID,
+		pattern:        tr.Pattern,
+		fromLocationID: tr.FromLocationID,
+		toLocationID:   tr.ToLocationID,
 
-		createdAt: tr.createdAt,
-		version:   tr.version,
+		createdAt: tr.CreatedAt,
+		version:   tr.Version,
 	}
 	return &t, nil
 }
@@ -83,16 +87,33 @@ func (repo *PostgresRepository) Create(t *Transfer) error {
 	}
 
 	args := []any{
-		tr.id,
-		tr.pattern,
-		tr.fromLocationID,
-		tr.toLocationID,
+		tr.ID,
+		tr.Pattern,
+		tr.FromLocationID,
+		tr.ToLocationID,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	return database.Exec(repo.conn, ctx, stmt, args...)
+	_, err = repo.conn.Exec(ctx, stmt, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		switch {
+		case errors.As(err, &pgErr):
+			switch {
+			case pgerrcode.IsIntegrityConstraintViolation(pgErr.Code):
+				return database.ErrConflict
+			default:
+				return err
+			}
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (repo *PostgresRepository) List() ([]*Transfer, error) {
@@ -114,35 +135,20 @@ func (repo *PostgresRepository) List() ([]*Transfer, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
+	trs, err := pgx.CollectRows(rows, pgx.RowToStructByName[transferRow])
+	if err != nil {
+		return nil, err
+	}
 
 	var ts []*Transfer
-	for rows.Next() {
-		var tr transferRow
-		dest := []any{
-			&tr.id,
-			&tr.pattern,
-			&tr.fromLocationID,
-			&tr.toLocationID,
-			&tr.createdAt,
-			&tr.version,
-		}
-
-		err := database.Scan(rows, dest...)
-		if err != nil {
-			return nil, err
-		}
-
+	for _, tr := range trs {
 		t, err := repo.unmarshal(tr)
 		if err != nil {
 			return nil, err
 		}
 
 		ts = append(ts, t)
-	}
-
-	if rows.Err() != nil {
-		return nil, rows.Err()
 	}
 
 	return ts, nil
@@ -165,23 +171,22 @@ func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
 		FROM transfer
 		WHERE id = $1`
 
-	var tr transferRow
-	dest := []any{
-		&tr.id,
-		&tr.pattern,
-		&tr.fromLocationID,
-		&tr.toLocationID,
-		&tr.createdAt,
-		&tr.version,
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	row := repo.conn.QueryRow(ctx, stmt, id)
-	err = database.Scan(row, dest...)
+	rows, err := repo.conn.Query(ctx, stmt, id)
 	if err != nil {
 		return nil, err
+	}
+
+	tr, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[transferRow])
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, database.ErrNotExist
+		default:
+			return nil, err
+		}
 	}
 
 	return repo.unmarshal(tr)
@@ -196,12 +201,25 @@ func (repo *PostgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM transfer
 		WHERE id = $1
-		RETURNING id`
+		RETURNING version`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	var deletedID string
-	row := repo.conn.QueryRow(ctx, stmt, id)
-	return database.Scan(row, &deletedID)
+	rows, err := repo.conn.Query(ctx, stmt, id)
+	if err != nil {
+		return err
+	}
+
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return database.ErrNotExist
+		default:
+			return err
+		}
+	}
+
+	return nil
 }

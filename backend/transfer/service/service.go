@@ -1,18 +1,18 @@
 package service
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/backend/history"
 	"github.com/theandrew168/dripfile/backend/location"
 	"github.com/theandrew168/dripfile/backend/transfer"
 )
 
+// ensure Service interface is satisfied
+var _ Service = (*service)(nil)
+
 // service interface (other code depends on this)
 type Service interface {
-	RunDomain(transfer *transfer.Transfer, from, to *location.Location) (*history.History, error)
+	RunDomain(transfer *transfer.Transfer, from, to *location.Location) error
 	RunApplication(transferID string) error
 }
 
@@ -20,65 +20,52 @@ type Service interface {
 type service struct {
 	locationRepo location.Repository
 	transferRepo transfer.Repository
-	historyRepo  history.Repository
 }
 
 func New(
 	locationRepo location.Repository,
 	transferRepo transfer.Repository,
-	historyRepo history.Repository,
 ) Service {
 	srvc := service{
 		locationRepo: locationRepo,
 		transferRepo: transferRepo,
-		historyRepo:  historyRepo,
 	}
 	return &srvc
 }
 
 // Transfer Domain Service - run a transfer from a domain point of view
-func (srvc *service) RunDomain(transfer *transfer.Transfer, from, to *location.Location) (*history.History, error) {
-	start := time.Now().UTC()
-
+func (srvc *service) RunDomain(transfer *transfer.Transfer, from, to *location.Location) error {
 	fromFS, err := from.Connect()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	toFS, err := to.Connect()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	files, err := fromFS.Search(transfer.Pattern())
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var totalBytes int64
 	for _, file := range files {
 		r, err := fromFS.Read(file)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		err = toFS.Write(file, r)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		totalBytes += file.Size
 	}
 
-	finish := time.Now().UTC()
-
-	hID, _ := uuid.NewRandom()
-	h, err := history.New(hID.String(), totalBytes, start, finish, transfer.ID())
-	if err != nil {
-		return nil, err
-	}
-
-	return h, nil
+	return nil
 }
 
 // Transfer Application Service - run a transfer from an application point of view (repo lookups, notifications, etc)
@@ -103,15 +90,5 @@ func (srvc *service) RunApplication(transferID string) error {
 		return err
 	}
 
-	h, err := srvc.RunDomain(t, from, to)
-	if err != nil {
-		return err
-	}
-
-	err = srvc.historyRepo.Create(h)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return srvc.RunDomain(t, from, to)
 }

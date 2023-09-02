@@ -10,7 +10,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/backend/history"
 	"github.com/theandrew168/dripfile/backend/location"
 	"github.com/theandrew168/dripfile/backend/transfer"
 	transferService "github.com/theandrew168/dripfile/backend/transfer/service"
@@ -24,7 +23,6 @@ type Application struct {
 
 	locationStorage location.Repository
 	transferStorage transfer.Repository
-	historyStorage  history.Repository
 
 	transferService transferService.Service
 }
@@ -34,7 +32,6 @@ func NewApplication(
 	publicFS fs.FS,
 	locationStorage location.Repository,
 	transferStorage transfer.Repository,
-	historyStorage history.Repository,
 	transferService transferService.Service,
 ) *Application {
 	var public fs.FS
@@ -53,7 +50,6 @@ func NewApplication(
 
 		locationStorage: locationStorage,
 		transferStorage: transferStorage,
-		historyStorage:  historyStorage,
 
 		transferService: transferService,
 	}
@@ -78,7 +74,6 @@ func (app *Application) Handler() http.Handler {
 		app.logger,
 		app.locationStorage,
 		app.transferStorage,
-		app.historyStorage,
 		app.transferService,
 	)
 	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Handler()))

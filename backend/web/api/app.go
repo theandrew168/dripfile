@@ -6,7 +6,6 @@ import (
 	"github.com/alexedwards/flow"
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/backend/history"
 	"github.com/theandrew168/dripfile/backend/location"
 	"github.com/theandrew168/dripfile/backend/transfer"
 	transferService "github.com/theandrew168/dripfile/backend/transfer/service"
@@ -18,7 +17,6 @@ type Application struct {
 
 	locationRepo location.Repository
 	transferRepo transfer.Repository
-	historyRepo  history.Repository
 
 	transferService transferService.Service
 }
@@ -27,7 +25,6 @@ func NewApplication(
 	logger *slog.Logger,
 	locationRepo location.Repository,
 	transferRepo transfer.Repository,
-	historyRepo history.Repository,
 	transferService transferService.Service,
 ) *Application {
 	app := Application{
@@ -35,7 +32,6 @@ func NewApplication(
 
 		locationRepo: locationRepo,
 		transferRepo: transferRepo,
-		historyRepo:  historyRepo,
 
 		transferService: transferService,
 	}

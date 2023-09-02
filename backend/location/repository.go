@@ -8,6 +8,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/theandrew168/dripfile/backend/database"
 	"github.com/theandrew168/dripfile/backend/fileserver"
 	"github.com/theandrew168/dripfile/backend/secret"
@@ -40,13 +43,13 @@ func NewRepository(conn database.Conn, box *secret.Box) *PostgresRepository {
 }
 
 type locationRow struct {
-	id string
+	ID string `db:"id"`
 
-	kind string
-	info []byte
+	Kind string `db:"kind"`
+	Info []byte `db:"info"`
 
-	createdAt time.Time
-	version   int
+	CreatedAt time.Time `db:"created_at"`
+	Version   int       `db:"version"`
 }
 
 func (repo *PostgresRepository) marshal(l *Location) (locationRow, error) {
@@ -69,30 +72,30 @@ func (repo *PostgresRepository) marshal(l *Location) (locationRow, error) {
 	}
 
 	lr := locationRow{
-		id: l.id,
+		ID: l.id,
 
-		kind: l.kind,
-		info: encryptedInfoJSON,
+		Kind: l.kind,
+		Info: encryptedInfoJSON,
 
-		createdAt: l.createdAt,
-		version:   l.version,
+		CreatedAt: l.createdAt,
+		Version:   l.version,
 	}
 	return lr, nil
 }
 
 func (repo *PostgresRepository) unmarshal(lr locationRow) (*Location, error) {
-	switch lr.kind {
+	switch lr.Kind {
 	case KindMemory:
 		return repo.unmarshalMemory(lr)
 	case KindS3:
 		return repo.unmarshalS3(lr)
 	}
 
-	return nil, fmt.Errorf("unknown location kind: %s", lr.kind)
+	return nil, fmt.Errorf("unknown location kind: %s", lr.Kind)
 }
 
 func (repo *PostgresRepository) unmarshalMemory(lr locationRow) (*Location, error) {
-	infoJSON, err := repo.box.Decrypt(lr.info)
+	infoJSON, err := repo.box.Decrypt(lr.Info)
 	if err != nil {
 		return nil, err
 	}
@@ -104,19 +107,19 @@ func (repo *PostgresRepository) unmarshalMemory(lr locationRow) (*Location, erro
 	}
 
 	l := Location{
-		id: lr.id,
+		id: lr.ID,
 
 		kind:       KindMemory,
 		memoryInfo: info,
 
-		createdAt: lr.createdAt,
-		version:   lr.version,
+		createdAt: lr.CreatedAt,
+		version:   lr.Version,
 	}
 	return &l, nil
 }
 
 func (repo *PostgresRepository) unmarshalS3(lr locationRow) (*Location, error) {
-	infoJSON, err := repo.box.Decrypt(lr.info)
+	infoJSON, err := repo.box.Decrypt(lr.Info)
 	if err != nil {
 		return nil, err
 	}
@@ -128,13 +131,13 @@ func (repo *PostgresRepository) unmarshalS3(lr locationRow) (*Location, error) {
 	}
 
 	l := Location{
-		id: lr.id,
+		id: lr.ID,
 
 		kind:   KindS3,
 		s3Info: info,
 
-		createdAt: lr.createdAt,
-		version:   lr.version,
+		createdAt: lr.CreatedAt,
+		version:   lr.Version,
 	}
 	return &l, nil
 }
@@ -152,15 +155,32 @@ func (repo *PostgresRepository) Create(l *Location) error {
 	}
 
 	args := []any{
-		lr.id,
-		lr.kind,
-		lr.info,
+		lr.ID,
+		lr.Kind,
+		lr.Info,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	return database.Exec(repo.conn, ctx, stmt, args...)
+	_, err = repo.conn.Exec(ctx, stmt, args...)
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		switch {
+		case errors.As(err, &pgErr):
+			switch {
+			case pgerrcode.IsIntegrityConstraintViolation(pgErr.Code):
+				return database.ErrConflict
+			default:
+				return err
+			}
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (repo *PostgresRepository) List() ([]*Location, error) {
@@ -181,34 +201,20 @@ func (repo *PostgresRepository) List() ([]*Location, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+
+	lrs, err := pgx.CollectRows(rows, pgx.RowToStructByName[locationRow])
+	if err != nil {
+		return nil, err
+	}
 
 	var ls []*Location
-	for rows.Next() {
-		var lr locationRow
-		dest := []any{
-			&lr.id,
-			&lr.kind,
-			&lr.info,
-			&lr.createdAt,
-			&lr.version,
-		}
-
-		err := database.Scan(rows, dest...)
-		if err != nil {
-			return nil, err
-		}
-
+	for _, lr := range lrs {
 		l, err := repo.unmarshal(lr)
 		if err != nil {
 			return nil, err
 		}
 
 		ls = append(ls, l)
-	}
-
-	if rows.Err() != nil {
-		return nil, rows.Err()
 	}
 
 	return ls, nil
@@ -230,22 +236,22 @@ func (repo *PostgresRepository) Read(id string) (*Location, error) {
 		FROM location
 		WHERE id = $1`
 
-	var lr locationRow
-	dest := []any{
-		&lr.id,
-		&lr.kind,
-		&lr.info,
-		&lr.createdAt,
-		&lr.version,
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	row := repo.conn.QueryRow(ctx, stmt, id)
-	err = database.Scan(row, dest...)
+	rows, err := repo.conn.Query(ctx, stmt, id)
 	if err != nil {
 		return nil, err
+	}
+
+	lr, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[locationRow])
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, database.ErrNotExist
+		default:
+			return nil, err
+		}
 	}
 
 	return repo.unmarshal(lr)
@@ -268,24 +274,41 @@ func (repo *PostgresRepository) Update(l *Location) error {
 	}
 
 	args := []any{
-		lr.id,
-		lr.kind,
-		lr.info,
-		lr.version,
+		lr.ID,
+		lr.Kind,
+		lr.Info,
+		lr.Version,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	row := repo.conn.QueryRow(ctx, stmt, args...)
-	err = database.Scan(row, &l.version)
+	rows, err := repo.conn.Query(ctx, stmt, args...)
 	if err != nil {
-		if errors.Is(err, database.ErrNotExist) {
-			return database.ErrConflict
-		}
 		return err
 	}
 
+	version, err := pgx.CollectOneRow(rows, pgx.RowTo[int])
+	if err != nil {
+		var pgErr *pgconn.PgError
+
+		switch {
+		// ErrNoRows here indicates a TOCTOU race condition
+		case errors.Is(err, pgx.ErrNoRows):
+			return database.ErrNotExist
+		case errors.As(err, &pgErr):
+			switch {
+			case pgerrcode.IsIntegrityConstraintViolation(pgErr.Code):
+				return database.ErrConflict
+			default:
+				return err
+			}
+		default:
+			return err
+		}
+	}
+
+	l.version = version
 	return err
 }
 
@@ -298,12 +321,25 @@ func (repo *PostgresRepository) Delete(id string) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1
-		RETURNING id`
+		RETURNING version`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	var deletedID string
-	row := repo.conn.QueryRow(ctx, stmt, id)
-	return database.Scan(row, &deletedID)
+	rows, err := repo.conn.Query(ctx, stmt, id)
+	if err != nil {
+		return err
+	}
+
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
+	if err != nil {
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return database.ErrNotExist
+		default:
+			return err
+		}
+	}
+
+	return nil
 }
