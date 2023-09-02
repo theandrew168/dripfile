@@ -81,7 +81,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	id, _ := uuid.NewRandom()
+	id := uuid.Must(uuid.NewRandom())
 	var loc *location.Location
 
 	// read more specific details based on the "kind"
@@ -99,7 +99,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		loc, err = location.NewMemory(id.String())
+		loc, err = location.NewMemory(id)
 		if err != nil {
 			// TODO: should be failed validation
 			app.badRequestResponse(w, r, err)
@@ -119,7 +119,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		loc, err = location.NewS3(id.String(), req.Endpoint, req.Bucket, req.AccessKeyID, req.SecretAccessKey)
+		loc, err = location.NewS3(id, req.Endpoint, req.Bucket, req.AccessKeyID, req.SecretAccessKey)
 		if err != nil {
 			// TODO: should be failed validation
 			app.badRequestResponse(w, r, err)
@@ -135,7 +135,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 	}
 
 	l := Location{
-		ID:   loc.ID(),
+		ID:   loc.ID().String(),
 		Kind: loc.Kind(),
 	}
 
@@ -159,7 +159,7 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 	var ls []Location
 	for _, location := range locations {
 		l := Location{
-			ID:   location.ID(),
+			ID:   location.ID().String(),
 			Kind: location.Kind(),
 		}
 		ls = append(ls, l)
@@ -176,8 +176,7 @@ func (app *Application) handleLocationList(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Request) {
-	id := flow.Param(r.Context(), "id")
-	_, err := uuid.Parse(id)
+	id, err := uuid.Parse(flow.Param(r.Context(), "id"))
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
@@ -195,7 +194,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 	}
 
 	l := Location{
-		ID:   location.ID(),
+		ID:   location.ID().String(),
 		Kind: location.Kind(),
 	}
 
@@ -210,8 +209,7 @@ func (app *Application) handleLocationRead(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Request) {
-	id := flow.Param(r.Context(), "id")
-	_, err := uuid.Parse(id)
+	id, err := uuid.Parse(flow.Param(r.Context(), "id"))
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
@@ -316,7 +314,7 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 	}
 
 	l := Location{
-		ID:   loc.ID(),
+		ID:   loc.ID().String(),
 		Kind: loc.Kind(),
 	}
 
@@ -331,8 +329,7 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 }
 
 func (app *Application) handleLocationDelete(w http.ResponseWriter, r *http.Request) {
-	id := flow.Param(r.Context(), "id")
-	_, err := uuid.Parse(id)
+	id, err := uuid.Parse(flow.Param(r.Context(), "id"))
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return

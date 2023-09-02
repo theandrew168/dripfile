@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"strings"
 )
 
 type ErrorResponse struct {
@@ -30,19 +31,19 @@ func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Reques
 func (app *Application) notFoundResponse(w http.ResponseWriter, r *http.Request) {
 	code := http.StatusNotFound
 	text := http.StatusText(code)
-	app.errorResponse(w, r, code, text)
+	app.errorResponse(w, r, code, strings.ToLower(text))
 }
 
 func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	code := http.StatusMethodNotAllowed
 	text := http.StatusText(code)
-	app.errorResponse(w, r, code, text)
+	app.errorResponse(w, r, code, strings.ToLower(text))
 }
 
 func (app *Application) conflictResponse(w http.ResponseWriter, r *http.Request) {
 	code := http.StatusConflict
 	text := http.StatusText(code)
-	app.errorResponse(w, r, code, text)
+	app.errorResponse(w, r, code, strings.ToLower(text))
 }
 
 // Note that the errors parameter here has the type map[string]string, which is exactly
@@ -57,5 +58,5 @@ func (app *Application) serverErrorResponse(w http.ResponseWriter, r *http.Reque
 
 	code := http.StatusInternalServerError
 	text := http.StatusText(code)
-	app.errorResponse(w, r, code, text)
+	app.errorResponse(w, r, code, strings.ToLower(text))
 }

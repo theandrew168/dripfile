@@ -17,9 +17,6 @@ var (
 	// storage errors
 	ErrRetry    = errors.New("database: retry storage operation")
 	ErrConflict = errors.New("database: conflict in storage operation")
-
-	// data errors
-	ErrInvalidUUID = errors.New("database: invalid UUID")
 )
 
 /*
@@ -87,7 +84,7 @@ func CheckUpdateError(err error) error {
 	var pgErr *pgconn.PgError
 
 	switch {
-	// ErrNoRows in an update indicates a TOCTOU race condition
+	// ErrNoRows in an update indicates a TOCTOU race condition (conflict)
 	case errors.Is(err, pgx.ErrNoRows):
 		return ErrConflict
 	case errors.As(err, &pgErr):

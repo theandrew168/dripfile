@@ -37,12 +37,8 @@ func (r *Random) Int() int {
 	return r.rand.Int()
 }
 
-func (r *Random) UUID() string {
-	id, err := uuid.NewRandomFromReader(r.rand)
-	if err != nil {
-		panic(err)
-	}
-	return id.String()
+func (r *Random) UUID() uuid.UUID {
+	return uuid.Must(uuid.NewRandomFromReader(r.rand))
 }
 
 func (r *Random) String(n int) string {

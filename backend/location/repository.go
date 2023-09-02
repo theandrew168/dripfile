@@ -20,9 +20,9 @@ var _ Repository = (*PostgresRepository)(nil)
 type Repository interface {
 	Create(l *Location) error
 	List() ([]*Location, error)
-	Read(id string) (*Location, error)
+	Read(id uuid.UUID) (*Location, error)
 	Update(l *Location) error
-	Delete(id string) error
+	Delete(id uuid.UUID) error
 }
 
 // repository implementation (knows about domain internals)
@@ -40,7 +40,7 @@ func NewRepository(conn database.Conn, box *secret.Box) *PostgresRepository {
 }
 
 type locationRow struct {
-	ID string `db:"id"`
+	ID uuid.UUID `db:"id"`
 
 	Kind string `db:"kind"`
 	Info []byte `db:"info"`
@@ -205,12 +205,7 @@ func (repo *PostgresRepository) List() ([]*Location, error) {
 	return ls, nil
 }
 
-func (repo *PostgresRepository) Read(id string) (*Location, error) {
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return nil, database.ErrInvalidUUID
-	}
-
+func (repo *PostgresRepository) Read(id uuid.UUID) (*Location, error) {
 	stmt := `
 		SELECT
 			id,
@@ -277,12 +272,7 @@ func (repo *PostgresRepository) Update(l *Location) error {
 	return err
 }
 
-func (repo *PostgresRepository) Delete(id string) error {
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return database.ErrInvalidUUID
-	}
-
+func (repo *PostgresRepository) Delete(id uuid.UUID) error {
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1

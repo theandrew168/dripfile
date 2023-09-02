@@ -13,7 +13,7 @@ var _ Service = (*service)(nil)
 // service interface (other code depends on this)
 type Service interface {
 	RunDomain(transfer *transfer.Transfer, from, to *location.Location) error
-	RunApplication(transferID string) error
+	RunApplication(transferID uuid.UUID) error
 }
 
 // service implementation
@@ -69,12 +69,7 @@ func (srvc *service) RunDomain(transfer *transfer.Transfer, from, to *location.L
 }
 
 // Transfer Application Service - run a transfer from an application point of view (repo lookups, notifications, etc)
-func (srvc *service) RunApplication(transferID string) error {
-	_, err := uuid.Parse(transferID)
-	if err != nil {
-		return transfer.ErrInvalidUUID
-	}
-
+func (srvc *service) RunApplication(transferID uuid.UUID) error {
 	t, err := srvc.transferRepo.Read(transferID)
 	if err != nil {
 		return err

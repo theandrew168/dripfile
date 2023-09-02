@@ -15,12 +15,11 @@ const (
 )
 
 var (
-	ErrInvalidUUID = errors.New("location: invalid UUID")
 	ErrInvalidKind = errors.New("location: invalid kind")
 )
 
 type Location struct {
-	id string
+	id uuid.UUID
 
 	kind       string
 	memoryInfo fileserver.MemoryInfo
@@ -31,14 +30,9 @@ type Location struct {
 	version   int
 }
 
-func NewMemory(id string) (*Location, error) {
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return nil, ErrInvalidUUID
-	}
-
+func NewMemory(id uuid.UUID) (*Location, error) {
 	info := fileserver.MemoryInfo{}
-	err = info.Validate()
+	err := info.Validate()
 	if err != nil {
 		return nil, err
 	}
@@ -52,19 +46,14 @@ func NewMemory(id string) (*Location, error) {
 	return &l, nil
 }
 
-func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return nil, ErrInvalidUUID
-	}
-
+func NewS3(id uuid.UUID, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
 	info := fileserver.S3Info{
 		Endpoint:        endpoint,
 		Bucket:          bucket,
 		AccessKeyID:     accessKeyID,
 		SecretAccessKey: secretAccessKey,
 	}
-	err = info.Validate()
+	err := info.Validate()
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +67,7 @@ func NewS3(id, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location
 	return &l, nil
 }
 
-func (l *Location) ID() string {
+func (l *Location) ID() uuid.UUID {
 	return l.id
 }
 
@@ -122,7 +111,7 @@ func (l *Location) Connect() (fileserver.FileServer, error) {
 		return fileserver.NewMemory(l.memoryInfo)
 	case KindS3:
 		return fileserver.NewS3(l.s3Info)
+	default:
+		return nil, ErrInvalidKind
 	}
-
-	return nil, ErrInvalidKind
 }

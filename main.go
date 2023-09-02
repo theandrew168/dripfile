@@ -79,9 +79,9 @@ func run() int {
 	locationRepo := location.NewRepository(pool, box)
 	transferRepo := transfer.NewRepository(pool)
 
-	fooID, _ := uuid.NewRandom()
+	fooID := uuid.Must(uuid.NewRandom())
 	fooLoc, err := location.NewS3(
-		fooID.String(),
+		fooID,
 		"localhost:9000",
 		"foo",
 		"minioadmin",
@@ -98,9 +98,9 @@ func run() int {
 		return 1
 	}
 
-	barID, _ := uuid.NewRandom()
+	barID := uuid.Must(uuid.NewRandom())
 	barLoc, err := location.NewS3(
-		barID.String(),
+		barID,
 		"localhost:9000",
 		"bar",
 		"minioadmin",
@@ -117,12 +117,12 @@ func run() int {
 		return 1
 	}
 
-	tfID, _ := uuid.NewRandom()
+	tfID := uuid.Must(uuid.NewRandom())
 	tf, err := transfer.New(
-		tfID.String(),
+		tfID,
 		"*.png",
-		fooID.String(),
-		barID.String(),
+		fooID,
+		barID,
 	)
 	if err != nil {
 		logger.Error(err.Error())

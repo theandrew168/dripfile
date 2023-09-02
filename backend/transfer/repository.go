@@ -16,8 +16,8 @@ var _ Repository = (*PostgresRepository)(nil)
 type Repository interface {
 	Create(t *Transfer) error
 	List() ([]*Transfer, error)
-	Read(id string) (*Transfer, error)
-	Delete(id string) error
+	Read(id uuid.UUID) (*Transfer, error)
+	Delete(id uuid.UUID) error
 }
 
 // repository implementation (knows about domain internals)
@@ -33,11 +33,11 @@ func NewRepository(conn database.Conn) *PostgresRepository {
 }
 
 type transferRow struct {
-	ID string `db:"id"`
+	ID uuid.UUID `db:"id"`
 
-	Pattern        string `db:"pattern"`
-	FromLocationID string `db:"from_location_id"`
-	ToLocationID   string `db:"to_location_id"`
+	Pattern        string    `db:"pattern"`
+	FromLocationID uuid.UUID `db:"from_location_id"`
+	ToLocationID   uuid.UUID `db:"to_location_id"`
 
 	CreatedAt time.Time `db:"created_at"`
 	Version   int       `db:"version"`
@@ -139,12 +139,7 @@ func (repo *PostgresRepository) List() ([]*Transfer, error) {
 	return ts, nil
 }
 
-func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return nil, database.ErrInvalidUUID
-	}
-
+func (repo *PostgresRepository) Read(id uuid.UUID) (*Transfer, error) {
 	stmt := `
 		SELECT
 			id,
@@ -172,12 +167,7 @@ func (repo *PostgresRepository) Read(id string) (*Transfer, error) {
 	return repo.unmarshal(tr)
 }
 
-func (repo *PostgresRepository) Delete(id string) error {
-	_, err := uuid.Parse(id)
-	if err != nil {
-		return database.ErrInvalidUUID
-	}
-
+func (repo *PostgresRepository) Delete(id uuid.UUID) error {
 	stmt := `
 		DELETE FROM transfer
 		WHERE id = $1
