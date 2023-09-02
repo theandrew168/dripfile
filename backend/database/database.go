@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -114,57 +113,4 @@ func ConnectPool(databaseURI string) (*pgxpool.Pool, error) {
 	}
 
 	return pool, nil
-}
-
-func Exec(db Conn, ctx context.Context, stmt string, args ...any) error {
-	_, err := db.Exec(ctx, stmt, args...)
-	if err != nil {
-		// check for more specific errors
-		// https://github.com/jackc/pgx/wiki/Error-Handling
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			// check for constraint violations
-			if pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
-				return ErrConflict
-			}
-			// check for stale connections (database restarted)
-			if pgerrcode.IsOperatorIntervention(pgErr.Code) {
-				return ErrRetry
-			}
-		}
-
-		// otherwise bubble the error as-is
-		return err
-	}
-
-	return nil
-}
-
-func Scan(row pgx.Row, dest ...any) error {
-	err := row.Scan(dest...)
-	if err != nil {
-		// check for empty result (from QueryRow)
-		if errors.Is(err, pgx.ErrNoRows) {
-			return ErrNotExist
-		}
-
-		// check for more specific errors
-		// https://github.com/jackc/pgx/wiki/Error-Handling
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			// check for other constraint violations
-			if pgerrcode.IsIntegrityConstraintViolation(pgErr.Code) {
-				return ErrConflict
-			}
-			// check for stale connections (database restarted)
-			if pgerrcode.IsOperatorIntervention(pgErr.Code) {
-				return ErrRetry
-			}
-		}
-
-		// otherwise bubble the error as-is
-		return err
-	}
-
-	return nil
 }
