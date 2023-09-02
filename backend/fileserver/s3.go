@@ -3,10 +3,10 @@ package fileserver
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/minio/minio-go/v7"
@@ -86,16 +86,12 @@ func (fs *S3FileServer) Ping() error {
 	ctx := context.Background()
 	buckets, err := fs.client.ListBuckets(ctx)
 	if err != nil {
-		return normalize(err)
+		return checkError(err)
 	}
 
-	found := false
-	for _, bucket := range buckets {
-		if bucket.Name == fs.info.Bucket {
-			found = true
-			break
-		}
-	}
+	found := slices.ContainsFunc(buckets, func(bucket minio.BucketInfo) bool {
+		return bucket.Name == fs.info.Bucket
+	})
 
 	if !found {
 		return ErrInvalidBucket
@@ -116,7 +112,7 @@ func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 	for object := range objects {
 		err := object.Err
 		if err != nil {
-			return nil, normalize(err)
+			return nil, checkError(err)
 		}
 
 		ok, _ := filepath.Match(pattern, object.Key)
@@ -143,7 +139,7 @@ func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
 		minio.GetObjectOptions{},
 	)
 	if err != nil {
-		return nil, err
+		return nil, checkError(err)
 	}
 
 	return obj, nil
@@ -160,13 +156,13 @@ func (fs *S3FileServer) Write(file FileInfo, r io.Reader) error {
 		minio.PutObjectOptions{},
 	)
 	if err != nil {
-		return err
+		return checkError(err)
 	}
 
 	return nil
 }
 
-func normalize(err error) error {
+func checkError(err error) error {
 	// check for net.Error first (invalid / unreachable endpoint)
 	if _, ok := err.(net.Error); ok {
 		return ErrInvalidEndpoint
@@ -188,6 +184,5 @@ func normalize(err error) error {
 	}
 
 	// else bubble
-	fmt.Printf("unhandled S3 error code: %s\n", s3Err.Code)
 	return err
 }
