@@ -48,11 +48,11 @@ func (app *Application) Handler() http.Handler {
 
 	mux.HandleFunc("/", app.handleIndex, "GET")
 
-	mux.HandleFunc("/locations", app.handleLocationCreate, "POST")
-	mux.HandleFunc("/locations", app.handleLocationList, "GET")
-	mux.HandleFunc("/locations/:id", app.handleLocationRead, "GET")
-	mux.HandleFunc("/locations/:id", app.handleLocationUpdate, "PUT")
-	mux.HandleFunc("/locations/:id", app.handleLocationDelete, "DELETE")
+	mux.HandleFunc("/location", app.handleLocationCreate, "POST")
+	mux.HandleFunc("/location", app.handleLocationList, "GET")
+	mux.HandleFunc("/location/:id", app.handleLocationRead, "GET")
+	mux.HandleFunc("/location/:id", app.handleLocationUpdate, "PUT")
+	mux.HandleFunc("/location/:id", app.handleLocationDelete, "DELETE")
 
 	return mux
 }

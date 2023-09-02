@@ -101,6 +101,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 
 		loc, err = location.NewMemory(id.String())
 		if err != nil {
+			// TODO: should be failed validation
 			app.badRequestResponse(w, r, err)
 			return
 		}
@@ -120,6 +121,7 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 
 		loc, err = location.NewS3(id.String(), req.Endpoint, req.Bucket, req.AccessKeyID, req.SecretAccessKey)
 		if err != nil {
+			// TODO: should be failed validation
 			app.badRequestResponse(w, r, err)
 			return
 		}
@@ -268,6 +270,7 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 		info := fileserver.MemoryInfo{}
 		err := loc.SetMemory(info)
 		if err != nil {
+			// TODO: should be failed validation
 			app.badRequestResponse(w, r, err)
 			return
 		}
@@ -293,6 +296,7 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 		}
 		err := loc.SetS3(info)
 		if err != nil {
+			// TODO: should be failed validation
 			app.badRequestResponse(w, r, err)
 			return
 		}
