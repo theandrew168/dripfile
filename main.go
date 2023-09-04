@@ -121,8 +121,8 @@ func run() int {
 	tf, err := transfer.New(
 		tfID,
 		"*.png",
-		fooID,
-		barID,
+		fooLoc,
+		barLoc,
 	)
 	if err != nil {
 		logger.Error(err.Error())

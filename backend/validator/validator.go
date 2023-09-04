@@ -1,6 +1,10 @@
 package validator
 
-import "regexp"
+import (
+	"regexp"
+
+	"github.com/google/uuid"
+)
 
 // Based on:
 // Let's Go Further - Chapter 4.5 (Alex Edwards)
@@ -51,6 +55,12 @@ func PermittedValue[T comparable](value T, permittedValues ...T) bool {
 // Matches returns true if a string value matches a specific regexp pattern.
 func Matches(value string, rx *regexp.Regexp) bool {
 	return rx.MatchString(value)
+}
+
+// UUID returns true if a string value is a valid UUID.
+func UUID(value string) bool {
+	_, err := uuid.Parse(value)
+	return err == nil
 }
 
 // Generic function which returns true if all values in a slice are unique.

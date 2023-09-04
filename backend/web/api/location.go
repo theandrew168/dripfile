@@ -8,6 +8,7 @@ import (
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
+
 	"github.com/theandrew168/dripfile/backend/database"
 	"github.com/theandrew168/dripfile/backend/fileserver"
 	"github.com/theandrew168/dripfile/backend/location"
@@ -31,15 +32,9 @@ type CreateLocationRequest struct {
 	Kind string `json:"kind"`
 }
 
-func (req *CreateLocationRequest) Validate(v *validator.Validator) {
-	v.Check(validator.PermittedValue(req.Kind, location.KindMemory, location.KindS3), "kind", "must be one of: memory, s3")
-}
-
 type CreateMemoryLocationRequest struct {
 	Kind string `json:"kind"`
 }
-
-func (req *CreateMemoryLocationRequest) Validate(v *validator.Validator) {}
 
 type CreateS3LocationRequest struct {
 	Kind            string `json:"kind"`
@@ -47,13 +42,6 @@ type CreateS3LocationRequest struct {
 	Bucket          string `json:"bucket"`
 	AccessKeyID     string `json:"access_key_id"`
 	SecretAccessKey string `json:"secret_access_key"`
-}
-
-func (req *CreateS3LocationRequest) Validate(v *validator.Validator) {
-	v.Check(req.Endpoint != "", "endpoint", "must be provided")
-	v.Check(req.Bucket != "", "bucket", "must be provided")
-	v.Check(req.AccessKeyID != "", "access_key_id", "must be provided")
-	v.Check(req.SecretAccessKey != "", "secret_access_key", "must be provided")
 }
 
 func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Request) {
@@ -75,14 +63,14 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	req.Validate(v)
+	v.Check(validator.PermittedValue(req.Kind, location.KindMemory, location.KindS3), "kind", "must be one of: memory, s3")
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
 	id := uuid.Must(uuid.NewRandom())
-	var loc *location.Location
+	var l *location.Location
 
 	// read more specific details based on the "kind"
 	if req.Kind == location.KindMemory {
@@ -93,18 +81,13 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		req.Validate(v)
+		// TODO: no checks for this yet
 		if !v.Valid() {
 			app.failedValidationResponse(w, r, v.Errors)
 			return
 		}
 
-		loc, err = location.NewMemory(id)
-		v.Check(err == nil, "location", err.Error())
-		if !v.Valid() {
-			app.failedValidationResponse(w, r, v.Errors)
-			return
-		}
+		l, err = location.NewMemory(id)
 	} else if req.Kind == location.KindS3 {
 		var req CreateS3LocationRequest
 		err = readJSON(bytes.NewReader(b), &req, true)
@@ -113,34 +96,50 @@ func (app *Application) handleLocationCreate(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		req.Validate(v)
+		v.Check(req.Endpoint != "", "endpoint", "must be provided")
+		v.Check(req.Bucket != "", "bucket", "must be provided")
+		v.Check(req.AccessKeyID != "", "access_key_id", "must be provided")
+		v.Check(req.SecretAccessKey != "", "secret_access_key", "must be provided")
 		if !v.Valid() {
 			app.failedValidationResponse(w, r, v.Errors)
 			return
 		}
 
-		loc, err = location.NewS3(id, req.Endpoint, req.Bucket, req.AccessKeyID, req.SecretAccessKey)
-		v.Check(err == nil, "location", err.Error())
-		if !v.Valid() {
-			app.failedValidationResponse(w, r, v.Errors)
-			return
+		l, err = location.NewS3(id, req.Endpoint, req.Bucket, req.AccessKeyID, req.SecretAccessKey)
+	}
+	if err != nil {
+		switch {
+		case errors.Is(err, location.ErrInvalidKind):
+			v.AddError("kind", "must be one of: memory, s3")
+		default:
+			v.AddError("location", err.Error())
 		}
 	}
 
-	// create the new location
-	err = app.locationRepo.Create(loc)
-	if err != nil {
-		app.serverErrorResponse(w, r, err)
+	// check if new location is valid
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
-	l := Location{
-		ID:   loc.ID().String(),
-		Kind: loc.Kind(),
+	// create the new location
+	err = app.locationRepo.Create(l)
+	if err != nil {
+		switch {
+		case errors.Is(err, database.ErrConflict):
+			app.conflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+
+		return
 	}
 
 	resp := SingleLocationResponse{
-		Location: l,
+		Location: Location{
+			ID:   l.ID().String(),
+			Kind: l.Kind(),
+		},
 	}
 	err = writeJSON(w, 200, resp)
 	if err != nil {
@@ -216,7 +215,7 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	loc, err := app.locationRepo.Read(id)
+	l, err := app.locationRepo.Read(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, database.ErrNotExist):
@@ -246,7 +245,7 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	req.Validate(v)
+	v.Check(validator.PermittedValue(req.Kind, location.KindMemory, location.KindS3), "kind", "must be one of: memory, s3")
 	if !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
@@ -261,19 +260,14 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		req.Validate(v)
+		// TODO: no checks for this yet
 		if !v.Valid() {
 			app.failedValidationResponse(w, r, v.Errors)
 			return
 		}
 
 		info := fileserver.MemoryInfo{}
-		err := loc.SetMemory(info)
-		v.Check(err == nil, "location", err.Error())
-		if !v.Valid() {
-			app.failedValidationResponse(w, r, v.Errors)
-			return
-		}
+		err = l.SetMemory(info)
 	} else if req.Kind == location.KindS3 {
 		var req CreateS3LocationRequest
 		err = readJSON(bytes.NewReader(b), &req, true)
@@ -282,7 +276,10 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		req.Validate(v)
+		v.Check(req.Endpoint != "", "endpoint", "must be provided")
+		v.Check(req.Bucket != "", "bucket", "must be provided")
+		v.Check(req.AccessKeyID != "", "access_key_id", "must be provided")
+		v.Check(req.SecretAccessKey != "", "secret_access_key", "must be provided")
 		if !v.Valid() {
 			app.failedValidationResponse(w, r, v.Errors)
 			return
@@ -294,16 +291,25 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 			AccessKeyID:     req.AccessKeyID,
 			SecretAccessKey: req.SecretAccessKey,
 		}
-		err := loc.SetS3(info)
-		v.Check(err == nil, "location", err.Error())
-		if !v.Valid() {
-			app.failedValidationResponse(w, r, v.Errors)
-			return
+		err = l.SetS3(info)
+	}
+	if err != nil {
+		switch {
+		case errors.Is(err, location.ErrInvalidKind):
+			v.AddError("kind", "must be one of: memory, s3")
+		default:
+			v.AddError("location", err.Error())
 		}
 	}
 
+	// check if new location is valid
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	// update the existing location
-	err = app.locationRepo.Update(loc)
+	err = app.locationRepo.Update(l)
 	if err != nil {
 		switch {
 		case errors.Is(err, database.ErrConflict):
@@ -315,13 +321,11 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	l := Location{
-		ID:   loc.ID().String(),
-		Kind: loc.Kind(),
-	}
-
 	resp := SingleLocationResponse{
-		Location: l,
+		Location: Location{
+			ID:   l.ID().String(),
+			Kind: l.Kind(),
+		},
 	}
 	err = writeJSON(w, 200, resp)
 	if err != nil {
@@ -330,6 +334,7 @@ func (app *Application) handleLocationUpdate(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// TODO: Domain Service: warn if this location is being used by any transfers?
 func (app *Application) handleLocationDelete(w http.ResponseWriter, r *http.Request) {
 	id, err := uuid.Parse(flow.Param(r.Context(), "id"))
 	if err != nil {

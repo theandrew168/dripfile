@@ -5,10 +5,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/theandrew168/dripfile/backend/location"
 )
 
 var (
 	ErrInvalidPattern = errors.New("transfer: invalid pattern")
+	ErrSameLocation   = errors.New("transfer: same location")
 )
 
 type Transfer struct {
@@ -23,17 +26,20 @@ type Transfer struct {
 	version   int
 }
 
-func New(id uuid.UUID, pattern string, fromLocationID, toLocationID uuid.UUID) (*Transfer, error) {
+func New(id uuid.UUID, pattern string, fromLocation, toLocation *location.Location) (*Transfer, error) {
 	if pattern == "" {
 		return nil, ErrInvalidPattern
+	}
+	if fromLocation.ID() == toLocation.ID() {
+		return nil, ErrSameLocation
 	}
 
 	t := Transfer{
 		id: id,
 
 		pattern:        pattern,
-		fromLocationID: fromLocationID,
-		toLocationID:   toLocationID,
+		fromLocationID: fromLocation.ID(),
+		toLocationID:   toLocation.ID(),
 	}
 	return &t, nil
 }
