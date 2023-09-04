@@ -15,6 +15,28 @@ import (
 	"github.com/theandrew168/dripfile/backend/validator"
 )
 
+/*
+
+Layers:
+
+REST API - Input validation, ensure input is valid for each type
+	(integer, non-empty string, valid UUID, etc) but not necessarily
+	valid within the model (has valid refs)
+
+App Service / Domain Service - Ensure integrity across multiples aggregates.
+	Things like referential integrity (that UUID links to other aggregates are
+	valid) are enforced here. Another example would be disallowing deleting
+	a record that another record refers to (since that'd put the system in an
+	invalid state). This could also be there cross-domain activities live
+	(like actually performing a transfer).
+
+Domain / Aggregate - Individual "units" of the domain. Internal validation
+	is enforced here (validation that just concerns the domain itself but
+	not validation between across multiple domains). These are responsible
+	for guaranteeing their own valid states.
+
+*/
+
 type Location struct {
 	ID   string `json:"id"`
 	Kind string `json:"kind"`
