@@ -2,7 +2,6 @@ package location
 
 import (
 	"errors"
-	"time"
 
 	"github.com/google/uuid"
 
@@ -24,13 +23,10 @@ type Location struct {
 	kind       string
 	memoryInfo fileserver.MemoryInfo
 	s3Info     fileserver.S3Info
-
-	// internal fields used for storage conflict resolution
-	createdAt time.Time
-	version   int
 }
 
-func NewMemory(id uuid.UUID) (*Location, error) {
+// Factory func for creating a new in-memory location.
+func NewMemory() (*Location, error) {
 	info := fileserver.MemoryInfo{}
 	err := info.Validate()
 	if err != nil {
@@ -38,7 +34,7 @@ func NewMemory(id uuid.UUID) (*Location, error) {
 	}
 
 	l := Location{
-		id: id,
+		id: uuid.New(),
 
 		kind:       KindMemory,
 		memoryInfo: info,
@@ -46,7 +42,8 @@ func NewMemory(id uuid.UUID) (*Location, error) {
 	return &l, nil
 }
 
-func NewS3(id uuid.UUID, endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
+// Factory func for creating a new S3 location.
+func NewS3(endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
 	info := fileserver.S3Info{
 		Endpoint:        endpoint,
 		Bucket:          bucket,
@@ -59,7 +56,7 @@ func NewS3(id uuid.UUID, endpoint, bucket, accessKeyID, secretAccessKey string) 
 	}
 
 	l := Location{
-		id: id,
+		id: uuid.New(),
 
 		kind:   KindS3,
 		s3Info: info,
@@ -73,36 +70,6 @@ func (l *Location) ID() uuid.UUID {
 
 func (l *Location) Kind() string {
 	return l.kind
-}
-
-func (l *Location) MemoryInfo() fileserver.MemoryInfo {
-	return l.memoryInfo
-}
-
-func (l *Location) S3Info() fileserver.S3Info {
-	return l.s3Info
-}
-
-func (l *Location) SetMemory(info fileserver.MemoryInfo) error {
-	err := info.Validate()
-	if err != nil {
-		return err
-	}
-
-	l.kind = KindMemory
-	l.memoryInfo = info
-	return nil
-}
-
-func (l *Location) SetS3(info fileserver.S3Info) error {
-	err := info.Validate()
-	if err != nil {
-		return err
-	}
-
-	l.kind = KindS3
-	l.s3Info = info
-	return nil
 }
 
 func (l *Location) Connect() (fileserver.FileServer, error) {

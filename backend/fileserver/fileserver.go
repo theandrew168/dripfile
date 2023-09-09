@@ -10,6 +10,6 @@ type FileInfo struct {
 type FileServer interface {
 	Ping() error
 	Search(pattern string) ([]FileInfo, error)
-	Read(file FileInfo) (io.Reader, error)
-	Write(file FileInfo, r io.Reader) error
+	Read(path string) (io.Reader, error)
+	Write(info FileInfo, r io.Reader) error
 }

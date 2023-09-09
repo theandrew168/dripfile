@@ -130,12 +130,12 @@ func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 	return files, nil
 }
 
-func (fs *S3FileServer) Read(file FileInfo) (io.Reader, error) {
+func (fs *S3FileServer) Read(path string) (io.Reader, error) {
 	ctx := context.Background()
 	obj, err := fs.client.GetObject(
 		ctx,
 		fs.info.Bucket,
-		file.Name,
+		path,
 		minio.GetObjectOptions{},
 	)
 	if err != nil {
