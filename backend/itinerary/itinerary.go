@@ -11,6 +11,7 @@ var (
 	ErrSameLocation   = errors.New("itinerary: same location")
 )
 
+// Aggregate with a single entity
 type Itinerary struct {
 	id uuid.UUID
 
