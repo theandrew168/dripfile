@@ -1,4 +1,0 @@
-[build]
-include_dir = ["backend"]
-include_file = ["main.go"]
-delay = 1000

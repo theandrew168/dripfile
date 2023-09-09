@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"embed"
-	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
@@ -11,21 +10,11 @@ import (
 	"syscall"
 
 	"github.com/coreos/go-systemd/daemon"
-	"github.com/google/uuid"
 	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/backend/config"
-	"github.com/theandrew168/dripfile/backend/database"
-	"github.com/theandrew168/dripfile/backend/location"
-	"github.com/theandrew168/dripfile/backend/migrate"
-	"github.com/theandrew168/dripfile/backend/secret"
-	"github.com/theandrew168/dripfile/backend/transfer"
-	transferService "github.com/theandrew168/dripfile/backend/transfer/service"
 	"github.com/theandrew168/dripfile/backend/web"
 )
-
-//go:embed migration
-var migrationFS embed.FS
 
 //go:embed public
 var publicFS embed.FS
@@ -38,7 +27,6 @@ func run() int {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	conf := flag.String("conf", "dripfile.conf", "app config file")
-	migrateOnly := flag.Bool("migrate", false, "apply migrations and exit")
 	flag.Parse()
 
 	cfg, err := config.ReadFile(*conf)
@@ -47,111 +35,9 @@ func run() int {
 		return 1
 	}
 
-	secretKey, err := hex.DecodeString(cfg.SecretKey)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	box := secret.NewBox([32]byte(secretKey))
-
-	pool, err := database.ConnectPool(cfg.DatabaseURI)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-	defer pool.Close()
-
-	applied, err := migrate.Migrate(pool, migrationFS)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	for _, migration := range applied {
-		logger.Info("applied migration", "name", migration)
-	}
-
-	if *migrateOnly {
-		return 0
-	}
-
-	locationRepo := location.NewRepository(pool, box)
-	transferRepo := transfer.NewRepository(pool)
-
-	fooID := uuid.Must(uuid.NewRandom())
-	fooLoc, err := location.NewS3(
-		fooID,
-		"localhost:9000",
-		"foo",
-		"minioadmin",
-		"minioadmin",
-	)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	err = locationRepo.Create(fooLoc)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	barID := uuid.Must(uuid.NewRandom())
-	barLoc, err := location.NewS3(
-		barID,
-		"localhost:9000",
-		"bar",
-		"minioadmin",
-		"minioadmin",
-	)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	err = locationRepo.Create(barLoc)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	tfID := uuid.Must(uuid.NewRandom())
-	tf, err := transfer.New(
-		tfID,
-		"*.png",
-		fooLoc,
-		barLoc,
-	)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	err = transferRepo.Create(tf)
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
-	transferService := transferService.New(
-		locationRepo,
-		transferRepo,
-	)
-
-	err = transferService.RunApplication(tf.ID())
-	if err != nil {
-		logger.Error(err.Error())
-		return 1
-	}
-
 	app := web.NewApplication(
 		logger,
 		publicFS,
-		locationRepo,
-		transferRepo,
-		transferService,
 	)
 
 	// let port be overridable by an env var

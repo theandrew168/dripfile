@@ -42,31 +42,23 @@ run-frontend: run-frontend-js run-frontend-css
 
 .PHONY: run-backend
 run-backend:
-	DEBUG=1 go run github.com/cosmtrek/air@latest
+	DEBUG=1 go run main.go
 
 .PHONY: run
 run: run-frontend run-backend
 
-.PHONY: migrate
-migrate:
-	go run main.go -migrate
-
 .PHONY: test
-test: migrate
+test:
 	go test -count=1 ./...
 
 .PHONY: race
-race: migrate
+race:
 	go test -race -count=1 ./...
 
 .PHONY: cover
-cover: migrate
+cover:
 	go test -coverprofile=c.out -coverpkg=./... -count=1 ./...
 	go tool cover -html=c.out
-
-.PHONY: release
-release: frontend
-	goreleaser release --snapshot --clean
 
 .PHONY: format-frontend
 format-frontend: node_modules

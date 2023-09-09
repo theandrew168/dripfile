@@ -10,9 +10,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 
-	"github.com/theandrew168/dripfile/backend/location"
-	"github.com/theandrew168/dripfile/backend/transfer"
-	transferService "github.com/theandrew168/dripfile/backend/transfer/service"
 	"github.com/theandrew168/dripfile/backend/web/api"
 	"github.com/theandrew168/dripfile/backend/web/middleware"
 )
@@ -20,19 +17,11 @@ import (
 type Application struct {
 	logger *slog.Logger
 	public fs.FS
-
-	locationStorage location.Repository
-	transferStorage transfer.Repository
-
-	transferService transferService.Service
 }
 
 func NewApplication(
 	logger *slog.Logger,
 	publicFS fs.FS,
-	locationStorage location.Repository,
-	transferStorage transfer.Repository,
-	transferService transferService.Service,
 ) *Application {
 	var public fs.FS
 	if os.Getenv("DEBUG") != "" {
@@ -47,11 +36,6 @@ func NewApplication(
 	app := Application{
 		logger: logger,
 		public: public,
-
-		locationStorage: locationStorage,
-		transferStorage: transferStorage,
-
-		transferService: transferService,
 	}
 	return &app
 }
@@ -72,9 +56,6 @@ func (app *Application) Handler() http.Handler {
 	// REST API routes
 	apiV1 := api.NewApplication(
 		app.logger,
-		app.locationStorage,
-		app.transferStorage,
-		app.transferService,
 	)
 	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Handler()))
 	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
