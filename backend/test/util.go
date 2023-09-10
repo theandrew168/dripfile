@@ -1,11 +1,9 @@
 package test
 
 import (
-	"context"
 	"testing"
 
 	"github.com/theandrew168/dripfile/backend/config"
-	"github.com/theandrew168/dripfile/backend/database"
 )
 
 type CloserFunc func()
@@ -20,18 +18,4 @@ func Config(t *testing.T) config.Config {
 	}
 
 	return cfg
-}
-
-func Database(t *testing.T) (database.Conn, CloserFunc) {
-	t.Helper()
-
-	cfg := Config(t)
-	conn, err := database.Connect(cfg.DatabaseURI)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return conn, func() {
-		conn.Close(context.Background())
-	}
 }
