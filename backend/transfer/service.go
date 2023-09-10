@@ -7,21 +7,15 @@ import (
 	"github.com/theandrew168/dripfile/backend/location"
 )
 
-type Service struct {
-	locationRepo  location.Repository
-	itineraryRepo itinerary.Repository
-}
+type DomainService struct{}
 
-func NewService(locationRepo location.Repository, itineraryRepo itinerary.Repository) *Service {
-	srvc := Service{
-		locationRepo:  locationRepo,
-		itineraryRepo: itineraryRepo,
-	}
+func NewDomainService() *DomainService {
+	srvc := DomainService{}
 	return &srvc
 }
 
-// Perform the transfer given domain objects.
-func (srvc *Service) RunDomain(i *itinerary.Itinerary, from, to *location.Location) error {
+// Perform the transfer on provided domain objects.
+func (srvc *DomainService) Run(i *itinerary.Itinerary, from, to *location.Location) error {
 	fromFS, err := from.Connect()
 	if err != nil {
 		return err
@@ -40,8 +34,25 @@ func (srvc *Service) RunDomain(i *itinerary.Itinerary, from, to *location.Locati
 	return nil
 }
 
+type AppService struct {
+	domainService *DomainService
+	locationRepo  location.Repository
+	itineraryRepo itinerary.Repository
+}
+
+func NewAppService(locationRepo location.Repository, itineraryRepo itinerary.Repository) *AppService {
+	domainService := NewDomainService()
+
+	srvc := AppService{
+		domainService: domainService,
+		locationRepo:  locationRepo,
+		itineraryRepo: itineraryRepo,
+	}
+	return &srvc
+}
+
 // Lookup the domain objects from persistent storage and perform the transfer.
-func (srvc *Service) RunApp(itineraryID uuid.UUID) error {
+func (srvc *AppService) RunApp(itineraryID uuid.UUID) error {
 	i, err := srvc.itineraryRepo.Read(itineraryID)
 	if err != nil {
 		return err
@@ -57,5 +68,5 @@ func (srvc *Service) RunApp(itineraryID uuid.UUID) error {
 		return err
 	}
 
-	return srvc.RunDomain(i, from, to)
+	return srvc.domainService.Run(i, from, to)
 }
