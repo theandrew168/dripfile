@@ -17,6 +17,7 @@ var (
 	ErrInvalidKind = errors.New("location: invalid kind")
 )
 
+// Aggregate with a single entity
 type Location struct {
 	id uuid.UUID
 
@@ -25,7 +26,7 @@ type Location struct {
 	s3Info     fileserver.S3Info
 }
 
-// Factory func for creating a new in-memory location.
+// Factory func for creating a new in-memory location
 func NewMemory() (*Location, error) {
 	info := fileserver.MemoryInfo{}
 	err := info.Validate()
@@ -42,7 +43,7 @@ func NewMemory() (*Location, error) {
 	return &l, nil
 }
 
-// Factory func for creating a new S3 location.
+// Factory func for creating a new S3 location
 func NewS3(endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
 	info := fileserver.S3Info{
 		Endpoint:        endpoint,

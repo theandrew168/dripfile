@@ -20,6 +20,7 @@ type Itinerary struct {
 	pattern        string
 }
 
+// Factory func for creating a new itinerary
 func New(fromLocationID, toLocationID uuid.UUID, pattern string) (*Itinerary, error) {
 	if fromLocationID == toLocationID {
 		return nil, ErrSameLocation
