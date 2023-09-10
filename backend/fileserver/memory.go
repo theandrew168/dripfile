@@ -60,16 +60,16 @@ func (fs *MemoryFileServer) Search(pattern string) ([]FileInfo, error) {
 	return files, nil
 }
 
-func (fs *MemoryFileServer) Read(path string) (io.Reader, error) {
+func (fs *MemoryFileServer) Read(name string) (io.Reader, error) {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
 
-	f, ok := fs.files[path]
+	file, ok := fs.files[name]
 	if !ok {
 		return nil, ErrNotFound
 	}
 
-	return f.data, nil
+	return file.data, nil
 }
 
 func (fs *MemoryFileServer) Write(info FileInfo, r io.Reader) error {
@@ -85,5 +85,6 @@ func (fs *MemoryFileServer) Write(info FileInfo, r io.Reader) error {
 		info: info,
 		data: bytes.NewBuffer(buf),
 	}
+
 	return nil
 }

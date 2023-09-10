@@ -9,6 +9,8 @@ import (
 	"github.com/theandrew168/dripfile/backend/test"
 )
 
+// TODO: Run tests for each FileServer impl
+
 func TestPing(t *testing.T) {
 	fs, err := fileserver.NewMemory(fileserver.MemoryInfo{})
 	test.AssertNilError(t, err)
@@ -24,7 +26,7 @@ func TestSearch(t *testing.T) {
 	contents := "testing"
 	info := fileserver.FileInfo{
 		Name: "foo.txt",
-		Size: int64(len(contents)),
+		Size: len(contents),
 	}
 
 	err = fs.Write(info, bytes.NewBufferString(contents))
@@ -43,7 +45,7 @@ func TestRead(t *testing.T) {
 	contents := "testing"
 	info := fileserver.FileInfo{
 		Name: "foo.txt",
-		Size: int64(len(contents)),
+		Size: len(contents),
 	}
 
 	err = fs.Write(info, bytes.NewBufferString(contents))

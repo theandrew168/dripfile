@@ -122,7 +122,7 @@ func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 
 		file := FileInfo{
 			Name: object.Key,
-			Size: object.Size,
+			Size: int(object.Size),
 		}
 		files = append(files, file)
 	}
@@ -130,12 +130,12 @@ func (fs *S3FileServer) Search(pattern string) ([]FileInfo, error) {
 	return files, nil
 }
 
-func (fs *S3FileServer) Read(path string) (io.Reader, error) {
+func (fs *S3FileServer) Read(name string) (io.Reader, error) {
 	ctx := context.Background()
 	obj, err := fs.client.GetObject(
 		ctx,
 		fs.info.Bucket,
-		path,
+		name,
 		minio.GetObjectOptions{},
 	)
 	if err != nil {
@@ -152,7 +152,7 @@ func (fs *S3FileServer) Write(file FileInfo, r io.Reader) error {
 		fs.info.Bucket,
 		file.Name,
 		r,
-		file.Size,
+		int64(file.Size),
 		minio.PutObjectOptions{},
 	)
 	if err != nil {

@@ -10,11 +10,11 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	pattern := "*.txt"
 	fromLocationID := uuid.New()
 	toLocationID := uuid.New()
-	pattern := "*.txt"
 
-	i, err := itinerary.New(fromLocationID, toLocationID, pattern)
+	i, err := itinerary.New(pattern, fromLocationID, toLocationID)
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, i.Pattern(), pattern)
@@ -23,19 +23,19 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewInvalidPattern(t *testing.T) {
+	pattern := ""
 	fromLocationID := uuid.New()
 	toLocationID := uuid.New()
-	pattern := ""
 
-	_, err := itinerary.New(fromLocationID, toLocationID, pattern)
+	_, err := itinerary.New(pattern, fromLocationID, toLocationID)
 	test.AssertErrorIs(t, err, itinerary.ErrInvalidPattern)
 }
 
 func TestNewSameLocation(t *testing.T) {
+	pattern := "*.txt"
 	fromLocationID := uuid.New()
 	toLocationID := fromLocationID
-	pattern := "*.txt"
 
-	_, err := itinerary.New(fromLocationID, toLocationID, pattern)
+	_, err := itinerary.New(pattern, fromLocationID, toLocationID)
 	test.AssertErrorIs(t, err, itinerary.ErrSameLocation)
 }

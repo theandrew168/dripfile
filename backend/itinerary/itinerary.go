@@ -15,13 +15,13 @@ var (
 type Itinerary struct {
 	id uuid.UUID
 
+	pattern        string
 	fromLocationID uuid.UUID
 	toLocationID   uuid.UUID
-	pattern        string
 }
 
 // Factory func for creating a new itinerary
-func New(fromLocationID, toLocationID uuid.UUID, pattern string) (*Itinerary, error) {
+func New(pattern string, fromLocationID, toLocationID uuid.UUID) (*Itinerary, error) {
 	if fromLocationID == toLocationID {
 		return nil, ErrSameLocation
 	}
@@ -32,9 +32,9 @@ func New(fromLocationID, toLocationID uuid.UUID, pattern string) (*Itinerary, er
 	i := Itinerary{
 		id: uuid.New(),
 
+		pattern:        pattern,
 		fromLocationID: fromLocationID,
 		toLocationID:   toLocationID,
-		pattern:        pattern,
 	}
 	return &i, nil
 }
