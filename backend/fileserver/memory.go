@@ -25,7 +25,7 @@ type file struct {
 }
 
 type MemoryFileServer struct {
-	mu    sync.RWMutex
+	sync.RWMutex
 	info  MemoryInfo
 	files map[string]file
 }
@@ -44,8 +44,8 @@ func (fs *MemoryFileServer) Ping() error {
 }
 
 func (fs *MemoryFileServer) Search(pattern string) ([]FileInfo, error) {
-	fs.mu.RLock()
-	defer fs.mu.RUnlock()
+	fs.RLock()
+	defer fs.RUnlock()
 
 	var files []FileInfo
 	for name, file := range fs.files {
@@ -61,8 +61,8 @@ func (fs *MemoryFileServer) Search(pattern string) ([]FileInfo, error) {
 }
 
 func (fs *MemoryFileServer) Read(name string) (io.Reader, error) {
-	fs.mu.RLock()
-	defer fs.mu.RUnlock()
+	fs.RLock()
+	defer fs.RUnlock()
 
 	file, ok := fs.files[name]
 	if !ok {
@@ -73,8 +73,8 @@ func (fs *MemoryFileServer) Read(name string) (io.Reader, error) {
 }
 
 func (fs *MemoryFileServer) Write(info FileInfo, r io.Reader) error {
-	fs.mu.Lock()
-	defer fs.mu.Unlock()
+	fs.Lock()
+	defer fs.Unlock()
 
 	buf, err := io.ReadAll(r)
 	if err != nil {

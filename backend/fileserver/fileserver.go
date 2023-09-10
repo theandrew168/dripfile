@@ -7,6 +7,7 @@ type FileInfo struct {
 	Size int
 }
 
+// Represents an active connection to a FileServer (S3, FTP, etc).
 type FileServer interface {
 	Ping() error
 	Search(pattern string) ([]FileInfo, error)
