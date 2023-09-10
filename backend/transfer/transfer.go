@@ -1,8 +1,10 @@
-package fileserver
+package transfer
+
+import "github.com/theandrew168/dripfile/backend/fileserver"
 
 // Transfer all files matching a given pattern from one FileServer to another.
 // Returns the total number of bytes transferred or an error.
-func Transfer(pattern string, from, to FileServer) (int, error) {
+func Transfer(pattern string, from, to fileserver.FileServer) (int, error) {
 	files, err := from.Search(pattern)
 	if err != nil {
 		return 0, err
