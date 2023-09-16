@@ -13,19 +13,19 @@ type Record interface {
 	ID() uuid.UUID
 }
 
-type MemoryDB struct {
+type MemoryDB[R Record] struct {
 	sync.RWMutex
-	data map[uuid.UUID]Record
+	data map[uuid.UUID]R
 }
 
-func New() *MemoryDB {
-	db := MemoryDB{
-		data: make(map[uuid.UUID]Record),
+func New[R Record]() *MemoryDB[R] {
+	db := MemoryDB[R]{
+		data: make(map[uuid.UUID]R),
 	}
 	return &db
 }
 
-func (db *MemoryDB) Create(record Record) error {
+func (db *MemoryDB[R]) Create(record R) error {
 	db.Lock()
 	defer db.Unlock()
 
@@ -33,11 +33,11 @@ func (db *MemoryDB) Create(record Record) error {
 	return nil
 }
 
-func (db *MemoryDB) List() ([]Record, error) {
+func (db *MemoryDB[R]) List() ([]R, error) {
 	db.RLock()
 	defer db.RUnlock()
 
-	var records []Record
+	var records []R
 	for _, record := range db.data {
 		records = append(records, record)
 	}
@@ -45,19 +45,20 @@ func (db *MemoryDB) List() ([]Record, error) {
 	return records, nil
 }
 
-func (db *MemoryDB) Read(id uuid.UUID) (Record, error) {
+func (db *MemoryDB[R]) Read(id uuid.UUID) (R, error) {
 	db.RLock()
 	defer db.RUnlock()
 
 	record, ok := db.data[id]
 	if !ok {
-		return nil, ErrNotFound
+		var empty R
+		return empty, ErrNotFound
 	}
 
 	return record, nil
 }
 
-func (db *MemoryDB) Update(record Record) error {
+func (db *MemoryDB[R]) Update(record R) error {
 	db.Lock()
 	defer db.Unlock()
 
@@ -65,7 +66,7 @@ func (db *MemoryDB) Update(record Record) error {
 	return nil
 }
 
-func (db *MemoryDB) Delete(id uuid.UUID) error {
+func (db *MemoryDB[R]) Delete(id uuid.UUID) error {
 	db.Lock()
 	defer db.Unlock()
 

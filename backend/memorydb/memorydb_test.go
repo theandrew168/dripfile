@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+
 	"github.com/theandrew168/dripfile/backend/memorydb"
 	"github.com/theandrew168/dripfile/backend/test"
 )
@@ -24,7 +25,7 @@ func (r *record) ID() uuid.UUID {
 }
 
 func TestCreate(t *testing.T) {
-	db := memorydb.New()
+	db := memorydb.New[*record]()
 
 	r := newRecord()
 	err := db.Create(r)
@@ -32,7 +33,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	db := memorydb.New()
+	db := memorydb.New[*record]()
 
 	r1 := newRecord()
 	err := db.Create(r1)
@@ -48,7 +49,7 @@ func TestList(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
-	db := memorydb.New()
+	db := memorydb.New[*record]()
 
 	r := newRecord()
 	err := db.Create(r)
@@ -60,14 +61,14 @@ func TestRead(t *testing.T) {
 }
 
 func TestReadNotFound(t *testing.T) {
-	db := memorydb.New()
+	db := memorydb.New[*record]()
 
 	_, err := db.Read(uuid.New())
 	test.AssertErrorIs(t, err, memorydb.ErrNotFound)
 }
 
 func TestUpdate(t *testing.T) {
-	db := memorydb.New()
+	db := memorydb.New[*record]()
 
 	r := newRecord()
 	err := db.Create(r)
@@ -78,7 +79,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	db := memorydb.New()
+	db := memorydb.New[*record]()
 
 	r := newRecord()
 	err := db.Create(r)
