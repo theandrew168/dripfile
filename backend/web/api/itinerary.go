@@ -32,10 +32,3 @@ func (app *Application) handleItineraryDelete() http.HandlerFunc {
 		fmt.Fprintf(w, "TODO: handleItineraryDelete: %s", id)
 	}
 }
-
-func (app *Application) handleItineraryRun() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id := flow.Param(r.Context(), "id")
-		fmt.Fprintf(w, "TODO: handleItineraryRun: %s", id)
-	}
-}

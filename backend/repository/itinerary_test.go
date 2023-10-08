@@ -17,12 +17,12 @@ func TestItineraryRepositoryCreate(t *testing.T) {
 	repo := repository.NewMemoryItineraryRepository()
 
 	pattern := "*.txt"
-	fromLocation := model.NewMemoryLocation()
-	toLocation := model.NewMemoryLocation()
+	fromLocationID := uuid.New()
+	toLocationID := uuid.New()
 
-	i := model.NewItinerary(pattern, fromLocation, toLocation)
+	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
 
-	err := repo.Create(i)
+	err := repo.Create(itinerary)
 	test.AssertNilError(t, err)
 }
 
@@ -30,12 +30,12 @@ func TestItineraryRepositoryList(t *testing.T) {
 	repo := repository.NewMemoryItineraryRepository()
 
 	pattern := "*.txt"
-	fromLocation := model.NewMemoryLocation()
-	toLocation := model.NewMemoryLocation()
+	fromLocationID := uuid.New()
+	toLocationID := uuid.New()
 
-	i := model.NewItinerary(pattern, fromLocation, toLocation)
+	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
 
-	err := repo.Create(i)
+	err := repo.Create(itinerary)
 	test.AssertNilError(t, err)
 
 	is, err := repo.List()
@@ -47,20 +47,20 @@ func TestItineraryRepositoryRead(t *testing.T) {
 	repo := repository.NewMemoryItineraryRepository()
 
 	pattern := "*.txt"
-	fromLocation := model.NewMemoryLocation()
-	toLocation := model.NewMemoryLocation()
+	fromLocationID := uuid.New()
+	toLocationID := uuid.New()
 
-	i := model.NewItinerary(pattern, fromLocation, toLocation)
+	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
 
-	err := repo.Create(i)
+	err := repo.Create(itinerary)
 	test.AssertNilError(t, err)
 
-	got, err := repo.Read(i.ID)
+	got, err := repo.Read(itinerary.ID)
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, got.ID, i.ID)
-	test.AssertEqual(t, got.Pattern, i.Pattern)
-	test.AssertEqual(t, got.FromLocationID, i.FromLocationID)
-	test.AssertEqual(t, got.ToLocationID, i.ToLocationID)
+	test.AssertEqual(t, got.ID, itinerary.ID)
+	test.AssertEqual(t, got.Pattern, itinerary.Pattern)
+	test.AssertEqual(t, got.FromLocationID, itinerary.FromLocationID)
+	test.AssertEqual(t, got.ToLocationID, itinerary.ToLocationID)
 }
 
 func TestItineraryRepositoryReadNotFound(t *testing.T) {
@@ -74,20 +74,20 @@ func TestItineraryRepositoryDelete(t *testing.T) {
 	repo := repository.NewMemoryItineraryRepository()
 
 	pattern := "*.txt"
-	fromLocation := model.NewMemoryLocation()
-	toLocation := model.NewMemoryLocation()
+	fromLocationID := uuid.New()
+	toLocationID := uuid.New()
 
-	i := model.NewItinerary(pattern, fromLocation, toLocation)
+	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
 
-	err := repo.Create(i)
+	err := repo.Create(itinerary)
 	test.AssertNilError(t, err)
 
-	_, err = repo.Read(i.ID)
+	_, err = repo.Read(itinerary.ID)
 	test.AssertNilError(t, err)
 
-	err = repo.Delete(i.ID)
+	err = repo.Delete(itinerary.ID)
 	test.AssertNilError(t, err)
 
-	_, err = repo.Read(i.ID)
+	_, err = repo.Read(itinerary.ID)
 	test.AssertErrorIs(t, err, memorydb.ErrNotFound)
 }

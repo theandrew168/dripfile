@@ -10,17 +10,17 @@ type Itinerary struct {
 	ToLocationID   uuid.UUID
 }
 
-func NewItinerary(pattern string, fromLocation, toLocation Location) Itinerary {
-	i := Itinerary{
+func NewItinerary(pattern string, fromLocationID, toLocationID uuid.UUID) Itinerary {
+	itinerary := Itinerary{
 		ID: uuid.New(),
 
 		Pattern:        pattern,
-		FromLocationID: fromLocation.ID,
-		ToLocationID:   toLocation.ID,
+		FromLocationID: fromLocationID,
+		ToLocationID:   toLocationID,
 	}
-	return i
+	return itinerary
 }
 
-func (i Itinerary) GetID() uuid.UUID {
-	return i.ID
+func (itinerary Itinerary) GetID() uuid.UUID {
+	return itinerary.ID
 }

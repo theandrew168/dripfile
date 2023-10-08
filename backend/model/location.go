@@ -8,6 +8,8 @@ import (
 	"github.com/theandrew168/dripfile/backend/fileserver"
 )
 
+type LocationKind string
+
 const (
 	LocationKindMemory = "memory"
 	LocationKindS3     = "s3"
@@ -20,20 +22,20 @@ var (
 type Location struct {
 	ID uuid.UUID
 
-	Kind       string
+	Kind       LocationKind
 	MemoryInfo fileserver.MemoryInfo
 	S3Info     fileserver.S3Info
 }
 
 func NewMemoryLocation() Location {
 	info := fileserver.MemoryInfo{}
-	l := Location{
+	location := Location{
 		ID: uuid.New(),
 
 		Kind:       LocationKindMemory,
 		MemoryInfo: info,
 	}
-	return l
+	return location
 }
 
 func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) Location {
@@ -43,25 +45,25 @@ func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) Locati
 		AccessKeyID:     accessKeyID,
 		SecretAccessKey: secretAccessKey,
 	}
-	l := Location{
+	location := Location{
 		ID: uuid.New(),
 
 		Kind:   LocationKindS3,
 		S3Info: info,
 	}
-	return l
+	return location
 }
 
-func (l Location) GetID() uuid.UUID {
-	return l.ID
+func (location Location) GetID() uuid.UUID {
+	return location.ID
 }
 
-func (l Location) Connect() (fileserver.FileServer, error) {
-	switch l.Kind {
+func (location Location) Connect() (fileserver.FileServer, error) {
+	switch location.Kind {
 	case LocationKindMemory:
-		return fileserver.NewMemory(l.MemoryInfo)
+		return fileserver.NewMemory(location.MemoryInfo)
 	case LocationKindS3:
-		return fileserver.NewS3(l.S3Info)
+		return fileserver.NewS3(location.S3Info)
 	default:
 		return nil, ErrInvalidLocationKind
 	}

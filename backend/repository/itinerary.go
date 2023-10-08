@@ -11,7 +11,7 @@ import (
 var _ ItineraryRepository = (*MemoryItineraryRepository)(nil)
 
 type ItineraryRepository interface {
-	Create(l model.Itinerary) error
+	Create(itinerary model.Itinerary) error
 	List() ([]model.Itinerary, error)
 	Read(id uuid.UUID) (model.Itinerary, error)
 	Delete(id uuid.UUID) error
@@ -28,8 +28,8 @@ func NewMemoryItineraryRepository() *MemoryItineraryRepository {
 	return &repo
 }
 
-func (repo *MemoryItineraryRepository) Create(i model.Itinerary) error {
-	return repo.db.Create(i)
+func (repo *MemoryItineraryRepository) Create(itinerary model.Itinerary) error {
+	return repo.db.Create(itinerary)
 }
 
 func (repo *MemoryItineraryRepository) List() ([]model.Itinerary, error) {

@@ -11,7 +11,7 @@ import (
 var _ LocationRepository = (*MemoryLocationRepository)(nil)
 
 type LocationRepository interface {
-	Create(l model.Location) error
+	Create(location model.Location) error
 	List() ([]model.Location, error)
 	Read(id uuid.UUID) (model.Location, error)
 	Delete(id uuid.UUID) error
@@ -28,8 +28,8 @@ func NewMemoryLocationRepository() *MemoryLocationRepository {
 	return &repo
 }
 
-func (repo *MemoryLocationRepository) Create(l model.Location) error {
-	return repo.db.Create(l)
+func (repo *MemoryLocationRepository) Create(location model.Location) error {
+	return repo.db.Create(location)
 }
 
 func (repo *MemoryLocationRepository) List() ([]model.Location, error) {
