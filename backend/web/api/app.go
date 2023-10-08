@@ -37,5 +37,11 @@ func (app *Application) Handler() http.Handler {
 	mux.HandleFunc("/location/:id", app.handleLocationRead(), "GET")
 	mux.HandleFunc("/location/:id", app.handleLocationDelete(), "DELETE")
 
+	mux.HandleFunc("/itinerary", app.handleItineraryCreate(), "POST")
+	mux.HandleFunc("/itinerary", app.handleItineraryList(), "GET")
+	mux.HandleFunc("/itinerary/:id", app.handleItineraryRead(), "GET")
+	mux.HandleFunc("/itinerary/:id", app.handleItineraryDelete(), "DELETE")
+	mux.HandleFunc("/itinerary/:id/run", app.handleItineraryRun(), "POST")
+
 	return mux
 }
