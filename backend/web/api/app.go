@@ -41,7 +41,10 @@ func (app *Application) Handler() http.Handler {
 	mux.HandleFunc("/itinerary", app.handleItineraryList(), "GET")
 	mux.HandleFunc("/itinerary/:id", app.handleItineraryRead(), "GET")
 	mux.HandleFunc("/itinerary/:id", app.handleItineraryDelete(), "DELETE")
-	mux.HandleFunc("/itinerary/:id/run", app.handleItineraryRun(), "POST")
+
+	mux.HandleFunc("/transfer", app.handleTransferCreate(), "POST")
+	mux.HandleFunc("/transfer", app.handleTransferList(), "GET")
+	mux.HandleFunc("/transfer/:id", app.handleTransferRead(), "GET")
 
 	return mux
 }
