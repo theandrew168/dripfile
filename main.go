@@ -13,6 +13,8 @@ import (
 	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/backend/config"
+	"github.com/theandrew168/dripfile/backend/repository"
+	"github.com/theandrew168/dripfile/backend/service"
 	"github.com/theandrew168/dripfile/backend/web"
 )
 
@@ -35,9 +37,13 @@ func run() int {
 		return 1
 	}
 
+	repo := repository.NewMemory()
+	srvc := service.New(repo)
+
 	app := web.NewApplication(
 		logger,
 		publicFS,
+		srvc,
 	)
 
 	// let port be overridable by an env var

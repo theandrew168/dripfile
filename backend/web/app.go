@@ -10,6 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/exp/slog"
 
+	"github.com/theandrew168/dripfile/backend/service"
 	"github.com/theandrew168/dripfile/backend/web/api"
 	"github.com/theandrew168/dripfile/backend/web/middleware"
 )
@@ -17,11 +18,14 @@ import (
 type Application struct {
 	logger *slog.Logger
 	public fs.FS
+
+	srvc *service.Service
 }
 
 func NewApplication(
 	logger *slog.Logger,
 	publicFS fs.FS,
+	srvc *service.Service,
 ) *Application {
 	var public fs.FS
 	if os.Getenv("DEBUG") != "" {
@@ -36,6 +40,7 @@ func NewApplication(
 	app := Application{
 		logger: logger,
 		public: public,
+		srvc:   srvc,
 	}
 	return &app
 }
@@ -56,6 +61,7 @@ func (app *Application) Handler() http.Handler {
 	// REST API routes
 	apiV1 := api.NewApplication(
 		app.logger,
+		app.srvc,
 	)
 	mux.Handle("/api/v1/...", http.StripPrefix("/api/v1", apiV1.Handler()))
 	mux.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {

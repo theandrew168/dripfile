@@ -6,18 +6,22 @@ import (
 	"github.com/alexedwards/flow"
 	"golang.org/x/exp/slog"
 
+	"github.com/theandrew168/dripfile/backend/service"
 	"github.com/theandrew168/dripfile/backend/web/middleware"
 )
 
 type Application struct {
 	logger *slog.Logger
+	srvc   *service.Service
 }
 
 func NewApplication(
 	logger *slog.Logger,
+	srvc *service.Service,
 ) *Application {
 	app := Application{
 		logger: logger,
+		srvc:   srvc,
 	}
 	return &app
 }

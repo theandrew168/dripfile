@@ -4,6 +4,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/theandrew168/dripfile/backend/fileserver"
+	"github.com/theandrew168/dripfile/backend/model"
 	"github.com/theandrew168/dripfile/backend/repository"
 )
 
@@ -18,33 +19,55 @@ func NewTransferService(repo *repository.Repository) *TransferService {
 	return &srvc
 }
 
-func (srvc *TransferService) Run(itineraryID uuid.UUID) error {
-	i, err := srvc.repo.Itinerary.Read(itineraryID)
+func (srvc *TransferService) Create(transfer model.Transfer) error {
+	return srvc.repo.Transfer.Create(transfer)
+}
+
+func (srvc *TransferService) List() ([]model.Transfer, error) {
+	return srvc.repo.Transfer.List()
+}
+
+func (srvc *TransferService) Read(id uuid.UUID) (model.Transfer, error) {
+	return srvc.repo.Transfer.Read(id)
+}
+
+func (srvc *TransferService) Delete(id uuid.UUID) error {
+	return srvc.repo.Transfer.Delete(id)
+}
+
+func (srvc *TransferService) Run(id uuid.UUID) error {
+	transfer, err := srvc.repo.Transfer.Read(id)
 	if err != nil {
 		return err
 	}
 
-	from, err := srvc.repo.Location.Read(i.FromLocationID)
+	itinerary, err := srvc.repo.Itinerary.Read(transfer.ItineraryID)
 	if err != nil {
 		return err
 	}
 
-	to, err := srvc.repo.Location.Read(i.ToLocationID)
+	fromLocation, err := srvc.repo.Location.Read(itinerary.FromLocationID)
 	if err != nil {
 		return err
 	}
 
-	fromFS, err := from.Connect()
+	toLocation, err := srvc.repo.Location.Read(itinerary.ToLocationID)
 	if err != nil {
 		return err
 	}
 
-	toFS, err := to.Connect()
+	fromFS, err := fromLocation.Connect()
 	if err != nil {
 		return err
 	}
 
-	_, err = fileserver.Transfer(i.Pattern, fromFS, toFS)
+	toFS, err := toLocation.Connect()
+	if err != nil {
+		return err
+	}
+
+	// TODO: read status from xfer channel and update DB periodically
+	_, err = fileserver.Transfer(itinerary.Pattern, fromFS, toFS)
 	if err != nil {
 		return err
 	}
