@@ -1,4 +1,4 @@
-package transfer_test
+package service_test
 
 import (
 	"bytes"
@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/theandrew168/dripfile/backend/fileserver"
+	"github.com/theandrew168/dripfile/backend/service"
 	"github.com/theandrew168/dripfile/backend/test"
-	"github.com/theandrew168/dripfile/backend/transfer"
 )
 
 // TODO: Run tests for each FileServer impl
@@ -41,7 +41,7 @@ func TestTransfer(t *testing.T) {
 	test.AssertNilError(t, err)
 
 	// run the transfer
-	totalBytes, err := transfer.Transfer("*.txt", from, to)
+	totalBytes, err := service.Transfer("*.txt", from, to)
 	test.AssertNilError(t, err)
 	test.AssertEqual(t, totalBytes, size)
 

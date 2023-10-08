@@ -15,10 +15,6 @@ var _ FileServer = (*MemoryFileServer)(nil)
 
 type MemoryInfo struct{}
 
-func (info MemoryInfo) Validate() error {
-	return nil
-}
-
 type file struct {
 	info FileInfo
 	data *bytes.Buffer

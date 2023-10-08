@@ -20,7 +20,7 @@ func newRecord() *record {
 	return &r
 }
 
-func (r *record) ID() uuid.UUID {
+func (r *record) GetID() uuid.UUID {
 	return r.id
 }
 
@@ -55,9 +55,9 @@ func TestRead(t *testing.T) {
 	err := db.Create(r)
 	test.AssertNilError(t, err)
 
-	got, err := db.Read(r.ID())
+	got, err := db.Read(r.GetID())
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, got.ID(), r.ID())
+	test.AssertEqual(t, got.GetID(), r.GetID())
 }
 
 func TestReadNotFound(t *testing.T) {
@@ -85,12 +85,12 @@ func TestDelete(t *testing.T) {
 	err := db.Create(r)
 	test.AssertNilError(t, err)
 
-	_, err = db.Read(r.ID())
+	_, err = db.Read(r.GetID())
 	test.AssertNilError(t, err)
 
-	err = db.Delete(r.ID())
+	err = db.Delete(r.GetID())
 	test.AssertNilError(t, err)
 
-	_, err = db.Read(r.ID())
+	_, err = db.Read(r.GetID())
 	test.AssertErrorIs(t, err, memorydb.ErrNotFound)
 }

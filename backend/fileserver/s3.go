@@ -29,22 +29,6 @@ type S3Info struct {
 	SecretAccessKey string
 }
 
-func (info S3Info) Validate() error {
-	if info.Endpoint == "" {
-		return errors.New("empty S3 endpoint")
-	}
-	if info.Bucket == "" {
-		return errors.New("empty S3 bucket")
-	}
-	if info.AccessKeyID == "" {
-		return errors.New("empty S3 access key id")
-	}
-	if info.SecretAccessKey == "" {
-		return errors.New("empty S3 secret access key")
-	}
-	return nil
-}
-
 type S3FileServer struct {
 	info   S3Info
 	client *minio.Client
