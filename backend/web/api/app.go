@@ -30,7 +30,7 @@ func (app *Application) Handler() http.Handler {
 	mux.Use(middleware.RecoverPanic)
 	mux.Use(middleware.EnableCORS)
 
-	mux.HandleFunc("/", app.handleIndex, "GET")
+	mux.HandleFunc("/", app.handleIndex(), "GET")
 
 	return mux
 }
