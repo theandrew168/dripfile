@@ -10,8 +10,8 @@ export default function ErrorPage() {
 	if (isRouteErrorResponse(error)) {
 		statusCode = error.status;
 		statusText = error.statusText;
-		if (error.error?.message) {
-			message = error.error.message + ".";
+		if (error.data?.message) {
+			message = error.data.message + ".";
 		}
 	}
 
