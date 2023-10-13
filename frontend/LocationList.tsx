@@ -15,7 +15,7 @@ export default function LocationList() {
 
 	useEffect(() => {
 		const fetchLocations = async () => {
-			const response = await fetch("/api/v1/locations");
+			const response = await fetch("/api/v1/location");
 			const data: LocationListReponse = await response.json();
 			setLocations(data.locations);
 		};
@@ -28,7 +28,7 @@ export default function LocationList() {
 				<ul>
 					{locations.map((location) => (
 						<li key={location.id}>
-							<Link to={`/locations/${location.id}`}>{location.id}</Link> {location.kind}
+							<Link to={`/location/${location.id}`}>{location.id}</Link> {location.kind}
 						</li>
 					))}
 				</ul>

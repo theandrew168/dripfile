@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 
 	"github.com/theandrew168/dripfile/backend/memorydb"
@@ -37,9 +39,29 @@ func (repo *MemoryItineraryRepository) List() ([]model.Itinerary, error) {
 }
 
 func (repo *MemoryItineraryRepository) Read(id uuid.UUID) (model.Itinerary, error) {
-	return repo.db.Read(id)
+	itinerary, err := repo.db.Read(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, memorydb.ErrNotFound):
+			return model.Itinerary{}, ErrNotExist
+		default:
+			return model.Itinerary{}, err
+		}
+	}
+
+	return itinerary, nil
 }
 
 func (repo *MemoryItineraryRepository) Delete(id uuid.UUID) error {
-	return repo.db.Delete(id)
+	err := repo.db.Delete(id)
+	if err != nil {
+		switch {
+		case errors.Is(err, memorydb.ErrNotFound):
+			return ErrNotExist
+		default:
+			return err
+		}
+	}
+
+	return nil
 }

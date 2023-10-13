@@ -27,11 +27,11 @@ export default function App() {
 			),
 		},
 		{
-			path: "/locations",
+			path: "/location",
 			element: <LocationList />,
 		},
 		{
-			path: "/locations/:id",
+			path: "/location/:id",
 			element: <LocationRead />,
 		},
 	]);

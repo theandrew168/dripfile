@@ -14,7 +14,7 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 		Error: message,
 	}
 
-	err := writeJSON(w, status, resp)
+	err := writeJSON(w, status, resp, nil)
 	if err != nil {
 		app.logger.Error(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)

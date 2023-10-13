@@ -16,7 +16,7 @@ export default function LocationRead() {
 
 	useEffect(() => {
 		const fetchLocation = async () => {
-			const response = await fetch(`/api/v1/locations/${id}`);
+			const response = await fetch(`/api/v1/location/${id}`);
 			const data: LocationReadReponse = await response.json();
 			setLocation(data.location);
 		};

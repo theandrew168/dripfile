@@ -2,8 +2,6 @@ package model
 
 import "github.com/google/uuid"
 
-type TransferStatus string
-
 const (
 	TransferStatusPending  = "pending"
 	TransferStatusRunning  = "running"
@@ -14,7 +12,7 @@ type Transfer struct {
 	ID uuid.UUID
 
 	ItineraryID uuid.UUID
-	Status      TransferStatus
+	Status      string
 	Progress    int
 }
 

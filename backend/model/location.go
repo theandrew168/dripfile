@@ -8,8 +8,6 @@ import (
 	"github.com/theandrew168/dripfile/backend/fileserver"
 )
 
-type LocationKind string
-
 const (
 	LocationKindMemory = "memory"
 	LocationKindS3     = "s3"
@@ -22,7 +20,7 @@ var (
 type Location struct {
 	ID uuid.UUID
 
-	Kind       LocationKind
+	Kind       string
 	MemoryInfo fileserver.MemoryInfo
 	S3Info     fileserver.S3Info
 }

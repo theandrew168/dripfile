@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/backend/memorydb"
 	"github.com/theandrew168/dripfile/backend/model"
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/test"
@@ -53,7 +52,7 @@ func TestLocationRepositoryReadNotFound(t *testing.T) {
 	repo := repository.NewMemoryLocationRepository()
 
 	_, err := repo.Read(uuid.New())
-	test.AssertErrorIs(t, err, memorydb.ErrNotFound)
+	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
 func TestLocationRepositoryDelete(t *testing.T) {
@@ -71,5 +70,5 @@ func TestLocationRepositoryDelete(t *testing.T) {
 	test.AssertNilError(t, err)
 
 	_, err = repo.Read(location.ID)
-	test.AssertErrorIs(t, err, memorydb.ErrNotFound)
+	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
