@@ -1,6 +1,8 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 
 	"github.com/theandrew168/dripfile/backend/model"
@@ -18,7 +20,28 @@ func NewItineraryService(repo *repository.Repository) *ItineraryService {
 	return &srvc
 }
 
+// TODO: ever both with this? Or just let the DB error via FK constraint?
 func (srvc *ItineraryService) Create(itinerary model.Itinerary) error {
+	_, err := srvc.repo.Location.Read(itinerary.FromLocationID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repository.ErrNotExist):
+			return repository.ErrConflict
+		default:
+			return err
+		}
+	}
+
+	_, err = srvc.repo.Location.Read(itinerary.ToLocationID)
+	if err != nil {
+		switch {
+		case errors.Is(err, repository.ErrNotExist):
+			return repository.ErrConflict
+		default:
+			return err
+		}
+	}
+
 	return srvc.repo.Itinerary.Create(itinerary)
 }
 

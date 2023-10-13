@@ -16,8 +16,9 @@ import (
 )
 
 type Location struct {
-	ID   uuid.UUID `json:"id"`
-	Kind string    `json:"kind"`
+	ID uuid.UUID `json:"id"`
+
+	Kind string `json:"kind"`
 }
 
 func (app *Application) handleLocationCreate() http.HandlerFunc {

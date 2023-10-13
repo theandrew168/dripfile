@@ -9,6 +9,8 @@ var (
 	ErrNotExist = errors.New("repository: does not exist")
 
 	// storage errors
-	ErrRetry    = errors.New("repository: retry storage operation")
+	ErrRetry = errors.New("repository: retry storage operation")
+
+	// TODO: add metadata to this error? Like the column(s) causing the conflict?
 	ErrConflict = errors.New("repository: conflict in storage operation")
 )
