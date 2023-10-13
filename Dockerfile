@@ -27,7 +27,7 @@ FROM gcr.io/distroless/base-debian12
 WORKDIR /
 
 COPY --from=build-backend /dripfile /dripfile
-COPY dripfile.conf /dripfile.conf
+COPY dripfile.docker.conf /dripfile.conf
 
 USER nonroot:nonroot
 EXPOSE 5000

@@ -47,9 +47,13 @@ run-backend:
 .PHONY: run
 run: run-frontend run-backend
 
-.PHONY: image
-image:
+.PHONY: build-image
+build-image:
 	docker build -t dripfile .
+
+.PHONY: run-image
+run-image:
+	docker run -p 5000:5000 dripfile
 
 .PHONY: test
 test:

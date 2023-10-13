@@ -8,18 +8,21 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+const DefaultHost = "127.0.0.1"
 const DefaultPort = "5000"
 
 type Config struct {
 	SecretKey   string `toml:"secret_key"`
 	DatabaseURI string `toml:"database_uri"`
 	SMTPURI     string `toml:"smtp_uri"`
+	Host        string `toml:"host"`
 	Port        string `toml:"port"`
 }
 
 func Read(data string) (Config, error) {
 	// init Config struct with default values
 	cfg := Config{
+		Host: DefaultHost,
 		Port: DefaultPort,
 	}
 	meta, err := toml.Decode(data, &cfg)

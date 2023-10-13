@@ -12,6 +12,7 @@ const (
 	secretKey   = "secret"
 	databaseURI = "postgresql://foo:bar@localhost:5432/postgres"
 	smtpURI     = "smtp://foo:bar@localhost:587"
+	host        = "127.0.0.1"
 	port        = "5000"
 )
 
@@ -22,8 +23,9 @@ func TestRead(t *testing.T) {
 		secret_key = "%s"
 		database_uri = "%s"
 		smtp_uri = "%s"
+		host = "%s"
 		port = "%s"
-	`, secretKey, databaseURI, smtpURI, port)
+	`, secretKey, databaseURI, smtpURI, host, port)
 
 	cfg, err := config.Read(data)
 	test.AssertNilError(t, err)
@@ -31,6 +33,7 @@ func TestRead(t *testing.T) {
 	test.AssertEqual(t, cfg.SecretKey, secretKey)
 	test.AssertEqual(t, cfg.DatabaseURI, databaseURI)
 	test.AssertEqual(t, cfg.SMTPURI, smtpURI)
+	test.AssertEqual(t, cfg.Host, host)
 	test.AssertEqual(t, cfg.Port, port)
 }
 

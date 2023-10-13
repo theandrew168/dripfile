@@ -46,12 +46,13 @@ func run() int {
 		srvc,
 	)
 
-	// let port be overridable by an env var
+	// let port be overridden by an env var
 	port := cfg.Port
 	if os.Getenv("PORT") != "" {
 		port = os.Getenv("PORT")
 	}
-	addr := fmt.Sprintf("127.0.0.1:%s", port)
+
+	addr := fmt.Sprintf("%s:%s", cfg.Host, port)
 
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
