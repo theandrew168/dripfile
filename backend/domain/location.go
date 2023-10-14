@@ -15,6 +15,9 @@ const (
 
 var (
 	ErrLocationInvalidKind = errors.New("location: invalid kind")
+
+	// TODO: In use by what?
+	ErrLocationInUse = errors.New("location: in use")
 )
 
 // Aggregate with a single entity
@@ -84,8 +87,12 @@ func (l *Location) UsedBy() []uuid.UUID {
 	return l.usedBy
 }
 
-func (l *Location) CanDelete() bool {
-	return len(l.usedBy) == 0
+func (l *Location) CheckDelete() error {
+	if len(l.usedBy) > 0 {
+		return ErrLocationInUse
+	}
+
+	return nil
 }
 
 func (l *Location) Connect() (fileserver.FileServer, error) {

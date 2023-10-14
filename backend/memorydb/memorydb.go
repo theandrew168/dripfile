@@ -10,7 +10,7 @@ import (
 var ErrNotFound = errors.New("memorydb: record not found")
 
 type Record interface {
-	GetID() uuid.UUID
+	ID() uuid.UUID
 }
 
 type MemoryDB[R Record] struct {
@@ -29,7 +29,7 @@ func (db *MemoryDB[R]) Create(record R) error {
 	db.Lock()
 	defer db.Unlock()
 
-	db.data[record.GetID()] = record
+	db.data[record.ID()] = record
 	return nil
 }
 
@@ -62,7 +62,7 @@ func (db *MemoryDB[R]) Update(record R) error {
 	db.Lock()
 	defer db.Unlock()
 
-	db.data[record.GetID()] = record
+	db.data[record.ID()] = record
 	return nil
 }
 

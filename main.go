@@ -14,7 +14,6 @@ import (
 
 	"github.com/theandrew168/dripfile/backend/config"
 	"github.com/theandrew168/dripfile/backend/repository"
-	"github.com/theandrew168/dripfile/backend/service"
 	"github.com/theandrew168/dripfile/backend/web"
 )
 
@@ -38,12 +37,11 @@ func run() int {
 	}
 
 	repo := repository.NewMemory()
-	srvc := service.New(repo)
 
 	app := web.NewApplication(
 		logger,
 		publicFS,
-		srvc,
+		repo,
 	)
 
 	// let port be overridden by an env var

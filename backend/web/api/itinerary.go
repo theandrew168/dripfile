@@ -7,7 +7,7 @@ import (
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
-	"github.com/theandrew168/dripfile/backend/model"
+	"github.com/theandrew168/dripfile/backend/domain"
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/validator"
 )
@@ -50,11 +50,11 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		// check if provided IDs are valid UUIDs
 		fromLocationID, err := uuid.Parse(req.FromLocationID)
 		if err != nil {
-			v.AddError("from_location_id", "must be a valid UUID")
+			v.AddError("from_location_id", "must be the ID of an existing location")
 		}
 		toLocationID, err := uuid.Parse(req.ToLocationID)
 		if err != nil {
-			v.AddError("to_location_id", "must be a valid UUID")
+			v.AddError("to_location_id", "must be the ID of an existing location")
 		}
 
 		if !v.Valid() {
@@ -62,9 +62,40 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 			return
 		}
 
-		itinerary := model.NewItinerary(req.Pattern, fromLocationID, toLocationID)
+		from, err := app.repo.Location.Read(fromLocationID)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				v.AddError("from_location_id", "must be the ID of an existing location")
+			default:
+				app.serverErrorResponse(w, r, err)
+				return
+			}
+		}
 
-		err = app.srvc.Itinerary.Create(itinerary)
+		to, err := app.repo.Location.Read(toLocationID)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				v.AddError("to_location_id", "must be the ID of an existing location")
+			default:
+				app.serverErrorResponse(w, r, err)
+				return
+			}
+		}
+
+		// check if provided IDs correspond to existing entities
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
+			return
+		}
+
+		itinerary, err := domain.NewItinerary(req.Pattern, from, to)
+		if err != nil {
+			v.AddError("itinerary", err.Error())
+		}
+
+		err = app.repo.Itinerary.Create(itinerary)
 		if err != nil {
 			switch {
 			case errors.Is(err, repository.ErrConflict):
@@ -77,17 +108,17 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		}
 
 		apiItinerary := Itinerary{
-			ID:             itinerary.ID,
-			Pattern:        itinerary.Pattern,
-			FromLocationID: itinerary.FromLocationID,
-			ToLocationID:   itinerary.ToLocationID,
+			ID:             itinerary.ID(),
+			Pattern:        itinerary.Pattern(),
+			FromLocationID: itinerary.FromLocationID(),
+			ToLocationID:   itinerary.ToLocationID(),
 		}
 		resp := response{
 			Itinerary: apiItinerary,
 		}
 
 		header := make(http.Header)
-		header.Set("Location", fmt.Sprintf("/api/v1/itinerary/%s", itinerary.ID))
+		header.Set("Location", fmt.Sprintf("/api/v1/itinerary/%s", itinerary.ID()))
 
 		err = writeJSON(w, http.StatusCreated, resp, header)
 		if err != nil {

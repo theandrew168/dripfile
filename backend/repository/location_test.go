@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/backend/model"
+	"github.com/theandrew168/dripfile/backend/domain"
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/test"
 )
@@ -13,62 +13,66 @@ import (
 // TODO: Run tests for each Repository impl
 
 func TestLocationRepositoryCreate(t *testing.T) {
-	repo := repository.NewMemoryLocationRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
 
-	location := model.NewMemoryLocation()
+	location, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
 
-	err := repo.Create(location)
+	err = locationRepo.Create(location)
 	test.AssertNilError(t, err)
 }
 
 func TestLocationRepositoryList(t *testing.T) {
-	repo := repository.NewMemoryLocationRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
 
-	location := model.NewMemoryLocation()
-
-	err := repo.Create(location)
+	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	ls, err := repo.List()
+	err = locationRepo.Create(location)
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, len(ls), 1)
+
+	locations, err := locationRepo.List()
+	test.AssertNilError(t, err)
+	test.AssertEqual(t, len(locations), 1)
 }
 
 func TestLocationRepositoryRead(t *testing.T) {
-	repo := repository.NewMemoryLocationRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
 
-	location := model.NewMemoryLocation()
-
-	err := repo.Create(location)
+	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	got, err := repo.Read(location.ID)
+	err = locationRepo.Create(location)
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, got.ID, location.ID)
-	test.AssertEqual(t, got.Kind, location.Kind)
+
+	got, err := locationRepo.Read(location.ID())
+	test.AssertNilError(t, err)
+	test.AssertEqual(t, got.ID(), location.ID())
+	test.AssertEqual(t, got.Kind(), location.Kind())
 }
 
 func TestLocationRepositoryReadNotFound(t *testing.T) {
-	repo := repository.NewMemoryLocationRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
 
-	_, err := repo.Read(uuid.New())
+	_, err := locationRepo.Read(uuid.New())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
 func TestLocationRepositoryDelete(t *testing.T) {
-	repo := repository.NewMemoryLocationRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
 
-	location := model.NewMemoryLocation()
-
-	err := repo.Create(location)
+	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	_, err = repo.Read(location.ID)
+	err = locationRepo.Create(location)
 	test.AssertNilError(t, err)
 
-	err = repo.Delete(location.ID)
+	_, err = locationRepo.Read(location.ID())
 	test.AssertNilError(t, err)
 
-	_, err = repo.Read(location.ID)
+	err = locationRepo.Delete(location)
+	test.AssertNilError(t, err)
+
+	_, err = locationRepo.Read(location.ID())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }

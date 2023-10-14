@@ -59,6 +59,6 @@ func (i *Itinerary) ToLocationID() uuid.UUID {
 	return i.toLocationID
 }
 
-func (i *Itinerary) CanDelete() bool {
-	return true
+func (i *Itinerary) CheckDelete() error {
+	return nil
 }

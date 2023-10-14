@@ -10,7 +10,7 @@ import (
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/backend/model"
+	"github.com/theandrew168/dripfile/backend/domain"
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/validator"
 )
@@ -60,7 +60,7 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		}
 
 		v.Check(
-			validator.PermittedValue(req.Kind, model.LocationKindMemory, model.LocationKindS3),
+			validator.PermittedValue(req.Kind, domain.LocationKindMemory, domain.LocationKindS3),
 			"kind",
 			"must be one of: memory, s3",
 		)
@@ -70,8 +70,8 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		}
 
 		// read more specific details based on the "kind"
-		var location model.Location
-		if req.Kind == model.LocationKindMemory {
+		var location *domain.Location
+		if req.Kind == domain.LocationKindMemory {
 			var req requestMemory
 			err = readJSON(bytes.NewReader(b), &req, true)
 			if err != nil {
@@ -84,8 +84,11 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 				return
 			}
 
-			location = model.NewMemoryLocation()
-		} else if req.Kind == model.LocationKindS3 {
+			location, err = domain.NewMemoryLocation()
+			if err != nil {
+				v.AddError("location", err.Error())
+			}
+		} else if req.Kind == domain.LocationKindS3 {
 			var req requestS3
 			err = readJSON(bytes.NewReader(b), &req, true)
 			if err != nil {
@@ -102,12 +105,15 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 				return
 			}
 
-			location = model.NewS3Location(
+			location, err = domain.NewS3Location(
 				req.Endpoint,
 				req.Bucket,
 				req.AccessKeyID,
 				req.SecretAccessKey,
 			)
+			if err != nil {
+				v.AddError("location", err.Error())
+			}
 		}
 
 		// check if new location is valid
@@ -117,7 +123,7 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		}
 
 		// create the new location
-		err = app.srvc.Location.Create(location)
+		err = app.repo.Location.Create(location)
 		if err != nil {
 			switch {
 			case errors.Is(err, repository.ErrConflict):
@@ -130,15 +136,15 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		}
 
 		apiLocation := Location{
-			ID:   location.ID,
-			Kind: location.Kind,
+			ID:   location.ID(),
+			Kind: location.Kind(),
 		}
 		resp := response{
 			Location: apiLocation,
 		}
 
 		header := make(http.Header)
-		header.Set("Location", fmt.Sprintf("/api/v1/location/%s", location.ID))
+		header.Set("Location", fmt.Sprintf("/api/v1/location/%s", location.ID()))
 
 		err = writeJSON(w, http.StatusCreated, resp, header)
 		if err != nil {
@@ -154,7 +160,7 @@ func (app *Application) handleLocationList() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		locations, err := app.srvc.Location.List()
+		locations, err := app.repo.Location.List()
 		if err != nil {
 			app.serverErrorResponse(w, r, err)
 			return
@@ -164,8 +170,8 @@ func (app *Application) handleLocationList() http.HandlerFunc {
 		apiLocations := make([]Location, 0)
 		for _, location := range locations {
 			apiLocation := Location{
-				ID:   location.ID,
-				Kind: location.Kind,
+				ID:   location.ID(),
+				Kind: location.Kind(),
 			}
 			apiLocations = append(apiLocations, apiLocation)
 		}
@@ -194,7 +200,7 @@ func (app *Application) handleLocationRead() http.HandlerFunc {
 			return
 		}
 
-		location, err := app.srvc.Location.Read(id)
+		location, err := app.repo.Location.Read(id)
 		if err != nil {
 			switch {
 			case errors.Is(err, repository.ErrNotExist):
@@ -207,8 +213,8 @@ func (app *Application) handleLocationRead() http.HandlerFunc {
 		}
 
 		apiLocation := Location{
-			ID:   location.ID,
-			Kind: location.Kind,
+			ID:   location.ID(),
+			Kind: location.Kind(),
 		}
 		resp := response{
 			Location: apiLocation,
@@ -230,11 +236,25 @@ func (app *Application) handleLocationDelete() http.HandlerFunc {
 			return
 		}
 
-		err = app.srvc.Location.Delete(id)
+		location, err := app.repo.Location.Read(id)
 		if err != nil {
 			switch {
 			case errors.Is(err, repository.ErrNotExist):
 				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+
+			return
+		}
+
+		err = app.repo.Location.Delete(location)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				app.notFoundResponse(w, r)
+			case errors.Is(err, domain.ErrLocationInUse):
+				app.conflictResponse(w, r)
 			default:
 				app.serverErrorResponse(w, r, err)
 			}

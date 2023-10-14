@@ -5,7 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/theandrew168/dripfile/backend/model"
+	"github.com/theandrew168/dripfile/backend/domain"
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/test"
 )
@@ -13,80 +13,128 @@ import (
 // TODO: Run tests for each Repository impl
 
 func TestItineraryRepositoryCreate(t *testing.T) {
-	repo := repository.NewMemoryItineraryRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
+	itineraryRepo := repository.NewMemoryItineraryRepository()
 
-	pattern := "*.txt"
-	fromLocationID := uuid.New()
-	toLocationID := uuid.New()
+	from, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
 
-	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
+	err = locationRepo.Create(from)
+	test.AssertNilError(t, err)
 
-	err := repo.Create(itinerary)
+	to, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = locationRepo.Create(to)
+	test.AssertNilError(t, err)
+
+	pattern := "*"
+
+	itinerary, err := domain.NewItinerary(pattern, from, to)
+	test.AssertNilError(t, err)
+
+	err = itineraryRepo.Create(itinerary)
 	test.AssertNilError(t, err)
 }
 
 func TestItineraryRepositoryList(t *testing.T) {
-	repo := repository.NewMemoryItineraryRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
+	itineraryRepo := repository.NewMemoryItineraryRepository()
 
-	pattern := "*.txt"
-	fromLocationID := uuid.New()
-	toLocationID := uuid.New()
-
-	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
-
-	err := repo.Create(itinerary)
+	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	is, err := repo.List()
+	err = locationRepo.Create(from)
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, len(is), 1)
+
+	to, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = locationRepo.Create(to)
+	test.AssertNilError(t, err)
+
+	pattern := "*"
+
+	itinerary, err := domain.NewItinerary(pattern, from, to)
+	test.AssertNilError(t, err)
+
+	err = itineraryRepo.Create(itinerary)
+	test.AssertNilError(t, err)
+
+	itineraries, err := itineraryRepo.List()
+	test.AssertNilError(t, err)
+	test.AssertEqual(t, len(itineraries), 1)
 }
 
 func TestItineraryRepositoryRead(t *testing.T) {
-	repo := repository.NewMemoryItineraryRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
+	itineraryRepo := repository.NewMemoryItineraryRepository()
 
-	pattern := "*.txt"
-	fromLocationID := uuid.New()
-	toLocationID := uuid.New()
-
-	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
-
-	err := repo.Create(itinerary)
+	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	got, err := repo.Read(itinerary.ID)
+	err = locationRepo.Create(from)
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, got.ID, itinerary.ID)
-	test.AssertEqual(t, got.Pattern, itinerary.Pattern)
-	test.AssertEqual(t, got.FromLocationID, itinerary.FromLocationID)
-	test.AssertEqual(t, got.ToLocationID, itinerary.ToLocationID)
+
+	to, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = locationRepo.Create(to)
+	test.AssertNilError(t, err)
+
+	pattern := "*"
+
+	itinerary, err := domain.NewItinerary(pattern, from, to)
+	test.AssertNilError(t, err)
+
+	err = itineraryRepo.Create(itinerary)
+	test.AssertNilError(t, err)
+
+	got, err := itineraryRepo.Read(itinerary.ID())
+	test.AssertNilError(t, err)
+	test.AssertEqual(t, got.ID(), itinerary.ID())
+	test.AssertEqual(t, got.Pattern(), itinerary.Pattern())
+	test.AssertEqual(t, got.FromLocationID(), itinerary.FromLocationID())
+	test.AssertEqual(t, got.ToLocationID(), itinerary.ToLocationID())
 }
 
 func TestItineraryRepositoryReadNotFound(t *testing.T) {
-	repo := repository.NewMemoryItineraryRepository()
+	itineraryRepo := repository.NewMemoryItineraryRepository()
 
-	_, err := repo.Read(uuid.New())
+	_, err := itineraryRepo.Read(uuid.New())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
 func TestItineraryRepositoryDelete(t *testing.T) {
-	repo := repository.NewMemoryItineraryRepository()
+	locationRepo := repository.NewMemoryLocationRepository()
+	itineraryRepo := repository.NewMemoryItineraryRepository()
 
-	pattern := "*.txt"
-	fromLocationID := uuid.New()
-	toLocationID := uuid.New()
-
-	itinerary := model.NewItinerary(pattern, fromLocationID, toLocationID)
-
-	err := repo.Create(itinerary)
+	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	_, err = repo.Read(itinerary.ID)
+	err = locationRepo.Create(from)
 	test.AssertNilError(t, err)
 
-	err = repo.Delete(itinerary.ID)
+	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	_, err = repo.Read(itinerary.ID)
+	err = locationRepo.Create(to)
+	test.AssertNilError(t, err)
+
+	pattern := "*"
+
+	itinerary, err := domain.NewItinerary(pattern, from, to)
+	test.AssertNilError(t, err)
+
+	err = itineraryRepo.Create(itinerary)
+	test.AssertNilError(t, err)
+
+	_, err = itineraryRepo.Read(itinerary.ID())
+	test.AssertNilError(t, err)
+
+	err = itineraryRepo.Delete(itinerary.ID())
+	test.AssertNilError(t, err)
+
+	_, err = itineraryRepo.Read(itinerary.ID())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }

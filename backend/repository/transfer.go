@@ -5,47 +5,47 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/theandrew168/dripfile/backend/domain"
 	"github.com/theandrew168/dripfile/backend/memorydb"
-	"github.com/theandrew168/dripfile/backend/model"
 )
 
 // ensure TransferRepository interface is satisfied
 var _ TransferRepository = (*MemoryTransferRepository)(nil)
 
 type TransferRepository interface {
-	Create(transfer model.Transfer) error
-	List() ([]model.Transfer, error)
-	Read(id uuid.UUID) (model.Transfer, error)
+	Create(transfer *domain.Transfer) error
+	List() ([]*domain.Transfer, error)
+	Read(id uuid.UUID) (*domain.Transfer, error)
 	Delete(id uuid.UUID) error
 }
 
 type MemoryTransferRepository struct {
-	db *memorydb.MemoryDB[model.Transfer]
+	db *memorydb.MemoryDB[*domain.Transfer]
 }
 
 func NewMemoryTransferRepository() *MemoryTransferRepository {
 	repo := MemoryTransferRepository{
-		db: memorydb.New[model.Transfer](),
+		db: memorydb.New[*domain.Transfer](),
 	}
 	return &repo
 }
 
-func (repo *MemoryTransferRepository) Create(transfer model.Transfer) error {
+func (repo *MemoryTransferRepository) Create(transfer *domain.Transfer) error {
 	return repo.db.Create(transfer)
 }
 
-func (repo *MemoryTransferRepository) List() ([]model.Transfer, error) {
+func (repo *MemoryTransferRepository) List() ([]*domain.Transfer, error) {
 	return repo.db.List()
 }
 
-func (repo *MemoryTransferRepository) Read(id uuid.UUID) (model.Transfer, error) {
+func (repo *MemoryTransferRepository) Read(id uuid.UUID) (*domain.Transfer, error) {
 	transfer, err := repo.db.Read(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, memorydb.ErrNotFound):
-			return model.Transfer{}, ErrNotExist
+			return nil, ErrNotExist
 		default:
-			return model.Transfer{}, err
+			return nil, err
 		}
 	}
 

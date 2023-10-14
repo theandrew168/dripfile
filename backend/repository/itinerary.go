@@ -5,47 +5,47 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/theandrew168/dripfile/backend/domain"
 	"github.com/theandrew168/dripfile/backend/memorydb"
-	"github.com/theandrew168/dripfile/backend/model"
 )
 
 // ensure ItineraryRepository interface is satisfied
 var _ ItineraryRepository = (*MemoryItineraryRepository)(nil)
 
 type ItineraryRepository interface {
-	Create(itinerary model.Itinerary) error
-	List() ([]model.Itinerary, error)
-	Read(id uuid.UUID) (model.Itinerary, error)
+	Create(itinerary *domain.Itinerary) error
+	List() ([]*domain.Itinerary, error)
+	Read(id uuid.UUID) (*domain.Itinerary, error)
 	Delete(id uuid.UUID) error
 }
 
 type MemoryItineraryRepository struct {
-	db *memorydb.MemoryDB[model.Itinerary]
+	db *memorydb.MemoryDB[*domain.Itinerary]
 }
 
 func NewMemoryItineraryRepository() *MemoryItineraryRepository {
 	repo := MemoryItineraryRepository{
-		db: memorydb.New[model.Itinerary](),
+		db: memorydb.New[*domain.Itinerary](),
 	}
 	return &repo
 }
 
-func (repo *MemoryItineraryRepository) Create(itinerary model.Itinerary) error {
+func (repo *MemoryItineraryRepository) Create(itinerary *domain.Itinerary) error {
 	return repo.db.Create(itinerary)
 }
 
-func (repo *MemoryItineraryRepository) List() ([]model.Itinerary, error) {
+func (repo *MemoryItineraryRepository) List() ([]*domain.Itinerary, error) {
 	return repo.db.List()
 }
 
-func (repo *MemoryItineraryRepository) Read(id uuid.UUID) (model.Itinerary, error) {
+func (repo *MemoryItineraryRepository) Read(id uuid.UUID) (*domain.Itinerary, error) {
 	itinerary, err := repo.db.Read(id)
 	if err != nil {
 		switch {
 		case errors.Is(err, memorydb.ErrNotFound):
-			return model.Itinerary{}, ErrNotExist
+			return nil, ErrNotExist
 		default:
-			return model.Itinerary{}, err
+			return nil, err
 		}
 	}
 

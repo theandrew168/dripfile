@@ -59,6 +59,5 @@ func TestItineraryCanDelete(t *testing.T) {
 	itinerary, err := domain.NewItinerary(pattern, from, to)
 	test.AssertNilError(t, err)
 
-	test.AssertEqual(t, itinerary.CanDelete(), true)
-
+	test.AssertNilError(t, itinerary.CheckDelete())
 }
