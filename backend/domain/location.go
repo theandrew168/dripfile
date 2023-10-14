@@ -1,0 +1,104 @@
+package domain
+
+import (
+	"errors"
+
+	"github.com/google/uuid"
+
+	"github.com/theandrew168/dripfile/backend/fileserver"
+)
+
+const (
+	LocationKindMemory = "memory"
+	LocationKindS3     = "s3"
+)
+
+var (
+	ErrLocationInvalidKind = errors.New("location: invalid kind")
+)
+
+// Aggregate with a single entity
+type Location struct {
+	id uuid.UUID
+
+	kind       string
+	memoryInfo fileserver.MemoryInfo
+	s3Info     fileserver.S3Info
+
+	usedBy []uuid.UUID
+}
+
+// Factory func for creating a new in-memory location
+func NewMemoryLocation() (*Location, error) {
+	info := fileserver.MemoryInfo{}
+
+	l := Location{
+		id: uuid.New(),
+
+		kind:       LocationKindMemory,
+		memoryInfo: info,
+	}
+	return &l, nil
+}
+
+// Factory func for creating a new S3 location
+func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) (*Location, error) {
+	if endpoint == "" {
+		return nil, errors.New("location: empty S3 endpoint")
+	}
+	if bucket == "" {
+		return nil, errors.New("location: empty S3 bucket")
+	}
+	if accessKeyID == "" {
+		return nil, errors.New("location: empty S3 access key id")
+	}
+	if secretAccessKey == "" {
+		return nil, errors.New("location: empty S3 secret access key")
+	}
+
+	info := fileserver.S3Info{
+		Endpoint:        endpoint,
+		Bucket:          bucket,
+		AccessKeyID:     accessKeyID,
+		SecretAccessKey: secretAccessKey,
+	}
+
+	l := Location{
+		id: uuid.New(),
+
+		kind:   LocationKindS3,
+		s3Info: info,
+	}
+	return &l, nil
+}
+
+func (l *Location) ID() uuid.UUID {
+	return l.id
+}
+
+func (l *Location) Kind() string {
+	return l.kind
+}
+
+func (l *Location) UsedBy() []uuid.UUID {
+	return l.usedBy
+}
+
+func (l *Location) CanDelete() bool {
+	return len(l.usedBy) == 0
+}
+
+func (l *Location) Connect() (fileserver.FileServer, error) {
+	switch l.kind {
+	case LocationKindMemory:
+		return fileserver.NewMemory(l.memoryInfo)
+	case LocationKindS3:
+		return fileserver.NewS3(l.s3Info)
+	default:
+		return nil, ErrLocationInvalidKind
+	}
+}
+
+func (l *Location) useBy(itinerary *Itinerary) {
+	l.usedBy = append(l.usedBy, itinerary.ID())
+}
