@@ -5,16 +5,13 @@ import Image from "./Image";
 import ErrorPage from "./ErrorPage";
 import LocationList from "./LocationList";
 import LocationRead from "./LocationRead";
+import NavBar from "./NavBar";
 
 export default function App() {
 	const router = createBrowserRouter([
 		{
 			path: "/",
-			element: (
-				<div>
-					Hello router! <a href="/image">View an image!</a>
-				</div>
-			),
+			element: <NavBar />,
 			errorElement: <ErrorPage />,
 		},
 		{
