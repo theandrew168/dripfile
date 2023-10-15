@@ -118,7 +118,7 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		}
 
 		header := make(http.Header)
-		header.Set("Location", fmt.Sprintf("/api/v1/itinerary/%s", itinerary.ID()))
+		header.Set("Location", fmt.Sprintf("/api/v1/itineraries/%s", itinerary.ID()))
 
 		err = writeJSON(w, http.StatusCreated, resp, header)
 		if err != nil {

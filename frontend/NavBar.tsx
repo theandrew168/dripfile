@@ -1,29 +1,33 @@
 import React, { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-
-const user = {
-	name: "Andrew Dailey",
-	email: "andrew@shallowbrooksoftware.com",
-	imageUrl: "https://avatars.githubusercontent.com/u/13205759",
-};
-const navigation = [
-	{ name: "Dashboard", href: "#", current: true },
-	{ name: "Locations", href: "#", current: false },
-	{ name: "Itineraries", href: "#", current: false },
-	{ name: "Transfers", href: "#", current: false },
-];
-const userNavigation = [
-	{ name: "Your Profile", href: "#" },
-	{ name: "Settings", href: "#" },
-	{ name: "Sign out", href: "#" },
-];
+import { Outlet, useLocation } from "react-router";
+import { Link } from "react-router-dom";
 
 function classNames(...classes: string[]): string {
 	return classes.filter(Boolean).join(" ");
 }
 
-function NavBar() {
+export default function NavBar() {
+	const location = useLocation();
+
+	const user = {
+		name: "Andrew Dailey",
+		email: "andrew@shallowbrooksoftware.com",
+		imageUrl: "https://avatars.githubusercontent.com/u/13205759",
+	};
+	const navigation = [
+		{ name: "Dashboard", href: "/", current: location.pathname === "/" },
+		{ name: "Locations", href: "/locations", current: location.pathname.startsWith("/locations") },
+		{ name: "Itineraries", href: "#", current: location.pathname.startsWith("/itineraries") },
+		{ name: "Transfers", href: "#", current: location.pathname.startsWith("/transfers") },
+	];
+	const userNavigation = [
+		{ name: "Your Profile", href: "#" },
+		{ name: "Settings", href: "#" },
+		{ name: "Sign out", href: "#" },
+	];
+
 	return (
 		<html className="h-full bg-gray-100">
 			<body className="h-full">
@@ -40,9 +44,9 @@ function NavBar() {
 											<div className="hidden md:block">
 												<div className="ml-10 flex items-baseline space-x-4">
 													{navigation.map((item) => (
-														<a
+														<Link
 															key={item.name}
-															href={item.href}
+															to={item.href}
 															className={classNames(
 																item.current
 																	? "bg-indigo-700 text-white"
@@ -52,7 +56,7 @@ function NavBar() {
 															aria-current={item.current ? "page" : undefined}
 														>
 															{item.name}
-														</a>
+														</Link>
 													))}
 												</div>
 											</div>
@@ -90,15 +94,15 @@ function NavBar() {
 															{userNavigation.map((item) => (
 																<Menu.Item key={item.name}>
 																	{({ active }) => (
-																		<a
-																			href={item.href}
+																		<Link
+																			to={item.href}
 																			className={classNames(
 																				active ? "bg-gray-100" : "",
 																				"block px-4 py-2 text-sm text-gray-700",
 																			)}
 																		>
 																			{item.name}
-																		</a>
+																		</Link>
 																	)}
 																</Menu.Item>
 															))}
@@ -182,13 +186,13 @@ function NavBar() {
 							<h1 className="text-lg font-semibold leading-6 text-gray-900">Dashboard</h1>
 						</div>
 					</header>
-					<main>
-						<div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">{/* Your content */}</div>
+					<main className="h-full">
+						<div className="h-full mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+							<Outlet />
+						</div>
 					</main>
 				</div>
 			</body>
 		</html>
 	);
 }
-
-export default NavBar;

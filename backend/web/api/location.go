@@ -144,7 +144,7 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		}
 
 		header := make(http.Header)
-		header.Set("Location", fmt.Sprintf("/api/v1/location/%s", location.ID()))
+		header.Set("Location", fmt.Sprintf("/api/v1/locations/%s", location.ID()))
 
 		err = writeJSON(w, http.StatusCreated, resp, header)
 		if err != nil {
