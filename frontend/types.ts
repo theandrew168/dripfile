@@ -6,3 +6,7 @@ export type Location = {
 export type LocationListResponse = {
 	locations: Location[];
 };
+
+export type LocationReadResponse = {
+	location: Location;
+};

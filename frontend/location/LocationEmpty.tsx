@@ -1,5 +1,6 @@
 import React from "react";
 import { PlusIcon } from "@heroicons/react/20/solid";
+import { Link } from "react-router-dom";
 
 export default function LocationEmpty() {
 	return (
@@ -22,13 +23,13 @@ export default function LocationEmpty() {
 			<h3 className="mt-2 text-sm font-semibold text-gray-900">No locations</h3>
 			<p className="mt-1 text-sm text-gray-500">Get started by adding a new location.</p>
 			<div className="mt-6">
-				<button
-					type="button"
+				<Link
+					to="/locations/create"
 					className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 				>
 					<PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
 					New Location
-				</button>
+				</Link>
 			</div>
 		</div>
 	);

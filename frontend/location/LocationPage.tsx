@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 
-import type { Location, LocationListResponse } from "./types";
+import type { Location, LocationListResponse } from "../types";
 import LocationEmpty from "./LocationEmpty";
 import LocationList from "./LocationList";
 

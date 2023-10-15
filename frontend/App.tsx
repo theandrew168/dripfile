@@ -2,8 +2,11 @@ import React from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ErrorPage from "./ErrorPage";
-import LocationPage from "./LocationPage";
-import LocationRead from "./LocationRead";
+import LocationCreate from "./location/LocationCreate";
+import LocationCreateInMemory from "./location/LocationCreateInMemory";
+import LocationCreateS3 from "./location/LocationCreateS3";
+import LocationPage from "./location/LocationPage";
+import LocationRead from "./location/LocationRead";
 import NavBar from "./NavBar";
 
 export default function App() {
@@ -16,6 +19,18 @@ export default function App() {
 				{
 					path: "/locations",
 					element: <LocationPage />,
+				},
+				{
+					path: "/locations/create",
+					element: <LocationCreate />,
+				},
+				{
+					path: "/locations/create/in-memory",
+					element: <LocationCreateInMemory />,
+				},
+				{
+					path: "/locations/create/s3",
+					element: <LocationCreateS3 />,
 				},
 				{
 					path: "/locations/:id",

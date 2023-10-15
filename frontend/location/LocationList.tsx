@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { Location } from "./types";
+import type { Location } from "../types";
 import { Link } from "react-router-dom";
 
 type Props = {
@@ -16,12 +16,12 @@ export default function LocationList({ locations }: Props) {
 					<p className="mt-2 text-sm text-gray-700">A list of all the locations where your data lives.</p>
 				</div>
 				<div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-					<button
-						type="button"
+					<Link
+						to="/locations/create"
 						className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 					>
 						Add location
-					</button>
+					</Link>
 				</div>
 			</div>
 			<div className="mt-8 flow-root">
