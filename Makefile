@@ -81,7 +81,7 @@ format: format-frontend format-backend
 
 .PHONY: update-frontend
 update-frontend:
-	npm update
+	npm update --save
 
 .PHONY: update-backend
 update-backend:

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 
 type Location = {
@@ -12,23 +13,35 @@ type LocationReadReponse = {
 
 export default function LocationRead() {
 	const { id } = useParams();
-	const [location, setLocation] = useState<Location | null>(null);
 
-	useEffect(() => {
-		const fetchLocation = async () => {
+	const { isPending, isError, error, data } = useQuery({
+		queryKey: ["locations", id],
+		queryFn: async () => {
 			const response = await fetch(`/api/v1/locations/${id}`);
-			const data: LocationReadReponse = await response.json();
-			setLocation(data.location);
-		};
-		fetchLocation();
-	}, []);
+			if (!response.ok) {
+				throw new Error("Network response was not OK");
+			}
 
+			const data: LocationReadReponse = await response.json();
+			return data;
+		},
+	});
+
+	// TODO: build a generic loading component
+	if (isPending) {
+		return <div>Loading...</div>;
+	}
+
+	// TODO: build a generic error component
+	if (isError) {
+		return <div>Error: {error.message}</div>;
+	}
+
+	const location = data.location;
 	return (
-		location && (
-			<div>
-				<p>ID: {location.id}</p>
-				<p>Kind: {location.kind}</p>
-			</div>
-		)
+		<div>
+			<p>ID: {location.id}</p>
+			<p>Kind: {location.kind}</p>
+		</div>
 	);
 }

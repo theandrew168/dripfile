@@ -1,9 +1,9 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { ChevronRightIcon } from "@heroicons/react/20/solid";
 import { CircleStackIcon, CpuChipIcon } from "@heroicons/react/24/outline";
 
 import { classNames } from "../utils";
-import { Link } from "react-router-dom";
 
 const items = [
 	{
