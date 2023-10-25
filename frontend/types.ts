@@ -1,12 +1,7 @@
-export type Location = {
-	id: string;
-	kind: string;
-};
+export type ErrorResponse = {
+	error: string;
+}
 
-export type LocationListResponse = {
-	locations: Location[];
-};
-
-export type LocationReadResponse = {
-	location: Location;
-};
+export function isErrorResponse(response: any): response is ErrorResponse {
+	return 'error' in response;
+}

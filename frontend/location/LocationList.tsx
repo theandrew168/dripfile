@@ -1,6 +1,6 @@
 import React from "react";
 
-import type { Location } from "../types";
+import type { Location } from "./types";
 import { Link } from "react-router-dom";
 
 type Props = {
@@ -8,6 +8,7 @@ type Props = {
 };
 
 export default function LocationList({ locations }: Props) {
+	// https://tailwindui.com/components/application-ui/lists/tables#component-4738eac883e67bf84a9f7db2446e838a
 	return (
 		<>
 			<div className="sm:flex sm:items-center">

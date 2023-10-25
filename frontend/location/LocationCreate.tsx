@@ -23,6 +23,7 @@ const items = [
 ];
 
 export default function LocationCreate() {
+	// https://tailwindui.com/components/application-ui/feedback/empty-states#component-fdd158a00f60e3f9cdf9415b5835e139
 	return (
 		<div className="mt-24 mx-auto max-w-lg">
 			<h2 className="text-base font-semibold leading-6 text-gray-900">Add your first location</h2>

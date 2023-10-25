@@ -15,6 +15,7 @@ export default function ErrorPage() {
 		}
 	}
 
+	// https://tailwindui.com/components/marketing/feedback/404-pages#component-ebef3404d06e7b5f42e85b7b2ca4a2a5
 	return (
 		<main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
 			<div className="text-center">

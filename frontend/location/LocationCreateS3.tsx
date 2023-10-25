@@ -30,6 +30,7 @@ export default function LocationCreateS3() {
 		navigate(`/locations/${data.location.id}`);
 	};
 
+	// https://tailwindui.com/components/application-ui/forms/form-layouts#component-dcf2bee8aa4fbef0d4623df5b9718da8
 	return (
 		<div className="space-y-10 divide-y divide-gray-900/10">
 			<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
@@ -115,8 +116,10 @@ export default function LocationCreateS3() {
 						</div>
 					</div>
 					<div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-						<Link to="/locations/create" type="button" className="text-sm font-semibold leading-6 text-gray-900">
-							Cancel
+						<Link to="/locations/create">
+							<button type="button" className="text-sm font-semibold leading-6 text-gray-900">
+								Cancel
+							</button>
 						</Link>
 						<button
 							onClick={async (e) => {

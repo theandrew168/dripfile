@@ -26,6 +26,7 @@ export default function NavBar() {
 		{ name: "Sign out", href: "#" },
 	];
 
+	// https://tailwindui.com/components/application-ui/application-shells/stacked#component-e1d4a342c5903e8ade21c57c20448d69
 	return (
 		<div className="min-h-full">
 			<Disclosure as="nav" className="bg-indigo-600">

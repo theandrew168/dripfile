@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 
-import type { LocationListResponse } from "../types";
+import type { LocationListResponse } from "./types";
 import LocationEmpty from "./LocationEmpty";
 import LocationList from "./LocationList";
 

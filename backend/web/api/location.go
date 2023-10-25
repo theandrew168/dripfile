@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
@@ -41,6 +42,8 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		time.Sleep(1 * time.Second)
+
 		v := validator.New()
 		body := readBody(w, r)
 

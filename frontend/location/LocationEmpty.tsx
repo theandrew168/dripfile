@@ -3,6 +3,7 @@ import { PlusIcon } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
 
 export default function LocationEmpty() {
+	// https://tailwindui.com/components/application-ui/feedback/empty-states#component-42930c785190e14c24b53ba822f4a92c
 	return (
 		<div className="mt-24 text-center">
 			<svg
