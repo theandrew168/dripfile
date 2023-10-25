@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { isErrorResponse } from "../types";
 import Alert from "../Alert";
 
 export default function LocationCreateInMemory() {
+	const queryClient = useQueryClient();
 	const { mutate, isPending, isError, error, isSuccess } = useMutation({
 		mutationFn: async (form: FormData) => {
 			const payload = {
@@ -22,13 +23,16 @@ export default function LocationCreateInMemory() {
 			if (!response.ok) {
 				const error = await response.json();
 				if (isErrorResponse(error)) {
-					throw new Error(error.error);
+					throw new Error(JSON.stringify(error.error));
 				} else {
 					throw new Error("Network response was not OK");
 				}
 			}
 
 			return response.json();
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["locations"] });
 		},
 	});
 

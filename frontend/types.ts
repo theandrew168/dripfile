@@ -1,5 +1,5 @@
 export type ErrorResponse = {
-	error: string;
+	error: string | Record<string, string>;
 };
 
 export function isErrorResponse(response: any): response is ErrorResponse {
