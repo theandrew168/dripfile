@@ -1,14 +1,16 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useMutation } from "@tanstack/react-query";
+
 import { isErrorResponse } from "../types";
+import Alert from "../Alert";
 
 export default function LocationCreateInMemory() {
 	const { mutate, isPending, isError, error, isSuccess } = useMutation({
 		mutationFn: async (form: FormData) => {
 			const payload = {
 				kind: "memory",
-				...Object.fromEntries(form),
+				// ...Object.fromEntries(form),
 			};
 			const response = await fetch("/api/v1/locations", {
 				method: "POST",
@@ -33,8 +35,8 @@ export default function LocationCreateInMemory() {
 	// https://tailwindui.com/components/application-ui/forms/form-layouts#component-dcf2bee8aa4fbef0d4623df5b9718da8
 	return (
 		<>
-			{isError && <div>An error occurred: {error.message}</div>}
-			{isSuccess && <div>Location created!</div>}
+			{isError && <Alert type="failure" message={error.message} />}
+			{isSuccess && <Alert type="success" message="Location created!" />}
 			<div className="space-y-10 divide-y divide-gray-900/10">
 				<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
 					<div className="px-4 sm:px-0">

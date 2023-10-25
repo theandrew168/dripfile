@@ -1,7 +1,7 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import type { Location } from "./types";
-import { Link } from "react-router-dom";
 
 type Props = {
 	locations: Location[];

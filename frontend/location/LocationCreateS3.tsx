@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import type { LocationReadResponse } from "../types";
+import type { LocationReadResponse } from "./types";
 
 export default function LocationCreateS3() {
 	const navigate = useNavigate();
