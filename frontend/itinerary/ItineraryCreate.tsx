@@ -12,7 +12,6 @@ export default function ItineraryCreate() {
 			const payload = {
 				...Object.fromEntries(form),
 			};
-			console.log(payload);
 			const response = await fetch("/api/v1/itineraries", {
 				method: "POST",
 				headers: {
