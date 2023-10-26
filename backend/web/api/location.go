@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
@@ -33,8 +32,8 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		Kind            string `json:"kind"`
 		Endpoint        string `json:"endpoint"`
 		Bucket          string `json:"bucket"`
-		AccessKeyID     string `json:"access_key_id"`
-		SecretAccessKey string `json:"secret_access_key"`
+		AccessKeyID     string `json:"accessKeyID"`
+		SecretAccessKey string `json:"secretAccessKey"`
 	}
 
 	type response struct {
@@ -42,8 +41,6 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		time.Sleep(1 * time.Second)
-
 		v := validator.New()
 		body := readBody(w, r)
 
@@ -101,8 +98,8 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 
 			v.Check(req.Endpoint != "", "endpoint", "must be provided")
 			v.Check(req.Bucket != "", "bucket", "must be provided")
-			v.Check(req.AccessKeyID != "", "access_key_id", "must be provided")
-			v.Check(req.SecretAccessKey != "", "secret_access_key", "must be provided")
+			v.Check(req.AccessKeyID != "", "accessKeyID", "must be provided")
+			v.Check(req.SecretAccessKey != "", "secretAccessKey", "must be provided")
 			if !v.Valid() {
 				app.failedValidationResponse(w, r, v.Errors)
 				return
@@ -119,7 +116,7 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 			}
 		}
 
-		// check if new location is valid
+		// ensure new location satisfies domain constraints
 		if !v.Valid() {
 			app.failedValidationResponse(w, r, v.Errors)
 			return

@@ -1,19 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { isErrorResponse } from "../types";
+import { isErrorResponse, type LocationListResponse } from "../types";
 import Alert from "../Alert";
 
-export default function LocationCreateS3() {
+export default function ItineraryCreate() {
 	const queryClient = useQueryClient();
 	const { mutate, isPending, isError, error, isSuccess } = useMutation({
 		mutationFn: async (form: FormData) => {
 			const payload = {
-				kind: "s3",
 				...Object.fromEntries(form),
 			};
-			const response = await fetch("/api/v1/locations", {
+			console.log(payload);
+			const response = await fetch("/api/v1/itineraries", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -32,20 +32,45 @@ export default function LocationCreateS3() {
 			return response.json();
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["locations"] });
+			queryClient.invalidateQueries({ queryKey: ["itineraries"] });
 		},
 	});
+
+	const locationsQuery = useQuery({
+		queryKey: ["locations"],
+		queryFn: async () => {
+			const response = await fetch("/api/v1/locations");
+			if (!response.ok) {
+				throw new Error("Network response was not OK");
+			}
+
+			const data: LocationListResponse = await response.json();
+			return data;
+		},
+	});
+
+	// TODO: build a generic loading component
+	if (locationsQuery.isPending) {
+		return <div>Loading...</div>;
+	}
+
+	// TODO: build a generic error component
+	if (locationsQuery.isError) {
+		return <div>Error: {locationsQuery.error.message}</div>;
+	}
+
+	const locations = locationsQuery.data.locations;
 
 	// https://tailwindui.com/components/application-ui/forms/form-layouts#component-dcf2bee8aa4fbef0d4623df5b9718da8
 	return (
 		<>
 			{isError && <Alert type="failure" message={error.message} />}
-			{isSuccess && <Alert type="success" message="Location created!" />}
+			{isSuccess && <Alert type="success" message="Itinerary created!" />}
 			<div className="space-y-10 divide-y divide-gray-900/10">
 				<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
 					<div className="px-4 sm:px-0">
-						<h2 className="text-base font-semibold leading-7 text-gray-900">S3 Location</h2>
-						<p className="mt-1 text-sm leading-6 text-gray-600">An Amazon S3 (or compatible) object storage bucket.</p>
+						<h2 className="text-base font-semibold leading-7 text-gray-900">Itinerary</h2>
+						<p className="mt-1 text-sm leading-6 text-gray-600">A plan for transferring files between locations.</p>
 					</div>
 
 					<form
@@ -58,72 +83,60 @@ export default function LocationCreateS3() {
 						<div className="px-4 py-6 sm:p-8">
 							<div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 								<div className="sm:col-span-4">
-									<label htmlFor="endpoint" className="block text-sm font-medium leading-6 text-gray-900">
-										Endpoint
+									<label htmlFor="pattern" className="block text-sm font-medium leading-6 text-gray-900">
+										Pattern
 									</label>
 									<div className="mt-2">
 										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
 											<input
 												type="text"
-												name="endpoint"
-												id="endpoint"
+												name="pattern"
+												id="pattern"
 												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
 											/>
 										</div>
 									</div>
 								</div>
-
 								<div className="sm:col-span-4">
-									<label htmlFor="bucket" className="block text-sm font-medium leading-6 text-gray-900">
-										Bucket
+									<label htmlFor="fromLocationID" className="block text-sm font-medium leading-6 text-gray-900">
+										From
 									</label>
 									<div className="mt-2">
-										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-											<input
-												type="text"
-												name="bucket"
-												id="bucket"
-												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-											/>
-										</div>
+										<select
+											id="fromLocationID"
+											name="fromLocationID"
+											className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+										>
+											{locations.map((location) => (
+												<option key={location.id} value={location.id}>
+													{location.id}
+												</option>
+											))}
+										</select>
 									</div>
 								</div>
-
 								<div className="sm:col-span-4">
-									<label htmlFor="accessKeyID" className="block text-sm font-medium leading-6 text-gray-900">
-										Access Key ID
+									<label htmlFor="toLocationID" className="block text-sm font-medium leading-6 text-gray-900">
+										To
 									</label>
 									<div className="mt-2">
-										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-											<input
-												type="text"
-												name="accessKeyID"
-												id="accessKeyID"
-												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-											/>
-										</div>
-									</div>
-								</div>
-
-								<div className="sm:col-span-4">
-									<label htmlFor="secretAccessKey" className="block text-sm font-medium leading-6 text-gray-900">
-										Secret Access Key
-									</label>
-									<div className="mt-2">
-										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-											<input
-												type="password"
-												name="secretAccessKey"
-												id="secretAccessKey"
-												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-											/>
-										</div>
+										<select
+											id="toLocationID"
+											name="toLocationID"
+											className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
+										>
+											{locations.map((location) => (
+												<option key={location.id} value={location.id}>
+													{location.id}
+												</option>
+											))}
+										</select>
 									</div>
 								</div>
 							</div>
 						</div>
 						<div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-							<Link to="/locations/create">
+							<Link to="/itineraries">
 								<button type="button" className="text-sm font-semibold leading-6 text-gray-900">
 									Cancel
 								</button>
@@ -133,7 +146,7 @@ export default function LocationCreateS3() {
 								disabled={isPending}
 								className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
 							>
-								{isPending ? "Adding..." : "Add"}
+								{isPending ? "Creating..." : "Create"}
 							</button>
 						</div>
 					</form>

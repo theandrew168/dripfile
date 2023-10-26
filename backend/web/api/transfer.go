@@ -10,11 +10,11 @@ import (
 
 func (app *Application) handleTransferCreate() http.HandlerFunc {
 	type request struct {
-		itineraryID uuid.UUID `json:"itinerary_id"`
+		itineraryID uuid.UUID `json:"itineraryID"`
 	}
 
 	type response struct {
-		transferID uuid.UUID `json:"transfer_id"`
+		transferID uuid.UUID `json:"transferID"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {

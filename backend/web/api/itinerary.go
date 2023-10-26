@@ -16,15 +16,15 @@ type Itinerary struct {
 	ID uuid.UUID `json:"id"`
 
 	Pattern        string    `json:"pattern"`
-	FromLocationID uuid.UUID `json:"from_location_id"`
-	ToLocationID   uuid.UUID `json:"to_location_id"`
+	FromLocationID uuid.UUID `json:"fromLocationID"`
+	ToLocationID   uuid.UUID `json:"toLocationID"`
 }
 
 func (app *Application) handleItineraryCreate() http.HandlerFunc {
 	type request struct {
 		Pattern        string `json:"pattern"`
-		FromLocationID string `json:"from_location_id"`
-		ToLocationID   string `json:"to_location_id"`
+		FromLocationID string `json:"fromLocationID"`
+		ToLocationID   string `json:"toLocationID"`
 	}
 
 	type response struct {
@@ -44,17 +44,17 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 
 		// check if provided info passes basic validation
 		v.Check(req.Pattern != "", "pattern", "must be provided")
-		v.Check(req.FromLocationID != "", "from_location_id", "must be provided")
-		v.Check(req.ToLocationID != "", "to_location_id", "must be provided")
+		v.Check(req.FromLocationID != "", "fromLocationID", "must be provided")
+		v.Check(req.ToLocationID != "", "toLocationID", "must be provided")
 
 		// check if provided IDs are valid UUIDs
 		fromLocationID, err := uuid.Parse(req.FromLocationID)
 		if err != nil {
-			v.AddError("from_location_id", "must be the ID of an existing location")
+			v.AddError("fromLocationID", "must be the ID of an existing location")
 		}
 		toLocationID, err := uuid.Parse(req.ToLocationID)
 		if err != nil {
-			v.AddError("to_location_id", "must be the ID of an existing location")
+			v.AddError("toLocationID", "must be the ID of an existing location")
 		}
 
 		if !v.Valid() {
@@ -66,7 +66,7 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, repository.ErrNotExist):
-				v.AddError("from_location_id", "must be the ID of an existing location")
+				v.AddError("fromLocationID", "must be the ID of an existing location")
 			default:
 				app.serverErrorResponse(w, r, err)
 				return
@@ -77,7 +77,7 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		if err != nil {
 			switch {
 			case errors.Is(err, repository.ErrNotExist):
-				v.AddError("to_location_id", "must be the ID of an existing location")
+				v.AddError("toLocationID", "must be the ID of an existing location")
 			default:
 				app.serverErrorResponse(w, r, err)
 				return
@@ -93,6 +93,12 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		itinerary, err := domain.NewItinerary(req.Pattern, from, to)
 		if err != nil {
 			v.AddError("itinerary", err.Error())
+		}
+
+		// ensure new itinerary satisfies domain constraints
+		if !v.Valid() {
+			app.failedValidationResponse(w, r, v.Errors)
+			return
 		}
 
 		err = app.repo.Itinerary.Create(itinerary)

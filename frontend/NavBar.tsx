@@ -17,8 +17,8 @@ export default function NavBar() {
 	const navigation = [
 		{ name: "Dashboard", href: "/", current: location.pathname === "/" },
 		{ name: "Locations", href: "/locations", current: location.pathname.startsWith("/locations") },
-		{ name: "Itineraries", href: "#", current: location.pathname.startsWith("/itineraries") },
-		{ name: "Transfers", href: "#", current: location.pathname.startsWith("/transfers") },
+		{ name: "Itineraries", href: "/itineraries", current: location.pathname.startsWith("/itineraries") },
+		{ name: "Transfers", href: "/transfers", current: location.pathname.startsWith("/transfers") },
 	];
 	const userNavigation = [
 		{ name: "Your Profile", href: "#" },
