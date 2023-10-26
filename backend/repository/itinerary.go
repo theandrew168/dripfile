@@ -16,7 +16,7 @@ type ItineraryRepository interface {
 	Create(itinerary *domain.Itinerary) error
 	List() ([]*domain.Itinerary, error)
 	Read(id uuid.UUID) (*domain.Itinerary, error)
-	Delete(id uuid.UUID) error
+	Delete(itinerary *domain.Itinerary) error
 }
 
 type MemoryItineraryRepository struct {
@@ -52,8 +52,13 @@ func (repo *MemoryItineraryRepository) Read(id uuid.UUID) (*domain.Itinerary, er
 	return itinerary, nil
 }
 
-func (repo *MemoryItineraryRepository) Delete(id uuid.UUID) error {
-	err := repo.db.Delete(id)
+func (repo *MemoryItineraryRepository) Delete(itinerary *domain.Itinerary) error {
+	err := itinerary.CheckDelete()
+	if err != nil {
+		return err
+	}
+
+	err = repo.db.Delete(itinerary.ID())
 	if err != nil {
 		switch {
 		case errors.Is(err, memorydb.ErrNotFound):

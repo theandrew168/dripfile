@@ -132,7 +132,7 @@ func TestItineraryRepositoryDelete(t *testing.T) {
 	_, err = itineraryRepo.Read(itinerary.ID())
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Delete(itinerary.ID())
+	err = itineraryRepo.Delete(itinerary)
 	test.AssertNilError(t, err)
 
 	_, err = itineraryRepo.Read(itinerary.ID())

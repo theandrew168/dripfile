@@ -129,21 +129,117 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 }
 
 func (app *Application) handleItineraryList() http.HandlerFunc {
+	type response struct {
+		Itineraries []Itinerary `json:"itineraries"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("TODO: handleItineraryList"))
+		itineraries, err := app.repo.Itinerary.List()
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		// use make here to encode JSON as "[]" instead of "null" if empty
+		apiItineraries := make([]Itinerary, 0)
+		for _, itinerary := range itineraries {
+			apiItinerary := Itinerary{
+				ID:             itinerary.ID(),
+				Pattern:        itinerary.Pattern(),
+				FromLocationID: itinerary.FromLocationID(),
+				ToLocationID:   itinerary.ToLocationID(),
+			}
+			apiItineraries = append(apiItineraries, apiItinerary)
+		}
+
+		resp := response{
+			Itineraries: apiItineraries,
+		}
+
+		err = writeJSON(w, http.StatusOK, resp, nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 }
 
 func (app *Application) handleItineraryRead() http.HandlerFunc {
+	type response struct {
+		Itinerary Itinerary `json:"itinerary"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := flow.Param(r.Context(), "id")
-		fmt.Fprintf(w, "TODO: handleItineraryRead: %s", id)
+		id, err := uuid.Parse(flow.Param(r.Context(), "id"))
+		if err != nil {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		itinerary, err := app.repo.Itinerary.Read(id)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+
+			return
+		}
+
+		apiItinerary := Itinerary{
+			ID:             itinerary.ID(),
+			Pattern:        itinerary.Pattern(),
+			FromLocationID: itinerary.FromLocationID(),
+			ToLocationID:   itinerary.ToLocationID(),
+		}
+		resp := response{
+			Itinerary: apiItinerary,
+		}
+
+		err = writeJSON(w, http.StatusOK, resp, nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 }
 
 func (app *Application) handleItineraryDelete() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := flow.Param(r.Context(), "id")
-		fmt.Fprintf(w, "TODO: handleItineraryDelete: %s", id)
+		id, err := uuid.Parse(flow.Param(r.Context(), "id"))
+		if err != nil {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		itinerary, err := app.repo.Itinerary.Read(id)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+
+			return
+		}
+
+		err = app.repo.Itinerary.Delete(itinerary)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				app.notFoundResponse(w, r)
+			case errors.Is(err, domain.ErrLocationInUse):
+				app.conflictResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+
+			return
+		}
+
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
