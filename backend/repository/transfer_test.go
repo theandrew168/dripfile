@@ -126,6 +126,50 @@ func TestTransferRepositoryReadNotFound(t *testing.T) {
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
+func TestTransferRepositoryUpdate(t *testing.T) {
+	locationRepo := repository.NewMemoryLocationRepository()
+	itineraryRepo := repository.NewMemoryItineraryRepository()
+	transferRepo := repository.NewMemoryTransferRepository()
+
+	from, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = locationRepo.Create(from)
+	test.AssertNilError(t, err)
+
+	to, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = locationRepo.Create(to)
+	test.AssertNilError(t, err)
+
+	pattern := "*"
+
+	itinerary, err := domain.NewItinerary(pattern, from, to)
+	test.AssertNilError(t, err)
+
+	err = itineraryRepo.Create(itinerary)
+	test.AssertNilError(t, err)
+
+	transfer, err := domain.NewTransfer(itinerary)
+	test.AssertNilError(t, err)
+
+	err = transferRepo.Create(transfer)
+	test.AssertNilError(t, err)
+
+	transfer.UpdateStatus(domain.TransferStatusComplete)
+	transfer.UpdateProgress(100)
+
+	err = transferRepo.Update(transfer)
+	test.AssertNilError(t, err)
+
+	transfer, err = transferRepo.Read(transfer.ID())
+	test.AssertNilError(t, err)
+
+	test.AssertEqual(t, transfer.Status(), domain.TransferStatusComplete)
+	test.AssertEqual(t, transfer.Progress(), 100)
+}
+
 func TestTransferRepositoryDelete(t *testing.T) {
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()

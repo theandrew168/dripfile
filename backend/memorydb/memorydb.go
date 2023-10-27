@@ -62,6 +62,11 @@ func (db *MemoryDB[R]) Update(record R) error {
 	db.Lock()
 	defer db.Unlock()
 
+	_, ok := db.data[record.ID()]
+	if !ok {
+		return ErrNotFound
+	}
+
 	db.data[record.ID()] = record
 	return nil
 }

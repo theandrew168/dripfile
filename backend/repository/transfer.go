@@ -16,6 +16,7 @@ type TransferRepository interface {
 	Create(transfer *domain.Transfer) error
 	List() ([]*domain.Transfer, error)
 	Read(id uuid.UUID) (*domain.Transfer, error)
+	Update(transfer *domain.Transfer) error
 	Delete(id uuid.UUID) error
 }
 
@@ -50,6 +51,10 @@ func (repo *MemoryTransferRepository) Read(id uuid.UUID) (*domain.Transfer, erro
 	}
 
 	return transfer, nil
+}
+
+func (repo *MemoryTransferRepository) Update(transfer *domain.Transfer) error {
+	return repo.db.Update(transfer)
 }
 
 func (repo *MemoryTransferRepository) Delete(id uuid.UUID) error {

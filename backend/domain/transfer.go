@@ -39,8 +39,18 @@ func (t *Transfer) Status() string {
 	return t.status
 }
 
+func (t *Transfer) UpdateStatus(status string) error {
+	t.status = status
+	return nil
+}
+
 func (t *Transfer) Progress() int {
 	return t.progress
+}
+
+func (t *Transfer) UpdateProgress(progress int) error {
+	t.progress = progress
+	return nil
 }
 
 func (t *Transfer) CheckDelete() error {
