@@ -18,7 +18,7 @@ import (
 type Location struct {
 	ID uuid.UUID `json:"id"`
 
-	Kind string `json:"kind"`
+	Kind domain.LocationKind `json:"kind"`
 }
 
 func (app *Application) handleLocationCreate() http.HandlerFunc {
@@ -137,8 +137,9 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		}
 
 		apiLocation := Location{
-			ID:   location.ID(),
-			Kind: string(location.Kind()),
+			ID: location.ID(),
+
+			Kind: location.Kind(),
 		}
 		resp := response{
 			Location: apiLocation,
@@ -171,8 +172,9 @@ func (app *Application) handleLocationList() http.HandlerFunc {
 		apiLocations := make([]Location, 0)
 		for _, location := range locations {
 			apiLocation := Location{
-				ID:   location.ID(),
-				Kind: string(location.Kind()),
+				ID: location.ID(),
+
+				Kind: location.Kind(),
 			}
 			apiLocations = append(apiLocations, apiLocation)
 		}
@@ -214,8 +216,9 @@ func (app *Application) handleLocationRead() http.HandlerFunc {
 		}
 
 		apiLocation := Location{
-			ID:   location.ID(),
-			Kind: string(location.Kind()),
+			ID: location.ID(),
+
+			Kind: location.Kind(),
 		}
 		resp := response{
 			Location: apiLocation,

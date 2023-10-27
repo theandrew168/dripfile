@@ -7,6 +7,7 @@ import (
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
+
 	"github.com/theandrew168/dripfile/backend/domain"
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/validator"
@@ -114,7 +115,8 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		}
 
 		apiItinerary := Itinerary{
-			ID:             itinerary.ID(),
+			ID: itinerary.ID(),
+
 			Pattern:        itinerary.Pattern(),
 			FromLocationID: itinerary.FromLocationID(),
 			ToLocationID:   itinerary.ToLocationID(),
@@ -150,7 +152,8 @@ func (app *Application) handleItineraryList() http.HandlerFunc {
 		apiItineraries := make([]Itinerary, 0)
 		for _, itinerary := range itineraries {
 			apiItinerary := Itinerary{
-				ID:             itinerary.ID(),
+				ID: itinerary.ID(),
+
 				Pattern:        itinerary.Pattern(),
 				FromLocationID: itinerary.FromLocationID(),
 				ToLocationID:   itinerary.ToLocationID(),
@@ -195,7 +198,8 @@ func (app *Application) handleItineraryRead() http.HandlerFunc {
 		}
 
 		apiItinerary := Itinerary{
-			ID:             itinerary.ID(),
+			ID: itinerary.ID(),
+
 			Pattern:        itinerary.Pattern(),
 			FromLocationID: itinerary.FromLocationID(),
 			ToLocationID:   itinerary.ToLocationID(),
