@@ -2,17 +2,19 @@ package domain
 
 import "github.com/google/uuid"
 
+type TransferStatus string
+
 const (
-	TransferStatusPending  = "pending"
-	TransferStatusRunning  = "running"
-	TransferStatusComplete = "complete"
+	TransferStatusPending  TransferStatus = "pending"
+	TransferStatusRunning  TransferStatus = "running"
+	TransferStatusComplete TransferStatus = "complete"
 )
 
 type Transfer struct {
 	id uuid.UUID
 
 	itineraryID uuid.UUID
-	status      string
+	status      TransferStatus
 	progress    int
 }
 
@@ -35,11 +37,11 @@ func (t *Transfer) ItineraryID() uuid.UUID {
 	return t.itineraryID
 }
 
-func (t *Transfer) Status() string {
+func (t *Transfer) Status() TransferStatus {
 	return t.status
 }
 
-func (t *Transfer) UpdateStatus(status string) error {
+func (t *Transfer) UpdateStatus(status TransferStatus) error {
 	t.status = status
 	return nil
 }

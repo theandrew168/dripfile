@@ -8,9 +8,11 @@ import (
 	"github.com/theandrew168/dripfile/backend/fileserver"
 )
 
+type LocationKind string
+
 const (
-	LocationKindMemory = "memory"
-	LocationKindS3     = "s3"
+	LocationKindMemory LocationKind = "memory"
+	LocationKindS3     LocationKind = "s3"
 )
 
 var (
@@ -24,7 +26,7 @@ var (
 type Location struct {
 	id uuid.UUID
 
-	kind       string
+	kind       LocationKind
 	memoryInfo fileserver.MemoryInfo
 	s3Info     fileserver.S3Info
 
@@ -79,7 +81,7 @@ func (l *Location) ID() uuid.UUID {
 	return l.id
 }
 
-func (l *Location) Kind() string {
+func (l *Location) Kind() LocationKind {
 	return l.kind
 }
 

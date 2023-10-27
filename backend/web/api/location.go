@@ -59,8 +59,9 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 			return
 		}
 
+		kind := domain.LocationKind(req.Kind)
 		v.Check(
-			validator.PermittedValue(req.Kind, domain.LocationKindMemory, domain.LocationKindS3),
+			validator.PermittedValue(kind, domain.LocationKindMemory, domain.LocationKindS3),
 			"kind",
 			"must be one of: memory, s3",
 		)
@@ -71,7 +72,7 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 
 		// read more specific details based on the "kind"
 		var location *domain.Location
-		if req.Kind == domain.LocationKindMemory {
+		if kind == domain.LocationKindMemory {
 			var req requestMemory
 			err = readJSON(bytes.NewReader(b), &req, true)
 			if err != nil {
@@ -88,7 +89,7 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 			if err != nil {
 				v.AddError("location", err.Error())
 			}
-		} else if req.Kind == domain.LocationKindS3 {
+		} else if kind == domain.LocationKindS3 {
 			var req requestS3
 			err = readJSON(bytes.NewReader(b), &req, true)
 			if err != nil {
@@ -137,7 +138,7 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 
 		apiLocation := Location{
 			ID:   location.ID(),
-			Kind: location.Kind(),
+			Kind: string(location.Kind()),
 		}
 		resp := response{
 			Location: apiLocation,
@@ -171,7 +172,7 @@ func (app *Application) handleLocationList() http.HandlerFunc {
 		for _, location := range locations {
 			apiLocation := Location{
 				ID:   location.ID(),
-				Kind: location.Kind(),
+				Kind: string(location.Kind()),
 			}
 			apiLocations = append(apiLocations, apiLocation)
 		}
@@ -214,7 +215,7 @@ func (app *Application) handleLocationRead() http.HandlerFunc {
 
 		apiLocation := Location{
 			ID:   location.ID(),
-			Kind: location.Kind(),
+			Kind: string(location.Kind()),
 		}
 		resp := response{
 			Location: apiLocation,
