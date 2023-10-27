@@ -29,9 +29,7 @@ func TestTransferRepositoryCreate(t *testing.T) {
 	err = locationRepo.Create(to)
 	test.AssertNilError(t, err)
 
-	pattern := "*"
-
-	itinerary, err := domain.NewItinerary(pattern, from, to)
+	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
 	err = itineraryRepo.Create(itinerary)
@@ -61,9 +59,7 @@ func TestTransferRepositoryList(t *testing.T) {
 	err = locationRepo.Create(to)
 	test.AssertNilError(t, err)
 
-	pattern := "*"
-
-	itinerary, err := domain.NewItinerary(pattern, from, to)
+	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
 	err = itineraryRepo.Create(itinerary)
@@ -97,9 +93,7 @@ func TestTransferRepositoryRead(t *testing.T) {
 	err = locationRepo.Create(to)
 	test.AssertNilError(t, err)
 
-	pattern := "*"
-
-	itinerary, err := domain.NewItinerary(pattern, from, to)
+	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
 	err = itineraryRepo.Create(itinerary)
@@ -143,9 +137,7 @@ func TestTransferRepositoryUpdate(t *testing.T) {
 	err = locationRepo.Create(to)
 	test.AssertNilError(t, err)
 
-	pattern := "*"
-
-	itinerary, err := domain.NewItinerary(pattern, from, to)
+	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
 	err = itineraryRepo.Create(itinerary)
@@ -157,7 +149,7 @@ func TestTransferRepositoryUpdate(t *testing.T) {
 	err = transferRepo.Create(transfer)
 	test.AssertNilError(t, err)
 
-	transfer.UpdateStatus(domain.TransferStatusComplete)
+	transfer.UpdateStatus(domain.TransferStatusSuccess)
 	transfer.UpdateProgress(100)
 
 	err = transferRepo.Update(transfer)
@@ -166,7 +158,7 @@ func TestTransferRepositoryUpdate(t *testing.T) {
 	transfer, err = transferRepo.Read(transfer.ID())
 	test.AssertNilError(t, err)
 
-	test.AssertEqual(t, transfer.Status(), domain.TransferStatusComplete)
+	test.AssertEqual(t, transfer.Status(), domain.TransferStatusSuccess)
 	test.AssertEqual(t, transfer.Progress(), 100)
 }
 
@@ -187,9 +179,7 @@ func TestTransferRepositoryDelete(t *testing.T) {
 	err = locationRepo.Create(to)
 	test.AssertNilError(t, err)
 
-	pattern := "*"
-
-	itinerary, err := domain.NewItinerary(pattern, from, to)
+	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
 	err = itineraryRepo.Create(itinerary)

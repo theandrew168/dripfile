@@ -1,13 +1,18 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
 
 type TransferStatus string
 
 const (
-	TransferStatusPending  TransferStatus = "pending"
-	TransferStatusRunning  TransferStatus = "running"
-	TransferStatusComplete TransferStatus = "complete"
+	TransferStatusPending TransferStatus = "pending"
+	TransferStatusRunning TransferStatus = "running"
+	TransferStatusSuccess TransferStatus = "success"
+	TransferStatusFailure TransferStatus = "failure"
 )
 
 type Transfer struct {
@@ -16,6 +21,7 @@ type Transfer struct {
 	itineraryID uuid.UUID
 	status      TransferStatus
 	progress    int
+	error       string
 }
 
 func NewTransfer(itinerary *Itinerary) (*Transfer, error) {
@@ -25,6 +31,7 @@ func NewTransfer(itinerary *Itinerary) (*Transfer, error) {
 		itineraryID: itinerary.ID(),
 		status:      TransferStatusPending,
 		progress:    0,
+		error:       "",
 	}
 	return &transfer, nil
 }
@@ -52,6 +59,18 @@ func (t *Transfer) Progress() int {
 
 func (t *Transfer) UpdateProgress(progress int) error {
 	t.progress = progress
+	return nil
+}
+
+func (t *Transfer) Error() error {
+	if t.error != "" {
+		return errors.New(t.error)
+	}
+	return nil
+}
+
+func (t *Transfer) UpdateError(error string) error {
+	t.error = error
 	return nil
 }
 
