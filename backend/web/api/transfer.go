@@ -120,14 +120,81 @@ func (app *Application) handleTransferCreate() http.HandlerFunc {
 }
 
 func (app *Application) handleTransferList() http.HandlerFunc {
+	type response struct {
+		Transfers []Transfer `json:"transfers"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("TODO: handleTransferList"))
+		transfers, err := app.repo.Transfer.List()
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
+
+		// use make here to encode JSON as "[]" instead of "null" if empty
+		apiTransfers := make([]Transfer, 0)
+		for _, transfer := range transfers {
+			apiTransfer := Transfer{
+				ID: transfer.ID(),
+
+				ItineraryID: transfer.ItineraryID(),
+				Status:      transfer.Status(),
+				Progress:    transfer.Progress(),
+			}
+			apiTransfers = append(apiTransfers, apiTransfer)
+		}
+
+		resp := response{
+			Transfers: apiTransfers,
+		}
+
+		err = writeJSON(w, http.StatusOK, resp, nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 }
 
 func (app *Application) handleTransferRead() http.HandlerFunc {
+	type response struct {
+		Transfer Transfer `json:"transfer"`
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		id := flow.Param(r.Context(), "id")
-		fmt.Fprintf(w, "TODO: handleTransferRead: %s", id)
+		id, err := uuid.Parse(flow.Param(r.Context(), "id"))
+		if err != nil {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		transfer, err := app.repo.Transfer.Read(id)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+
+			return
+		}
+
+		apiTransfer := Transfer{
+			ID: transfer.ID(),
+
+			ItineraryID: transfer.ItineraryID(),
+			Status:      transfer.Status(),
+			Progress:    transfer.Progress(),
+		}
+		resp := response{
+			Transfer: apiTransfer,
+		}
+
+		err = writeJSON(w, http.StatusOK, resp, nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 }
