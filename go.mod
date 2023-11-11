@@ -10,8 +10,8 @@ require (
 	github.com/klauspost/compress v1.17.2
 	github.com/minio/minio-go/v7 v7.0.63
 	github.com/prometheus/client_golang v1.17.0
-	golang.org/x/crypto v0.14.0
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
+	golang.org/x/crypto v0.15.0
+	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 )
 
 require (
@@ -19,7 +19,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
@@ -31,9 +31,9 @@ require (
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/testify v1.8.2 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/net v0.18.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
