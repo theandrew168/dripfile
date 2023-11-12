@@ -1,13 +1,14 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { isErrorResponse, type LocationListResponse } from "../types";
 import Alert from "../Alert";
 
 export default function ItineraryCreate() {
+	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-	const { mutate, isPending, isError, error, isSuccess } = useMutation({
+	const { mutate, isPending, isError, error } = useMutation({
 		mutationFn: async (form: FormData) => {
 			const payload = {
 				...Object.fromEntries(form),
@@ -32,6 +33,7 @@ export default function ItineraryCreate() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["itineraries"] });
+			navigate("/itineraries");
 		},
 	});
 
@@ -64,7 +66,6 @@ export default function ItineraryCreate() {
 	return (
 		<>
 			{isError && <Alert type="failure" message={error.message} />}
-			{isSuccess && <Alert type="success" message="Itinerary created!" />}
 			<div className="space-y-10 divide-y divide-gray-900/10">
 				<div className="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
 					<div className="px-4 sm:px-0">
