@@ -1,5 +1,10 @@
 package repository
 
+import (
+	"github.com/theandrew168/dripfile/backend/database"
+	"github.com/theandrew168/dripfile/backend/secret"
+)
+
 type Repository struct {
 	Location  LocationRepository
 	Itinerary ItineraryRepository
@@ -9,6 +14,15 @@ type Repository struct {
 func NewMemory() *Repository {
 	repo := Repository{
 		Location:  NewMemoryLocationRepository(),
+		Itinerary: NewMemoryItineraryRepository(),
+		Transfer:  NewMemoryTransferRepository(),
+	}
+	return &repo
+}
+
+func NewPostgres(conn database.Conn, box *secret.Box) *Repository {
+	repo := Repository{
+		Location:  NewPostgresLocationRepository(conn, box),
 		Itinerary: NewMemoryItineraryRepository(),
 		Transfer:  NewMemoryTransferRepository(),
 	}

@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -30,6 +31,9 @@ type Location struct {
 	memoryInfo fileserver.MemoryInfo
 	s3Info     fileserver.S3Info
 
+	createdAt time.Time
+	version   int
+
 	usedBy []uuid.UUID
 }
 
@@ -44,6 +48,21 @@ func NewMemoryLocation() (*Location, error) {
 		memoryInfo: info,
 	}
 	return &l, nil
+}
+
+// Create an in-memory location from existing data
+// TODO: Can this be made visible ONLY to the repository package?
+func LoadMemoryLocation(id uuid.UUID, info fileserver.MemoryInfo, createdAt time.Time, version int) *Location {
+	l := Location{
+		id: id,
+
+		kind:       LocationKindMemory,
+		memoryInfo: info,
+
+		createdAt: createdAt,
+		version:   version,
+	}
+	return &l
 }
 
 // Factory func for creating a new S3 location
@@ -77,12 +96,45 @@ func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) (*Loca
 	return &l, nil
 }
 
+// Create an S3 location from existing data
+// TODO: Can this be made visible ONLY to the repository package?
+func LoadS3Location(id uuid.UUID, info fileserver.S3Info, createdAt time.Time, version int) *Location {
+	l := Location{
+		id: id,
+
+		kind:   LocationKindS3,
+		s3Info: info,
+
+		createdAt: createdAt,
+		version:   version,
+	}
+	return &l
+}
+
 func (l *Location) ID() uuid.UUID {
 	return l.id
 }
 
 func (l *Location) Kind() LocationKind {
 	return l.kind
+}
+
+func (l *Location) Info() any {
+	if l.kind == LocationKindMemory {
+		return l.memoryInfo
+	} else if l.kind == LocationKindS3 {
+		return l.s3Info
+	}
+
+	return nil
+}
+
+func (l *Location) CreatedAt() time.Time {
+	return l.createdAt
+}
+
+func (l *Location) Version() int {
+	return l.version
 }
 
 func (l *Location) UsedBy() []uuid.UUID {
