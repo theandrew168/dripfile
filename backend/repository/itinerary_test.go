@@ -15,53 +15,53 @@ import (
 func TestItineraryRepositoryCreate(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 }
 
 func TestItineraryRepositoryList(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
-	itineraries, err := itineraryRepo.List()
+	itineraries, err := repo.Itinerary.List()
 	test.AssertNilError(t, err)
 
 	var ids []uuid.UUID
@@ -75,28 +75,28 @@ func TestItineraryRepositoryList(t *testing.T) {
 func TestItineraryRepositoryRead(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
-	got, err := itineraryRepo.Read(itinerary.ID())
+	got, err := repo.Itinerary.Read(itinerary.ID())
 	test.AssertNilError(t, err)
 	test.AssertEqual(t, got.ID(), itinerary.ID())
 	test.AssertEqual(t, got.Pattern(), itinerary.Pattern())
@@ -107,42 +107,43 @@ func TestItineraryRepositoryRead(t *testing.T) {
 func TestItineraryRepositoryReadNotFound(t *testing.T) {
 	t.Parallel()
 
-	itineraryRepo := repository.NewMemoryItineraryRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
-	_, err := itineraryRepo.Read(uuid.New())
+	_, err := repo.Itinerary.Read(uuid.New())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
 func TestItineraryRepositoryDelete(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
-	_, err = itineraryRepo.Read(itinerary.ID())
+	_, err = repo.Itinerary.Read(itinerary.ID())
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Delete(itinerary)
+	err = repo.Itinerary.Delete(itinerary)
 	test.AssertNilError(t, err)
 
-	_, err = itineraryRepo.Read(itinerary.ID())
+	_, err = repo.Itinerary.Read(itinerary.ID())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }

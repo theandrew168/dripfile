@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -22,6 +23,9 @@ type Transfer struct {
 	status      TransferStatus
 	progress    int
 	error       string
+
+	createdAt time.Time
+	version   int
 }
 
 func NewTransfer(itinerary *Itinerary) (*Transfer, error) {
@@ -34,6 +38,23 @@ func NewTransfer(itinerary *Itinerary) (*Transfer, error) {
 		error:       "",
 	}
 	return &transfer, nil
+}
+
+// Create an transfer from existing data
+// TODO: Can this be made visible ONLY to the repository package?
+func LoadTransfer(id uuid.UUID, itineraryID uuid.UUID, status TransferStatus, progress int, error string, createdAt time.Time, version int) *Transfer {
+	t := Transfer{
+		id: id,
+
+		itineraryID: itineraryID,
+		status:      status,
+		progress:    progress,
+		error:       error,
+
+		createdAt: createdAt,
+		version:   version,
+	}
+	return &t
 }
 
 func (t *Transfer) ID() uuid.UUID {
@@ -72,6 +93,14 @@ func (t *Transfer) Error() error {
 func (t *Transfer) UpdateError(error string) error {
 	t.error = error
 	return nil
+}
+
+func (t *Transfer) CreatedAt() time.Time {
+	return t.createdAt
+}
+
+func (t *Transfer) Version() int {
+	return t.version
 }
 
 func (t *Transfer) CheckDelete() error {
