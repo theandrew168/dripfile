@@ -10,69 +10,88 @@ import (
 	"github.com/theandrew168/dripfile/backend/test"
 )
 
-// TODO: Run tests for each Repository impl
-
 func TestLocationRepositoryCreate(t *testing.T) {
-	locationRepo := repository.NewMemoryLocationRepository()
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(location)
+	err = repo.Location.Create(location)
 	test.AssertNilError(t, err)
 }
 
 func TestLocationRepositoryList(t *testing.T) {
-	locationRepo := repository.NewMemoryLocationRepository()
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(location)
+	err = repo.Location.Create(location)
 	test.AssertNilError(t, err)
 
-	locations, err := locationRepo.List()
+	locations, err := repo.Location.List()
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, len(locations), 1)
+
+	var ids []uuid.UUID
+	for _, location := range locations {
+		ids = append(ids, location.ID())
+	}
+
+	test.AssertSliceContains(t, ids, location.ID())
 }
 
 func TestLocationRepositoryRead(t *testing.T) {
-	locationRepo := repository.NewMemoryLocationRepository()
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(location)
+	err = repo.Location.Create(location)
 	test.AssertNilError(t, err)
 
-	got, err := locationRepo.Read(location.ID())
+	got, err := repo.Location.Read(location.ID())
 	test.AssertNilError(t, err)
 	test.AssertEqual(t, got.ID(), location.ID())
 	test.AssertEqual(t, got.Kind(), location.Kind())
 }
 
 func TestLocationRepositoryReadNotFound(t *testing.T) {
-	locationRepo := repository.NewMemoryLocationRepository()
+	t.Parallel()
 
-	_, err := locationRepo.Read(uuid.New())
+	repo, closer := test.Repository(t)
+	defer closer()
+
+	_, err := repo.Location.Read(uuid.New())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
 func TestLocationRepositoryDelete(t *testing.T) {
-	locationRepo := repository.NewMemoryLocationRepository()
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(location)
+	err = repo.Location.Create(location)
 	test.AssertNilError(t, err)
 
-	_, err = locationRepo.Read(location.ID())
+	_, err = repo.Location.Read(location.ID())
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Delete(location)
+	err = repo.Location.Delete(location)
 	test.AssertNilError(t, err)
 
-	_, err = locationRepo.Read(location.ID())
+	_, err = repo.Location.Read(location.ID())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }

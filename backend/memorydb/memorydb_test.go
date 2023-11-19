@@ -25,6 +25,8 @@ func (r *record) ID() uuid.UUID {
 }
 
 func TestCreate(t *testing.T) {
+	t.Parallel()
+
 	db := memorydb.New[*record]()
 
 	r := newRecord()
@@ -33,6 +35,8 @@ func TestCreate(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
+	t.Parallel()
+
 	db := memorydb.New[*record]()
 
 	r1 := newRecord()
@@ -49,6 +53,8 @@ func TestList(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
+	t.Parallel()
+
 	db := memorydb.New[*record]()
 
 	r := newRecord()
@@ -61,6 +67,8 @@ func TestRead(t *testing.T) {
 }
 
 func TestReadNotFound(t *testing.T) {
+	t.Parallel()
+
 	db := memorydb.New[*record]()
 
 	_, err := db.Read(uuid.New())
@@ -68,6 +76,8 @@ func TestReadNotFound(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
+	t.Parallel()
+
 	db := memorydb.New[*record]()
 
 	r := newRecord()
@@ -79,6 +89,8 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
+	t.Parallel()
+
 	db := memorydb.New[*record]()
 
 	r := newRecord()

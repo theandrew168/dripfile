@@ -13,6 +13,8 @@ import (
 // TODO: Run tests for each Repository impl
 
 func TestItineraryRepositoryCreate(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 
@@ -36,6 +38,8 @@ func TestItineraryRepositoryCreate(t *testing.T) {
 }
 
 func TestItineraryRepositoryList(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 
@@ -59,10 +63,18 @@ func TestItineraryRepositoryList(t *testing.T) {
 
 	itineraries, err := itineraryRepo.List()
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, len(itineraries), 1)
+
+	var ids []uuid.UUID
+	for _, itinerary := range itineraries {
+		ids = append(ids, itinerary.ID())
+	}
+
+	test.AssertSliceContains(t, ids, itinerary.ID())
 }
 
 func TestItineraryRepositoryRead(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 
@@ -93,6 +105,8 @@ func TestItineraryRepositoryRead(t *testing.T) {
 }
 
 func TestItineraryRepositoryReadNotFound(t *testing.T) {
+	t.Parallel()
+
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 
 	_, err := itineraryRepo.Read(uuid.New())
@@ -100,6 +114,8 @@ func TestItineraryRepositoryReadNotFound(t *testing.T) {
 }
 
 func TestItineraryRepositoryDelete(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 

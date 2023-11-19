@@ -8,6 +8,8 @@ import (
 )
 
 func TestNewTransfer(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
@@ -24,6 +26,8 @@ func TestNewTransfer(t *testing.T) {
 }
 
 func TestTransferCanDelete(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
@@ -40,6 +44,8 @@ func TestTransferCanDelete(t *testing.T) {
 }
 
 func TestTransferUpdateStatus(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
@@ -59,6 +65,8 @@ func TestTransferUpdateStatus(t *testing.T) {
 }
 
 func TestTransferUpdateProgress(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 

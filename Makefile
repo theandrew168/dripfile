@@ -44,6 +44,7 @@ run-frontend: run-frontend-js run-frontend-css
 run-backend:
 	DEBUG=1 go run main.go
 
+# run the web server, esbuild, and tailwindcss concurrently (requires at least "-j3") 
 .PHONY: run
 run: run-frontend run-backend
 
@@ -55,8 +56,12 @@ build-image:
 run-image:
 	docker run -p 5000:5000 dripfile
 
+.PHONY: migrate
+migrate:
+	go run main.go -migrate
+
 .PHONY: test
-test:
+test: migrate
 	go test -count=1 ./...
 
 .PHONY: race

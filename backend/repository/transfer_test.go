@@ -13,6 +13,8 @@ import (
 // TODO: Run tests for each Repository impl
 
 func TestTransferRepositoryCreate(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 	transferRepo := repository.NewMemoryTransferRepository()
@@ -43,6 +45,8 @@ func TestTransferRepositoryCreate(t *testing.T) {
 }
 
 func TestTransferRepositoryList(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 	transferRepo := repository.NewMemoryTransferRepository()
@@ -73,10 +77,18 @@ func TestTransferRepositoryList(t *testing.T) {
 
 	transfers, err := transferRepo.List()
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, len(transfers), 1)
+
+	var ids []uuid.UUID
+	for _, transfer := range transfers {
+		ids = append(ids, transfer.ID())
+	}
+
+	test.AssertSliceContains(t, ids, transfer.ID())
 }
 
 func TestTransferRepositoryRead(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 	transferRepo := repository.NewMemoryTransferRepository()
@@ -114,6 +126,8 @@ func TestTransferRepositoryRead(t *testing.T) {
 }
 
 func TestTransferRepositoryReadNotFound(t *testing.T) {
+	t.Parallel()
+
 	transferRepo := repository.NewMemoryTransferRepository()
 
 	_, err := transferRepo.Read(uuid.New())
@@ -121,6 +135,8 @@ func TestTransferRepositoryReadNotFound(t *testing.T) {
 }
 
 func TestTransferRepositoryUpdate(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 	transferRepo := repository.NewMemoryTransferRepository()
@@ -163,6 +179,8 @@ func TestTransferRepositoryUpdate(t *testing.T) {
 }
 
 func TestTransferRepositoryDelete(t *testing.T) {
+	t.Parallel()
+
 	locationRepo := repository.NewMemoryLocationRepository()
 	itineraryRepo := repository.NewMemoryItineraryRepository()
 	transferRepo := repository.NewMemoryTransferRepository()

@@ -12,6 +12,8 @@ import (
 // TODO: Run tests for each FileServer impl
 
 func TestTransfer(t *testing.T) {
+	t.Parallel()
+
 	random := test.NewRandom()
 
 	// connect to a source location

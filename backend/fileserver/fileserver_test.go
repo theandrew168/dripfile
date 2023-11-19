@@ -12,6 +12,8 @@ import (
 // TODO: Run tests for each FileServer impl
 
 func TestPing(t *testing.T) {
+	t.Parallel()
+
 	fs, err := fileserver.NewMemory(fileserver.MemoryInfo{})
 	test.AssertNilError(t, err)
 
@@ -20,6 +22,8 @@ func TestPing(t *testing.T) {
 }
 
 func TestSearch(t *testing.T) {
+	t.Parallel()
+
 	fs, err := fileserver.NewMemory(fileserver.MemoryInfo{})
 	test.AssertNilError(t, err)
 
@@ -39,6 +43,8 @@ func TestSearch(t *testing.T) {
 }
 
 func TestRead(t *testing.T) {
+	t.Parallel()
+
 	fs, err := fileserver.NewMemory(fileserver.MemoryInfo{})
 	test.AssertNilError(t, err)
 
@@ -61,6 +67,8 @@ func TestRead(t *testing.T) {
 }
 
 func TestWrite(t *testing.T) {
+	t.Parallel()
+
 	fs, err := fileserver.NewMemory(fileserver.MemoryInfo{})
 	test.AssertNilError(t, err)
 

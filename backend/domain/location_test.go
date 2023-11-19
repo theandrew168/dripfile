@@ -8,12 +8,16 @@ import (
 )
 
 func TestNewMemoryLocation(t *testing.T) {
+	t.Parallel()
+
 	location, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 	test.AssertEqual(t, location.Kind(), domain.LocationKindMemory)
 }
 
 func TestLocationCheckDelete(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 

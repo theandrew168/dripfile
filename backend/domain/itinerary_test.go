@@ -8,6 +8,8 @@ import (
 )
 
 func TestNewItinerary(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
@@ -23,6 +25,8 @@ func TestNewItinerary(t *testing.T) {
 }
 
 func TestNewItineraryInvalidPattern(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
@@ -34,6 +38,8 @@ func TestNewItineraryInvalidPattern(t *testing.T) {
 }
 
 func TestNewItinerarySameLocation(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
@@ -42,6 +48,8 @@ func TestNewItinerarySameLocation(t *testing.T) {
 }
 
 func TestItineraryCanDelete(t *testing.T) {
+	t.Parallel()
+
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
