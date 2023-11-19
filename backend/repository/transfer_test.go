@@ -10,72 +10,68 @@ import (
 	"github.com/theandrew168/dripfile/backend/test"
 )
 
-// TODO: Run tests for each Repository impl
-
 func TestTransferRepositoryCreate(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
-	transferRepo := repository.NewMemoryTransferRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
 	test.AssertNilError(t, err)
 
-	err = transferRepo.Create(transfer)
+	err = repo.Transfer.Create(transfer)
 	test.AssertNilError(t, err)
 }
 
 func TestTransferRepositoryList(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
-	transferRepo := repository.NewMemoryTransferRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
 	test.AssertNilError(t, err)
 
-	err = transferRepo.Create(transfer)
+	err = repo.Transfer.Create(transfer)
 	test.AssertNilError(t, err)
 
-	transfers, err := transferRepo.List()
+	transfers, err := repo.Transfer.List()
 	test.AssertNilError(t, err)
 
 	var ids []uuid.UUID
@@ -89,35 +85,34 @@ func TestTransferRepositoryList(t *testing.T) {
 func TestTransferRepositoryRead(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
-	transferRepo := repository.NewMemoryTransferRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
 	test.AssertNilError(t, err)
 
-	err = transferRepo.Create(transfer)
+	err = repo.Transfer.Create(transfer)
 	test.AssertNilError(t, err)
 
-	got, err := transferRepo.Read(transfer.ID())
+	got, err := repo.Transfer.Read(transfer.ID())
 	test.AssertNilError(t, err)
 	test.AssertEqual(t, got.ID(), transfer.ID())
 	test.AssertEqual(t, got.ItineraryID(), transfer.ItineraryID())
@@ -128,50 +123,50 @@ func TestTransferRepositoryRead(t *testing.T) {
 func TestTransferRepositoryReadNotFound(t *testing.T) {
 	t.Parallel()
 
-	transferRepo := repository.NewMemoryTransferRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
-	_, err := transferRepo.Read(uuid.New())
+	_, err := repo.Transfer.Read(uuid.New())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
 func TestTransferRepositoryUpdate(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
-	transferRepo := repository.NewMemoryTransferRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
 	test.AssertNilError(t, err)
 
-	err = transferRepo.Create(transfer)
+	err = repo.Transfer.Create(transfer)
 	test.AssertNilError(t, err)
 
 	transfer.UpdateStatus(domain.TransferStatusSuccess)
 	transfer.UpdateProgress(100)
 
-	err = transferRepo.Update(transfer)
+	err = repo.Transfer.Update(transfer)
 	test.AssertNilError(t, err)
 
-	transfer, err = transferRepo.Read(transfer.ID())
+	transfer, err = repo.Transfer.Read(transfer.ID())
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, transfer.Status(), domain.TransferStatusSuccess)
@@ -181,40 +176,39 @@ func TestTransferRepositoryUpdate(t *testing.T) {
 func TestTransferRepositoryDelete(t *testing.T) {
 	t.Parallel()
 
-	locationRepo := repository.NewMemoryLocationRepository()
-	itineraryRepo := repository.NewMemoryItineraryRepository()
-	transferRepo := repository.NewMemoryTransferRepository()
+	repo, closer := test.Repository(t)
+	defer closer()
 
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(from)
+	err = repo.Location.Create(from)
 	test.AssertNilError(t, err)
 
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	err = locationRepo.Create(to)
+	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
 	itinerary, err := domain.NewItinerary("*", from, to)
 	test.AssertNilError(t, err)
 
-	err = itineraryRepo.Create(itinerary)
+	err = repo.Itinerary.Create(itinerary)
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
 	test.AssertNilError(t, err)
 
-	err = transferRepo.Create(transfer)
+	err = repo.Transfer.Create(transfer)
 	test.AssertNilError(t, err)
 
-	_, err = transferRepo.Read(transfer.ID())
+	_, err = repo.Transfer.Read(transfer.ID())
 	test.AssertNilError(t, err)
 
-	err = transferRepo.Delete(transfer.ID())
+	err = repo.Transfer.Delete(transfer)
 	test.AssertNilError(t, err)
 
-	_, err = transferRepo.Read(transfer.ID())
+	_, err = repo.Transfer.Read(transfer.ID())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }

@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
@@ -83,11 +82,8 @@ func (t *Transfer) UpdateProgress(progress int) error {
 	return nil
 }
 
-func (t *Transfer) Error() error {
-	if t.error != "" {
-		return errors.New(t.error)
-	}
-	return nil
+func (t *Transfer) Error() string {
+	return t.error
 }
 
 func (t *Transfer) UpdateError(error string) error {

@@ -15,6 +15,7 @@ import (
 
 // ensure ItineraryRepository interface is satisfied
 var _ ItineraryRepository = (*MemoryItineraryRepository)(nil)
+var _ ItineraryRepository = (*PostgresItineraryRepository)(nil)
 
 type ItineraryRepository interface {
 	Create(itinerary *domain.Itinerary) error
@@ -46,7 +47,7 @@ func NewPostgresItineraryRepository(conn database.Conn) *PostgresItineraryReposi
 }
 
 func (repo *PostgresItineraryRepository) marshal(itinerary *domain.Itinerary) (Itinerary, error) {
-	tr := Itinerary{
+	row := Itinerary{
 		ID: itinerary.ID(),
 
 		Pattern:        itinerary.Pattern(),
@@ -56,7 +57,7 @@ func (repo *PostgresItineraryRepository) marshal(itinerary *domain.Itinerary) (I
 		CreatedAt: itinerary.CreatedAt(),
 		Version:   itinerary.Version(),
 	}
-	return tr, nil
+	return row, nil
 }
 
 func (repo *PostgresItineraryRepository) unmarshal(row Itinerary) (*domain.Itinerary, error) {
@@ -172,6 +173,11 @@ func (repo *PostgresItineraryRepository) Delete(itinerary *domain.Itinerary) err
 		DELETE FROM itinerary
 		WHERE id = $1
 		RETURNING version`
+
+	err := itinerary.CheckDelete()
+	if err != nil {
+		return err
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()

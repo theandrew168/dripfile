@@ -10,8 +10,6 @@ import (
 	"github.com/theandrew168/dripfile/backend/test"
 )
 
-// TODO: Run tests for each Repository impl
-
 func TestItineraryRepositoryCreate(t *testing.T) {
 	t.Parallel()
 

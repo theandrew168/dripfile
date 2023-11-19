@@ -217,6 +217,11 @@ func (repo *PostgresLocationRepository) Delete(location *domain.Location) error 
 		WHERE id = $1
 		RETURNING version`
 
+	err := location.CheckDelete()
+	if err != nil {
+		return err
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
