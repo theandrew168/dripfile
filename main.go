@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"encoding/hex"
 	"flag"
 	"fmt"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"github.com/theandrew168/dripfile/backend/database"
 	"github.com/theandrew168/dripfile/backend/migrate"
 	"github.com/theandrew168/dripfile/backend/repository"
+	"github.com/theandrew168/dripfile/backend/secret"
 	"github.com/theandrew168/dripfile/backend/web"
 )
 
@@ -47,14 +49,6 @@ func run(logger *slog.Logger) error {
 		return err
 	}
 
-	// secretKey, err := hex.DecodeString(cfg.SecretKey)
-	// if err != nil {
-	// 	logger.Error(err.Error())
-	// 	return 1
-	// }
-
-	// box := secret.NewBox([32]byte(secretKey))
-
 	pool, err := database.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
 		return err
@@ -74,7 +68,14 @@ func run(logger *slog.Logger) error {
 		return nil
 	}
 
-	repo := repository.NewMemory()
+	secretKey, err := hex.DecodeString(cfg.SecretKey)
+	if err != nil {
+		return err
+	}
+
+	box := secret.NewBox([32]byte(secretKey))
+
+	repo := repository.NewPostgres(pool, box)
 
 	app := web.NewApplication(
 		logger,

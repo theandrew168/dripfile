@@ -11,15 +11,6 @@ type Repository struct {
 	Transfer  TransferRepository
 }
 
-func NewMemory() *Repository {
-	repo := Repository{
-		Location:  NewMemoryLocationRepository(),
-		Itinerary: NewMemoryItineraryRepository(),
-		Transfer:  NewMemoryTransferRepository(),
-	}
-	return &repo
-}
-
 func NewPostgres(conn database.Conn, box *secret.Box) *Repository {
 	repo := Repository{
 		Location:  NewPostgresLocationRepository(conn, box),
