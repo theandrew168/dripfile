@@ -27,7 +27,7 @@ func TestLocationCheckDelete(t *testing.T) {
 	test.AssertNilError(t, from.CheckDelete())
 	test.AssertNilError(t, to.CheckDelete())
 
-	_, err = domain.NewItinerary("*", from, to)
+	_, err = domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	test.AssertErrorIs(t, from.CheckDelete(), domain.ErrLocationInUse)

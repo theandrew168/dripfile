@@ -144,6 +144,7 @@ func (repo *PostgresLocationRepository) Create(location *domain.Location) error 
 		return checkCreateError(err)
 	}
 
+	// TODO: set createdAt and version fields
 	return nil
 }
 

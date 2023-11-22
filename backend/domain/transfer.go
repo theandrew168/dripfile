@@ -99,6 +99,10 @@ func (t *Transfer) Version() int {
 	return t.version
 }
 
+func (t *Transfer) SetVersion(version int) {
+	t.version = version
+}
+
 func (t *Transfer) CheckDelete() error {
 	return nil
 }

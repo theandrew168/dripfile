@@ -16,7 +16,7 @@ func TestNewTransfer(t *testing.T) {
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
@@ -34,7 +34,7 @@ func TestTransferCanDelete(t *testing.T) {
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
@@ -52,7 +52,7 @@ func TestTransferUpdateStatus(t *testing.T) {
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)
@@ -73,7 +73,7 @@ func TestTransferUpdateProgress(t *testing.T) {
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	transfer, err := domain.NewTransfer(itinerary)

@@ -81,7 +81,8 @@ func (repo *PostgresTransferRepository) Create(transfer *domain.Transfer) error 
 		INSERT INTO transfer
 			(id, itinerary_id, status, progress, error)
 		VALUES
-			($1, $2, $3, $4, $5)`
+			($1, $2, $3, $4, $5)
+		RETURNING version`
 
 	row, err := repo.marshal(transfer)
 	if err != nil {
@@ -99,11 +100,18 @@ func (repo *PostgresTransferRepository) Create(transfer *domain.Transfer) error 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	_, err = repo.conn.Exec(ctx, stmt, args...)
+	rows, err := repo.conn.Query(ctx, stmt, args...)
 	if err != nil {
-		return checkCreateError(err)
+		return err
 	}
 
+	version, err := pgx.CollectOneRow(rows, pgx.RowTo[int])
+	if err != nil {
+		return checkDeleteError(err)
+	}
+
+	// TODO: set createdAt and version fields
+	transfer.SetVersion(version)
 	return nil
 }
 

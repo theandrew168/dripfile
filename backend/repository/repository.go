@@ -24,7 +24,7 @@ func NewPostgres(conn database.Conn, box *secret.Box) *Repository {
 	repo := Repository{
 		Location:  NewPostgresLocationRepository(conn, box),
 		Itinerary: NewPostgresItineraryRepository(conn),
-		Transfer:  NewMemoryTransferRepository(),
+		Transfer:  NewPostgresTransferRepository(conn),
 	}
 	return &repo
 }

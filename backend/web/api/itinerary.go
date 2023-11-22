@@ -16,16 +16,16 @@ import (
 type Itinerary struct {
 	ID uuid.UUID `json:"id"`
 
-	Pattern        string    `json:"pattern"`
 	FromLocationID uuid.UUID `json:"fromLocationID"`
 	ToLocationID   uuid.UUID `json:"toLocationID"`
+	Pattern        string    `json:"pattern"`
 }
 
 func (app *Application) handleItineraryCreate() http.HandlerFunc {
 	type request struct {
-		Pattern        string `json:"pattern"`
 		FromLocationID string `json:"fromLocationID"`
 		ToLocationID   string `json:"toLocationID"`
+		Pattern        string `json:"pattern"`
 	}
 
 	type response struct {
@@ -44,9 +44,9 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		}
 
 		// check if provided info passes basic validation
-		v.Check(req.Pattern != "", "pattern", "must be provided")
 		v.Check(req.FromLocationID != "", "fromLocationID", "must be provided")
 		v.Check(req.ToLocationID != "", "toLocationID", "must be provided")
+		v.Check(req.Pattern != "", "pattern", "must be provided")
 
 		// check if provided IDs are valid UUIDs
 		fromLocationID, err := uuid.Parse(req.FromLocationID)
@@ -91,7 +91,7 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 			return
 		}
 
-		itinerary, err := domain.NewItinerary(req.Pattern, from, to)
+		itinerary, err := domain.NewItinerary(from, to, req.Pattern)
 		if err != nil {
 			v.AddError("itinerary", err.Error())
 		}
@@ -117,9 +117,9 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 		apiItinerary := Itinerary{
 			ID: itinerary.ID(),
 
-			Pattern:        itinerary.Pattern(),
 			FromLocationID: itinerary.FromLocationID(),
 			ToLocationID:   itinerary.ToLocationID(),
+			Pattern:        itinerary.Pattern(),
 		}
 		resp := response{
 			Itinerary: apiItinerary,
@@ -154,9 +154,9 @@ func (app *Application) handleItineraryList() http.HandlerFunc {
 			apiItinerary := Itinerary{
 				ID: itinerary.ID(),
 
-				Pattern:        itinerary.Pattern(),
 				FromLocationID: itinerary.FromLocationID(),
 				ToLocationID:   itinerary.ToLocationID(),
+				Pattern:        itinerary.Pattern(),
 			}
 			apiItineraries = append(apiItineraries, apiItinerary)
 		}
@@ -200,9 +200,9 @@ func (app *Application) handleItineraryRead() http.HandlerFunc {
 		apiItinerary := Itinerary{
 			ID: itinerary.ID(),
 
-			Pattern:        itinerary.Pattern(),
 			FromLocationID: itinerary.FromLocationID(),
 			ToLocationID:   itinerary.ToLocationID(),
+			Pattern:        itinerary.Pattern(),
 		}
 		resp := response{
 			Itinerary: apiItinerary,

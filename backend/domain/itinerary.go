@@ -16,16 +16,16 @@ var (
 type Itinerary struct {
 	id uuid.UUID
 
-	pattern        string
 	fromLocationID uuid.UUID
 	toLocationID   uuid.UUID
+	pattern        string
 
 	createdAt time.Time
 	version   int
 }
 
 // Factory func for creating a new itinerary
-func NewItinerary(pattern string, from, to *Location) (*Itinerary, error) {
+func NewItinerary(from, to *Location, pattern string) (*Itinerary, error) {
 	if from.ID() == to.ID() {
 		return nil, ErrItinerarySameLocation
 	}
@@ -36,9 +36,9 @@ func NewItinerary(pattern string, from, to *Location) (*Itinerary, error) {
 	i := Itinerary{
 		id: uuid.New(),
 
-		pattern:        pattern,
 		fromLocationID: from.ID(),
 		toLocationID:   to.ID(),
+		pattern:        pattern,
 	}
 
 	from.useBy(&i)
@@ -49,13 +49,13 @@ func NewItinerary(pattern string, from, to *Location) (*Itinerary, error) {
 
 // Create an itinerary from existing data
 // TODO: Can this be made visible ONLY to the repository package?
-func LoadItinerary(id uuid.UUID, pattern string, fromLocationID, toLocationID uuid.UUID, createdAt time.Time, version int) *Itinerary {
+func LoadItinerary(id uuid.UUID, fromLocationID, toLocationID uuid.UUID, pattern string, createdAt time.Time, version int) *Itinerary {
 	i := Itinerary{
 		id: id,
 
-		pattern:        pattern,
 		fromLocationID: fromLocationID,
 		toLocationID:   toLocationID,
+		pattern:        pattern,
 
 		createdAt: createdAt,
 		version:   version,
@@ -67,16 +67,16 @@ func (i *Itinerary) ID() uuid.UUID {
 	return i.id
 }
 
-func (i *Itinerary) Pattern() string {
-	return i.pattern
-}
-
 func (i *Itinerary) FromLocationID() uuid.UUID {
 	return i.fromLocationID
 }
 
 func (i *Itinerary) ToLocationID() uuid.UUID {
 	return i.toLocationID
+}
+
+func (i *Itinerary) Pattern() string {
+	return i.pattern
 }
 
 func (i *Itinerary) CreatedAt() time.Time {

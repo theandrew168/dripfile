@@ -16,7 +16,7 @@ func TestNewItinerary(t *testing.T) {
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, itinerary.Pattern(), "*")
@@ -33,7 +33,7 @@ func TestNewItineraryInvalidPattern(t *testing.T) {
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	_, err = domain.NewItinerary("", from, to)
+	_, err = domain.NewItinerary(from, to, "")
 	test.AssertErrorIs(t, err, domain.ErrItineraryInvalidPattern)
 }
 
@@ -43,7 +43,7 @@ func TestNewItinerarySameLocation(t *testing.T) {
 	from, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	_, err = domain.NewItinerary("*", from, from)
+	_, err = domain.NewItinerary(from, from, "*")
 	test.AssertErrorIs(t, err, domain.ErrItinerarySameLocation)
 }
 
@@ -56,7 +56,7 @@ func TestItineraryCanDelete(t *testing.T) {
 	to, err := domain.NewMemoryLocation()
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	test.AssertNilError(t, itinerary.CheckDelete())

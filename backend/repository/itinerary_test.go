@@ -28,7 +28,7 @@ func TestItineraryRepositoryCreate(t *testing.T) {
 	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	err = repo.Itinerary.Create(itinerary)
@@ -53,7 +53,7 @@ func TestItineraryRepositoryList(t *testing.T) {
 	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	err = repo.Itinerary.Create(itinerary)
@@ -88,7 +88,7 @@ func TestItineraryRepositoryRead(t *testing.T) {
 	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	err = repo.Itinerary.Create(itinerary)
@@ -130,7 +130,7 @@ func TestItineraryRepositoryDelete(t *testing.T) {
 	err = repo.Location.Create(to)
 	test.AssertNilError(t, err)
 
-	itinerary, err := domain.NewItinerary("*", from, to)
+	itinerary, err := domain.NewItinerary(from, to, "*")
 	test.AssertNilError(t, err)
 
 	err = repo.Itinerary.Create(itinerary)

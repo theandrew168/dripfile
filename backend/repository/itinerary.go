@@ -63,9 +63,9 @@ func (repo *PostgresItineraryRepository) marshal(itinerary *domain.Itinerary) (I
 func (repo *PostgresItineraryRepository) unmarshal(row Itinerary) (*domain.Itinerary, error) {
 	itinerary := domain.LoadItinerary(
 		row.ID,
-		row.Pattern,
 		row.FromLocationID,
 		row.ToLocationID,
+		row.Pattern,
 		row.CreatedAt,
 		row.Version,
 	)
@@ -75,7 +75,7 @@ func (repo *PostgresItineraryRepository) unmarshal(row Itinerary) (*domain.Itine
 func (repo *PostgresItineraryRepository) Create(itinerary *domain.Itinerary) error {
 	stmt := `
 		INSERT INTO itinerary
-			(id, pattern, from_location_id, to_location_id)
+			(id, from_location_id, to_location_id, pattern)
 		VALUES
 			($1, $2, $3, $4)`
 
@@ -86,9 +86,9 @@ func (repo *PostgresItineraryRepository) Create(itinerary *domain.Itinerary) err
 
 	args := []any{
 		row.ID,
-		row.Pattern,
 		row.FromLocationID,
 		row.ToLocationID,
+		row.Pattern,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -99,6 +99,7 @@ func (repo *PostgresItineraryRepository) Create(itinerary *domain.Itinerary) err
 		return checkCreateError(err)
 	}
 
+	// TODO: set createdAt and version fields
 	return nil
 }
 
@@ -106,9 +107,9 @@ func (repo *PostgresItineraryRepository) List() ([]*domain.Itinerary, error) {
 	stmt := `
 		SELECT
 			id,
-			pattern,
 			from_location_id,
 			to_location_id,
+			pattern,
 			created_at,
 			version
 		FROM itinerary
@@ -144,9 +145,9 @@ func (repo *PostgresItineraryRepository) Read(id uuid.UUID) (*domain.Itinerary, 
 	stmt := `
 		SELECT
 			id,
-			pattern,
 			from_location_id,
 			to_location_id,
+			pattern,
 			created_at,
 			version
 		FROM itinerary
