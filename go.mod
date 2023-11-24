@@ -9,8 +9,8 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.5.0
-	github.com/klauspost/compress v1.17.2
-	github.com/minio/minio-go/v7 v7.0.63
+	github.com/klauspost/compress v1.17.3
+	github.com/minio/minio-go/v7 v7.0.64
 	github.com/prometheus/client_golang v1.17.0
 	golang.org/x/crypto v0.15.0
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
@@ -37,7 +37,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/testify v1.8.2 // indirect
 	golang.org/x/net v0.18.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
