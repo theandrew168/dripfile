@@ -18,6 +18,7 @@ type Worker struct {
 	logger *slog.Logger
 	repo   *repository.Repository
 
+	// sync.WaitGroup for running tasks (upper limit via semaphore?)
 	wg sync.WaitGroup
 }
 
@@ -32,14 +33,6 @@ func New(logger *slog.Logger, repo *repository.Repository) *Worker {
 func (w *Worker) Run(ctx context.Context) error {
 	w.logger.Info("starting worker")
 
-	// run til ctx is cancelled
-	// check for transfers in "pending" state
-	// select w/ for update skip locked
-
-	// sync.WaitGroup for running tasks (upper limit via semaphore?)
-	// for+select loop w/ ticker (5s or something?), ctx.Done()
-	// when done, break and wait for WG to finish
-
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()
 
@@ -47,6 +40,8 @@ func (w *Worker) Run(ctx context.Context) error {
 	for running {
 		select {
 		case <-ticker.C:
+			// check for transfers in "pending" state
+			// select w/ for update skip locked
 			w.logger.Info("checking for jobs")
 			w.wg.Add(1)
 			go func() {

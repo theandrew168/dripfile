@@ -29,36 +29,33 @@ var migrationFS embed.FS
 var publicFS embed.FS
 
 func main() {
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-
-	code := 0
-	if err := run(logger); err != nil {
-		logger.Error(err.Error())
-		code = 1
-	}
-
-	os.Exit(code)
+	os.Exit(run())
 }
 
-func run(logger *slog.Logger) error {
+func run() int {
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
 	conf := flag.String("conf", "dripfile.conf", "app config file")
 	migrateOnly := flag.Bool("migrate", false, "apply migrations and exit")
 	flag.Parse()
 
 	cfg, err := config.ReadFile(*conf)
 	if err != nil {
-		return err
+		logger.Error(err.Error())
+		return 1
 	}
 
 	pool, err := database.ConnectPool(cfg.DatabaseURI)
 	if err != nil {
-		return err
+		logger.Error(err.Error())
+		return 1
 	}
 	defer pool.Close()
 
 	applied, err := migrate.Migrate(pool, migrationFS)
 	if err != nil {
-		return err
+		logger.Error(err.Error())
+		return 1
 	}
 
 	for _, migration := range applied {
@@ -66,12 +63,13 @@ func run(logger *slog.Logger) error {
 	}
 
 	if *migrateOnly {
-		return nil
+		return 0
 	}
 
 	secretKey, err := hex.DecodeString(cfg.SecretKey)
 	if err != nil {
-		return err
+		logger.Error(err.Error())
+		return 1
 	}
 
 	box := secret.NewBox([32]byte(secretKey))
@@ -108,7 +106,11 @@ func run(logger *slog.Logger) error {
 	// start the web server in the background
 	go func() {
 		defer wg.Done()
-		app.Run(ctx, addr)
+
+		err := app.Run(ctx, addr)
+		if err != nil {
+			logger.Error(err.Error())
+		}
 	}()
 
 	w := worker.New(logger, repo)
@@ -116,11 +118,15 @@ func run(logger *slog.Logger) error {
 	// start worker in the background (standalone mode by default)
 	go func() {
 		defer wg.Done()
-		w.Run(ctx)
+
+		err := w.Run(ctx)
+		if err != nil {
+			logger.Error(err.Error())
+		}
 	}()
 
 	// wait for the worker and web server to stop
 	wg.Wait()
 
-	return nil
+	return 0
 }
