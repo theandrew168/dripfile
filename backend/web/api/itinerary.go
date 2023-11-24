@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
@@ -19,6 +20,8 @@ type Itinerary struct {
 	FromLocationID uuid.UUID `json:"fromLocationID"`
 	ToLocationID   uuid.UUID `json:"toLocationID"`
 	Pattern        string    `json:"pattern"`
+	CreatedAt      time.Time `json:"createdAt"`
+	UpdatedAt      time.Time `json:"updatedAt"`
 }
 
 func (app *Application) handleItineraryCreate() http.HandlerFunc {
@@ -120,6 +123,8 @@ func (app *Application) handleItineraryCreate() http.HandlerFunc {
 			FromLocationID: itinerary.FromLocationID(),
 			ToLocationID:   itinerary.ToLocationID(),
 			Pattern:        itinerary.Pattern(),
+			CreatedAt:      itinerary.CreatedAt(),
+			UpdatedAt:      itinerary.UpdatedAt(),
 		}
 		resp := response{
 			Itinerary: apiItinerary,
@@ -157,6 +162,8 @@ func (app *Application) handleItineraryList() http.HandlerFunc {
 				FromLocationID: itinerary.FromLocationID(),
 				ToLocationID:   itinerary.ToLocationID(),
 				Pattern:        itinerary.Pattern(),
+				CreatedAt:      itinerary.CreatedAt(),
+				UpdatedAt:      itinerary.UpdatedAt(),
 			}
 			apiItineraries = append(apiItineraries, apiItinerary)
 		}
@@ -203,6 +210,8 @@ func (app *Application) handleItineraryRead() http.HandlerFunc {
 			FromLocationID: itinerary.FromLocationID(),
 			ToLocationID:   itinerary.ToLocationID(),
 			Pattern:        itinerary.Pattern(),
+			CreatedAt:      itinerary.CreatedAt(),
+			UpdatedAt:      itinerary.UpdatedAt(),
 		}
 		resp := response{
 			Itinerary: apiItinerary,

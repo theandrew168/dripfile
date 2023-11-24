@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
@@ -18,7 +19,10 @@ import (
 type Location struct {
 	ID uuid.UUID `json:"id"`
 
-	Kind domain.LocationKind `json:"kind"`
+	Kind      domain.LocationKind `json:"kind"`
+	CreatedAt time.Time           `json:"createdAt"`
+	UpdatedAt time.Time           `json:"updatedAt"`
+	UsedBy    []uuid.UUID         `json:"usedBy"`
 }
 
 func (app *Application) handleLocationCreate() http.HandlerFunc {
@@ -139,7 +143,10 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		apiLocation := Location{
 			ID: location.ID(),
 
-			Kind: location.Kind(),
+			Kind:      location.Kind(),
+			CreatedAt: location.CreatedAt(),
+			UpdatedAt: location.UpdatedAt(),
+			UsedBy:    location.UsedBy(),
 		}
 		resp := response{
 			Location: apiLocation,
@@ -174,7 +181,10 @@ func (app *Application) handleLocationList() http.HandlerFunc {
 			apiLocation := Location{
 				ID: location.ID(),
 
-				Kind: location.Kind(),
+				Kind:      location.Kind(),
+				CreatedAt: location.CreatedAt(),
+				UpdatedAt: location.UpdatedAt(),
+				UsedBy:    location.UsedBy(),
 			}
 			apiLocations = append(apiLocations, apiLocation)
 		}
@@ -218,7 +228,10 @@ func (app *Application) handleLocationRead() http.HandlerFunc {
 		apiLocation := Location{
 			ID: location.ID(),
 
-			Kind: location.Kind(),
+			Kind:      location.Kind(),
+			CreatedAt: location.CreatedAt(),
+			UpdatedAt: location.UpdatedAt(),
+			UsedBy:    location.UsedBy(),
 		}
 		resp := response{
 			Location: apiLocation,

@@ -101,6 +101,7 @@ func TestLocationRepositoryRead(t *testing.T) {
 	test.AssertNilError(t, err)
 	test.AssertEqual(t, got.ID(), location.ID())
 	test.AssertEqual(t, got.Kind(), location.Kind())
+	test.AssertEqual(t, len(got.UsedBy()), 0)
 }
 
 func TestLocationRepositoryReadNotFound(t *testing.T) {

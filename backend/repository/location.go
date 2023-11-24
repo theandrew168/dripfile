@@ -156,7 +156,7 @@ func (repo *PostgresLocationRepository) List() ([]*domain.Location, error) {
 			location.info,
 			location.created_at,
 			location.updated_at,
-			array_agg(itinerary.id) as used_by
+			array_remove(array_agg(itinerary.id), NULL) AS used_by
 		FROM location
 		LEFT JOIN itinerary
 			ON itinerary.from_location_id = location.id
@@ -198,7 +198,7 @@ func (repo *PostgresLocationRepository) Read(id uuid.UUID) (*domain.Location, er
 			location.info,
 			location.created_at,
 			location.updated_at,
-			array_agg(itinerary.id) as used_by
+			array_remove(array_agg(itinerary.id), NULL) AS used_by
 		FROM location
 		LEFT JOIN itinerary
 			ON itinerary.from_location_id = location.id

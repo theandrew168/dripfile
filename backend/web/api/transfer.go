@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/alexedwards/flow"
 	"github.com/google/uuid"
@@ -19,6 +20,8 @@ type Transfer struct {
 	ItineraryID uuid.UUID             `json:"itineraryID"`
 	Status      domain.TransferStatus `json:"status"`
 	Progress    int                   `json:"progress"`
+	CreatedAt   time.Time             `json:"createdAt"`
+	UpdatedAt   time.Time             `json:"updatedAt"`
 }
 
 func (app *Application) handleTransferCreate() http.HandlerFunc {
@@ -103,6 +106,8 @@ func (app *Application) handleTransferCreate() http.HandlerFunc {
 			ItineraryID: transfer.ItineraryID(),
 			Status:      transfer.Status(),
 			Progress:    transfer.Progress(),
+			CreatedAt:   transfer.CreatedAt(),
+			UpdatedAt:   transfer.UpdatedAt(),
 		}
 		resp := response{
 			Transfer: apiTransfer,
@@ -140,6 +145,8 @@ func (app *Application) handleTransferList() http.HandlerFunc {
 				ItineraryID: transfer.ItineraryID(),
 				Status:      transfer.Status(),
 				Progress:    transfer.Progress(),
+				CreatedAt:   transfer.CreatedAt(),
+				UpdatedAt:   transfer.UpdatedAt(),
 			}
 			apiTransfers = append(apiTransfers, apiTransfer)
 		}
@@ -186,6 +193,8 @@ func (app *Application) handleTransferRead() http.HandlerFunc {
 			ItineraryID: transfer.ItineraryID(),
 			Status:      transfer.Status(),
 			Progress:    transfer.Progress(),
+			CreatedAt:   transfer.CreatedAt(),
+			UpdatedAt:   transfer.UpdatedAt(),
 		}
 		resp := response{
 			Transfer: apiTransfer,
