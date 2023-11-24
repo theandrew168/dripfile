@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"syscall"
 
 	"github.com/coreos/go-systemd/daemon"
 	"golang.org/x/exp/slog"
@@ -94,26 +93,15 @@ func run(logger *slog.Logger) error {
 	// let systemd know that we are good to go (no-op if not using systemd)
 	daemon.SdNotify(false, daemon.SdNotifyReady)
 
-	ctx := newSignalHandlerContext()
+	// TODO: start worker in the background (standalone mode by default)
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
 	err = app.Run(ctx, addr)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// create a context that cancels upon receiving an exit signal
-func newSignalHandlerContext() context.Context {
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		// idle until a signal is caught (must be a buffered channel)
-		quit := make(chan os.Signal, 1)
-		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-		<-quit
-
-		cancel()
-	}()
-
-	return ctx
 }
