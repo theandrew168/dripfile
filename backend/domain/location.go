@@ -32,7 +32,7 @@ type Location struct {
 	s3Info     fileserver.S3Info
 
 	createdAt time.Time
-	version   int
+	updatedAt time.Time
 
 	usedBy []uuid.UUID
 }
@@ -46,13 +46,15 @@ func NewMemoryLocation() (*Location, error) {
 
 		kind:       LocationKindMemory,
 		memoryInfo: info,
+
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
 	}
 	return &l, nil
 }
 
 // Create an in-memory location from existing data
-// TODO: Can this be made visible ONLY to the repository package?
-func LoadMemoryLocation(id uuid.UUID, info fileserver.MemoryInfo, createdAt time.Time, version int) *Location {
+func LoadMemoryLocation(id uuid.UUID, info fileserver.MemoryInfo, createdAt, updatedAt time.Time) *Location {
 	l := Location{
 		id: id,
 
@@ -60,7 +62,7 @@ func LoadMemoryLocation(id uuid.UUID, info fileserver.MemoryInfo, createdAt time
 		memoryInfo: info,
 
 		createdAt: createdAt,
-		version:   version,
+		updatedAt: updatedAt,
 	}
 	return &l
 }
@@ -92,13 +94,15 @@ func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) (*Loca
 
 		kind:   LocationKindS3,
 		s3Info: info,
+
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
 	}
 	return &l, nil
 }
 
 // Create an S3 location from existing data
-// TODO: Can this be made visible ONLY to the repository package?
-func LoadS3Location(id uuid.UUID, info fileserver.S3Info, createdAt time.Time, version int) *Location {
+func LoadS3Location(id uuid.UUID, info fileserver.S3Info, createdAt, updatedAt time.Time) *Location {
 	l := Location{
 		id: id,
 
@@ -106,7 +110,7 @@ func LoadS3Location(id uuid.UUID, info fileserver.S3Info, createdAt time.Time, v
 		s3Info: info,
 
 		createdAt: createdAt,
-		version:   version,
+		updatedAt: updatedAt,
 	}
 	return &l
 }
@@ -133,8 +137,12 @@ func (l *Location) CreatedAt() time.Time {
 	return l.createdAt
 }
 
-func (l *Location) Version() int {
-	return l.version
+func (l *Location) UpdatedAt() time.Time {
+	return l.updatedAt
+}
+
+func (l *Location) SetUpdatedAt(updatedAt time.Time) {
+	l.updatedAt = updatedAt
 }
 
 func (l *Location) UsedBy() []uuid.UUID {

@@ -32,7 +32,7 @@ type Location struct {
 	Info []byte              `db:"info"`
 
 	CreatedAt time.Time `db:"created_at"`
-	Version   int       `db:"version"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 type PostgresLocationRepository struct {
@@ -67,7 +67,7 @@ func (repo *PostgresLocationRepository) marshal(location *domain.Location) (Loca
 		Info: encryptedInfoJSON,
 
 		CreatedAt: location.CreatedAt(),
-		Version:   location.Version(),
+		UpdatedAt: location.UpdatedAt(),
 	}
 	return row, nil
 }
@@ -95,7 +95,7 @@ func (repo *PostgresLocationRepository) unmarshalMemory(row Location) (*domain.L
 		return nil, err
 	}
 
-	location := domain.LoadMemoryLocation(row.ID, info, row.CreatedAt, row.Version)
+	location := domain.LoadMemoryLocation(row.ID, info, row.CreatedAt, row.UpdatedAt)
 	return location, nil
 }
 
@@ -111,16 +111,16 @@ func (repo *PostgresLocationRepository) unmarshalS3(row Location) (*domain.Locat
 		return nil, err
 	}
 
-	location := domain.LoadS3Location(row.ID, info, row.CreatedAt, row.Version)
+	location := domain.LoadS3Location(row.ID, info, row.CreatedAt, row.UpdatedAt)
 	return location, nil
 }
 
 func (repo *PostgresLocationRepository) Create(location *domain.Location) error {
 	stmt := `
 		INSERT INTO location
-			(id, kind, info)
+			(id, kind, info, created_at, updated_at)
 		VALUES
-			($1, $2, $3)`
+			($1, $2, $3, $4, $5)`
 
 	row, err := repo.marshal(location)
 	if err != nil {
@@ -131,6 +131,8 @@ func (repo *PostgresLocationRepository) Create(location *domain.Location) error 
 		row.ID,
 		row.Kind,
 		row.Info,
+		row.CreatedAt,
+		row.UpdatedAt,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -141,7 +143,6 @@ func (repo *PostgresLocationRepository) Create(location *domain.Location) error 
 		return checkCreateError(err)
 	}
 
-	// TODO: set createdAt and version fields
 	return nil
 }
 
@@ -152,9 +153,9 @@ func (repo *PostgresLocationRepository) List() ([]*domain.Location, error) {
 			kind,
 			info,
 			created_at,
-			version
+			updated_at
 		FROM location
-		ORDER BY created_at ASC`
+		ORDER BY created_at DESC`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
@@ -189,7 +190,7 @@ func (repo *PostgresLocationRepository) Read(id uuid.UUID) (*domain.Location, er
 			kind,
 			info,
 			created_at,
-			version
+			updated_at
 		FROM location
 		WHERE id = $1`
 
@@ -213,7 +214,7 @@ func (repo *PostgresLocationRepository) Delete(location *domain.Location) error 
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1
-		RETURNING version`
+		RETURNING updated_at`
 
 	err := location.CheckDelete()
 	if err != nil {
@@ -228,7 +229,7 @@ func (repo *PostgresLocationRepository) Delete(location *domain.Location) error 
 		return err
 	}
 
-	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[time.Time])
 	if err != nil {
 		return checkDeleteError(err)
 	}
