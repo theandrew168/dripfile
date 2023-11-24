@@ -29,7 +29,7 @@ type Itinerary struct {
 	ToLocationID   uuid.UUID `db:"to_location_id"`
 
 	CreatedAt time.Time `db:"created_at"`
-	Version   int       `db:"version"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 type PostgresItineraryRepository struct {
@@ -52,7 +52,7 @@ func (repo *PostgresItineraryRepository) marshal(itinerary *domain.Itinerary) (I
 		ToLocationID:   itinerary.ToLocationID(),
 
 		CreatedAt: itinerary.CreatedAt(),
-		Version:   itinerary.Version(),
+		UpdatedAt: itinerary.UpdatedAt(),
 	}
 	return row, nil
 }
@@ -64,7 +64,7 @@ func (repo *PostgresItineraryRepository) unmarshal(row Itinerary) (*domain.Itine
 		row.ToLocationID,
 		row.Pattern,
 		row.CreatedAt,
-		row.Version,
+		row.UpdatedAt,
 	)
 	return itinerary, nil
 }
@@ -72,9 +72,9 @@ func (repo *PostgresItineraryRepository) unmarshal(row Itinerary) (*domain.Itine
 func (repo *PostgresItineraryRepository) Create(itinerary *domain.Itinerary) error {
 	stmt := `
 		INSERT INTO itinerary
-			(id, from_location_id, to_location_id, pattern)
+			(id, from_location_id, to_location_id, pattern, created_at, updated_at)
 		VALUES
-			($1, $2, $3, $4)`
+			($1, $2, $3, $4, $5, $6)`
 
 	row, err := repo.marshal(itinerary)
 	if err != nil {
@@ -86,6 +86,8 @@ func (repo *PostgresItineraryRepository) Create(itinerary *domain.Itinerary) err
 		row.FromLocationID,
 		row.ToLocationID,
 		row.Pattern,
+		row.CreatedAt,
+		row.UpdatedAt,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -96,7 +98,6 @@ func (repo *PostgresItineraryRepository) Create(itinerary *domain.Itinerary) err
 		return checkCreateError(err)
 	}
 
-	// TODO: set createdAt and version fields
 	return nil
 }
 
@@ -108,9 +109,9 @@ func (repo *PostgresItineraryRepository) List() ([]*domain.Itinerary, error) {
 			to_location_id,
 			pattern,
 			created_at,
-			version
+			updated_at
 		FROM itinerary
-		ORDER BY created_at ASC`
+		ORDER BY created_at DESC`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
@@ -146,7 +147,7 @@ func (repo *PostgresItineraryRepository) Read(id uuid.UUID) (*domain.Itinerary, 
 			to_location_id,
 			pattern,
 			created_at,
-			version
+			updated_at
 		FROM itinerary
 		WHERE id = $1`
 
@@ -170,7 +171,7 @@ func (repo *PostgresItineraryRepository) Delete(itinerary *domain.Itinerary) err
 	stmt := `
 		DELETE FROM itinerary
 		WHERE id = $1
-		RETURNING version`
+		RETURNING id`
 
 	err := itinerary.CheckDelete()
 	if err != nil {
@@ -185,7 +186,7 @@ func (repo *PostgresItineraryRepository) Delete(itinerary *domain.Itinerary) err
 		return err
 	}
 
-	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[uuid.UUID])
 	if err != nil {
 		return checkDeleteError(err)
 	}

@@ -214,7 +214,7 @@ func (repo *PostgresLocationRepository) Delete(location *domain.Location) error 
 	stmt := `
 		DELETE FROM location
 		WHERE id = $1
-		RETURNING updated_at`
+		RETURNING id`
 
 	err := location.CheckDelete()
 	if err != nil {
@@ -229,7 +229,7 @@ func (repo *PostgresLocationRepository) Delete(location *domain.Location) error 
 		return err
 	}
 
-	_, err = pgx.CollectOneRow(rows, pgx.RowTo[time.Time])
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[uuid.UUID])
 	if err != nil {
 		return checkDeleteError(err)
 	}

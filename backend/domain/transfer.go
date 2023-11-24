@@ -24,7 +24,7 @@ type Transfer struct {
 	error       string
 
 	createdAt time.Time
-	version   int
+	updatedAt time.Time
 }
 
 func NewTransfer(itinerary *Itinerary) (*Transfer, error) {
@@ -35,13 +35,23 @@ func NewTransfer(itinerary *Itinerary) (*Transfer, error) {
 		status:      TransferStatusPending,
 		progress:    0,
 		error:       "",
+
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
 	}
 	return &transfer, nil
 }
 
 // Create an transfer from existing data
-// TODO: Can this be made visible ONLY to the repository package?
-func LoadTransfer(id uuid.UUID, itineraryID uuid.UUID, status TransferStatus, progress int, error string, createdAt time.Time, version int) *Transfer {
+func LoadTransfer(
+	id uuid.UUID,
+	itineraryID uuid.UUID,
+	status TransferStatus,
+	progress int,
+	error string,
+	createdAt time.Time,
+	updatedAt time.Time,
+) *Transfer {
 	t := Transfer{
 		id: id,
 
@@ -51,7 +61,7 @@ func LoadTransfer(id uuid.UUID, itineraryID uuid.UUID, status TransferStatus, pr
 		error:       error,
 
 		createdAt: createdAt,
-		version:   version,
+		updatedAt: updatedAt,
 	}
 	return &t
 }
@@ -95,12 +105,12 @@ func (t *Transfer) CreatedAt() time.Time {
 	return t.createdAt
 }
 
-func (t *Transfer) Version() int {
-	return t.version
+func (t *Transfer) UpdatedAt() time.Time {
+	return t.updatedAt
 }
 
-func (t *Transfer) SetVersion(version int) {
-	t.version = version
+func (t *Transfer) SetUpdatedAt(updatedAt time.Time) {
+	t.updatedAt = updatedAt
 }
 
 func (t *Transfer) CheckDelete() error {

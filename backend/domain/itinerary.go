@@ -21,7 +21,7 @@ type Itinerary struct {
 	pattern        string
 
 	createdAt time.Time
-	version   int
+	updatedAt time.Time
 }
 
 // Factory func for creating a new itinerary
@@ -39,6 +39,9 @@ func NewItinerary(from, to *Location, pattern string) (*Itinerary, error) {
 		fromLocationID: from.ID(),
 		toLocationID:   to.ID(),
 		pattern:        pattern,
+
+		createdAt: time.Now(),
+		updatedAt: time.Now(),
 	}
 
 	from.useBy(&i)
@@ -48,8 +51,14 @@ func NewItinerary(from, to *Location, pattern string) (*Itinerary, error) {
 }
 
 // Create an itinerary from existing data
-// TODO: Can this be made visible ONLY to the repository package?
-func LoadItinerary(id uuid.UUID, fromLocationID, toLocationID uuid.UUID, pattern string, createdAt time.Time, version int) *Itinerary {
+func LoadItinerary(
+	id uuid.UUID,
+	fromLocationID uuid.UUID,
+	toLocationID uuid.UUID,
+	pattern string,
+	createdAt time.Time,
+	updatedAt time.Time,
+) *Itinerary {
 	i := Itinerary{
 		id: id,
 
@@ -58,7 +67,7 @@ func LoadItinerary(id uuid.UUID, fromLocationID, toLocationID uuid.UUID, pattern
 		pattern:        pattern,
 
 		createdAt: createdAt,
-		version:   version,
+		updatedAt: updatedAt,
 	}
 	return &i
 }
@@ -83,8 +92,12 @@ func (i *Itinerary) CreatedAt() time.Time {
 	return i.createdAt
 }
 
-func (i *Itinerary) Version() int {
-	return i.version
+func (i *Itinerary) UpdatedAt() time.Time {
+	return i.updatedAt
+}
+
+func (i *Itinerary) SetUpdatedAt(updatedAt time.Time) {
+	i.updatedAt = updatedAt
 }
 
 func (i *Itinerary) CheckDelete() error {

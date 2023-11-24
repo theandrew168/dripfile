@@ -54,7 +54,12 @@ func NewMemoryLocation() (*Location, error) {
 }
 
 // Create an in-memory location from existing data
-func LoadMemoryLocation(id uuid.UUID, info fileserver.MemoryInfo, createdAt, updatedAt time.Time) *Location {
+func LoadMemoryLocation(
+	id uuid.UUID,
+	info fileserver.MemoryInfo,
+	createdAt time.Time,
+	updatedAt time.Time,
+) *Location {
 	l := Location{
 		id: id,
 
@@ -102,7 +107,12 @@ func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) (*Loca
 }
 
 // Create an S3 location from existing data
-func LoadS3Location(id uuid.UUID, info fileserver.S3Info, createdAt, updatedAt time.Time) *Location {
+func LoadS3Location(
+	id uuid.UUID,
+	info fileserver.S3Info,
+	createdAt time.Time,
+	updatedAt time.Time,
+) *Location {
 	l := Location{
 		id: id,
 

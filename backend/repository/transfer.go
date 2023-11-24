@@ -31,7 +31,7 @@ type Transfer struct {
 	Error       string                `db:"error"`
 
 	CreatedAt time.Time `db:"created_at"`
-	Version   int       `db:"version"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 type PostgresTransferRepository struct {
@@ -55,7 +55,7 @@ func (repo *PostgresTransferRepository) marshal(transfer *domain.Transfer) (Tran
 		Error:       transfer.Error(),
 
 		CreatedAt: transfer.CreatedAt(),
-		Version:   transfer.Version(),
+		UpdatedAt: transfer.UpdatedAt(),
 	}
 	return row, nil
 }
@@ -68,7 +68,7 @@ func (repo *PostgresTransferRepository) unmarshal(row Transfer) (*domain.Transfe
 		row.Progress,
 		row.Error,
 		row.CreatedAt,
-		row.Version,
+		row.UpdatedAt,
 	)
 	return transfer, nil
 }
@@ -76,10 +76,9 @@ func (repo *PostgresTransferRepository) unmarshal(row Transfer) (*domain.Transfe
 func (repo *PostgresTransferRepository) Create(transfer *domain.Transfer) error {
 	stmt := `
 		INSERT INTO transfer
-			(id, itinerary_id, status, progress, error)
+			(id, itinerary_id, status, progress, error, created_at, updated_at)
 		VALUES
-			($1, $2, $3, $4, $5)
-		RETURNING version`
+			($1, $2, $3, $4, $5, $6, $7)`
 
 	row, err := repo.marshal(transfer)
 	if err != nil {
@@ -92,23 +91,18 @@ func (repo *PostgresTransferRepository) Create(transfer *domain.Transfer) error 
 		row.Status,
 		row.Progress,
 		row.Error,
+		row.CreatedAt,
+		row.UpdatedAt,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
 
-	rows, err := repo.conn.Query(ctx, stmt, args...)
+	_, err = repo.conn.Exec(ctx, stmt, args...)
 	if err != nil {
-		return err
+		return checkCreateError(err)
 	}
 
-	version, err := pgx.CollectOneRow(rows, pgx.RowTo[int])
-	if err != nil {
-		return checkDeleteError(err)
-	}
-
-	// TODO: set createdAt and version fields
-	transfer.SetVersion(version)
 	return nil
 }
 
@@ -121,9 +115,9 @@ func (repo *PostgresTransferRepository) List() ([]*domain.Transfer, error) {
 			progress,
 			error,
 			created_at,
-			version
+			updated_at
 		FROM transfer
-		ORDER BY created_at ASC`
+		ORDER BY created_at DESC`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
@@ -160,7 +154,7 @@ func (repo *PostgresTransferRepository) Read(id uuid.UUID) (*domain.Transfer, er
 			progress,
 			error,
 			created_at,
-			version
+			updated_at
 		FROM transfer
 		WHERE id = $1`
 
@@ -181,16 +175,17 @@ func (repo *PostgresTransferRepository) Read(id uuid.UUID) (*domain.Transfer, er
 }
 
 func (repo *PostgresTransferRepository) Update(transfer *domain.Transfer) error {
+	now := time.Now()
 	stmt := `
 		UPDATE transfer
 		SET
-			status = $2,
-			progress = $3,
-			error = $4,
-			version = version + 1
-		WHERE id = $1
-		  AND version = $5
-		RETURNING version`
+			status = $1,
+			progress = $2,
+			error = $3,
+			updated_at = $4
+		WHERE id = $5
+		  AND updated_at = $6
+		RETURNING updated_at`
 
 	row, err := repo.marshal(transfer)
 	if err != nil {
@@ -198,11 +193,12 @@ func (repo *PostgresTransferRepository) Update(transfer *domain.Transfer) error 
 	}
 
 	args := []any{
-		row.ID,
 		row.Status,
 		row.Progress,
 		row.Error,
-		row.Version,
+		now,
+		row.ID,
+		row.UpdatedAt,
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
@@ -213,12 +209,12 @@ func (repo *PostgresTransferRepository) Update(transfer *domain.Transfer) error 
 		return err
 	}
 
-	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[time.Time])
 	if err != nil {
 		return checkUpdateError(err)
 	}
 
-	// TODO: Update domain object's Version field
+	transfer.SetUpdatedAt(now)
 	return err
 }
 
@@ -226,7 +222,7 @@ func (repo *PostgresTransferRepository) Delete(transfer *domain.Transfer) error 
 	stmt := `
 		DELETE FROM transfer
 		WHERE id = $1
-		RETURNING version`
+		RETURNING id`
 
 	err := transfer.CheckDelete()
 	if err != nil {
@@ -241,7 +237,7 @@ func (repo *PostgresTransferRepository) Delete(transfer *domain.Transfer) error 
 		return err
 	}
 
-	_, err = pgx.CollectOneRow(rows, pgx.RowTo[int])
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[uuid.UUID])
 	if err != nil {
 		return checkDeleteError(err)
 	}
