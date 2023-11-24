@@ -46,6 +46,45 @@ func TestLocationRepositoryList(t *testing.T) {
 	test.AssertSliceContains(t, ids, location.ID())
 }
 
+func TestLocationRepositoryListUsedBy(t *testing.T) {
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
+
+	from, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = repo.Location.Create(from)
+	test.AssertNilError(t, err)
+
+	to, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = repo.Location.Create(to)
+	test.AssertNilError(t, err)
+
+	itinerary, err := domain.NewItinerary(from, to, "*")
+	test.AssertNilError(t, err)
+
+	err = repo.Itinerary.Create(itinerary)
+	test.AssertNilError(t, err)
+
+	locations, err := repo.Location.List()
+	test.AssertNilError(t, err)
+
+	var got []*domain.Location
+	for _, location := range locations {
+		if location.ID() == from.ID() || location.ID() == to.ID() {
+			got = append(got, location)
+		}
+	}
+
+	for _, location := range got {
+		test.AssertSliceContains(t, location.UsedBy(), itinerary.ID())
+	}
+}
+
 func TestLocationRepositoryRead(t *testing.T) {
 	t.Parallel()
 
@@ -72,6 +111,39 @@ func TestLocationRepositoryReadNotFound(t *testing.T) {
 
 	_, err := repo.Location.Read(uuid.New())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
+}
+
+func TestLocationRepositoryReadUsedBy(t *testing.T) {
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
+
+	from, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = repo.Location.Create(from)
+	test.AssertNilError(t, err)
+
+	to, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = repo.Location.Create(to)
+	test.AssertNilError(t, err)
+
+	itinerary, err := domain.NewItinerary(from, to, "*")
+	test.AssertNilError(t, err)
+
+	err = repo.Itinerary.Create(itinerary)
+	test.AssertNilError(t, err)
+
+	gotFrom, err := repo.Location.Read(from.ID())
+	test.AssertNilError(t, err)
+	test.AssertSliceContains(t, gotFrom.UsedBy(), itinerary.ID())
+
+	gotTo, err := repo.Location.Read(to.ID())
+	test.AssertNilError(t, err)
+	test.AssertSliceContains(t, gotTo.UsedBy(), itinerary.ID())
 }
 
 func TestLocationRepositoryDelete(t *testing.T) {

@@ -33,6 +33,8 @@ type Location struct {
 
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
+
+	UsedBy []uuid.UUID `db:"used_by"`
 }
 
 type PostgresLocationRepository struct {
@@ -95,7 +97,7 @@ func (repo *PostgresLocationRepository) unmarshalMemory(row Location) (*domain.L
 		return nil, err
 	}
 
-	location := domain.LoadMemoryLocation(row.ID, info, row.CreatedAt, row.UpdatedAt)
+	location := domain.LoadMemoryLocation(row.ID, info, row.CreatedAt, row.UpdatedAt, row.UsedBy)
 	return location, nil
 }
 
@@ -111,7 +113,7 @@ func (repo *PostgresLocationRepository) unmarshalS3(row Location) (*domain.Locat
 		return nil, err
 	}
 
-	location := domain.LoadS3Location(row.ID, info, row.CreatedAt, row.UpdatedAt)
+	location := domain.LoadS3Location(row.ID, info, row.CreatedAt, row.UpdatedAt, row.UsedBy)
 	return location, nil
 }
 
@@ -149,13 +151,18 @@ func (repo *PostgresLocationRepository) Create(location *domain.Location) error 
 func (repo *PostgresLocationRepository) List() ([]*domain.Location, error) {
 	stmt := `
 		SELECT
-			id,
-			kind,
-			info,
-			created_at,
-			updated_at
+			location.id,
+			location.kind,
+			location.info,
+			location.created_at,
+			location.updated_at,
+			array_agg(itinerary.id) as used_by
 		FROM location
-		ORDER BY created_at DESC`
+		LEFT JOIN itinerary
+			ON itinerary.from_location_id = location.id
+			OR itinerary.to_location_id = location.id
+		GROUP BY location.id
+		ORDER BY location.created_at DESC`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()
@@ -186,13 +193,18 @@ func (repo *PostgresLocationRepository) List() ([]*domain.Location, error) {
 func (repo *PostgresLocationRepository) Read(id uuid.UUID) (*domain.Location, error) {
 	stmt := `
 		SELECT
-			id,
-			kind,
-			info,
-			created_at,
-			updated_at
+			location.id,
+			location.kind,
+			location.info,
+			location.created_at,
+			location.updated_at,
+			array_agg(itinerary.id) as used_by
 		FROM location
-		WHERE id = $1`
+		LEFT JOIN itinerary
+			ON itinerary.from_location_id = location.id
+			OR itinerary.to_location_id = location.id
+		WHERE location.id = $1
+		GROUP BY location.id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
 	defer cancel()

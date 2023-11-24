@@ -59,6 +59,7 @@ func LoadMemoryLocation(
 	info fileserver.MemoryInfo,
 	createdAt time.Time,
 	updatedAt time.Time,
+	usedBy []uuid.UUID,
 ) *Location {
 	l := Location{
 		id: id,
@@ -68,6 +69,8 @@ func LoadMemoryLocation(
 
 		createdAt: createdAt,
 		updatedAt: updatedAt,
+
+		usedBy: usedBy,
 	}
 	return &l
 }
@@ -112,6 +115,7 @@ func LoadS3Location(
 	info fileserver.S3Info,
 	createdAt time.Time,
 	updatedAt time.Time,
+	usedBy []uuid.UUID,
 ) *Location {
 	l := Location{
 		id: id,
@@ -121,6 +125,8 @@ func LoadS3Location(
 
 		createdAt: createdAt,
 		updatedAt: updatedAt,
+
+		usedBy: usedBy,
 	}
 	return &l
 }
