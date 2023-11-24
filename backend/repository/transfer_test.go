@@ -171,6 +171,7 @@ func TestTransferRepositoryUpdate(t *testing.T) {
 
 	test.AssertEqual(t, transfer.Status(), domain.TransferStatusSuccess)
 	test.AssertEqual(t, transfer.Progress(), 100)
+	test.AssertNotEqual(t, transfer.UpdatedAt(), transfer.CreatedAt())
 }
 
 func TestTransferRepositoryDelete(t *testing.T) {
