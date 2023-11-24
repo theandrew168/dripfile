@@ -2,13 +2,13 @@ package web
 
 import (
 	"io/fs"
+	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/alexedwards/flow"
 	"github.com/klauspost/compress/gzhttp"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/web/api"

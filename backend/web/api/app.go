@@ -1,10 +1,10 @@
 package api
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/alexedwards/flow"
-	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/web/middleware"

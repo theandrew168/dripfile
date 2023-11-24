@@ -6,11 +6,12 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 
 	"github.com/coreos/go-systemd/daemon"
-	"golang.org/x/exp/slog"
 
 	"github.com/theandrew168/dripfile/backend/config"
 	"github.com/theandrew168/dripfile/backend/database"
@@ -18,6 +19,7 @@ import (
 	"github.com/theandrew168/dripfile/backend/repository"
 	"github.com/theandrew168/dripfile/backend/secret"
 	"github.com/theandrew168/dripfile/backend/web"
+	"github.com/theandrew168/dripfile/backend/worker"
 )
 
 //go:embed migration
@@ -76,6 +78,19 @@ func run(logger *slog.Logger) error {
 
 	repo := repository.NewPostgres(pool, box)
 
+	// let systemd know that we are good to go (no-op if not using systemd)
+	daemon.SdNotify(false, daemon.SdNotifyReady)
+
+	// create a context that cancels upon receiving an interrupt signal
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	// create a WaitGroup with an initial counter of two:
+	// 1. web server
+	// 2. worker
+	var wg sync.WaitGroup
+	wg.Add(2)
+
 	app := web.NewApplication(
 		logger,
 		publicFS,
@@ -90,18 +105,22 @@ func run(logger *slog.Logger) error {
 
 	addr := fmt.Sprintf("%s:%s", cfg.Host, port)
 
-	// let systemd know that we are good to go (no-op if not using systemd)
-	daemon.SdNotify(false, daemon.SdNotifyReady)
+	// start the web server in the background
+	go func() {
+		defer wg.Done()
+		app.Run(ctx, addr)
+	}()
 
-	// TODO: start worker in the background (standalone mode by default)
+	w := worker.New(logger, repo)
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
+	// start worker in the background (standalone mode by default)
+	go func() {
+		defer wg.Done()
+		w.Run(ctx)
+	}()
 
-	err = app.Run(ctx, addr)
-	if err != nil {
-		return err
-	}
+	// wait for the worker and web server to stop
+	wg.Wait()
 
 	return nil
 }

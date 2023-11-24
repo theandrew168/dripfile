@@ -5,8 +5,6 @@ import (
 	"errors"
 	"net/http"
 	"time"
-
-	"golang.org/x/exp/slog"
 )
 
 func (app *Application) Run(ctx context.Context, addr string) error {
@@ -39,9 +37,7 @@ func (app *Application) Run(ctx context.Context, addr string) error {
 		close(stopError)
 	}()
 
-	app.logger.Info("starting web server",
-		slog.String("addr", srv.Addr),
-	)
+	app.logger.Info("starting web server", "addr", srv.Addr)
 
 	// listen and serve forever
 	// ignore http.ErrServerClosed (expected upon stop)
