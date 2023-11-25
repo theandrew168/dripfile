@@ -11,6 +11,8 @@ import LocationCreateS3 from "./location/LocationCreateS3";
 import LocationPage from "./location/LocationPage";
 import LocationRead from "./location/LocationRead";
 import NavBar from "./NavBar";
+import TransferPage from "./transfer/TransferPage";
+import TransferRead from "./transfer/TransferRead";
 
 export default function App() {
 	const router = createBrowserRouter([
@@ -50,6 +52,14 @@ export default function App() {
 				{
 					path: "/itinerary/:id",
 					element: <ItineraryRead />,
+				},
+				{
+					path: "/transfer",
+					element: <TransferPage />,
+				},
+				{
+					path: "/transfer/:id",
+					element: <TransferRead />,
 				},
 			],
 		},

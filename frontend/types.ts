@@ -9,6 +9,8 @@ export function isErrorResponse(response: any): response is ErrorResponse {
 export type Location = {
 	id: string;
 	kind: string;
+	createdAt: Date;
+	updatedAt: Date;
 };
 
 export type LocationListResponse = {
@@ -21,9 +23,11 @@ export type LocationReadResponse = {
 
 export type Itinerary = {
 	id: string;
-	pattern: string;
 	fromLocationID: string;
 	toLocationID: string;
+	pattern: string;
+	createdAt: Date;
+	updatedAt: Date;
 };
 
 export type ItineraryListResponse = {
@@ -32,4 +36,22 @@ export type ItineraryListResponse = {
 
 export type ItineraryReadResponse = {
 	itinerary: Itinerary;
+};
+
+export type Transfer = {
+	id: string;
+	itineraryID: string;
+	status: string;
+	progress: number;
+	error: string;
+	createdAt: Date;
+	updatedAt: Date;
+};
+
+export type TransferListResponse = {
+	transfers: Transfer[];
+};
+
+export type TransferReadResponse = {
+	transfer: Transfer;
 };

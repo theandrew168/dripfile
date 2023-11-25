@@ -1,30 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import type { Itinerary } from "../types";
+import type { Transfer } from "../types";
 
 type Props = {
-	itineraries: Itinerary[];
+	transfers: Transfer[];
 };
 
-export default function ItineraryList({ itineraries }: Props) {
+export default function TransferList({ transfers }: Props) {
 	// https://tailwindui.com/components/application-ui/lists/tables#component-4738eac883e67bf84a9f7db2446e838a
 	return (
 		<>
 			<div className="sm:flex sm:items-center">
 				<div className="sm:flex-auto">
-					<h1 className="text-base font-semibold leading-6 text-gray-900">Itineraries</h1>
-					<p className="mt-2 text-sm text-gray-700">A list of all your transfer itineraries.</p>
-				</div>
-				<div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-					<Link to="/itinerary/create">
-						<button
-							type="button"
-							className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-						>
-							Add itinerary
-						</button>
-					</Link>
+					<h1 className="text-base font-semibold leading-6 text-gray-900">Transfers</h1>
+					<p className="mt-2 text-sm text-gray-700">A list of all recent transfers.</p>
 				</div>
 			</div>
 			<div className="mt-8 flow-root">
@@ -38,13 +28,16 @@ export default function ItineraryList({ itineraries }: Props) {
 											ID
 										</th>
 										<th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-											From
+											ItineraryID
 										</th>
 										<th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-											To
+											Status
 										</th>
 										<th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-											Pattern
+											Progress
+										</th>
+										<th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+											Error
 										</th>
 										<th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-6">
 											<span className="sr-only">Edit</span>
@@ -52,21 +45,20 @@ export default function ItineraryList({ itineraries }: Props) {
 									</tr>
 								</thead>
 								<tbody className="divide-y divide-gray-200 bg-white">
-									{itineraries.map((itinerary) => (
-										<tr key={itinerary.id}>
+									{transfers.map((transfer) => (
+										<tr key={transfer.id}>
 											<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-												<Link to={`/itinerary/${itinerary.id}`}>{itinerary.id}</Link>
+												<Link to={`/transfer/${transfer.id}`}>{transfer.id}</Link>
 											</td>
 											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-												<Link to={`/location/${itinerary.fromLocationID}`}>{itinerary.fromLocationID}</Link>
+												<Link to={`/itinerary/${transfer.itineraryID}`}>{transfer.itineraryID}</Link>
 											</td>
-											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-												<Link to={`/location/${itinerary.toLocationID}`}>{itinerary.toLocationID}</Link>
-											</td>
-											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{itinerary.pattern}</td>
+											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{transfer.status}</td>
+											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{transfer.progress}</td>
+											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{transfer.error}</td>
 											<td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
 												<a href="#" className="text-indigo-600 hover:text-indigo-900">
-													Edit<span className="sr-only">, {itinerary.id}</span>
+													Edit<span className="sr-only">, {transfer.id}</span>
 												</a>
 											</td>
 										</tr>

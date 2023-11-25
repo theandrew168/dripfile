@@ -30,6 +30,6 @@ export default function ItineraryPage() {
 	}
 
 	const itineraries = data.itineraries;
-	const hasLocations = itineraries.length > 0;
-	return hasLocations ? <ItineraryList itineraries={itineraries} /> : <ItineraryEmpty />;
+	const hasItineraries = itineraries.length > 0;
+	return hasItineraries ? <ItineraryList itineraries={itineraries} /> : <ItineraryEmpty />;
 }
