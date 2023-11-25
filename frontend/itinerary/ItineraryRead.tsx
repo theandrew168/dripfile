@@ -2,20 +2,20 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 
-import type { LocationReadResponse } from "../types";
+import type { ItineraryReadResponse } from "../types";
 
-export default function LocationRead() {
+export default function ItineraryRead() {
 	const { id } = useParams();
 
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["locations", id],
+		queryKey: ["itineraries", id],
 		queryFn: async () => {
-			const response = await fetch(`/api/v1/locations/${id}`);
+			const response = await fetch(`/api/v1/itineraries/${id}`);
 			if (!response.ok) {
 				throw new Error("Network response was not OK");
 			}
 
-			const data: LocationReadResponse = await response.json();
+			const data: ItineraryReadResponse = await response.json();
 			return data;
 		},
 	});
@@ -30,11 +30,13 @@ export default function LocationRead() {
 		return <div>Error: {error.message}</div>;
 	}
 
-	const location = data.location;
+	const itinerary = data.itinerary;
 	return (
 		<div>
-			<p>ID: {location.id}</p>
-			<p>Kind: {location.kind}</p>
+			<p>ID: {itinerary.id}</p>
+			<p>From: {itinerary.fromLocationID}</p>
+			<p>To: {itinerary.toLocationID}</p>
+			<p>Pattern: {itinerary.pattern}</p>
 		</div>
 	);
 }

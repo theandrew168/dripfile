@@ -2,8 +2,9 @@ import React from "react";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 import ErrorPage from "./ErrorPage";
-import ItineraryPage from "./itinerary/ItineraryPage";
 import ItineraryCreate from "./itinerary/ItineraryCreate";
+import ItineraryPage from "./itinerary/ItineraryPage";
+import ItineraryRead from "./itinerary/ItineraryRead";
 import LocationCreate from "./location/LocationCreate";
 import LocationCreateInMemory from "./location/LocationCreateInMemory";
 import LocationCreateS3 from "./location/LocationCreateS3";
@@ -45,6 +46,10 @@ export default function App() {
 				{
 					path: "/itineraries/create",
 					element: <ItineraryCreate />,
+				},
+				{
+					path: "/itineraries/:id",
+					element: <ItineraryRead />,
 				},
 			],
 		},
