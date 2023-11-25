@@ -20,35 +20,35 @@ export default function App() {
 			errorElement: <ErrorPage />,
 			children: [
 				{
-					path: "/locations",
+					path: "/location",
 					element: <LocationPage />,
 				},
 				{
-					path: "/locations/create",
+					path: "/location/create",
 					element: <LocationCreate />,
 				},
 				{
-					path: "/locations/create/in-memory",
+					path: "/location/create/in-memory",
 					element: <LocationCreateInMemory />,
 				},
 				{
-					path: "/locations/create/s3",
+					path: "/location/create/s3",
 					element: <LocationCreateS3 />,
 				},
 				{
-					path: "/locations/:id",
+					path: "/location/:id",
 					element: <LocationRead />,
 				},
 				{
-					path: "/itineraries",
+					path: "/itinerary",
 					element: <ItineraryPage />,
 				},
 				{
-					path: "/itineraries/create",
+					path: "/itinerary/create",
 					element: <ItineraryCreate />,
 				},
 				{
-					path: "/itineraries/:id",
+					path: "/itinerary/:id",
 					element: <ItineraryRead />,
 				},
 			],

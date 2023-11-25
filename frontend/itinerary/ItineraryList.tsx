@@ -17,7 +17,7 @@ export default function ItineraryList({ itineraries }: Props) {
 					<p className="mt-2 text-sm text-gray-700">A list of all your transfer itineraries.</p>
 				</div>
 				<div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-					<Link to="/itineraries/create">
+					<Link to="/itinerary/create">
 						<button
 							type="button"
 							className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -55,14 +55,14 @@ export default function ItineraryList({ itineraries }: Props) {
 									{itineraries.map((itinerary) => (
 										<tr key={itinerary.id}>
 											<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-												<Link to={`/itineraries/${itinerary.id}`}>{itinerary.id}</Link>
+												<Link to={`/itinerary/${itinerary.id}`}>{itinerary.id}</Link>
 											</td>
 											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{itinerary.pattern}</td>
 											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-												<Link to={`/locations/${itinerary.fromLocationID}`}>{itinerary.fromLocationID}</Link>
+												<Link to={`/location/${itinerary.fromLocationID}`}>{itinerary.fromLocationID}</Link>
 											</td>
 											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-												<Link to={`/locations/${itinerary.toLocationID}`}>{itinerary.toLocationID}</Link>
+												<Link to={`/location/${itinerary.toLocationID}`}>{itinerary.toLocationID}</Link>
 											</td>
 											<td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
 												<a href="#" className="text-indigo-600 hover:text-indigo-900">

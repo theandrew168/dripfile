@@ -14,7 +14,7 @@ export default function LocationCreateS3() {
 				kind: "s3",
 				...Object.fromEntries(form),
 			};
-			const response = await fetch("/api/v1/locations", {
+			const response = await fetch("/api/v1/location", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -33,8 +33,8 @@ export default function LocationCreateS3() {
 			return response.json();
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["locations"] });
-			navigate("/locations");
+			queryClient.invalidateQueries({ queryKey: ["location"] });
+			navigate("/location");
 		},
 	});
 
@@ -124,7 +124,7 @@ export default function LocationCreateS3() {
 							</div>
 						</div>
 						<div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-							<Link to="/locations/create">
+							<Link to="/location/create">
 								<button type="button" className="text-sm font-semibold leading-6 text-gray-900">
 									Cancel
 								</button>

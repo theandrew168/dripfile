@@ -17,7 +17,7 @@ export default function LocationList({ locations }: Props) {
 					<p className="mt-2 text-sm text-gray-700">A list of all the locations where your data lives.</p>
 				</div>
 				<div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-					<Link to="/locations/create">
+					<Link to="/location/create">
 						<button
 							type="button"
 							className="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -49,7 +49,7 @@ export default function LocationList({ locations }: Props) {
 									{locations.map((location) => (
 										<tr key={location.id}>
 											<td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-												<Link to={`/locations/${location.id}`}>{location.id}</Link>
+												<Link to={`/location/${location.id}`}>{location.id}</Link>
 											</td>
 											<td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{location.kind}</td>
 											<td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">

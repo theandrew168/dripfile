@@ -13,7 +13,7 @@ export default function ItineraryCreate() {
 			const payload = {
 				...Object.fromEntries(form),
 			};
-			const response = await fetch("/api/v1/itineraries", {
+			const response = await fetch("/api/v1/itinerary", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -32,15 +32,15 @@ export default function ItineraryCreate() {
 			return response.json();
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["itineraries"] });
-			navigate("/itineraries");
+			queryClient.invalidateQueries({ queryKey: ["itinerary"] });
+			navigate("/itinerary");
 		},
 	});
 
 	const locationsQuery = useQuery({
-		queryKey: ["locations"],
+		queryKey: ["location"],
 		queryFn: async () => {
-			const response = await fetch("/api/v1/locations");
+			const response = await fetch("/api/v1/location");
 			if (!response.ok) {
 				throw new Error("Network response was not OK");
 			}
@@ -136,7 +136,7 @@ export default function ItineraryCreate() {
 							</div>
 						</div>
 						<div className="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-							<Link to="/itineraries">
+							<Link to="/itinerary">
 								<button type="button" className="text-sm font-semibold leading-6 text-gray-900">
 									Cancel
 								</button>

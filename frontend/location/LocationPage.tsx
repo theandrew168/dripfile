@@ -7,9 +7,9 @@ import LocationList from "./LocationList";
 
 export default function LocationPage() {
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["locations"],
+		queryKey: ["location"],
 		queryFn: async () => {
-			const response = await fetch("/api/v1/locations");
+			const response = await fetch("/api/v1/location");
 			if (!response.ok) {
 				throw new Error("Network response was not OK");
 			}

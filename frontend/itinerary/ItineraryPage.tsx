@@ -7,9 +7,9 @@ import ItineraryList from "./ItineraryList";
 
 export default function ItineraryPage() {
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["itineraries"],
+		queryKey: ["itinerary"],
 		queryFn: async () => {
-			const response = await fetch("/api/v1/itineraries");
+			const response = await fetch("/api/v1/itinerary");
 			if (!response.ok) {
 				throw new Error("Network response was not OK");
 			}

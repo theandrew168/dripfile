@@ -9,14 +9,14 @@ const items = [
 	{
 		name: "In-Memory",
 		description: "An in-memory location for testing Dripfile.",
-		href: "/locations/create/in-memory",
+		href: "/location/create/in-memory",
 		iconColor: "bg-pink-500",
 		icon: CpuChipIcon,
 	},
 	{
 		name: "S3 Bucket",
 		description: "An Amazon S3 (or compatible) object storage bucket.",
-		href: "/locations/create/s3",
+		href: "/location/create/s3",
 		iconColor: "bg-purple-500",
 		icon: CircleStackIcon,
 	},

@@ -114,7 +114,7 @@ func (app *Application) handleTransferCreate() http.HandlerFunc {
 		}
 
 		header := make(http.Header)
-		header.Set("Location", fmt.Sprintf("/api/v1/transfers/%s", transfer.ID()))
+		header.Set("Location", fmt.Sprintf("/api/v1/transfer/%s", transfer.ID()))
 
 		err = writeJSON(w, http.StatusCreated, resp, header)
 		if err != nil {

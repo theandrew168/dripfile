@@ -8,9 +8,9 @@ export default function ItineraryRead() {
 	const { id } = useParams();
 
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["itineraries", id],
+		queryKey: ["itinerary", id],
 		queryFn: async () => {
-			const response = await fetch(`/api/v1/itineraries/${id}`);
+			const response = await fetch(`/api/v1/itinerary/${id}`);
 			if (!response.ok) {
 				throw new Error("Network response was not OK");
 			}

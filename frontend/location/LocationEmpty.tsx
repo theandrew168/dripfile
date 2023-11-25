@@ -24,7 +24,7 @@ export default function LocationEmpty() {
 			<h3 className="mt-2 text-sm font-semibold text-gray-900">No locations</h3>
 			<p className="mt-1 text-sm text-gray-500">Get started by adding a new location.</p>
 			<div className="mt-6">
-				<Link to="/locations/create">
+				<Link to="/location/create">
 					<button
 						type="button"
 						className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

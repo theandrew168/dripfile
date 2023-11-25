@@ -36,19 +36,19 @@ func (app *Application) Handler() http.Handler {
 
 	mux.HandleFunc("/", app.handleIndex(), "GET")
 
-	mux.HandleFunc("/locations", app.handleLocationCreate(), "POST")
-	mux.HandleFunc("/locations", app.handleLocationList(), "GET")
-	mux.HandleFunc("/locations/:id", app.handleLocationRead(), "GET")
-	mux.HandleFunc("/locations/:id", app.handleLocationDelete(), "DELETE")
+	mux.HandleFunc("/location", app.handleLocationCreate(), "POST")
+	mux.HandleFunc("/location", app.handleLocationList(), "GET")
+	mux.HandleFunc("/location/:id", app.handleLocationRead(), "GET")
+	mux.HandleFunc("/location/:id", app.handleLocationDelete(), "DELETE")
 
-	mux.HandleFunc("/itineraries", app.handleItineraryCreate(), "POST")
-	mux.HandleFunc("/itineraries", app.handleItineraryList(), "GET")
-	mux.HandleFunc("/itineraries/:id", app.handleItineraryRead(), "GET")
-	mux.HandleFunc("/itineraries/:id", app.handleItineraryDelete(), "DELETE")
+	mux.HandleFunc("/itinerary", app.handleItineraryCreate(), "POST")
+	mux.HandleFunc("/itinerary", app.handleItineraryList(), "GET")
+	mux.HandleFunc("/itinerary/:id", app.handleItineraryRead(), "GET")
+	mux.HandleFunc("/itinerary/:id", app.handleItineraryDelete(), "DELETE")
 
-	mux.HandleFunc("/transfers", app.handleTransferCreate(), "POST")
-	mux.HandleFunc("/transfers", app.handleTransferList(), "GET")
-	mux.HandleFunc("/transfers/:id", app.handleTransferRead(), "GET")
+	mux.HandleFunc("/transfer", app.handleTransferCreate(), "POST")
+	mux.HandleFunc("/transfer", app.handleTransferList(), "GET")
+	mux.HandleFunc("/transfer/:id", app.handleTransferRead(), "GET")
 
 	return mux
 }

@@ -8,9 +8,9 @@ export default function LocationRead() {
 	const { id } = useParams();
 
 	const { isPending, isError, error, data } = useQuery({
-		queryKey: ["locations", id],
+		queryKey: ["location", id],
 		queryFn: async () => {
-			const response = await fetch(`/api/v1/locations/${id}`);
+			const response = await fetch(`/api/v1/location/${id}`);
 			if (!response.ok) {
 				throw new Error("Network response was not OK");
 			}

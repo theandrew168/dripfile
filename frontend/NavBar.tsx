@@ -16,9 +16,9 @@ export default function NavBar() {
 	};
 	const navigation = [
 		{ name: "Dashboard", href: "/", current: location.pathname === "/" },
-		{ name: "Locations", href: "/locations", current: location.pathname.startsWith("/locations") },
-		{ name: "Itineraries", href: "/itineraries", current: location.pathname.startsWith("/itineraries") },
-		{ name: "Transfers", href: "/transfers", current: location.pathname.startsWith("/transfers") },
+		{ name: "Locations", href: "/location", current: location.pathname.startsWith("/location") },
+		{ name: "Itineraries", href: "/itinerary", current: location.pathname.startsWith("/itinerary") },
+		{ name: "Transfers", href: "/transfer", current: location.pathname.startsWith("/transfer") },
 	];
 	const userNavigation = [
 		{ name: "Your Profile", href: "#" },
