@@ -83,20 +83,25 @@ func (w *Worker) Poll() error {
 			}
 		}
 
+		w.logger.Info("running transfer", "id", transfer.ID())
 		err = w.RunTransfer(transfer)
 		if err != nil {
 			transfer.UpdateError(err.Error())
-			err = w.repo.Transfer.Update(transfer)
-			if err != nil {
-				return err
-			}
+			transfer.UpdateStatus(domain.TransferStatusFailure)
+		} else {
+			transfer.UpdateStatus(domain.TransferStatusSuccess)
+		}
+
+		err = w.repo.Transfer.Update(transfer)
+		if err != nil {
+			return err
 		}
 	}
 }
 
 func (w *Worker) RunTransfer(transfer *domain.Transfer) error {
 	// look up itinerary by ID
-	itinerary, err := w.repo.Itinerary.Read(transfer.ID())
+	itinerary, err := w.repo.Itinerary.Read(transfer.ItineraryID())
 	if err != nil {
 		return err
 	}
@@ -130,12 +135,7 @@ func (w *Worker) RunTransfer(transfer *domain.Transfer) error {
 		return err
 	}
 
-	// update xfer status to success / failure + xfer progress
-	err = transfer.UpdateStatus(domain.TransferStatusSuccess)
-	if err != nil {
-		return err
-	}
-
+	// TODO: update the xfer progress periodically
 	err = transfer.UpdateProgress(progress)
 	if err != nil {
 		return err
