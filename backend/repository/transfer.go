@@ -20,6 +20,7 @@ type TransferRepository interface {
 	Read(id uuid.UUID) (*domain.Transfer, error)
 	Update(transfer *domain.Transfer) error
 	Delete(transfer *domain.Transfer) error
+	Acquire() (*domain.Transfer, error)
 }
 
 type Transfer struct {
@@ -243,4 +244,41 @@ func (repo *PostgresTransferRepository) Delete(transfer *domain.Transfer) error 
 	}
 
 	return nil
+}
+
+func (repo *PostgresTransferRepository) Acquire() (*domain.Transfer, error) {
+	stmt := `
+		UPDATE transfer
+		SET status = 'running'
+		WHERE id = (
+			SELECT id
+			FROM transfer
+			WHERE status = 'pending'
+			ORDER BY created_at ASC
+			FOR UPDATE SKIP LOCKED
+			LIMIT 1
+		)
+		RETURNING
+			id,
+			itinerary_id,
+			status,
+			progress,
+			error,
+			created_at,
+			updated_at`
+
+	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
+	defer cancel()
+
+	rows, err := repo.conn.Query(ctx, stmt)
+	if err != nil {
+		return nil, err
+	}
+
+	row, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[Transfer])
+	if err != nil {
+		return nil, checkReadError(err)
+	}
+
+	return repo.unmarshal(row)
 }

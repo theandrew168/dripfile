@@ -213,3 +213,38 @@ func TestTransferRepositoryDelete(t *testing.T) {
 	_, err = repo.Transfer.Read(transfer.ID())
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
+
+func TestTransferRepositoryAcquite(t *testing.T) {
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
+
+	from, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = repo.Location.Create(from)
+	test.AssertNilError(t, err)
+
+	to, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = repo.Location.Create(to)
+	test.AssertNilError(t, err)
+
+	itinerary, err := domain.NewItinerary(from, to, "*")
+	test.AssertNilError(t, err)
+
+	err = repo.Itinerary.Create(itinerary)
+	test.AssertNilError(t, err)
+
+	transfer, err := domain.NewTransfer(itinerary)
+	test.AssertNilError(t, err)
+
+	err = repo.Transfer.Create(transfer)
+	test.AssertNilError(t, err)
+
+	got, err := repo.Transfer.Acquire()
+	test.AssertNilError(t, err)
+	test.AssertEqual(t, got.Status(), domain.TransferStatusRunning)
+}
