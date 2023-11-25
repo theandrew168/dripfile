@@ -83,11 +83,7 @@ func run() int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	// create a WaitGroup with an initial counter of two:
-	// 1. web server
-	// 2. worker
 	var wg sync.WaitGroup
-	wg.Add(2)
 
 	app := web.NewApplication(
 		logger,
@@ -104,6 +100,7 @@ func run() int {
 	addr := fmt.Sprintf("%s:%s", cfg.Host, port)
 
 	// start the web server in the background
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
@@ -116,6 +113,7 @@ func run() int {
 	w := worker.New(logger, repo)
 
 	// start worker in the background (standalone mode by default)
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
