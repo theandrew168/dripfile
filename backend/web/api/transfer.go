@@ -98,8 +98,6 @@ func (app *Application) handleTransferCreate() http.HandlerFunc {
 			return
 		}
 
-		// TODO: kick off transfer in background
-
 		apiTransfer := Transfer{
 			ID: transfer.ID(),
 

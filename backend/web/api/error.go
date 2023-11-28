@@ -22,7 +22,6 @@ func (app *Application) errorResponse(w http.ResponseWriter, r *http.Request, st
 	}
 }
 
-// func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
 func (app *Application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
 	code := http.StatusBadRequest
 	app.errorResponse(w, r, code, err.Error())
@@ -42,6 +41,12 @@ func (app *Application) methodNotAllowedResponse(w http.ResponseWriter, r *http.
 
 func (app *Application) conflictResponse(w http.ResponseWriter, r *http.Request) {
 	code := http.StatusConflict
+	text := http.StatusText(code)
+	app.errorResponse(w, r, code, strings.ToLower(text))
+}
+
+func (app *Application) unprocessableEntityResponse(w http.ResponseWriter, r *http.Request) {
+	code := http.StatusUnprocessableEntity
 	text := http.StatusText(code)
 	app.errorResponse(w, r, code, strings.ToLower(text))
 }

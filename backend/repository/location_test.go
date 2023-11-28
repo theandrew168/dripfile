@@ -147,6 +147,28 @@ func TestLocationRepositoryReadUsedBy(t *testing.T) {
 	test.AssertSliceContains(t, gotTo.UsedBy(), itinerary.ID())
 }
 
+func TestLocationRepositoryUpdate(t *testing.T) {
+	t.Parallel()
+
+	repo, closer := test.Repository(t)
+	defer closer()
+
+	location, err := domain.NewMemoryLocation()
+	test.AssertNilError(t, err)
+
+	err = repo.Location.Create(location)
+	test.AssertNilError(t, err)
+
+	location.SetPingStatus(domain.PingStatusSuccess)
+
+	err = repo.Location.Update(location)
+	test.AssertNilError(t, err)
+
+	location, err = repo.Location.Read(location.ID())
+	test.AssertNilError(t, err)
+	test.AssertEqual(t, location.PingStatus(), domain.PingStatusSuccess)
+}
+
 func TestLocationRepositoryDelete(t *testing.T) {
 	t.Parallel()
 

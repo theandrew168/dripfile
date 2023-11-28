@@ -19,10 +19,11 @@ import (
 type Location struct {
 	ID uuid.UUID `json:"id"`
 
-	Kind      domain.LocationKind `json:"kind"`
-	CreatedAt time.Time           `json:"createdAt"`
-	UpdatedAt time.Time           `json:"updatedAt"`
-	UsedBy    []uuid.UUID         `json:"usedBy"`
+	Kind       domain.LocationKind `json:"kind"`
+	PingStatus domain.PingStatus   `json:"pingStatus"`
+	CreatedAt  time.Time           `json:"createdAt"`
+	UpdatedAt  time.Time           `json:"updatedAt"`
+	UsedBy     []uuid.UUID         `json:"usedBy"`
 }
 
 func (app *Application) handleLocationCreate() http.HandlerFunc {
@@ -143,10 +144,11 @@ func (app *Application) handleLocationCreate() http.HandlerFunc {
 		apiLocation := Location{
 			ID: location.ID(),
 
-			Kind:      location.Kind(),
-			CreatedAt: location.CreatedAt(),
-			UpdatedAt: location.UpdatedAt(),
-			UsedBy:    location.UsedBy(),
+			Kind:       location.Kind(),
+			PingStatus: location.PingStatus(),
+			CreatedAt:  location.CreatedAt(),
+			UpdatedAt:  location.UpdatedAt(),
+			UsedBy:     location.UsedBy(),
 		}
 		resp := response{
 			Location: apiLocation,
@@ -181,10 +183,11 @@ func (app *Application) handleLocationList() http.HandlerFunc {
 			apiLocation := Location{
 				ID: location.ID(),
 
-				Kind:      location.Kind(),
-				CreatedAt: location.CreatedAt(),
-				UpdatedAt: location.UpdatedAt(),
-				UsedBy:    location.UsedBy(),
+				Kind:       location.Kind(),
+				PingStatus: location.PingStatus(),
+				CreatedAt:  location.CreatedAt(),
+				UpdatedAt:  location.UpdatedAt(),
+				UsedBy:     location.UsedBy(),
 			}
 			apiLocations = append(apiLocations, apiLocation)
 		}
@@ -228,10 +231,11 @@ func (app *Application) handleLocationRead() http.HandlerFunc {
 		apiLocation := Location{
 			ID: location.ID(),
 
-			Kind:      location.Kind(),
-			CreatedAt: location.CreatedAt(),
-			UpdatedAt: location.UpdatedAt(),
-			UsedBy:    location.UsedBy(),
+			Kind:       location.Kind(),
+			PingStatus: location.PingStatus(),
+			CreatedAt:  location.CreatedAt(),
+			UpdatedAt:  location.UpdatedAt(),
+			UsedBy:     location.UsedBy(),
 		}
 		resp := response{
 			Location: apiLocation,
@@ -280,5 +284,76 @@ func (app *Application) handleLocationDelete() http.HandlerFunc {
 		}
 
 		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+func (app *Application) handleLocationPing() http.HandlerFunc {
+	type response struct {
+		Location Location `json:"location"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		id, err := uuid.Parse(flow.Param(r.Context(), "id"))
+		if err != nil {
+			app.notFoundResponse(w, r)
+			return
+		}
+
+		location, err := app.repo.Location.Read(id)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrNotExist):
+				app.notFoundResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+
+			return
+		}
+
+		status := domain.PingStatusSuccess
+
+		fs, err := location.Connect()
+		if err != nil {
+			status = domain.PingStatusFailure
+		} else {
+			err = fs.Ping()
+			if err != nil {
+				status = domain.PingStatusFailure
+			}
+		}
+
+		location.SetPingStatus(status)
+
+		err = app.repo.Location.Update(location)
+		if err != nil {
+			switch {
+			case errors.Is(err, repository.ErrConflict):
+				app.conflictResponse(w, r)
+			default:
+				app.serverErrorResponse(w, r, err)
+			}
+
+			return
+		}
+
+		apiLocation := Location{
+			ID: location.ID(),
+
+			Kind:       location.Kind(),
+			PingStatus: location.PingStatus(),
+			CreatedAt:  location.CreatedAt(),
+			UpdatedAt:  location.UpdatedAt(),
+			UsedBy:     location.UsedBy(),
+		}
+		resp := response{
+			Location: apiLocation,
+		}
+
+		err = writeJSON(w, http.StatusOK, resp, nil)
+		if err != nil {
+			app.serverErrorResponse(w, r, err)
+			return
+		}
 	}
 }

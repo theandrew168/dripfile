@@ -22,6 +22,7 @@ type LocationRepository interface {
 	Create(location *domain.Location) error
 	List() ([]*domain.Location, error)
 	Read(id uuid.UUID) (*domain.Location, error)
+	Update(location *domain.Location) error
 	Delete(location *domain.Location) error
 }
 
@@ -225,6 +226,48 @@ func (repo *PostgresLocationRepository) Read(id uuid.UUID) (*domain.Location, er
 	}
 
 	return repo.unmarshal(row)
+}
+
+func (repo *PostgresLocationRepository) Update(location *domain.Location) error {
+	now := time.Now()
+	stmt := `
+		UPDATE location
+		SET
+			info = $1,
+			ping_status = $2,
+			updated_at = $3
+		WHERE id = $4
+		  AND updated_at = $5
+		RETURNING updated_at`
+
+	row, err := repo.marshal(location)
+	if err != nil {
+		return err
+	}
+
+	args := []any{
+		row.Info,
+		row.PingStatus,
+		now,
+		row.ID,
+		row.UpdatedAt,
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), database.Timeout)
+	defer cancel()
+
+	rows, err := repo.conn.Query(ctx, stmt, args...)
+	if err != nil {
+		return err
+	}
+
+	_, err = pgx.CollectOneRow(rows, pgx.RowTo[time.Time])
+	if err != nil {
+		return checkUpdateError(err)
+	}
+
+	location.SetUpdatedAt(now)
+	return err
 }
 
 func (repo *PostgresLocationRepository) Delete(location *domain.Location) error {

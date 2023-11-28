@@ -214,7 +214,7 @@ func TestTransferRepositoryDelete(t *testing.T) {
 	test.AssertErrorIs(t, err, repository.ErrNotExist)
 }
 
-func TestTransferRepositoryAcquite(t *testing.T) {
+func TestTransferRepositoryAcquire(t *testing.T) {
 	t.Parallel()
 
 	repo, closer := test.Repository(t)
@@ -244,7 +244,7 @@ func TestTransferRepositoryAcquite(t *testing.T) {
 	err = repo.Transfer.Create(transfer)
 	test.AssertNilError(t, err)
 
-	got, err := repo.Transfer.Acquire()
+	transfer, err = repo.Transfer.Acquire()
 	test.AssertNilError(t, err)
-	test.AssertEqual(t, got.Status(), domain.TransferStatusRunning)
+	test.AssertEqual(t, transfer.Status(), domain.TransferStatusRunning)
 }

@@ -40,6 +40,7 @@ func (app *Application) Handler() http.Handler {
 	mux.HandleFunc("/location", app.handleLocationList(), "GET")
 	mux.HandleFunc("/location/:id", app.handleLocationRead(), "GET")
 	mux.HandleFunc("/location/:id", app.handleLocationDelete(), "DELETE")
+	mux.HandleFunc("/location/:id/ping", app.handleLocationPing(), "POST")
 
 	mux.HandleFunc("/itinerary", app.handleItineraryCreate(), "POST")
 	mux.HandleFunc("/itinerary", app.handleItineraryList(), "GET")
