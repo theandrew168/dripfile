@@ -160,8 +160,8 @@ func TestTransferRepositoryUpdate(t *testing.T) {
 	err = repo.Transfer.Create(transfer)
 	test.AssertNilError(t, err)
 
-	transfer.UpdateStatus(domain.TransferStatusSuccess)
-	transfer.UpdateProgress(100)
+	transfer.SetStatus(domain.TransferStatusSuccess)
+	transfer.SetProgress(100)
 
 	err = repo.Transfer.Update(transfer)
 	test.AssertNilError(t, err)

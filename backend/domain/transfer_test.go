@@ -58,7 +58,7 @@ func TestTransferUpdateStatus(t *testing.T) {
 	transfer, err := domain.NewTransfer(itinerary)
 	test.AssertNilError(t, err)
 
-	err = transfer.UpdateStatus(domain.TransferStatusSuccess)
+	err = transfer.SetStatus(domain.TransferStatusSuccess)
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, transfer.Status(), domain.TransferStatusSuccess)
@@ -79,7 +79,7 @@ func TestTransferUpdateProgress(t *testing.T) {
 	transfer, err := domain.NewTransfer(itinerary)
 	test.AssertNilError(t, err)
 
-	err = transfer.UpdateProgress(100)
+	err = transfer.SetProgress(100)
 	test.AssertNilError(t, err)
 
 	test.AssertEqual(t, transfer.Progress(), 100)

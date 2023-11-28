@@ -78,7 +78,7 @@ func (t *Transfer) Status() TransferStatus {
 	return t.status
 }
 
-func (t *Transfer) UpdateStatus(status TransferStatus) error {
+func (t *Transfer) SetStatus(status TransferStatus) error {
 	t.status = status
 	return nil
 }
@@ -87,7 +87,7 @@ func (t *Transfer) Progress() int {
 	return t.progress
 }
 
-func (t *Transfer) UpdateProgress(progress int) error {
+func (t *Transfer) SetProgress(progress int) error {
 	t.progress = progress
 	return nil
 }
@@ -96,7 +96,7 @@ func (t *Transfer) Error() string {
 	return t.error
 }
 
-func (t *Transfer) UpdateError(error string) error {
+func (t *Transfer) SetError(error string) error {
 	t.error = error
 	return nil
 }
@@ -109,8 +109,9 @@ func (t *Transfer) UpdatedAt() time.Time {
 	return t.updatedAt
 }
 
-func (t *Transfer) SetUpdatedAt(updatedAt time.Time) {
+func (t *Transfer) SetUpdatedAt(updatedAt time.Time) error {
 	t.updatedAt = updatedAt
+	return nil
 }
 
 func (t *Transfer) CheckDelete() error {

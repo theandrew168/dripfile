@@ -86,10 +86,10 @@ func (w *Worker) Poll() error {
 		w.logger.Info("running transfer", "id", transfer.ID())
 		err = w.RunTransfer(transfer)
 		if err != nil {
-			transfer.UpdateError(err.Error())
-			transfer.UpdateStatus(domain.TransferStatusFailure)
+			transfer.SetError(err.Error())
+			transfer.SetStatus(domain.TransferStatusFailure)
 		} else {
-			transfer.UpdateStatus(domain.TransferStatusSuccess)
+			transfer.SetStatus(domain.TransferStatusSuccess)
 		}
 
 		err = w.repo.Transfer.Update(transfer)
@@ -136,7 +136,7 @@ func (w *Worker) RunTransfer(transfer *domain.Transfer) error {
 	}
 
 	// TODO: update the xfer progress periodically
-	err = transfer.UpdateProgress(progress)
+	err = transfer.SetProgress(progress)
 	if err != nil {
 		return err
 	}

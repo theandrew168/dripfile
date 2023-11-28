@@ -16,6 +16,14 @@ const (
 	LocationKindS3     LocationKind = "s3"
 )
 
+type PingStatus string
+
+const (
+	PingStatusUnknown PingStatus = "unknown"
+	PingStatusSuccess PingStatus = "success"
+	PingStatusFailure PingStatus = "failure"
+)
+
 var (
 	ErrLocationInvalidKind = errors.New("location: invalid kind")
 
@@ -30,6 +38,7 @@ type Location struct {
 	kind       LocationKind
 	memoryInfo fileserver.MemoryInfo
 	s3Info     fileserver.S3Info
+	pingStatus PingStatus
 
 	createdAt time.Time
 	updatedAt time.Time
@@ -46,6 +55,7 @@ func NewMemoryLocation() (*Location, error) {
 
 		kind:       LocationKindMemory,
 		memoryInfo: info,
+		pingStatus: PingStatusUnknown,
 
 		createdAt: time.Now(),
 		updatedAt: time.Now(),
@@ -57,6 +67,7 @@ func NewMemoryLocation() (*Location, error) {
 func LoadMemoryLocation(
 	id uuid.UUID,
 	info fileserver.MemoryInfo,
+	pingStatus PingStatus,
 	createdAt time.Time,
 	updatedAt time.Time,
 	usedBy []uuid.UUID,
@@ -66,6 +77,7 @@ func LoadMemoryLocation(
 
 		kind:       LocationKindMemory,
 		memoryInfo: info,
+		pingStatus: pingStatus,
 
 		createdAt: createdAt,
 		updatedAt: updatedAt,
@@ -100,8 +112,9 @@ func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) (*Loca
 	l := Location{
 		id: uuid.New(),
 
-		kind:   LocationKindS3,
-		s3Info: info,
+		kind:       LocationKindS3,
+		s3Info:     info,
+		pingStatus: PingStatusUnknown,
 
 		createdAt: time.Now(),
 		updatedAt: time.Now(),
@@ -113,6 +126,7 @@ func NewS3Location(endpoint, bucket, accessKeyID, secretAccessKey string) (*Loca
 func LoadS3Location(
 	id uuid.UUID,
 	info fileserver.S3Info,
+	pingStatus PingStatus,
 	createdAt time.Time,
 	updatedAt time.Time,
 	usedBy []uuid.UUID,
@@ -120,8 +134,9 @@ func LoadS3Location(
 	l := Location{
 		id: id,
 
-		kind:   LocationKindS3,
-		s3Info: info,
+		kind:       LocationKindS3,
+		s3Info:     info,
+		pingStatus: pingStatus,
 
 		createdAt: createdAt,
 		updatedAt: updatedAt,
@@ -149,6 +164,15 @@ func (l *Location) Info() any {
 	return nil
 }
 
+func (l *Location) PingStatus() PingStatus {
+	return l.pingStatus
+}
+
+func (l *Location) SetPingStatus(pingStatus PingStatus) error {
+	l.pingStatus = pingStatus
+	return nil
+}
+
 func (l *Location) CreatedAt() time.Time {
 	return l.createdAt
 }
@@ -157,8 +181,9 @@ func (l *Location) UpdatedAt() time.Time {
 	return l.updatedAt
 }
 
-func (l *Location) SetUpdatedAt(updatedAt time.Time) {
+func (l *Location) SetUpdatedAt(updatedAt time.Time) error {
 	l.updatedAt = updatedAt
+	return nil
 }
 
 func (l *Location) UsedBy() []uuid.UUID {

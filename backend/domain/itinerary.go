@@ -96,8 +96,9 @@ func (i *Itinerary) UpdatedAt() time.Time {
 	return i.updatedAt
 }
 
-func (i *Itinerary) SetUpdatedAt(updatedAt time.Time) {
+func (i *Itinerary) SetUpdatedAt(updatedAt time.Time) error {
 	i.updatedAt = updatedAt
+	return nil
 }
 
 func (i *Itinerary) CheckDelete() error {

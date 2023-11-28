@@ -28,8 +28,9 @@ type LocationRepository interface {
 type Location struct {
 	ID uuid.UUID `db:"id"`
 
-	Kind domain.LocationKind `db:"kind"`
-	Info []byte              `db:"info"`
+	Kind       domain.LocationKind `db:"kind"`
+	Info       []byte              `db:"info"`
+	PingStatus domain.PingStatus   `db:"ping_status"`
 
 	CreatedAt time.Time `db:"created_at"`
 	UpdatedAt time.Time `db:"updated_at"`
@@ -65,8 +66,9 @@ func (repo *PostgresLocationRepository) marshal(location *domain.Location) (Loca
 	row := Location{
 		ID: location.ID(),
 
-		Kind: location.Kind(),
-		Info: encryptedInfoJSON,
+		Kind:       location.Kind(),
+		Info:       encryptedInfoJSON,
+		PingStatus: location.PingStatus(),
 
 		CreatedAt: location.CreatedAt(),
 		UpdatedAt: location.UpdatedAt(),
@@ -97,7 +99,7 @@ func (repo *PostgresLocationRepository) unmarshalMemory(row Location) (*domain.L
 		return nil, err
 	}
 
-	location := domain.LoadMemoryLocation(row.ID, info, row.CreatedAt, row.UpdatedAt, row.UsedBy)
+	location := domain.LoadMemoryLocation(row.ID, info, row.PingStatus, row.CreatedAt, row.UpdatedAt, row.UsedBy)
 	return location, nil
 }
 
@@ -113,16 +115,16 @@ func (repo *PostgresLocationRepository) unmarshalS3(row Location) (*domain.Locat
 		return nil, err
 	}
 
-	location := domain.LoadS3Location(row.ID, info, row.CreatedAt, row.UpdatedAt, row.UsedBy)
+	location := domain.LoadS3Location(row.ID, info, row.PingStatus, row.CreatedAt, row.UpdatedAt, row.UsedBy)
 	return location, nil
 }
 
 func (repo *PostgresLocationRepository) Create(location *domain.Location) error {
 	stmt := `
 		INSERT INTO location
-			(id, kind, info, created_at, updated_at)
+			(id, kind, info, ping_status, created_at, updated_at)
 		VALUES
-			($1, $2, $3, $4, $5)`
+			($1, $2, $3, $4, $5, $6)`
 
 	row, err := repo.marshal(location)
 	if err != nil {
@@ -133,6 +135,7 @@ func (repo *PostgresLocationRepository) Create(location *domain.Location) error 
 		row.ID,
 		row.Kind,
 		row.Info,
+		row.PingStatus,
 		row.CreatedAt,
 		row.UpdatedAt,
 	}
@@ -154,6 +157,7 @@ func (repo *PostgresLocationRepository) List() ([]*domain.Location, error) {
 			location.id,
 			location.kind,
 			location.info,
+			location.ping_status,
 			location.created_at,
 			location.updated_at,
 			array_remove(array_agg(itinerary.id), NULL) AS used_by
@@ -196,6 +200,7 @@ func (repo *PostgresLocationRepository) Read(id uuid.UUID) (*domain.Location, er
 			location.id,
 			location.kind,
 			location.info,
+			location.ping_status,
 			location.created_at,
 			location.updated_at,
 			array_remove(array_agg(itinerary.id), NULL) AS used_by
