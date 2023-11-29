@@ -2,22 +2,22 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 
-import type { LocationReadResponse } from "../types";
+import { readLocation } from "../fetch";
 
 export default function LocationRead() {
 	const { id } = useParams();
+	if (!id) {
+		return null;
+	}
 
-	const { isPending, isError, error, data } = useQuery({
+	const {
+		isPending,
+		isError,
+		error,
+		data: location,
+	} = useQuery({
 		queryKey: ["location", id],
-		queryFn: async () => {
-			const response = await fetch(`/api/v1/location/${id}`);
-			if (!response.ok) {
-				throw new Error("Network response was not OK");
-			}
-
-			const data: LocationReadResponse = await response.json();
-			return data;
-		},
+		queryFn: async () => readLocation(id),
 	});
 
 	// TODO: build a generic loading component
@@ -30,11 +30,12 @@ export default function LocationRead() {
 		return <div>Error: {error.message}</div>;
 	}
 
-	const location = data.location;
 	return (
 		<div>
 			<p>ID: {location.id}</p>
 			<p>Kind: {location.kind}</p>
+			<p>CreatedAt: {location.createdAt.toString()}</p>
+			<p>UpdatedAt: {location.updatedAt.toString()}</p>
 		</div>
 	);
 }

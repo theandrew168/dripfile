@@ -2,22 +2,23 @@ import React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 
-import { isErrorResponse, type ItineraryReadResponse } from "../types";
+import { isErrorResponse } from "../types";
+import { readItinerary } from "../fetch";
 
 export default function ItineraryRead() {
 	const { id } = useParams();
+	if (!id) {
+		return null;
+	}
 
-	const { isPending, isError, error, data } = useQuery({
+	const {
+		isPending,
+		isError,
+		error,
+		data: itinerary,
+	} = useQuery({
 		queryKey: ["itinerary", id],
-		queryFn: async () => {
-			const response = await fetch(`/api/v1/itinerary/${id}`);
-			if (!response.ok) {
-				throw new Error("Network response was not OK");
-			}
-
-			const data: ItineraryReadResponse = await response.json();
-			return data;
-		},
+		queryFn: async () => readItinerary(id),
 	});
 
 	const navigate = useNavigate();
@@ -61,13 +62,14 @@ export default function ItineraryRead() {
 		return <div>Error: {error.message}</div>;
 	}
 
-	const itinerary = data.itinerary;
 	return (
 		<div>
 			<p>ID: {itinerary.id}</p>
 			<p>From: {itinerary.fromLocationID}</p>
 			<p>To: {itinerary.toLocationID}</p>
 			<p>Pattern: {itinerary.pattern}</p>
+			<p>CreatedAt: {itinerary.createdAt.toString()}</p>
+			<p>UpdatedAt: {itinerary.updatedAt.toString()}</p>
 			<form
 				onSubmit={(event) => {
 					event.preventDefault();

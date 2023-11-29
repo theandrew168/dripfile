@@ -2,22 +2,22 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 
-import { type TransferReadResponse } from "../types";
+import { readTransfer } from "../fetch";
 
 export default function TransferRead() {
 	const { id } = useParams();
+	if (!id) {
+		return null;
+	}
 
-	const { isPending, isError, error, data } = useQuery({
+	const {
+		isPending,
+		isError,
+		error,
+		data: transfer,
+	} = useQuery({
 		queryKey: ["transfer", id],
-		queryFn: async () => {
-			const response = await fetch(`/api/v1/transfer/${id}`);
-			if (!response.ok) {
-				throw new Error("Network response was not OK");
-			}
-
-			const data: TransferReadResponse = await response.json();
-			return data;
-		},
+		queryFn: async () => readTransfer(id),
 	});
 
 	// TODO: build a generic loading component
@@ -30,7 +30,6 @@ export default function TransferRead() {
 		return <div>Error: {error.message}</div>;
 	}
 
-	const transfer = data.transfer;
 	return (
 		<div>
 			<p>ID: {transfer.id}</p>
@@ -38,6 +37,8 @@ export default function TransferRead() {
 			<p>Status: {transfer.status}</p>
 			<p>Progress: {transfer.progress}</p>
 			<p>Error: {transfer.error}</p>
+			<p>CreatedAt: {transfer.createdAt.toString()}</p>
+			<p>UpdatedAt: {transfer.updatedAt.toString()}</p>
 		</div>
 	);
 }
