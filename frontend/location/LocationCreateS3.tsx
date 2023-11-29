@@ -1,37 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { isErrorResponse } from "../types";
 import Alert from "../Alert";
+import { createS3Location } from "../fetch";
+import type { NewS3Location } from "../types";
 
 export default function LocationCreateS3() {
+	const [endpoint, setEndpoint] = useState("");
+	const [bucket, setBucket] = useState("");
+	const [accessKeyID, setAccessKeyID] = useState("");
+	const [secretAccessKey, setSecretAccessKey] = useState("");
+
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { mutate, isPending, isError, error } = useMutation({
-		mutationFn: async (form: FormData) => {
-			const payload = {
-				kind: "s3",
-				...Object.fromEntries(form),
-			};
-			const response = await fetch("/api/v1/location", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
-			if (!response.ok) {
-				const error = await response.json();
-				if (isErrorResponse(error)) {
-					throw new Error(JSON.stringify(error.error));
-				} else {
-					throw new Error("Network response was not OK");
-				}
-			}
-
-			return response.json();
-		},
+		mutationFn: (location: NewS3Location) => createS3Location(location),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["location"] });
 			navigate("/location");
@@ -52,7 +36,8 @@ export default function LocationCreateS3() {
 					<form
 						onSubmit={(event) => {
 							event.preventDefault();
-							mutate(new FormData(event.currentTarget));
+							event.stopPropagation();
+							mutate({ kind: "s3", endpoint, bucket, accessKeyID, secretAccessKey });
 						}}
 						className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 					>
@@ -66,8 +51,10 @@ export default function LocationCreateS3() {
 										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
 											<input
 												type="text"
-												name="endpoint"
 												id="endpoint"
+												name="endpoint"
+												value={endpoint}
+												onChange={(event) => setEndpoint(event.target.value)}
 												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
 											/>
 										</div>
@@ -82,8 +69,10 @@ export default function LocationCreateS3() {
 										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
 											<input
 												type="text"
-												name="bucket"
 												id="bucket"
+												name="bucket"
+												value={bucket}
+												onChange={(event) => setBucket(event.target.value)}
 												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
 											/>
 										</div>
@@ -98,8 +87,10 @@ export default function LocationCreateS3() {
 										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
 											<input
 												type="text"
-												name="accessKeyID"
 												id="accessKeyID"
+												name="accessKeyID"
+												value={accessKeyID}
+												onChange={(event) => setAccessKeyID(event.target.value)}
 												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
 											/>
 										</div>
@@ -114,8 +105,10 @@ export default function LocationCreateS3() {
 										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
 											<input
 												type="password"
-												name="secretAccessKey"
 												id="secretAccessKey"
+												name="secretAccessKey"
+												value={secretAccessKey}
+												onChange={(event) => setSecretAccessKey(event.target.value)}
 												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
 											/>
 										</div>

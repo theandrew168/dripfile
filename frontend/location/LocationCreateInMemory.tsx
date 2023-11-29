@@ -1,37 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { isErrorResponse } from "../types";
 import Alert from "../Alert";
+import { createInMemoryLocation } from "../fetch";
+import type { NewInMemoryLocation } from "../types";
 
 export default function LocationCreateInMemory() {
+	const [capacity, setCapacity] = useState("");
+
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { mutate, isPending, isError, error } = useMutation({
-		mutationFn: async (form: FormData) => {
-			const payload = {
-				kind: "memory",
-				// ...Object.fromEntries(form),
-			};
-			const response = await fetch("/api/v1/location", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
-			if (!response.ok) {
-				const error = await response.json();
-				if (isErrorResponse(error)) {
-					throw new Error(JSON.stringify(error.error));
-				} else {
-					throw new Error("Network response was not OK");
-				}
-			}
-
-			return response.json();
-		},
+		mutationFn: (location: NewInMemoryLocation) => createInMemoryLocation(location),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["location"] });
 			navigate("/location");
@@ -52,22 +33,25 @@ export default function LocationCreateInMemory() {
 					<form
 						onSubmit={(event) => {
 							event.preventDefault();
-							mutate(new FormData(event.currentTarget));
+							event.stopPropagation();
+							mutate({ kind: "memory", capacity });
 						}}
 						className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 					>
 						<div className="px-4 py-6 sm:p-8">
 							<div className="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
 								<div className="sm:col-span-4">
-									<label htmlFor="todo" className="block text-sm font-medium leading-6 text-gray-900">
-										TODO
+									<label htmlFor="capcity" className="block text-sm font-medium leading-6 text-gray-900">
+										Capacity
 									</label>
 									<div className="mt-2">
 										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
 											<input
 												type="text"
-												name="todo"
-												id="todo"
+												id="capacity"
+												name="capacity"
+												value={capacity}
+												onChange={(event) => setCapacity(event.target.value)}
 												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
 											/>
 										</div>

@@ -1,14 +1,57 @@
-import type {
-	Itinerary,
-	ItineraryListResponse,
-	ItineraryReadResponse,
-	Location,
-	LocationListResponse,
-	LocationReadResponse,
-	Transfer,
-	TransferListResponse,
-	TransferReadResponse,
+import {
+	isErrorResponse,
+	type Itinerary,
+	type ItineraryListResponse,
+	type ItineraryReadResponse,
+	type Location,
+	type LocationListResponse,
+	type LocationReadResponse,
+	type NewInMemoryLocation,
+	type NewS3Location,
+	type Transfer,
+	type TransferListResponse,
+	type TransferReadResponse,
 } from "./types";
+
+export async function createInMemoryLocation(_location: NewInMemoryLocation): Promise<void> {
+	const response = await fetch("/api/v1/location", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ kind: "memory" }),
+	});
+	if (!response.ok) {
+		const error = await response.json();
+		if (isErrorResponse(error)) {
+			throw new Error(JSON.stringify(error.error));
+		} else {
+			throw new Error("Network response was not OK");
+		}
+	}
+
+	return response.json();
+}
+
+export async function createS3Location(location: NewS3Location): Promise<void> {
+	const response = await fetch("/api/v1/location", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(location),
+	});
+	if (!response.ok) {
+		const error = await response.json();
+		if (isErrorResponse(error)) {
+			throw new Error(JSON.stringify(error.error));
+		} else {
+			throw new Error("Network response was not OK");
+		}
+	}
+
+	return response.json();
+}
 
 export async function listLocations(): Promise<Location[]> {
 	const response = await fetch("/api/v1/location");

@@ -6,6 +6,19 @@ export function isErrorResponse(response: any): response is ErrorResponse {
 	return "error" in response;
 }
 
+export type NewInMemoryLocation = {
+	kind: "memory";
+	capacity: string;
+};
+
+export type NewS3Location = {
+	kind: "s3";
+	endpoint: string;
+	bucket: string;
+	accessKeyID: string;
+	secretAccessKey: string;
+};
+
 export type Location = {
 	id: string;
 	kind: string;
