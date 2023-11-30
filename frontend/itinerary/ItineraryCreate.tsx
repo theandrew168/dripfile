@@ -1,66 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { isErrorResponse, type LocationListResponse } from "../types";
+import type { Location, NewItinerary } from "../types";
 import Alert from "../Alert";
+import { createItinerary, listLocations } from "../fetch";
 
 export default function ItineraryCreate() {
+	const [locations, setLocations] = useState<Location[]>([]);
+
+	const [fromLocationID, setFromLocationID] = useState("");
+	const [toLocationID, setToLocationID] = useState("");
+	const [pattern, setPattern] = useState("");
+
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
-	const { mutate, isPending, isError, error } = useMutation({
-		mutationFn: async (form: FormData) => {
-			const payload = {
-				...Object.fromEntries(form),
-			};
-			const response = await fetch("/api/v1/itinerary", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(payload),
-			});
-			if (!response.ok) {
-				const error = await response.json();
-				if (isErrorResponse(error)) {
-					throw new Error(JSON.stringify(error.error));
-				} else {
-					throw new Error("Network response was not OK");
-				}
-			}
 
-			return response.json();
-		},
+	const locationsQuery = useQuery({
+		queryKey: ["location"],
+		queryFn: async () => listLocations(),
+	});
+	useEffect(() => {
+		if (locationsQuery.isPending) return;
+		if (locationsQuery.isError) return;
+		setLocations(locationsQuery.data);
+	}, [locationsQuery]);
+
+	const { mutate, isPending, isError, error } = useMutation({
+		mutationFn: (itinerary: NewItinerary) => createItinerary(itinerary),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["itinerary"] });
 			navigate("/itinerary");
 		},
 	});
-
-	const locationsQuery = useQuery({
-		queryKey: ["location"],
-		queryFn: async () => {
-			const response = await fetch("/api/v1/location");
-			if (!response.ok) {
-				throw new Error("Network response was not OK");
-			}
-
-			const data: LocationListResponse = await response.json();
-			return data;
-		},
-	});
-
-	// TODO: build a generic loading component
-	if (locationsQuery.isPending) {
-		return <div>Loading...</div>;
-	}
-
-	// TODO: build a generic error component
-	if (locationsQuery.isError) {
-		return <div>Error: {locationsQuery.error.message}</div>;
-	}
-
-	const locations = locationsQuery.data.locations;
 
 	// https://tailwindui.com/components/application-ui/forms/form-layouts#component-dcf2bee8aa4fbef0d4623df5b9718da8
 	return (
@@ -76,7 +48,8 @@ export default function ItineraryCreate() {
 					<form
 						onSubmit={(event) => {
 							event.preventDefault();
-							mutate(new FormData(event.currentTarget));
+							event.stopPropagation();
+							mutate({ fromLocationID, toLocationID, pattern });
 						}}
 						className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
 					>
@@ -90,6 +63,8 @@ export default function ItineraryCreate() {
 										<select
 											id="fromLocationID"
 											name="fromLocationID"
+											value={fromLocationID}
+											onChange={(event) => setFromLocationID(event.target.value)}
 											className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
 										>
 											{locations.map((location) => (
@@ -108,6 +83,8 @@ export default function ItineraryCreate() {
 										<select
 											id="toLocationID"
 											name="toLocationID"
+											defaultValue={toLocationID}
+											onChange={(event) => setToLocationID(event.target.value)}
 											className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
 										>
 											{locations.map((location) => (
@@ -126,8 +103,10 @@ export default function ItineraryCreate() {
 										<div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
 											<input
 												type="text"
-												name="pattern"
 												id="pattern"
+												name="pattern"
+												value={pattern}
+												onChange={(event) => setPattern(event.target.value)}
 												className="block flex-1 border-0 bg-transparent py-1.5 pl-2 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
 											/>
 										</div>

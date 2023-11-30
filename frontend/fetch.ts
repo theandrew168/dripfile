@@ -7,6 +7,7 @@ import {
 	type LocationListResponse,
 	type LocationReadResponse,
 	type NewInMemoryLocation,
+	type NewItinerary,
 	type NewS3Location,
 	type Transfer,
 	type TransferListResponse,
@@ -71,6 +72,26 @@ export async function readLocation(id: string): Promise<Location> {
 
 	const data: LocationReadResponse = await response.json();
 	return data.location;
+}
+
+export async function createItinerary(itinerary: NewItinerary): Promise<void> {
+	const response = await fetch("/api/v1/itinerary", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify(itinerary),
+	});
+	if (!response.ok) {
+		const error = await response.json();
+		if (isErrorResponse(error)) {
+			throw new Error(JSON.stringify(error.error));
+		} else {
+			throw new Error("Network response was not OK");
+		}
+	}
+
+	return response.json();
 }
 
 export async function listItineraries(): Promise<Itinerary[]> {

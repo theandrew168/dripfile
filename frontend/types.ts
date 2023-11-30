@@ -34,6 +34,12 @@ export type LocationReadResponse = {
 	location: Location;
 };
 
+export type NewItinerary = {
+	fromLocationID: string;
+	toLocationID: string;
+	pattern: string;
+};
+
 export type Itinerary = {
 	id: string;
 	fromLocationID: string;
