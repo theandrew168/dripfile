@@ -24,17 +24,17 @@ type Application struct {
 
 func NewApplication(
 	logger *slog.Logger,
-	publicFS fs.FS,
+	distFS fs.FS,
 	repo *repository.Repository,
 ) *Application {
 	var public fs.FS
 	if os.Getenv("DEBUG") != "" {
-		// reload templates from filesystem if var ENV starts with "dev"
+		// reload frontend output from filesystem if DEBUG var is set
 		// NOTE: os.DirFS is rooted from where the app is ran, not this file
-		public = os.DirFS("./public/")
+		public = os.DirFS("./dist/")
 	} else {
-		// else use the embedded template dir
-		public, _ = fs.Sub(publicFS, "public")
+		// else use the embedded frontend output dir
+		public, _ = fs.Sub(distFS, "dist")
 	}
 
 	app := Application{
@@ -72,10 +72,9 @@ func (app *Application) Handler() http.Handler {
 	public := gzhttp.GzipHandler(http.FileServer(http.FS(app.public)))
 	mux.Handle("/", public)
 	mux.Handle("/index.html", public)
-	mux.Handle("/index.js", public)
-	mux.Handle("/index.css", public)
 	mux.Handle("/robots.txt", public)
 	mux.Handle("/favicon.ico", public)
+	mux.Handle("/assets/...", public)
 	mux.Handle("/static/...", public)
 
 	// all other routes should return the index page

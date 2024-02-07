@@ -25,8 +25,8 @@ import (
 //go:embed migration
 var migrationFS embed.FS
 
-//go:embed public
-var publicFS embed.FS
+//go:embed dist
+var distFS embed.FS
 
 func main() {
 	os.Exit(run())
@@ -87,7 +87,7 @@ func run() int {
 
 	app := web.NewApplication(
 		logger,
-		publicFS,
+		distFS,
 		repo,
 	)
 

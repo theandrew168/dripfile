@@ -10,41 +10,23 @@ build: frontend backend
 node_modules:
 	npm install
 
-.PHONY: frontend-types
-frontend-types: node_modules
-	npm run build-types
-
-.PHONY: frontend-js
-frontend-js: node_modules
-	npm run build-js
-
-.PHONY: frontend-css
-frontend-css: node_modules
-	npm run build-css
-
 .PHONY: frontend
-frontend: frontend-types frontend-js frontend-css
+frontend: node_modules
+	npm run build
 
 .PHONY: backend
 backend: frontend
 	go build -o dripfile main.go
 
-.PHONY: run-frontend-js
-run-frontend-js: node_modules
-	npm run run-js
-
-.PHONY: run-frontend-css
-run-frontend-css: node_modules
-	npm run run-css
-
 .PHONY: run-frontend
-run-frontend: run-frontend-js run-frontend-css
+run-frontend: frontend
+	npm run dev
 
 .PHONY: run-backend
-run-backend:
+run-backend: frontend
 	DEBUG=1 go run main.go
 
-# run the web server, esbuild, and tailwindcss concurrently (requires at least "-j3") 
+# run the backend and frontend concurrently (requires at least "-j2") 
 .PHONY: run
 run: run-frontend run-backend
 

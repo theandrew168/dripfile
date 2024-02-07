@@ -2,31 +2,29 @@
 	"name": "dripfile",
 	"private": true,
 	"scripts": {
-		"build-types": "tsc",
-		"build-js": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --minify",
-		"build-css": "tailwindcss -i tailwind.config.css -o public/index.css --minify",
-		"build": "npm run build-types && npm run build-js && npm run build-css",
-		"run-js": "esbuild frontend/index.tsx --outfile=public/index.js --target=es2020 --bundle --watch",
-		"run-css": "tailwindcss -i tailwind.config.css -o public/index.css --watch",
+		"dev": "vite build --watch",
+		"build": "tsc && vite build",
 		"format": "prettier --write frontend/"
 	},
 	"dependencies": {
-		"@headlessui/react": "^1.7.17",
-		"@heroicons/react": "^2.0.18",
-		"@tanstack/react-query": "^5.10.0",
+		"@headlessui/react": "^1.7.18",
+		"@heroicons/react": "^2.1.1",
+		"@tanstack/react-query": "^5.18.1",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"react-router": "^6.17.0",
-		"react-router-dom": "^6.20.0"
+		"react-router": "^6.22.0",
+		"react-router-dom": "^6.22.0"
 	},
 	"devDependencies": {
 		"@tailwindcss/forms": "^0.5.7",
-		"@types/react": "^18.2.39",
-		"@types/react-dom": "^18.2.17",
-		"esbuild": "^0.18.20",
-		"prettier": "^2.8.8",
-		"tailwindcss": "^3.3.5",
-		"typescript": "^5.3.2"
+		"@types/react": "^18.2.55",
+		"@types/react-dom": "^18.2.18",
+		"autoprefixer": "^10.4.17",
+		"postcss": "^8.4.34",
+		"prettier": "^3.2.5",
+		"tailwindcss": "^3.4.1",
+		"typescript": "^5.3.3",
+		"vite": "^5.0.12"
 	},
 	"prettier": {
 		"arrowParens": "always",

@@ -7,9 +7,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . ./
-RUN npm run build-types
-RUN npm run build-js
-RUN npm run build-css
+RUN npm run build
 
 
 FROM golang:1.21 AS build-backend
@@ -19,7 +17,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . ./
-COPY --from=build-frontend /app/public ./public/
+COPY --from=build-frontend /app/dist ./dist/
 RUN CGO_ENABLED=0 GOOS=linux go build -o /dripfile
 
 
